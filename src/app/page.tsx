@@ -1,101 +1,123 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+
+async function extractTagsFromURL(url: string): Promise<string> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return `Failed to fetch URL: ${response.status} ${response.statusText}`;
+    }
+    const html = await response.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const tagElements = doc.querySelectorAll('#tag-list li.flex');
+    const extractedTags: string[] = [];
+    tagElements.forEach((tagElement) => {
+      const tagNameElement = tagElement.querySelector('a.search-tag');
+      const tagName = tagNameElement?.textContent?.trim() ?? '';
+      if (tagName) {
+        extractedTags.push(tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, ''));
+      }
+    });
+    return extractedTags.join(', ');
+  } catch (error) {
+    console.error('Error extracting tags:', error);
+    return 'Failed to extract tags from the URL';
+  }
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [booruUrl, setBooruUrl] = useState('');
+  const [tags, setTags] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const extractTags = async () => {
+    setLoading(true);
+    setError('');
+    setTags('');
+    try {
+      const extractedTags = await extractTagsFromURL(booruUrl);
+      setTags(extractedTags);
+    } catch (e) {
+      setError('Failed to extract tags. Please check the URL and try again.');
+      console.error('Error during tag extraction:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-sky-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl" />
+          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+            <div className="max-w-md mx-auto">
+              <h1 className="text-2xl font-semibold">Booru Tag Extractor</h1>
+              <div className="divide-y divide-gray-200">
+                <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+                  <div className="relative">
+                    <input
+                        id="booruUrl"
+                        name="booruUrl"
+                        type="url"
+                        className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                        placeholder="Enter Booru URL"
+                        value={booruUrl}
+                        onChange={(e) => setBooruUrl(e.target.value)}
+                    />
+                    <label
+                        htmlFor="booruUrl"
+                        className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                    >
+                      Booru Post URL
+                    </label>
+                  </div>
+                  <div className="relative">
+                    <button
+                        onClick={extractTags}
+                        type="button"
+                        className="bg-cyan-500 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        disabled={loading}
+                    >
+                      {loading ? 'Extracting...' : 'Extract Tags'}
+                    </button>
+                  </div>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  {tags && (
+                      <div className="relative mt-4">
+                    <textarea
+                        id="tagsOutput"
+                        name="tagsOutput"
+                        rows={4}
+                        className="peer placeholder-transparent h-auto w-full border-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600 rounded p-2 resize-none"
+                        placeholder="Extracted Tags"
+                        value={tags}
+                        readOnly
+                    />
+                        <label
+                            htmlFor="tagsOutput"
+                            className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                        >
+                          Extracted Tags
+                        </label>
+                        <button
+                            onClick={() => navigator.clipboard.writeText(tags)}
+                            type="button"
+                            className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-sm"
+                        >
+                          Copy Tags
+                        </button>
+                      </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
   );
 }
