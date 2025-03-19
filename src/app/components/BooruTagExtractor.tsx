@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 
-// Types
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 
 type TagCategoryOption = {
@@ -23,109 +22,89 @@ interface ExtractionResult {
     title?: string;
 }
 
-// Utility functions for tag extraction
 const utils = {
     getCategoryFromClassList: (element: Element): TagCategory => {
         const classList = element.classList;
-
-        if (classList.contains('tag-type-copyright')) return 'copyright';
-        if (classList.contains('tag-type-character')) return 'character';
-        if (classList.contains('tag-type-general')) return 'general';
-        if (classList.contains('tag-type-metadata')) return 'meta';
-        if (classList.contains('tag-type-artist')) return 'other';
-
+        if (classList.contains('tag-type-copyright') || classList.contains('tag-type-3')) return 'copyright';
+        if (classList.contains('tag-type-character') || classList.contains('tag-type-4')) return 'character';
+        if (classList.contains('tag-type-general') || classList.contains('tag-type-0')) return 'general';
+        if (classList.contains('tag-type-metadata') || classList.contains('tag-type-5')) return 'meta';
+        if (classList.contains('tag-type-artist') || classList.contains('tag-type-1')) return 'other';
         return 'general';
     },
-
     getCategoryFromHeader: (text: string): TagCategory => {
         const normalized = text.toLowerCase().trim();
-
         if (normalized.includes('copyright')) return 'copyright';
         if (normalized.includes('character')) return 'character';
         if (normalized.includes('general')) return 'general';
         if (normalized.includes('meta')) return 'meta';
-
+        if (normalized.includes('artist')) return 'other';
         return 'other';
     },
-
     cleanTagName: (tagName: string): string => {
         return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').trim();
     },
-
     extractTagsByClass: (doc: Document, selectors: { container: string, tag: string }): ExtractedTag[] => {
         const tags: ExtractedTag[] = [];
         const elements = doc.querySelectorAll(selectors.container);
-
         elements.forEach(element => {
             const tagElement = element.querySelector(selectors.tag);
             const tagName = tagElement?.textContent?.trim() || '';
-
             if (tagName) {
                 const category = utils.getCategoryFromClassList(element);
                 const cleanName = utils.cleanTagName(tagName);
                 tags.push({ name: cleanName, category });
             }
         });
-
         return tags;
     },
-
     extractTagsBySection: (doc: Document, selector: string, tagLinkSelector: string): ExtractedTag[] => {
         const tags: ExtractedTag[] = [];
         let currentCategory: TagCategory = 'other';
-
         const container = doc.querySelector(selector);
         if (!container) return [];
-
         Array.from(container.children).forEach(child => {
-            // Check if it's a header element
-            if (child.tagName === 'LI' && child.querySelector('h6')) {
+            if (child.tagName === 'H3') {
                 currentCategory = utils.getCategoryFromHeader(child.textContent || '');
                 return;
             }
-
-            // Check if it's a tag element
-            if (child.classList.contains('tag')) {
-                const tagElement = child.querySelector(tagLinkSelector);
-                const tagName = tagElement?.textContent?.trim() || '';
-
-                if (tagName) {
-                    tags.push({ name: tagName, category: currentCategory });
-                }
+            if (child.tagName === 'UL') {
+                Array.from(child.children).forEach(tagLi => {
+                    if (tagLi.tagName === 'LI') {
+                        const tagElement = tagLi.querySelector(tagLinkSelector);
+                        const tagName = tagElement?.textContent?.trim() || '';
+                        if (tagName) {
+                            const category = currentCategory;
+                            const cleanName = utils.cleanTagName(tagName);
+                            tags.push({ name: cleanName, category });
+                        }
+                    }
+                });
             }
         });
-
         return tags;
     },
-
     extractImageUrl: (doc: Document, selector: string): string | undefined => {
         const imgElement = doc.querySelector(selector) as HTMLImageElement;
         return imgElement?.src || imgElement?.getAttribute('data-src') || undefined;
     },
-
     extractTitle: (doc: Document, selector: string): string | undefined => {
         const titleElement = doc.querySelector(selector);
         return titleElement?.textContent?.trim() || undefined;
     }
 };
 
-// Extraction strategies for different booru sites
 const extractionStrategies = {
     danbooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, {
-            container: '#tag-list li.flex',
-            tag: 'a.search-tag'
-        }),
+        tags: utils.extractTagsBySection(doc, '.tag-list.categorized-tag-list', 'a.search-tag'),
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc, 'h1.post-info')
     }),
-
     safebooru: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsBySection(doc, '#tag-sidebar', 'a:nth-of-type(2)'),
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc, 'title')
     }),
-
     gelbooru: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsByClass(doc, {
             container: '.tag-list-container li',
@@ -134,13 +113,11 @@ const extractionStrategies = {
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc, 'title')
     }),
-
     rule34: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsBySection(doc, '#tag-sidebar', 'a:nth-child(2)'),
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc, 'title')
     }),
-
     e621: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsByClass(doc, {
             container: '.tag-list .tag-type-*',
@@ -151,7 +128,6 @@ const extractionStrategies = {
     })
 };
 
-// Supported booru sites configuration
 const BOORU_SITES = [
     { name: 'Danbooru', urlPattern: /danbooru\.donmai\.us/i, extractTags: extractionStrategies.danbooru },
     { name: 'Safebooru', urlPattern: /safebooru\.org/i, extractTags: extractionStrategies.safebooru },
@@ -160,7 +136,6 @@ const BOORU_SITES = [
     { name: 'e621', urlPattern: /e621\.net/i, extractTags: extractionStrategies.e621 }
 ];
 
-// Default tag category configuration
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'copyright', label: 'Copyright', enabled: true, color: 'bg-pink-500' },
     { id: 'character', label: 'Character', enabled: true, color: 'bg-indigo-500' },
@@ -169,24 +144,15 @@ const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'other', label: 'Other', enabled: true, color: 'bg-amber-500' }
 ];
 
-// UI Components
-const CategoryToggle = ({
-                            category,
-                            count,
-                            onToggle
-                        }: {
-    category: TagCategoryOption;
-    count: number;
-    onToggle: () => void;
-}) => (
+const CategoryToggle = ({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
     <div className="flex items-center justify-between bg-gray-800 p-3 rounded-md shadow-sm transform hover:-translate-y-1 transition-all duration-300 hover:shadow-md">
         <div className="flex items-center space-x-2">
             <span className={`inline-block w-3 h-3 rounded-full ${category.color} animate-pulse`}></span>
             <span>{category.label}</span>
             {count > 0 && (
                 <span className="text-xs bg-gray-700 px-2 py-0.5 rounded-full text-gray-300">
-          {count}
-        </span>
+                    {count}
+                </span>
             )}
         </div>
         <label className="inline-flex items-center cursor-pointer">
@@ -203,13 +169,7 @@ const CategoryToggle = ({
     </div>
 );
 
-const StatusMessage = ({
-                           type,
-                           children
-                       }: {
-    type: 'info' | 'error',
-    children: React.ReactNode
-}) => (
+const StatusMessage = ({ type, children }: { type: 'info' | 'error', children: React.ReactNode }) => (
     <div className={`bg-gray-700 border-l-4 ${type === 'info' ? 'border-blue-500' : 'border-red-500'} p-4 rounded animate-fadeIn`}>
         <p className={`text-sm ${type === 'info' ? 'text-blue-300' : 'text-red-300'}`}>
             {children}
@@ -219,23 +179,15 @@ const StatusMessage = ({
 
 const LoadingSpinner = () => (
     <span className="flex items-center justify-center">
-    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    Extracting...
-  </span>
+        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Extracting...
+    </span>
 );
 
-const ImagePreview = ({
-                          url,
-                          title,
-                          isLoading
-                      }: {
-    url?: string;
-    title?: string;
-    isLoading: boolean;
-}) => {
+const ImagePreview = ({ url, title, isLoading }: { url?: string; title?: string; isLoading: boolean; }) => {
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
 
@@ -286,9 +238,7 @@ const ImagePreview = ({
     );
 };
 
-// Main component
 const BooruTagExtractor = () => {
-    // State
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<ExtractedTag[]>([]);
     const [imageUrl, setImageUrl] = useState<string | undefined>();
@@ -301,7 +251,6 @@ const BooruTagExtractor = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
 
-    // Check device size
     useEffect(() => {
         const checkIfMobile = () => setIsMobile(window.innerWidth < 640);
         checkIfMobile();
@@ -309,7 +258,6 @@ const BooruTagExtractor = () => {
         return () => window.removeEventListener('resize', checkIfMobile);
     }, []);
 
-    // Filter tags based on selected categories
     useEffect(() => {
         if (allExtractedTags.length > 0) {
             const enabledCategories = new Set(
@@ -324,13 +272,11 @@ const BooruTagExtractor = () => {
         }
     }, [allExtractedTags, tagCategories]);
 
-    // Calculate tag counts
     const tagCounts = allExtractedTags.reduce((acc, tag) => {
         acc[tag.category] = (acc[tag.category] || 0) + 1;
         return acc;
     }, {} as Record<TagCategory, number>);
 
-    // Actions
     const toggleTagCategory = (categoryId: TagCategory) => {
         setTagCategories(prev =>
             prev.map(cat => cat.id === categoryId ? { ...cat, enabled: !cat.enabled } : cat)
@@ -363,7 +309,6 @@ const BooruTagExtractor = () => {
         }
     };
 
-    // Extract tags from URL
     const extractTags = useCallback(async () => {
         if (!url) {
             setError('Please enter a valid URL');
@@ -380,7 +325,6 @@ const BooruTagExtractor = () => {
         setCopySuccess(false);
 
         try {
-            // Find matching site
             const site = BOORU_SITES.find(site => site.urlPattern.test(url));
             if (!site) {
                 setError('Unsupported site. Please use one of the supported booru sites.');
@@ -389,7 +333,6 @@ const BooruTagExtractor = () => {
 
             setActiveSite(site.name);
 
-            // Fetch with AllOrigins proxy
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
             const response = await fetch(proxyUrl);
@@ -401,7 +344,6 @@ const BooruTagExtractor = () => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Extract tags and image using site-specific strategy
             const extractionResult = site.extractTags(doc);
 
             if (extractionResult.tags.length === 0) {
@@ -425,7 +367,6 @@ const BooruTagExtractor = () => {
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-800 via-gray-900 to-black">
             <div className="w-full max-w-lg bg-gray-800 rounded-lg overflow-hidden border border-gray-700 shadow-xl transform transition-all duration-500 hover:shadow-2xl animate-fadeIn">
-                {/* Header with animated gradient */}
                 <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-6 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 animate-gradient-x"></div>
                     <h1 className="text-2xl font-bold text-white relative z-10 animate-fadeSlideDown">Booru Tag Extractor</h1>
@@ -434,9 +375,7 @@ const BooruTagExtractor = () => {
                     </p>
                 </div>
 
-                {/* Main content */}
                 <div className="p-6 space-y-6 animate-fadeIn animation-delay-200">
-                    {/* URL input */}
                     <div className="transform transition-all duration-300 hover:scale-[1.01]">
                         <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-2">
                             Booru Post URL
@@ -451,7 +390,6 @@ const BooruTagExtractor = () => {
                         />
                     </div>
 
-                    {/* Action buttons with animations */}
                     <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 animate-fadeSlideUp animation-delay-300">
                         <button
                             onClick={extractTags}
@@ -469,7 +407,6 @@ const BooruTagExtractor = () => {
                         </button>
                     </div>
 
-                    {/* Status messages with animations */}
                     {activeSite && !error && (
                         <div className="animate-fadeIn animation-delay-400">
                             <StatusMessage type="info">
@@ -484,7 +421,6 @@ const BooruTagExtractor = () => {
                         </div>
                     )}
 
-                    {/* Image Preview */}
                     {(imageUrl || loading) && (
                         <div className="animate-fadeIn animation-delay-400">
                             <h3 className="text-md font-medium text-white mb-2">Image Preview</h3>
@@ -496,7 +432,6 @@ const BooruTagExtractor = () => {
                         </div>
                     )}
 
-                    {/* Tag category filters with staggered animations */}
                     {allExtractedTags.length > 0 && (
                         <div className="space-y-4 animate-fadeIn animation-delay-500">
                             <div className="bg-gray-750 p-4 rounded-md shadow-inner backdrop-blur-sm bg-opacity-60">
@@ -532,7 +467,6 @@ const BooruTagExtractor = () => {
                         </div>
                     )}
 
-                    {/* Results with animations */}
                     {displayedTags && (
                         <div className="space-y-4 animate-fadeIn animation-delay-700">
                             <div className="transform transition-all duration-300 hover:scale-[1.01]">
@@ -562,7 +496,6 @@ const BooruTagExtractor = () => {
                     )}
                 </div>
 
-                {/* Footer with animated border */}
                 <div className="border-t border-gray-700 p-4 bg-gray-750 text-gray-400 text-xs relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 animate-pulse"></div>
                     <p className="relative z-10">Last updated: 2025-03-08 09:45:56 | Created with <span className="animate-heartBeat inline-block">❤️</span> by <a href="https://x.com/ireddragonicy" className="underline hover:text-blue-400 transition-colors">IRedDragonICY</a></p>
