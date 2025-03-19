@@ -64,6 +64,17 @@ const utils = {
         const container = doc.querySelector(selector);
         if (!container) return [];
         Array.from(container.children).forEach(child => {
+            if (child.tagName === 'LI' && child.querySelector('h6')) {
+                currentCategory = utils.getCategoryFromHeader(child.textContent || '');
+                return;
+            }
+            if (child.tagName === 'LI' && child.classList.contains('tag')) {
+                const tagElement = child.querySelector(tagLinkSelector);
+                const tagName = tagElement?.textContent?.trim() || '';
+                if (tagName) {
+                    tags.push({ name: tagName, category: currentCategory });
+                }
+            }
             if (child.tagName === 'H3') {
                 currentCategory = utils.getCategoryFromHeader(child.textContent || '');
                 return;
@@ -96,7 +107,10 @@ const utils = {
 
 const extractionStrategies = {
     danbooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsBySection(doc, '.tag-list.categorized-tag-list', 'a.search-tag'),
+        tags: utils.extractTagsByClass(doc, {
+            container: '#tag-list li.flex',
+            tag: 'a.search-tag'
+        }),
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc, 'h1.post-info')
     }),
