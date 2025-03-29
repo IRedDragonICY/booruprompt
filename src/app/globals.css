@@ -3,75 +3,252 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hapus atau komentari style body default yang memaksa warna */
-/*
-:root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 17, 24, 39;
-  --background-end-rgb: 0, 0, 0;
+@layer base {
+  /* Define base styles and transition */
+  body {
+    @apply bg-surface text-on-surface transition-colors duration-300;
+  }
+
+  /* Ensure focus rings use appropriate offset colors */
+  *:focus-visible {
+    @apply ring-offset-surface dark:ring-offset-surface-alt;
+  }
+
+  /* --- Theme: Blue (Default) --- */
+  /* Defines the base light theme colors */
+  :root, html[data-color-theme="blue"] {
+    --color-primary: 29 78 216; /* blue-700 */
+    --color-primary-focus: 30 64 175; /* blue-800 */
+    --color-primary-content: 255 255 255;
+    --color-secondary: 249 115 22; /* orange-500 */
+    --color-secondary-focus: 234 88 12; /* orange-600 */
+    --color-secondary-content: 255 255 255;
+    --color-accent: 13 148 136; /* teal-600 */
+    --color-accent-focus: 15 118 110; /* teal-700 */
+    --color-accent-content: 255 255 255;
+    --color-surface: 248 250 252; /* slate-50 */
+    --color-surface-alt: 255 255 255; /* white */
+    --color-surface-alt-2: 243 244 246; /* gray-100 */
+    --color-surface-border: 229 231 235; /* gray-200 */
+    --color-on-surface: 17 24 39; /* gray-900 */
+    --color-on-surface-muted: 75 85 99; /* gray-600 */
+    --color-on-surface-faint: 156 163 175; /* gray-400 */
+    --color-error: 220 38 38; /* red-600 */
+    --color-error-content: 190 24 24; /* red-700 on light bg */
+    --color-error-bg: 254 242 242; /* red-50 */
+    --color-success: 22 163 74; /* green-600 */
+    --color-success-content: 255 255 255; /* white on green */
+    --color-info: 59 130 246; /* blue-500 */
+    --color-info-content: 30 64 175; /* blue-800 on light bg */
+    --color-info-bg: 239 246 255; /* blue-50 */
+    --cat-color-copyright: 236 72 153; /* pink-500 */
+    --cat-color-character: 99 102 241; /* indigo-500 */
+    --cat-color-general: 29 78 216; /* Matches light primary (blue-700) */
+    --cat-color-meta: 16 185 129; /* emerald-500 */
+    --cat-color-other: 245 158 11; /* amber-500 */
+  }
+
+  /* Defines the base dark theme colors */
+  html[data-color-theme="blue"].dark {
+    --color-primary: 96 165 250; /* blue-400 */
+    --color-primary-focus: 59 130 246; /* blue-500 */
+    --color-primary-content: 17 24 39; /* gray-900 */
+    --color-secondary: 251 146 60; /* orange-400 */
+    --color-secondary-focus: 249 115 22; /* orange-500 */
+    --color-secondary-content: 55 65 81; /* gray-700 */
+    --color-accent: 45 212 191; /* teal-400 */
+    --color-accent-focus: 20 184 166; /* teal-500 */
+    --color-accent-content: 15 118 110; /* teal-700 on light teal bg */
+    --color-surface: 17 24 39; /* gray-900 */
+    --color-surface-alt: 31 41 55; /* gray-800 */
+    --color-surface-alt-2: 55 65 81; /* gray-700 */
+    --color-surface-border: 55 65 81; /* gray-700 */
+    --color-on-surface: 229 231 235; /* gray-200 */
+    --color-on-surface-muted: 156 163 175; /* gray-400 */
+    --color-on-surface-faint: 107 114 128; /* gray-500 */
+    --color-error: 248 113 113; /* red-400 */
+    --color-error-content: 248 113 113; /* red-400 on dark bg */
+    --color-error-bg: 76 29 29 / 0.5; /* red-900 with alpha */
+    --color-success: 74 222 128; /* green-400 */
+    --color-success-content: 240 253 244; /* green-50 */
+    --color-info: 147 197 253; /* blue-300 */
+    --color-info-content: 147 197 253; /* blue-300 on dark bg */
+    --color-info-bg: 30 58 138 / 0.5; /* blue-800 with alpha */
+    --cat-color-copyright: 244 114 182; /* pink-400 */
+    --cat-color-character: 129 140 248; /* indigo-400 */
+    --cat-color-general: 96 165 250; /* Matches dark primary (blue-400) */
+    --cat-color-meta: 52 211 153; /* emerald-400 */
+    --cat-color-other: 251 191 36; /* amber-400 */
+  }
+
+  /* --- Theme: Orange --- */
+  html[data-color-theme="orange"] {
+    /* Primary is Orange */
+    --color-primary: 249 115 22; /* orange-500 */
+    --color-primary-focus: 234 88 12; /* orange-600 */
+    --color-primary-content: 255 255 255;
+    /* Secondary is Blue */
+    --color-secondary: 29 78 216; /* blue-700 */
+    --color-secondary-focus: 30 64 175; /* blue-800 */
+    --color-secondary-content: 255 255 255;
+    /* General category matches primary */
+    --cat-color-general: 249 115 22; /* orange-500 */
+    /* Other colors inherit from :root (blue light theme) */
+  }
+
+  html[data-color-theme="orange"].dark {
+    /* Primary is Orange (Dark) */
+    --color-primary: 251 146 60; /* orange-400 */
+    --color-primary-focus: 249 115 22; /* orange-500 */
+    --color-primary-content: 17 24 39; /* dark text on orange */
+    /* Secondary is Blue (Dark) */
+    --color-secondary: 96 165 250; /* blue-400 */
+    --color-secondary-focus: 59 130 246; /* blue-500 */
+    --color-secondary-content: 17 24 39;
+    /* General category matches primary (Dark) */
+    --cat-color-general: 251 146 60; /* orange-400 */
+
+    /* --- COPY ALL DARK DEFAULTS (from blue.dark) BELOW --- */
+    --color-accent: 45 212 191; /* teal-400 */
+    --color-accent-focus: 20 184 166; /* teal-500 */
+    --color-accent-content: 15 118 110; /* teal-700 on light teal bg */
+    --color-surface: 17 24 39; /* gray-900 */
+    --color-surface-alt: 31 41 55; /* gray-800 */
+    --color-surface-alt-2: 55 65 81; /* gray-700 */
+    --color-surface-border: 55 65 81; /* gray-700 */
+    --color-on-surface: 229 231 235; /* gray-200 */
+    --color-on-surface-muted: 156 163 175; /* gray-400 */
+    --color-on-surface-faint: 107 114 128; /* gray-500 */
+    --color-error: 248 113 113; /* red-400 */
+    --color-error-content: 248 113 113; /* red-400 on dark bg */
+    --color-error-bg: 76 29 29 / 0.5; /* red-900 with alpha */
+    --color-success: 74 222 128; /* green-400 */
+    --color-success-content: 240 253 244; /* green-50 */
+    --color-info: 147 197 253; /* blue-300 */
+    --color-info-content: 147 197 253; /* blue-300 on dark bg */
+    --color-info-bg: 30 58 138 / 0.5; /* blue-800 with alpha */
+    --cat-color-copyright: 244 114 182; /* pink-400 */
+    --cat-color-character: 129 140 248; /* indigo-400 */
+    /* --cat-color-general is defined above */
+    --cat-color-meta: 52 211 153; /* emerald-400 */
+    --cat-color-other: 251 191 36; /* amber-400 */
+  }
+
+  /* --- Theme: Teal --- */
+  html[data-color-theme="teal"] {
+    /* Primary is Teal */
+    --color-primary: 13 148 136; /* teal-600 */
+    --color-primary-focus: 15 118 110; /* teal-700 */
+    --color-primary-content: 255 255 255;
+    /* Secondary is Pink */
+    --color-secondary: 236 72 153; /* pink-500 */
+    --color-secondary-focus: 219 39 119; /* pink-600 */
+    --color-secondary-content: 255 255 255;
+    /* General category matches primary */
+    --cat-color-general: 13 148 136; /* teal-600 */
+    /* Other colors inherit from :root (blue light theme) */
+  }
+
+  html[data-color-theme="teal"].dark {
+    /* Primary is Teal (Dark) */
+    --color-primary: 45 212 191; /* teal-400 */
+    --color-primary-focus: 20 184 166; /* teal-500 */
+    --color-primary-content: 17 24 39; /* dark text on teal */
+    /* Secondary is Pink (Dark) */
+    --color-secondary: 244 114 182; /* pink-400 */
+    --color-secondary-focus: 236 72 153; /* pink-500 */
+    --color-secondary-content: 17 24 39;
+    /* General category matches primary (Dark) */
+    --cat-color-general: 45 212 191; /* teal-400 */
+
+    /* --- COPY ALL DARK DEFAULTS (from blue.dark) BELOW --- */
+    --color-accent: 45 212 191; /* using primary as accent here too */
+    --color-accent-focus: 20 184 166;
+    --color-accent-content: 17 24 39; /* dark text */
+    --color-surface: 17 24 39; /* gray-900 */
+    --color-surface-alt: 31 41 55; /* gray-800 */
+    --color-surface-alt-2: 55 65 81; /* gray-700 */
+    --color-surface-border: 55 65 81; /* gray-700 */
+    --color-on-surface: 229 231 235; /* gray-200 */
+    --color-on-surface-muted: 156 163 175; /* gray-400 */
+    --color-on-surface-faint: 107 114 128; /* gray-500 */
+    --color-error: 248 113 113; /* red-400 */
+    --color-error-content: 248 113 113; /* red-400 on dark bg */
+    --color-error-bg: 76 29 29 / 0.5; /* red-900 with alpha */
+    --color-success: 74 222 128; /* green-400 */
+    --color-success-content: 240 253 244; /* green-50 */
+    --color-info: 147 197 253; /* blue-300 */
+    --color-info-content: 147 197 253; /* blue-300 on dark bg */
+    --color-info-bg: 30 58 138 / 0.5; /* blue-800 with alpha */
+    --cat-color-copyright: 244 114 182; /* pink-400 */
+    --cat-color-character: 129 140 248; /* indigo-400 */
+    /* --cat-color-general is defined above */
+    --cat-color-meta: 52 211 153; /* emerald-400 */
+    --cat-color-other: 251 191 36; /* amber-400 */
+  }
+
+  /* --- Theme: Rose --- */
+  html[data-color-theme="rose"] {
+    /* Primary is Rose */
+    --color-primary: 225 29 72; /* rose-600 */
+    --color-primary-focus: 190 18 60; /* rose-700 */
+    --color-primary-content: 255 255 255;
+    /* Secondary is Indigo */
+    --color-secondary: 79 70 229; /* indigo-600 */
+    --color-secondary-focus: 67 56 202; /* indigo-700 */
+    --color-secondary-content: 255 255 255;
+    /* General category matches primary */
+    --cat-color-general: 225 29 72; /* rose-600 */
+    /* Other colors inherit from :root (blue light theme) */
+  }
+
+  html[data-color-theme="rose"].dark {
+    /* Primary is Rose (Dark) */
+    --color-primary: 251 113 133; /* rose-400 */
+    --color-primary-focus: 244 63 94; /* rose-500 */
+    --color-primary-content: 17 24 39; /* dark text on rose */
+    /* Secondary is Indigo (Dark) */
+    --color-secondary: 129 140 248; /* indigo-400 */
+    --color-secondary-focus: 99 102 241; /* indigo-500 */
+    --color-secondary-content: 17 24 39;
+    /* General category matches primary (Dark) */
+    --cat-color-general: 251 113 133; /* rose-400 */
+
+    /* --- COPY ALL DARK DEFAULTS (from blue.dark) BELOW --- */
+    --color-accent: 45 212 191; /* teal-400 - Keeping accent consistent for now */
+    --color-accent-focus: 20 184 166; /* teal-500 */
+    --color-accent-content: 15 118 110; /* teal-700 on light teal bg */
+    --color-surface: 17 24 39; /* gray-900 */
+    --color-surface-alt: 31 41 55; /* gray-800 */
+    --color-surface-alt-2: 55 65 81; /* gray-700 */
+    --color-surface-border: 55 65 81; /* gray-700 */
+    --color-on-surface: 229 231 235; /* gray-200 */
+    --color-on-surface-muted: 156 163 175; /* gray-400 */
+    --color-on-surface-faint: 107 114 128; /* gray-500 */
+    --color-error: 248 113 113; /* red-400 */
+    --color-error-content: 248 113 113; /* red-400 on dark bg */
+    --color-error-bg: 76 29 29 / 0.5; /* red-900 with alpha */
+    --color-success: 74 222 128; /* green-400 */
+    --color-success-content: 240 253 244; /* green-50 */
+    --color-info: 147 197 253; /* blue-300 */
+    --color-info-content: 147 197 253; /* blue-300 on dark bg */
+    --color-info-bg: 30 58 138 / 0.5; /* blue-800 with alpha */
+    --cat-color-copyright: 244 114 182; /* pink-400 */
+    --cat-color-character: 129 140 248; /* indigo-400 */
+    /* --cat-color-general is defined above */
+    --cat-color-meta: 52 211 153; /* emerald-400 */
+    --cat-color-other: 251 191 36; /* amber-400 */
+  }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-          to bottom,
-          transparent,
-          rgb(var(--background-end-rgb))
-  )
-  rgb(var(--background-start-rgb));
+/* Custom Animations */
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.3); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.3); }
+  70% { transform: scale(1); }
 }
-*/
-
-/* Biarkan komponen utama (seperti div terluar di BooruTagExtractor)
-   atau layout Anda yang menerapkan warna dasar dan varian dark.
-   Atau, terapkan style dasar yang netral di sini jika perlu.
-   Contoh:
-*/
-body {
-  @apply transition-colors duration-300; /* Tambahkan transisi warna */
-  /* Warna dasar akan diterapkan oleh class di komponen, misal:
-     bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100
-     yang sudah ada di div terluar BooruTagExtractor.tsx */
-}
-
-
-/* Custom Animations (Keep as is) */
-@keyframes fadeIn { /* ... */ }
-@keyframes fadeSlideDown { /* ... */ }
-@keyframes fadeSlideUp { /* ... */ }
-@keyframes shakeX { /* ... */ }
-@keyframes heartBeat { /* ... */ }
-@keyframes gradient-x { /* ... */ }
-
-.animate-fadeIn { animation: fadeIn 0.5s ease-in-out forwards; }
-.animate-fadeSlideDown { animation: fadeSlideDown 0.5s ease-out forwards; }
-.animate-fadeSlideUp { animation: fadeSlideUp 0.5s ease-out forwards; }
-.animate-shakeX { animation: shakeX 0.75s cubic-bezier(.36,.07,.19,.97) both; }
-.animate-heartBeat { animation: heartBeat 1.3s infinite; }
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradient-x 15s ease infinite;
-}
-
-.animation-delay-100 { animation-delay: 0.1s; }
-.animation-delay-200 { animation-delay: 0.2s; }
-.animation-delay-300 { animation-delay: 0.3s; }
-.animation-delay-400 { animation-delay: 0.4s; }
-.animation-delay-500 { animation-delay: 0.5s; }
-.animation-delay-600 { animation-delay: 0.6s; }
-.animation-delay-700 { animation-delay: 0.7s; }
-.animation-delay-800 { animation-delay: 0.8s; }
-
-/* Keep this if you use bg-gray-750 directly */
-.bg-gray-750 {
-  background-color: rgb(55 65 81); /* Updated to match Tailwind's gray-700 for consistency, adjust if needed */
-}
-.dark .bg-gray-750 { /* Example dark mode variant if needed */
-  background-color: rgb(31, 41, 55); /* gray-800 */
-}
-
-
-/* Keep if used */
-.object-contain {
-  object-fit: contain;
+.animate-heartBeat {
+  animation: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
 }
