@@ -758,14 +758,14 @@ const BooruTagExtractor = () => {
             if (!response.ok) {
                 let errorMsg = `Failed to fetch from proxy (Status: ${response.status}).`;
                 try { const text = await response.text(); if (text) { try { const jsonError = JSON.parse(text); if (jsonError?.contents?.error) errorMsg = `Proxy Error: ${jsonError.contents.error}`; else if (jsonError?.error) errorMsg = `Proxy Error: ${jsonError.error}`; else if (text.length < 500) errorMsg += ` Response: ${text}`; } catch { if (text.length < 500) errorMsg += ` Response: ${text}`; } } } catch { /* Ignore */ }
-                throw new Error(errorMsg);
+                new Error(errorMsg);
             }
             const html = await response.text();
-            if (!html) throw new Error("Received empty response from proxy.");
+            if (!html) new Error("Received empty response from proxy.");
 
             const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html');
             if (doc.title.toLowerCase().includes("error") || doc.body.textContent?.includes("Could not retrieve contents") || doc.body.textContent?.includes("error") || doc.querySelector('.error')) {
-                console.warn("Proxy likely returned an error page."); const errorElement = doc.querySelector('.error, #content > div > p'); const pageError = errorElement?.textContent?.trim(); throw new Error(`Proxy could not retrieve page content. ${pageError ? `(${pageError.substring(0, 100)})` : '(Check URL or try again)'}`);
+                console.warn("Proxy likely returned an error page."); const errorElement = doc.querySelector('.error, #content > div > p'); const pageError = errorElement?.textContent?.trim(); new Error(`Proxy could not retrieve page content. ${pageError ? `(${pageError.substring(0, 100)})` : '(Check URL or try again)'}`);
             }
 
             console.log(`Applying extraction strategy: ${site.name}`);
@@ -798,10 +798,10 @@ const BooruTagExtractor = () => {
 
             if (extractionResult.tags.length === 0 && !extractionResult.imageUrl) {
                 console.warn("No tags or image found for URL:", trimmedUrl, "Site:", site.name);
-                if (doc.body.textContent?.includes("You need to login")) throw new Error('Extraction failed: Content requires login.');
-                if (doc.body.textContent?.includes("Rate limit exceeded")) throw new Error('Extraction failed: Rate limit likely exceeded.');
+                if (doc.body.textContent?.includes("You need to login")) new Error('Extraction failed: Content requires login.');
+                if (doc.body.textContent?.includes("Rate limit exceeded")) new Error('Extraction failed: Rate limit likely exceeded.');
                 if (doc.querySelector('#tag-sidebar') && !doc.querySelector('#tag-sidebar li[class*="tag-type-"].tag')) console.warn("Tag sidebar exists, but no tag LIs found with expected class structure.");
-                throw new Error('No tags or image found. Page structure might have changed or post is unavailable.');
+                 new Error('No tags or image found. Page structure might have changed or post is unavailable.');
             } else if (extractionResult.tags.length === 0) {
                 setImageUrl(extractionResult.imageUrl); setImageTitle(extractionResult.title); setAllExtractedTags([]);
                 setError('Image found, but no tags were extracted. Selectors may need update.');
