@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.7",
+    "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -24,6 +24,7 @@
     "framer-motion": "^12.6.2",
     "jsdom": "^26.0.0",
     "postcss": "^8",
+    "tailwind-scrollbar": "^4.0.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

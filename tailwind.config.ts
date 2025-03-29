@@ -1,4 +1,6 @@
+// tailwind.config.ts
 import type { Config } from 'tailwindcss';
+import scrollbarPlugin from 'tailwind-scrollbar'; // Use ES module import
 
 const config: Config = {
   content: [
@@ -51,9 +53,23 @@ const config: Config = {
         "gradient-conic":
             "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      keyframes: {
+        heartBeat: {
+          '0%': { transform: 'scale(1)' },
+          '14%': { transform: 'scale(1.3)' },
+          '28%': { transform: 'scale(1)' },
+          '42%': { transform: 'scale(1.3)' },
+          '70%': { transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        heartBeat: 'heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1)',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    scrollbarPlugin({ nocompatible: true }), // Use the imported plugin
+  ],
 };
 
 export default config;

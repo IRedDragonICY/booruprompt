@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// page.tsx
 'use client';
 
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -6,11 +6,11 @@ import {AnimatePresence, motion} from 'framer-motion';
 
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
-type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose'; // Added ColorTheme type
+type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose';
 type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; color: string; };
 interface ExtractedTag { name: string; category: TagCategory; }
 interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string; }
-interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; } // Added colorTheme to Settings
+interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; }
 interface HistoryEntry {
     id: string;
     url: string;
@@ -22,11 +22,11 @@ interface HistoryEntry {
 }
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
-const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref'; // New key for color theme
+const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
-const DEFAULT_COLOR_THEME: ColorTheme = 'blue'; // Define default color theme
+const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 
 const utils = {
     getCategoryFromClassList: (element: Element): TagCategory => {
@@ -197,16 +197,54 @@ const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'other', label: 'Other', enabled: true, color: 'bg-cat-other' }
 ];
 
+// Animated Icon Wrapper
+const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { children: React.ReactNode, isActive?: boolean, animation?: "default" | "spin" | "gentle" }) => {
+    const variants = {
+        default: {
+            hover: { scale: 1.15, rotate: isActive ? 0 : 5 },
+            tap: { scale: 0.9 },
+            active: { scale: 1.1, transition: { type: 'spring', stiffness: 300, damping: 10 } },
+            inactive: { scale: 1 }
+        },
+        spin: {
+            hover: { scale: 1.2, rotate: 360 },
+            tap: { scale: 0.9 },
+            active: { rotate: 360, transition: { duration: 0.5, ease: 'easeInOut' } },
+            inactive: { rotate: 0 }
+        },
+        gentle: {
+            hover: { scale: 1.1 },
+            tap: { scale: 0.95 },
+            active: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 15 } },
+            inactive: { scale: 1 }
+        }
+    } as const;
+
+    return (
+        <motion.span
+            className="inline-flex items-center justify-center"
+            variants={variants[animation]}
+            initial="inactive"
+            animate={isActive ? "active" : "inactive"}
+            whileHover="hover"
+            whileTap="tap"
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }} // Default spring for hover/tap
+        >
+            {children}
+        </motion.span>
+    );
+};
+
+// SVG Icons (no changes needed here)
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>;
 const MoonIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>;
 const ComputerDesktopIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" /></svg>;
 const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg>;
-const ClipboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>;
-const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
-const ArrowPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
+const ClipboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>;
+const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
+const ArrowPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
 const XMarkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
-const ChevronUpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
 const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
@@ -217,16 +255,27 @@ const CategoryToggle = React.memo(({ category, count, onToggle }: { category: Ta
     <MotionCard
         className="flex items-center justify-between bg-surface-alt-2 p-3 rounded-lg shadow-sm transition-shadow hover:shadow-md"
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}
+        whileHover={{ y: -2 }}
     >
         <div className="flex items-center space-x-3 overflow-hidden">
-            <span className={`inline-block w-3 h-3 rounded-full ${category.color} flex-shrink-0`}></span>
+            <motion.span
+                className={`inline-block w-3 h-3 rounded-full ${category.color} flex-shrink-0`}
+                animate={{ scale: category.enabled ? 1 : 0.8 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+            ></motion.span>
             <span className="truncate text-sm font-medium text-on-surface" title={category.label}>{category.label}</span>
             {count > 0 && (<span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted flex-shrink-0">{count}</span>)}
         </div>
         <label className="inline-flex items-center cursor-pointer flex-shrink-0 ml-2">
             <input type="checkbox" className="sr-only peer" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
             <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary ${category.enabled ? category.color : 'bg-surface-border'}`}>
-                <div className={`absolute left-1 top-1 bg-white dark:bg-gray-300 w-4 h-4 rounded-full transition-transform duration-200 ease-in-out ${category.enabled ? 'transform translate-x-5' : ''}`}></div>
+                <motion.div
+                    className={`absolute left-1 top-1 bg-white dark:bg-gray-300 w-4 h-4 rounded-full shadow-sm`}
+                    layout
+                    transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                    initial={false}
+                    animate={{ x: category.enabled ? 20 : 0 }}
+                ></motion.div>
             </div>
         </label>
         <span id={`category-label-${category.id}`} className="sr-only">{category.label} Toggle</span>
@@ -244,10 +293,14 @@ const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error', 
 StatusMessage.displayName = 'StatusMessage';
 const LoadingSpinner = () => (
     <motion.span className="flex items-center justify-center text-primary-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-currentColor" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <motion.svg
+            className="-ml-1 mr-2 h-5 w-5 text-currentColor" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        >
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg> Extracting...
+        </motion.svg> Extracting...
     </motion.span>
 );
 const ImagePreview = React.memo(({ url, title, isLoading }: { url?: string; title?: string; isLoading: boolean; }) => {
@@ -273,17 +326,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     const handleColorThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ colorTheme: event.target.value as ColorTheme });
     const handleAutoExtractChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked });
 
-    const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode }[] = [
-        { value: 'system', label: 'System', icon: <ComputerDesktopIcon /> },
-        { value: 'light', label: 'Light', icon: <SunIcon /> },
-        { value: 'dark', label: 'Dark', icon: <MoonIcon /> },
+    const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode; animation: "default" | "spin" | "gentle" }[] = [
+        { value: 'system', label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" },
+        { value: 'light', label: 'Light', icon: <SunIcon />, animation: "spin" },
+        { value: 'dark', label: 'Dark', icon: <MoonIcon />, animation: "default" },
     ];
 
     const colorThemeOptions: { value: ColorTheme; label: string; colorClass: string }[] = [
-        { value: 'blue', label: 'Blue', colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' }, // Tailwind blue-500 / blue-400
-        { value: 'orange', label: 'Orange', colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' }, // Tailwind orange-500 / orange-400
-        { value: 'teal', label: 'Teal', colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' }, // Tailwind teal-600 / teal-400
-        { value: 'rose', label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' }, // Tailwind rose-600 / rose-400
+        { value: 'blue', label: 'Blue', colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' },
+        { value: 'orange', label: 'Orange', colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' },
+        { value: 'teal', label: 'Teal', colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' },
+        { value: 'rose', label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
     ];
 
     return (
@@ -293,31 +346,66 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                     <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                             <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
-                            <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings"><XMarkIcon /></motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
+                                <XMarkIcon />
+                            </motion.button>
                         </div>
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-2">Appearance</label>
                                 <div className="flex items-center space-x-2 rounded-lg bg-surface-alt-2 p-1">
-                                    {themeOptions.map(({ value, label, icon }) => (<label key={value} className={`flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.theme === value ? 'bg-surface shadow text-primary' : 'text-on-surface-muted hover:bg-surface-border'}`}><input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />{icon} <span>{label}</span></label>))}
+                                    {themeOptions.map(({ value, label, icon, animation }) => (
+                                        <label key={value} className={`flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.theme === value ? 'bg-surface shadow text-primary' : 'text-on-surface-muted hover:bg-surface-border'}`}>
+                                            <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
+                                            <AnimatedIcon isActive={settings.theme === value} animation={animation as "default" | "spin" | "gentle"}>
+                                                {icon}
+                                            </AnimatedIcon>
+                                            <span>{label}</span>
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-2">Color</label>
                                 <div className="flex items-center space-x-2 rounded-lg bg-surface-alt-2 p-1">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
-                                        <label key={value} className={`relative flex-1 flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`} title={label}>
+                                        <motion.label whileHover={{ scale: 1.05 }} key={value} className={`relative flex-1 flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`} title={label}>
                                             <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeChange} className="sr-only" aria-label={`Color Theme ${label}`} />
                                             <span className={`block w-5 h-5 rounded-full ${colorClass}`}></span>
+                                            <AnimatePresence>
+                                                {settings.colorTheme === value && (
+                                                    <motion.div
+                                                        className="absolute inset-0 flex items-center justify-center"
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        exit={{ scale: 0 }}
+                                                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                                                    >
+                                                        <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                             <span className="sr-only">{label}</span>
-                                        </label>
+                                        </motion.label>
                                     ))}
                                 </div>
                             </div>
                             <div>
                                 <label className="flex items-center justify-between cursor-pointer select-none">
                                     <span className="text-sm font-medium text-on-surface mr-3">Automatic Extraction</span>
-                                    <div className="relative"><input type="checkbox" id="autoExtractToggle" className="sr-only peer" checked={settings.autoExtract} onChange={handleAutoExtractChange} /><div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div><div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></div></div>
+                                    <div className="relative">
+                                        <input type="checkbox" id="autoExtractToggle" className="sr-only peer" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
+                                        <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
+                                        <motion.div
+                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm"
+                                            layout
+                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                                            initial={false}
+                                            animate={{ x: settings.autoExtract ? 20 : 0 }}
+                                        ></motion.div>
+                                    </div>
                                 </label>
                                 <p className="text-xs text-on-surface-muted mt-1.5">Extract tags automatically after pasting a valid URL.</p>
                             </div>
@@ -362,7 +450,8 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             className="flex items-center space-x-3 p-3 bg-surface-alt-2 rounded-lg hover:bg-surface-border transition-colors"
         >
             {entry.imageUrl ? (
-                <img
+                <motion.img
+                    layoutId={`history-image-${entry.id}`} // Added layoutId for potential shared transition
                     src={entry.imageUrl}
                     alt="preview"
                     className="w-10 h-10 rounded object-cover flex-shrink-0 bg-surface-border"
@@ -371,11 +460,12 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                 />
             ) : (
                 <div className="w-10 h-10 rounded bg-surface-border flex items-center justify-center flex-shrink-0">
-                    <PhotoIcon />
+                    <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon> {/* Gentle animation */}
                 </div>
             )}
+            {/* Fallback placeholder if image fails to load */}
             <div className="w-10 h-10 rounded bg-surface-border items-center justify-center flex-shrink-0 hidden">
-                <PhotoIcon />
+                <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
             </div>
 
             <div className="flex-1 min-w-0">
@@ -389,21 +479,23 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             </div>
             <motion.button
                 whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(59, 130, 246, 0.1)', transition: { duration: 0.1 } }}
                 onClick={handleLoadClick}
-                className="p-1.5 rounded text-on-surface-faint hover:bg-blue-100 hover:text-primary dark:hover:bg-blue-900/50 dark:hover:text-primary transition-colors"
+                className="p-1.5 rounded-full text-on-surface-faint hover:text-primary dark:hover:text-primary transition-colors"
                 title="Load this entry"
                 aria-label="Load this history entry"
             >
-                <ArrowUpOnSquareIcon />
+                <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
             </motion.button>
             <motion.button
                 whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.1)', transition: { duration: 0.1 } }}
                 onClick={handleDeleteClick}
-                className="p-1.5 rounded text-on-surface-faint hover:bg-red-100 hover:text-error dark:hover:bg-red-900/50 dark:hover:text-error transition-colors"
+                className="p-1.5 rounded-full text-on-surface-faint hover:text-error dark:hover:text-error transition-colors"
                 title="Delete this entry"
                 aria-label="Delete this history entry"
             >
-                <TrashIcon />
+                <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
             </motion.button>
         </motion.div>
     );
@@ -430,19 +522,23 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 
     return (
         <div className="mt-6 bg-surface-alt border border-surface-border rounded-lg overflow-hidden">
-            <button
+            <motion.button
+                whileTap={{ backgroundColor: 'rgba(var(--color-surface-border), 0.5)' }}
+                transition={{ duration: 0.05 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex justify-between items-center p-4 text-left hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors"
                 aria-expanded={isOpen}
                 aria-controls="history-content"
             >
                 <div className="flex items-center space-x-2">
-                    <HistoryIcon />
+                    <AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon>
                     <span className="font-semibold text-on-surface">Extraction History</span>
                     <span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted">{history.length}</span>
                 </div>
-                {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-            </button>
+                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDownIcon />
+                </motion.span>
+            </motion.button>
 
             <AnimatePresence initial={false}>
                 {isOpen && (
@@ -459,7 +555,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                         transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                         className="overflow-hidden"
                     >
-                        <div className="p-4 space-y-2 border-t border-surface-border max-h-96 overflow-y-auto">
+                        <div className="p-4 space-y-2 border-t border-surface-border max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                             <AnimatePresence mode="popLayout">
                                 {history.map((entry) => (
                                     <HistoryItem
@@ -505,10 +601,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => setShowClearConfirm(true)}
-                                    className="inline-flex items-center space-x-1 text-xs bg-error-bg text-error hover:bg-red-100 dark:hover:bg-red-900 px-2.5 py-1 rounded-md transition-colors font-medium"
+                                    className="inline-flex items-center space-x-1 text-xs bg-error-bg text-error hover:bg-red-100 dark:hover:bg-red-900/50 px-2.5 py-1 rounded-md transition-colors font-medium"
                                     aria-label="Clear History"
                                 >
-                                    <TrashIcon />
+                                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
                                     <span>Clear History</span>
                                 </motion.button>
                             </div>
@@ -583,12 +679,10 @@ const BooruTagExtractor = () => {
         const applyTheme = (pref: ThemePreference, colorPref: ColorTheme) => {
             const root = window.document.documentElement;
 
-            // Handle Light/Dark Mode
             const isDark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
             root.classList.toggle('dark', isDark);
             localStorage.setItem(THEME_STORAGE_KEY, pref);
 
-            // Handle Color Theme
             root.setAttribute('data-color-theme', colorPref);
             localStorage.setItem(COLOR_THEME_STORAGE_KEY, colorPref);
         };
@@ -678,6 +772,30 @@ const BooruTagExtractor = () => {
             const extractionResult = site.extractTags(doc);
             console.log("Raw extraction result:", extractionResult);
 
+            const newEntryBase = {
+                id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                url: trimmedUrl,
+                imageUrl: extractionResult.imageUrl,
+                title: extractionResult.title,
+                siteName: site.name,
+                timestamp: Date.now(),
+            };
+
+            const updateHistory = (entry: HistoryEntry) => {
+                setHistory(prevHistory => {
+                    const existingIndex = prevHistory.findIndex(h => h.url === entry.url);
+                    let updatedHistory = [...prevHistory];
+                    if (existingIndex > -1) {
+                        updatedHistory.splice(existingIndex, 1);
+                    }
+                    updatedHistory = [entry, ...updatedHistory];
+                    if (updatedHistory.length > MAX_HISTORY_SIZE) {
+                        return updatedHistory.slice(0, MAX_HISTORY_SIZE);
+                    }
+                    return updatedHistory;
+                });
+            }
+
             if (extractionResult.tags.length === 0 && !extractionResult.imageUrl) {
                 console.warn("No tags or image found for URL:", trimmedUrl, "Site:", site.name);
                 if (doc.body.textContent?.includes("You need to login")) throw new Error('Extraction failed: Content requires login.');
@@ -688,52 +806,13 @@ const BooruTagExtractor = () => {
                 setImageUrl(extractionResult.imageUrl); setImageTitle(extractionResult.title); setAllExtractedTags([]);
                 setError('Image found, but no tags were extracted. Selectors may need update.');
                 console.warn("Image found, but no tags extracted for URL:", trimmedUrl, "Site:", site.name);
-                const newEntry: HistoryEntry = {
-                    id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                    url: trimmedUrl,
-                    tags: [],
-                    imageUrl: extractionResult.imageUrl,
-                    title: extractionResult.title,
-                    siteName: site.name,
-                    timestamp: Date.now(),
-                };
-                setHistory(prevHistory => {
-                    const existingIndex = prevHistory.findIndex(h => h.url === newEntry.url);
-                    let updatedHistory = [...prevHistory];
-                    if (existingIndex > -1) {
-                        updatedHistory.splice(existingIndex, 1);
-                    }
-                    updatedHistory = [newEntry, ...updatedHistory];
-                    if (updatedHistory.length > MAX_HISTORY_SIZE) {
-                        return updatedHistory.slice(0, MAX_HISTORY_SIZE);
-                    }
-                    return updatedHistory;
-                });
+                const newEntry: HistoryEntry = { ...newEntryBase, tags: [] };
+                updateHistory(newEntry);
             } else {
                 console.log(`Successfully extracted ${extractionResult.tags.length} tags.`);
                 setAllExtractedTags(extractionResult.tags); setImageUrl(extractionResult.imageUrl); setImageTitle(extractionResult.title); setError('');
-
-                const newEntry: HistoryEntry = {
-                    id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                    url: trimmedUrl,
-                    tags: extractionResult.tags,
-                    imageUrl: extractionResult.imageUrl,
-                    title: extractionResult.title,
-                    siteName: site.name,
-                    timestamp: Date.now(),
-                };
-                setHistory(prevHistory => {
-                    const existingIndex = prevHistory.findIndex(h => h.url === newEntry.url);
-                    let updatedHistory = [...prevHistory];
-                    if (existingIndex > -1) {
-                        updatedHistory.splice(existingIndex, 1);
-                    }
-                    updatedHistory = [newEntry, ...updatedHistory];
-                    if (updatedHistory.length > MAX_HISTORY_SIZE) {
-                        return updatedHistory.slice(0, MAX_HISTORY_SIZE);
-                    }
-                    return updatedHistory;
-                });
+                const newEntry: HistoryEntry = { ...newEntryBase, tags: extractionResult.tags };
+                updateHistory(newEntry);
             }
         } catch (err) {
             const message = (err instanceof Error) ? err.message : String(err); setError(`Extraction failed: ${message}`); console.error('Error extracting tags:', err);
@@ -769,9 +848,11 @@ const BooruTagExtractor = () => {
                 }
             } else {
                 if (trimmedUrl !== currentExtractionUrl.current) {
+                    setError('');
                 }
             }
         } else if (!trimmedUrl && currentExtractionUrl.current) {
+            // Optionally reset or do nothing when input is cleared
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset]);
@@ -824,12 +905,12 @@ const BooruTagExtractor = () => {
                 transition={{ duration: 0.5, ease: "easeOut" }}
             >
                 <div className="flex-shrink-0 sticky top-0 z-10 px-6 py-5 border-b border-surface-border bg-surface-alt flex justify-between items-start">
-                    <div className="flex-grow pr-10">
+                    <div className="flex-grow pr-4 sm:pr-10">
                         <h1 className="text-xl sm:text-2xl font-semibold text-on-surface">Booru Tag Extractor</h1>
                         <div className="mt-2">
                             <span className="text-sm text-on-surface-muted mr-2">Supports:</span>
                             {BOORU_SITES.map((site) => (
-                                <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300' : 'bg-surface-alt-2 text-on-surface-muted'}`}>
+                                <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' : 'bg-surface-alt-2 text-on-surface-muted'}`}>
                                      {site.name}
                                  </span>
                             ))}
@@ -837,15 +918,17 @@ const BooruTagExtractor = () => {
                     </div>
                     <motion.button
                         whileTap={{ scale: 0.9 }}
+                        whileHover={{ rotate: 15, scale: 1.1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                         onClick={() => setShowSettings(true)}
-                        className="flex-shrink-0 p-2 rounded-full text-on-surface-muted hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
+                        className="flex-shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
                         aria-label="Open Settings"
                     >
                         <CogIcon />
                     </motion.button>
                 </div>
 
-                <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6">
+                <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                     <div>
                         <label htmlFor="url" className="block text-sm font-medium text-on-surface mb-1.5">Booru Post URL</label>
                         <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder={settings.autoExtract ? "Paste URL here for auto-magic..." : "Paste URL here..."} value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
@@ -854,8 +937,21 @@ const BooruTagExtractor = () => {
                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-sm hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
                             {loading ? <LoadingSpinner /> : 'Extract Manually'}
                         </motion.button>
-                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200" aria-label="Reset Form">
-                            <ArrowPathIcon /> Reset
+                        <motion.button
+                            whileTap={{ scale: 0.97 }}
+                            onClick={handleReset}
+                            className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
+                            aria-label="Reset Form"
+                        >
+                            <motion.span
+                                whileTap={{ rotate: -90 }}
+                                whileHover={{ rotate: -15 }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                className="mr-2 inline-block"
+                            >
+                                <ArrowPathIcon />
+                            </motion.span>
+                            Reset
                         </motion.button>
                     </div>
 
@@ -896,10 +992,46 @@ const BooruTagExtractor = () => {
                                     <div className="space-y-3">
                                         <div>
                                             <label htmlFor="tags" className="block text-sm font-medium text-on-surface mb-1.5">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
-                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 text-sm" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
+                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 text-sm scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
                                         </div>
-                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`w-full inline-flex items-center justify-center font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-all duration-300 shadow-sm hover:shadow-md disabled:shadow-none ${copySuccess ? 'bg-success text-success-content focus-visible:ring-success disabled:opacity-100 cursor-default' : 'bg-on-surface hover:opacity-90 text-surface dark:text-surface-alt focus-visible:ring-on-surface-muted disabled:opacity-50 disabled:cursor-not-allowed'}`} aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}>
-                                            {copySuccess ? <CheckCircleIcon /> : <ClipboardIcon />} {copySuccess ? 'Copied!' : 'Copy Tags'}
+                                        <motion.button
+                                            whileTap={{ scale: 0.97 }}
+                                            onClick={handleCopy}
+                                            disabled={!displayedTags || copySuccess}
+                                            className={`w-full inline-flex items-center justify-center font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-all duration-300 shadow-sm hover:shadow-md disabled:shadow-none ${copySuccess ? 'bg-success text-success-content focus-visible:ring-success disabled:opacity-100 cursor-default' : 'bg-on-surface hover:opacity-90 text-surface dark:text-surface-alt focus-visible:ring-on-surface-muted disabled:opacity-50 disabled:cursor-not-allowed'}`}
+                                            aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
+                                        >
+                                            <motion.div
+                                                className="inline-flex items-center justify-center overflow-hidden"
+                                                style={{ width: '1.25rem', height: '1.25rem' }} // Match icon size
+                                            >
+                                                <AnimatePresence mode="popLayout" initial={false}>
+                                                    {copySuccess ? (
+                                                        <motion.span
+                                                            key="check"
+                                                            initial={{ opacity: 0, y: -15 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 15 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            className="flex items-center"
+                                                        >
+                                                            <CheckCircleIcon />
+                                                        </motion.span>
+                                                    ) : (
+                                                        <motion.span
+                                                            key="clipboard"
+                                                            initial={{ opacity: 0, y: -15 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: 15 }}
+                                                            transition={{ duration: 0.2 }}
+                                                            className="flex items-center"
+                                                        >
+                                                            <ClipboardIcon />
+                                                        </motion.span>
+                                                    )}
+                                                </AnimatePresence>
+                                            </motion.div>
+                                            <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
                                         </motion.button>
                                     </div>
                                 )}
