@@ -20,6 +20,16 @@ interface HistoryEntry {
     siteName?: string;
     timestamp: number;
 }
+interface StoredHistoryItem {
+    id: string;
+    url: string;
+    tags?: ExtractedTag[];
+    imageUrl?: string;
+    title?: string;
+    siteName?: string;
+    timestamp: number;
+}
+
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
@@ -197,7 +207,6 @@ const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'other', label: 'Other', enabled: true, color: 'bg-cat-other' }
 ];
 
-// Animated Icon Wrapper
 const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { children: React.ReactNode, isActive?: boolean, animation?: "default" | "spin" | "gentle" }) => {
     const variants = {
         default: {
@@ -228,29 +237,30 @@ const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { c
             animate={isActive ? "active" : "inactive"}
             whileHover="hover"
             whileTap="tap"
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }} // Default spring for hover/tap
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
         >
             {children}
         </motion.span>
     );
 };
 
-// SVG Icons (no changes needed here)
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>;
 const MoonIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>;
 const ComputerDesktopIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" /></svg>;
-const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg>;
+const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826 3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg>;
 const ClipboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>;
 const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
 const ArrowPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
-const XMarkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>;
+const XMarkIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
 const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
 const PhotoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint"><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
+const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
 
 const MotionCard = motion.div;
+
 const CategoryToggle = React.memo(({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
     <MotionCard
         className="flex items-center justify-between bg-surface-alt-2 p-3 rounded-lg shadow-sm transition-shadow hover:shadow-md"
@@ -320,6 +330,7 @@ const ImagePreview = React.memo(({ url, title, isLoading }: { url?: string; titl
     );
 });
 ImagePreview.displayName = 'ImagePreview';
+
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
     const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference });
@@ -347,7 +358,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                         <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                             <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
                             <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
-                                <XMarkIcon />
+                                <XMarkIcon className="w-6 h-6" />
                             </motion.button>
                         </div>
                         <div className="space-y-6">
@@ -420,6 +431,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     );
 };
 SettingsModal.displayName = 'SettingsModal';
+
 interface HistoryItemProps {
     entry: HistoryEntry;
     onLoad: (entry: HistoryEntry) => void;
@@ -451,7 +463,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
         >
             {entry.imageUrl ? (
                 <motion.img
-                    layoutId={`history-image-${entry.id}`} // Added layoutId for potential shared transition
+                    layoutId={`history-image-${entry.id}`}
                     src={entry.imageUrl}
                     alt="preview"
                     className="w-10 h-10 rounded object-cover flex-shrink-0 bg-surface-border"
@@ -460,10 +472,9 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                 />
             ) : (
                 <div className="w-10 h-10 rounded bg-surface-border flex items-center justify-center flex-shrink-0">
-                    <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon> {/* Gentle animation */}
+                    <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
                 </div>
             )}
-            {/* Fallback placeholder if image fails to load */}
             <div className="w-10 h-10 rounded bg-surface-border items-center justify-center flex-shrink-0 hidden">
                 <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
             </div>
@@ -479,7 +490,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             </div>
             <motion.button
                 whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1, backgroundColor: 'rgba(59, 130, 246, 0.1)', transition: { duration: 0.1 } }}
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
                 onClick={handleLoadClick}
                 className="p-1.5 rounded-full text-on-surface-faint hover:text-primary dark:hover:text-primary transition-colors"
                 title="Load this entry"
@@ -489,7 +500,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             </motion.button>
             <motion.button
                 whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.1)', transition: { duration: 0.1 } }}
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
                 onClick={handleDeleteClick}
                 className="p-1.5 rounded-full text-on-surface-faint hover:text-error dark:hover:text-error transition-colors"
                 title="Delete this entry"
@@ -501,6 +512,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
     );
 });
 HistoryItem.displayName = 'HistoryItem';
+
 interface HistoryPanelProps {
     history: HistoryEntry[];
     onLoadEntry: (entry: HistoryEntry) => void;
@@ -510,13 +522,31 @@ interface HistoryPanelProps {
 const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleClearClick = () => {
         onClearHistory();
         setShowClearConfirm(false);
+        setSearchQuery('');
     };
 
-    if (history.length === 0) {
+    const filteredHistory = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return history;
+        }
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        return history.filter(entry => {
+            const titleMatch = entry.title?.toLowerCase().includes(lowerCaseQuery);
+            const urlMatch = entry.url.toLowerCase().includes(lowerCaseQuery);
+            const siteNameMatch = entry.siteName?.toLowerCase().includes(lowerCaseQuery);
+            const tagMatch = entry.tags.some(tag =>
+                tag.name.toLowerCase().includes(lowerCaseQuery)
+            );
+            return titleMatch || urlMatch || siteNameMatch || tagMatch;
+        });
+    }, [history, searchQuery]);
+
+    if (history.length === 0 && !isOpen) {
         return null;
     }
 
@@ -555,9 +585,38 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                         transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                         className="overflow-hidden"
                     >
-                        <div className="p-4 space-y-2 border-t border-surface-border max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
+                        <div className="p-4 border-t border-surface-border">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search history (title, url, tags...)"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full bg-surface-alt-2 border border-surface-border rounded-lg pl-10 pr-10 py-2 text-sm text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition duration-200"
+                                    aria-label="Search history entries"
+                                />
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-faint pointer-events-none">
+                                    <MagnifyingGlassIcon />
+                                </span>
+                                {searchQuery && (
+                                    <motion.button
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full text-on-surface-faint hover:text-on-surface hover:bg-surface-border transition-colors"
+                                        aria-label="Clear search"
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.5 }}
+                                    >
+                                        <XMarkIcon className="w-4 h-4"/>
+                                    </motion.button>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="px-4 pb-4 space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                             <AnimatePresence mode="popLayout">
-                                {history.map((entry) => (
+                                {filteredHistory.map((entry) => (
                                     <HistoryItem
                                         key={entry.id}
                                         entry={entry}
@@ -566,10 +625,15 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     />
                                 ))}
                             </AnimatePresence>
+
+                            {history.length > 0 && filteredHistory.length === 0 && searchQuery && (
+                                <p className="text-sm text-center text-on-surface-muted py-4">No history entries match your search.</p>
+                            )}
                             {history.length === 0 && (
                                 <p className="text-sm text-center text-on-surface-muted py-4">History is empty.</p>
                             )}
                         </div>
+
                         {history.length > 0 && (
                             <div className="p-3 border-t border-surface-border bg-surface-alt-2 text-right relative">
                                 <AnimatePresence>
@@ -578,7 +642,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                             initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 5 }}
-                                            className="absolute right-3 bottom-full mb-2 flex gap-2 items-center bg-surface p-2 rounded shadow-lg border border-surface-border"
+                                            className="absolute right-3 bottom-full mb-2 flex gap-2 items-center bg-surface p-2 rounded shadow-lg border border-surface-border z-10"
                                         >
                                             <p className="text-xs text-on-surface">Really clear?</p>
                                             <motion.button
@@ -617,6 +681,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 };
 HistoryPanel.displayName = 'HistoryPanel';
 
+
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<ExtractedTag[]>([]);
@@ -650,10 +715,30 @@ const BooruTagExtractor = () => {
             const savedHistoryData = localStorage.getItem(HISTORY_STORAGE_KEY);
             if (savedHistoryData) {
                 const parsed = JSON.parse(savedHistoryData);
-                if (Array.isArray(parsed) && parsed.every(item => typeof item.id === 'string' && typeof item.url === 'string' && typeof item.timestamp === 'number')) {
-                    loadedHistory = parsed.sort((a, b) => b.timestamp - a.timestamp);
+
+                const isValidHistory = (item: unknown): item is StoredHistoryItem => {
+                    if (typeof item !== 'object' || item === null) {
+                        return false;
+                    }
+                    if (!('id' in item && 'url' in item && 'timestamp' in item)) {
+                        return false;
+                    }
+
+                    return !('tags' in item && item.tags !== undefined && !Array.isArray(item.tags));
+
+                };
+
+
+                if (Array.isArray(parsed) && parsed.every(isValidHistory)) {
+                    loadedHistory = parsed.map((item) => {
+                        const validItem = item as StoredHistoryItem;
+                        return {
+                            ...validItem,
+                            tags: Array.isArray(validItem.tags) ? validItem.tags : []
+                        };
+                    }).sort((a, b) => b.timestamp - a.timestamp);
                 } else {
-                    console.warn("Invalid history data in localStorage. Clearing.");
+                    console.warn("Invalid history data structure in localStorage. Clearing.");
                     localStorage.removeItem(HISTORY_STORAGE_KEY);
                 }
             }
@@ -673,32 +758,42 @@ const BooruTagExtractor = () => {
         }
     }, []);
 
+
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
         const applyTheme = (pref: ThemePreference, colorPref: ColorTheme) => {
             const root = window.document.documentElement;
-
             const isDark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
             root.classList.toggle('dark', isDark);
             localStorage.setItem(THEME_STORAGE_KEY, pref);
-
             root.setAttribute('data-color-theme', colorPref);
             localStorage.setItem(COLOR_THEME_STORAGE_KEY, colorPref);
+
+            const colors = {
+                blue: { light: { primary: '59 130 246', 'primary-focus': '37 99 235', 'primary-content': '255 255 255' }, dark: { primary: '96 165 250', 'primary-focus': '147 197 253', 'primary-content': '17 24 39' } },
+                orange: { light: { primary: '249 115 22', 'primary-focus': '234 88 12', 'primary-content': '255 255 255' }, dark: { primary: '251 146 60', 'primary-focus': '253 186 116', 'primary-content': '77 21 0' } },
+                teal: { light: { primary: '13 148 136', 'primary-focus': '15 118 110', 'primary-content': '255 255 255' }, dark: { primary: '45 212 191', 'primary-focus': '94 234 212', 'primary-content': '7 43 40' } },
+                rose: { light: { primary: '225 29 72', 'primary-focus': '190 18 60', 'primary-content': '255 255 255' }, dark: { primary: '251 113 133', 'primary-focus': '253 164 175', 'primary-content': '64 8 20' } },
+            };
+            const currentColors = colors[colorPref][isDark ? 'dark' : 'light'];
+            root.style.setProperty('--color-primary-rgb', currentColors.primary);
+            root.style.setProperty('--color-primary-focus-rgb', currentColors['primary-focus']);
+            root.style.setProperty('--color-primary-content-rgb', currentColors['primary-content']);
+            root.style.setProperty('--color-error-rgb', isDark ? '248 113 113' : '239 68 68');
+            root.style.setProperty('--color-error-content-rgb', isDark ? '55 4 4' : '255 255 255');
+            root.style.setProperty('--color-success-rgb', isDark ? '74 222 128' : '34 197 94');
+            root.style.setProperty('--color-success-content-rgb', isDark ? '6 40 15' : '255 255 255');
+            root.style.setProperty('--color-info-rgb', isDark ? '96 165 250' : '59 130 246');
+            root.style.setProperty('--color-info-content-rgb', isDark ? '30 58 138' : '30 64 175');
         };
 
         applyTheme(settings.theme, settings.colorTheme);
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => {
-            if (settings.theme === 'system') {
-                applyTheme('system', settings.colorTheme);
-            }
-        };
-        if (settings.theme === 'system') {
-            mediaQuery.addEventListener('change', handleChange);
-        }
+        const handleChange = () => { if (settings.theme === 'system') { applyTheme('system', settings.colorTheme); } };
+        if (settings.theme === 'system') { mediaQuery.addEventListener('change', handleChange); }
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
 
@@ -720,10 +815,14 @@ const BooruTagExtractor = () => {
     }, [allExtractedTags, tagCategories]);
 
     useEffect(() => {
-        if (history && history.length > 0) {
-            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-        } else if (history && history.length === 0 && localStorage.getItem(HISTORY_STORAGE_KEY)) {
-            localStorage.removeItem(HISTORY_STORAGE_KEY);
+        try {
+            if (history && history.length > 0) {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+            } else if (history && history.length === 0 && localStorage.getItem(HISTORY_STORAGE_KEY)) {
+                localStorage.removeItem(HISTORY_STORAGE_KEY);
+            }
+        } catch (e) {
+            console.error("Failed to save history to localStorage:", e);
         }
     }, [history]);
 
@@ -750,6 +849,8 @@ const BooruTagExtractor = () => {
         setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
+        let doc: Document;
+
         try {
             setActiveSite(site.name);
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(trimmedUrl)}`;
@@ -757,20 +858,82 @@ const BooruTagExtractor = () => {
 
             if (!response.ok) {
                 let errorMsg = `Failed to fetch from proxy (Status: ${response.status}).`;
-                try { const text = await response.text(); if (text) { try { const jsonError = JSON.parse(text); if (jsonError?.contents?.error) errorMsg = `Proxy Error: ${jsonError.contents.error}`; else if (jsonError?.error) errorMsg = `Proxy Error: ${jsonError.error}`; else if (text.length < 500) errorMsg += ` Response: ${text}`; } catch { if (text.length < 500) errorMsg += ` Response: ${text}`; } } } catch { /* Ignore */ }
-                new Error(errorMsg);
+                try { const text = await response.text(); if (text) { try { const jsonError = JSON.parse(text); if (jsonError?.contents?.error) errorMsg = `Proxy Error: ${jsonError.contents.error}`; else if (jsonError?.error) errorMsg = `Proxy Error: ${jsonError.error}`; else if (text.length < 500) errorMsg += ` Response: ${text.substring(0,100)}...`; } catch { if (text.length < 500) errorMsg += ` Response: ${text.substring(0,100)}...`; } } } catch { /* Ignore */ }
+                setError(errorMsg);
+                console.error(errorMsg);
+                setLoading(false);
+                currentExtractionUrl.current = null;
+                return;
             }
-            const html = await response.text();
-            if (!html) new Error("Received empty response from proxy.");
 
-            const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html');
-            if (doc.title.toLowerCase().includes("error") || doc.body.textContent?.includes("Could not retrieve contents") || doc.body.textContent?.includes("error") || doc.querySelector('.error')) {
-                console.warn("Proxy likely returned an error page."); const errorElement = doc.querySelector('.error, #content > div > p'); const pageError = errorElement?.textContent?.trim(); new Error(`Proxy could not retrieve page content. ${pageError ? `(${pageError.substring(0, 100)})` : '(Check URL or try again)'}`);
+            const html = await response.text();
+            if (!html) {
+                const errorMsg = "Received empty response from proxy.";
+                setError(errorMsg);
+                console.error(errorMsg);
+                setLoading(false);
+                currentExtractionUrl.current = null;
+                return;
+            }
+
+            const parser = new DOMParser();
+            doc = parser.parseFromString(html, 'text/html');
+
+            let pageErrorDetected = false;
+            let specificError = "Check URL, site status, or try again later.";
+
+            if (doc.title.toLowerCase().includes("error")) {
+                pageErrorDetected = true;
+                specificError = `Site returned error in title: ${doc.title.substring(0, 100)}`;
+            }
+            if (doc.body.textContent?.includes("Could not retrieve contents") || doc.body.textContent?.includes("Rate limit exceeded")) {
+                pageErrorDetected = true;
+                if (doc.body.textContent?.includes("Rate limit exceeded")) specificError = "Rate limit likely exceeded.";
+                else specificError = "Proxy could not retrieve contents.";
+            }
+            const errorElement = doc.querySelector('.error, #error-page, .dtext-error');
+            if (errorElement?.textContent) {
+                pageErrorDetected = true;
+                const pageErrorText = errorElement.textContent.trim();
+                if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded.";
+                else if (pageErrorText.toLowerCase().includes("login")) specificError = "Content requires login.";
+                else if (pageErrorText.toLowerCase().includes("not found")) specificError = "Post not found (404).";
+                else specificError = `Site Error: ${pageErrorText.substring(0, 150)}`;
+            }
+            const contentParagraphs = doc.querySelectorAll('#content > div > p');
+            contentParagraphs.forEach(p => {
+                if (p.textContent?.toLowerCase().includes('error')) {
+                    pageErrorDetected = true;
+                    if (!specificError.startsWith("Site Error:")) {
+                        specificError = `Site page contains an error message: ${p.textContent.substring(0,100)}...`;
+                    }
+                }
+            });
+
+            if (pageErrorDetected) {
+                const errorMsg = `Proxy or target site returned an error page. ${specificError}`;
+                setError(errorMsg);
+                console.warn(errorMsg);
+                setLoading(false);
+                currentExtractionUrl.current = null;
+                return;
             }
 
             console.log(`Applying extraction strategy: ${site.name}`);
             const extractionResult = site.extractTags(doc);
             console.log("Raw extraction result:", extractionResult);
+
+            const updateHistory = (entry: HistoryEntry) => {
+                const entryWithSafeTags = { ...entry, tags: Array.isArray(entry.tags) ? entry.tags : [] };
+                setHistory(prevHistory => {
+                    const existingIndex = prevHistory.findIndex(h => h.url === entryWithSafeTags.url);
+                    let updatedHistory = [...prevHistory];
+                    if (existingIndex > -1) { updatedHistory.splice(existingIndex, 1); }
+                    updatedHistory = [entryWithSafeTags, ...updatedHistory];
+                    if (updatedHistory.length > MAX_HISTORY_SIZE) { return updatedHistory.slice(0, MAX_HISTORY_SIZE); }
+                    return updatedHistory;
+                });
+            }
 
             const newEntryBase = {
                 id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -781,43 +944,37 @@ const BooruTagExtractor = () => {
                 timestamp: Date.now(),
             };
 
-            const updateHistory = (entry: HistoryEntry) => {
-                setHistory(prevHistory => {
-                    const existingIndex = prevHistory.findIndex(h => h.url === entry.url);
-                    let updatedHistory = [...prevHistory];
-                    if (existingIndex > -1) {
-                        updatedHistory.splice(existingIndex, 1);
-                    }
-                    updatedHistory = [entry, ...updatedHistory];
-                    if (updatedHistory.length > MAX_HISTORY_SIZE) {
-                        return updatedHistory.slice(0, MAX_HISTORY_SIZE);
-                    }
-                    return updatedHistory;
-                });
-            }
+            setAllExtractedTags(extractionResult.tags || []);
+            setImageUrl(extractionResult.imageUrl);
+            setImageTitle(extractionResult.title);
+            setError('');
+
+            const newEntry: HistoryEntry = { ...newEntryBase, tags: extractionResult.tags || [] };
+            updateHistory(newEntry);
 
             if (extractionResult.tags.length === 0 && !extractionResult.imageUrl) {
-                console.warn("No tags or image found for URL:", trimmedUrl, "Site:", site.name);
-                if (doc.body.textContent?.includes("You need to login")) new Error('Extraction failed: Content requires login.');
-                if (doc.body.textContent?.includes("Rate limit exceeded")) new Error('Extraction failed: Rate limit likely exceeded.');
-                if (doc.querySelector('#tag-sidebar') && !doc.querySelector('#tag-sidebar li[class*="tag-type-"].tag')) console.warn("Tag sidebar exists, but no tag LIs found with expected class structure.");
-                 new Error('No tags or image found. Page structure might have changed or post is unavailable.');
-            } else if (extractionResult.tags.length === 0) {
-                setImageUrl(extractionResult.imageUrl); setImageTitle(extractionResult.title); setAllExtractedTags([]);
-                setError('Image found, but no tags were extracted. Selectors may need update.');
-                console.warn("Image found, but no tags extracted for URL:", trimmedUrl, "Site:", site.name);
-                const newEntry: HistoryEntry = { ...newEntryBase, tags: [] };
-                updateHistory(newEntry);
+                const warnMsg = 'No tags or image found. Page structure might have changed, post is unavailable, or requires login.';
+                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
+                setError(warnMsg);
+            } else if (extractionResult.tags.length === 0 && extractionResult.imageUrl) {
+                const warnMsg = 'Image found, but no tags were extracted. Selectors may need update.';
+                setError(warnMsg);
+                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
             } else {
                 console.log(`Successfully extracted ${extractionResult.tags.length} tags.`);
-                setAllExtractedTags(extractionResult.tags); setImageUrl(extractionResult.imageUrl); setImageTitle(extractionResult.title); setError('');
-                const newEntry: HistoryEntry = { ...newEntryBase, tags: extractionResult.tags };
-                updateHistory(newEntry);
             }
+
         } catch (err) {
-            const message = (err instanceof Error) ? err.message : String(err); setError(`Extraction failed: ${message}`); console.error('Error extracting tags:', err);
+            const message = (err instanceof Error) ? err.message : String(err);
+            const finalMessage = `Unexpected extraction error: ${message}`;
+            setError(finalMessage);
+            console.error(finalMessage, err);
+            setAllExtractedTags([]);
+            setActiveSite(null);
             currentExtractionUrl.current = null;
-        } finally { setLoading(false); }
+        } finally {
+            setLoading(false);
+        }
     }, [loading]);
 
     const handleReset = useCallback(() => {
@@ -835,7 +992,7 @@ const BooruTagExtractor = () => {
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
         const trimmedUrl = url.trim();
 
-        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10) {
+        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
             const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
             if (site) {
                 if (trimmedUrl !== currentExtractionUrl.current) {
@@ -847,12 +1004,12 @@ const BooruTagExtractor = () => {
                     }, 750);
                 }
             } else {
-                if (trimmedUrl !== currentExtractionUrl.current) {
-                    setError('');
-                }
+                if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
             }
         } else if (!trimmedUrl && currentExtractionUrl.current) {
-            // Optionally reset or do nothing when input is cleared
+            setError('');
+        } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
+            if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset]);
@@ -872,9 +1029,8 @@ const BooruTagExtractor = () => {
 
     const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => {
         if (loading) return;
-
         setUrl(entry.url);
-        setAllExtractedTags(entry.tags);
+        setAllExtractedTags(Array.isArray(entry.tags) ? entry.tags : []);
         setImageUrl(entry.imageUrl);
         setImageTitle(entry.title);
         setActiveSite(entry.siteName || null);
@@ -883,9 +1039,7 @@ const BooruTagExtractor = () => {
         setLoading(false);
         setCopySuccess(false);
         currentExtractionUrl.current = entry.url;
-
         cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-
     }, [loading]);
 
     const handleDeleteHistoryEntry = useCallback((id: string) => {
@@ -894,6 +1048,7 @@ const BooruTagExtractor = () => {
 
     const handleClearHistory = useCallback(() => {
         setHistory([]);
+        localStorage.removeItem(HISTORY_STORAGE_KEY);
     }, []);
 
     return (
@@ -960,7 +1115,7 @@ const BooruTagExtractor = () => {
                         {error && <StatusMessage type="error">{error}</StatusMessage>}
                     </AnimatePresence>
 
-                    {(imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current)) && (
+                    {(imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)) && (
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-on-surface-muted">Preview</h3>
                             <ImagePreview url={imageUrl} title={imageTitle} isLoading={loading && !imageUrl} />
@@ -968,7 +1123,7 @@ const BooruTagExtractor = () => {
                     )}
 
                     <AnimatePresence>
-                        {(!loading && (allExtractedTags.length > 0 || imageUrl)) && (
+                        {!loading && (allExtractedTags.length > 0 || (imageUrl && !error)) && (
                             <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                 {allExtractedTags.length > 0 && (
                                     <div className="bg-surface-alt-2 p-4 rounded-lg border border-surface-border">
@@ -983,7 +1138,10 @@ const BooruTagExtractor = () => {
                                             {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
                                                 const categoryOption = tagCategories.find(c => c.id === categoryDef.id) || { ...categoryDef, enabled: DEFAULT_TAG_CATEGORIES.find(d => d.id === categoryDef.id)?.enabled ?? false };
                                                 const count = tagCounts[categoryOption.id] || 0;
-                                                return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
+                                                if (count > 0 || DEFAULT_TAG_CATEGORIES.some(def => def.id === categoryOption.id)) {
+                                                    return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
+                                                }
+                                                return null;
                                             })}
                                         </div>
                                     </div>
@@ -1003,31 +1161,13 @@ const BooruTagExtractor = () => {
                                         >
                                             <motion.div
                                                 className="inline-flex items-center justify-center overflow-hidden"
-                                                style={{ width: '1.25rem', height: '1.25rem' }} // Match icon size
+                                                style={{ width: '1.25rem', height: '1.25rem' }}
                                             >
                                                 <AnimatePresence mode="popLayout" initial={false}>
                                                     {copySuccess ? (
-                                                        <motion.span
-                                                            key="check"
-                                                            initial={{ opacity: 0, y: -15 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: 15 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="flex items-center"
-                                                        >
-                                                            <CheckCircleIcon />
-                                                        </motion.span>
+                                                        <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <CheckCircleIcon /> </motion.span>
                                                     ) : (
-                                                        <motion.span
-                                                            key="clipboard"
-                                                            initial={{ opacity: 0, y: -15 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: 15 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="flex items-center"
-                                                        >
-                                                            <ClipboardIcon />
-                                                        </motion.span>
+                                                        <motion.span key="clipboard" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <ClipboardIcon /> </motion.span>
                                                     )}
                                                 </AnimatePresence>
                                             </motion.div>
