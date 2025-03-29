@@ -490,19 +490,26 @@ const BooruTagExtractor = () => {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}
             >
                 {/* Header */}
-                <div className="px-6 py-5 relative border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowSettings(true)} className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 transition-colors" aria-label="Open Settings">
+                <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex justify-between items-start">
+                    <div className="flex-grow pr-10">
+                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">Booru Tag Extractor</h1>
+                        <div className="mt-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">Supports:</span>
+                            {BOORU_SITES.map((site) => (
+                                <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
+                                    {site.name}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    <motion.button 
+                        whileTap={{ scale: 0.9 }} 
+                        onClick={() => setShowSettings(true)} 
+                        className="flex-shrink-0 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 transition-colors" 
+                        aria-label="Open Settings"
+                    >
                         <CogIcon />
                     </motion.button>
-                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pr-12">Booru Tag Extractor</h1>
-                    <div className="mt-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">Supports:</span>
-                        {BOORU_SITES.map((site) => (
-                            <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
-                                {site.name}
-                            </span>
-                        ))}
-                    </div>
                 </div>
 
                 {/* Body */}
