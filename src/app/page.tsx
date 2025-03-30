@@ -89,13 +89,23 @@ const utils = {
         if (classList.contains('tag-type-copyright') || classList.contains('tag-type-3')) return 'copyright';
         if (classList.contains('tag-type-character') || classList.contains('tag-type-4')) return 'character';
         if (classList.contains('tag-type-general') || classList.contains('tag-type-0')) return 'general';
-        if (classList.contains('tag-type-metadata') || classList.contains('tag-type-5') || classList.contains('tag-type-meta')) return 'meta';
+        if (classList.contains('tag-type-metadata') || classList.contains('tag-type-5') || classList.contains('tag-type-meta') || classList.contains('tag-type-style')) return 'meta';
         if (classList.contains('tag-type-artist') || classList.contains('tag-type-1')) return 'other';
         const parentCategoryElement = element.closest('[class*="tag-type-"]');
         if (parentCategoryElement && parentCategoryElement !== element) {
             return utils.getCategoryFromClassList(parentCategoryElement);
         }
         return 'general';
+    },
+    getCategoryFromDataType: (dataType: string | undefined | null): TagCategory => {
+        switch (dataType?.toLowerCase()) {
+            case 'copyright': return 'copyright';
+            case 'character': return 'character';
+            case 'artist': return 'other';
+            case 'style': return 'meta';
+            case 'general': return 'general';
+            default: return 'other';
+        }
     },
     getCategoryFromE621DataAttr: (dataCategory: string | undefined | null): TagCategory => {
         switch (dataCategory?.toLowerCase()) {
@@ -116,6 +126,14 @@ const utils = {
         if (normalized.includes('meta') || normalized.includes('metadata')) return 'meta';
         if (normalized.includes('artist')) return 'other';
         return 'other';
+    },
+    getAnimePicturesCategory: (element: Element): TagCategory => {
+        if (element.classList.contains('copyright')) return 'copyright';
+        if (element.classList.contains('character')) return 'character';
+        if (element.classList.contains('artist')) return 'other';
+        if (element.classList.contains('reference')) return 'general';
+        if (element.classList.contains('object')) return 'general';
+        return 'general';
     },
     cleanTagName: (tagName: string): string => {
         return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/^\? /, '').trim();
@@ -183,7 +201,7 @@ const utils = {
         return Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
     },
     extractImageUrl: (doc: Document, selector: string, attribute: string = 'src'): string | undefined => {
-        const imgElement = doc.querySelector(selector) as HTMLImageElement | HTMLVideoElement | HTMLElement;
+        const imgElement = doc.querySelector(selector) as HTMLImageElement | HTMLVideoElement | HTMLElement | HTMLAnchorElement;
         if (!imgElement) return undefined;
         let src = imgElement.getAttribute(attribute) || imgElement.getAttribute('src');
         if (imgElement.tagName === 'VIDEO' && !src) {
@@ -207,15 +225,27 @@ const utils = {
             title = elementWithAttr?.getAttribute(attrName);
         } else {
             const titleElement = doc.querySelector(selector);
-            title = titleElement?.textContent?.trim();
+            if (titleElement?.tagName === 'IMG') {
+                title = (titleElement as HTMLImageElement).alt?.trim();
+            } else {
+                title = titleElement?.textContent?.trim();
+            }
         }
         title = title || doc.title?.trim() || undefined;
         if (title) {
-            title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande.re)/i, '').trim();
+            title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande.re|Konachan\.com - Anime Wallpapers \|)/i, '').trim();
             title = title.replace(/aibooru \| #\d+ \| /i, '').trim();
             title = title.replace(/ » /g, ' - ').trim();
             title = title.replace(/^Post #\d+ /i, '').trim();
+            title = title.replace(/ \| Post #\d+$/i, '').trim();
             title = title.replace(/ - e621$/i, '').trim();
+            title = title.replace(/ \| Anime-Pictures\.net$/i, '').trim();
+            title = title.replace(/Anime picture \d+x\d+ with /i, '').trim();
+            const tagListIndex = title.indexOf(' single tall image');
+            if (tagListIndex > 0) {
+                title = title.substring(0, tagListIndex).trim();
+            }
+            title = title.replace(/ with.*$/, '').trim();
         }
         return title || undefined;
     }
@@ -275,7 +305,93 @@ const extractionStrategies = {
         tags: utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="/post?tags="]' }),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src') || utils.extractImageUrl(doc, 'img.fit-width', 'src'),
         title: utils.extractTitle(doc, 'title')
-    })
+    }),
+    konachan: (doc: Document): ExtractionResult => {
+        const tags: ExtractedTag[] = [];
+        const listItems = doc.querySelectorAll('ul#tag-sidebar li.tag-link');
+        listItems.forEach(item => {
+            const dataType = item.getAttribute('data-type');
+            const category = utils.getCategoryFromDataType(dataType);
+            const tagNameElement = item.querySelector('a:nth-of-type(2)');
+            const tagName = tagNameElement?.textContent?.trim();
+
+            if (tagName) {
+                const cleanName = utils.cleanTagName(tagName);
+                if (cleanName && cleanName.toLowerCase() !== 'tagme (character)') {
+                    tags.push({ name: cleanName, category });
+                }
+            }
+        });
+        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        return {
+            tags: uniqueTags,
+            imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
+            title: utils.extractTitle(doc, 'title')
+        };
+    },
+    animePictures: (doc: Document): ExtractionResult => {
+        const tags: ExtractedTag[] = [];
+        const tagElements = doc.querySelectorAll('ul.tags li a.svelte-1a4tkgo');
+        tagElements.forEach(element => {
+            const tagName = element?.textContent?.trim();
+            if (tagName) {
+                const cleanName = utils.cleanTagName(tagName);
+                const category = utils.getAnimePicturesCategory(element);
+                if (cleanName) {
+                    tags.push({ name: cleanName, category });
+                }
+            }
+        });
+        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        let title = utils.extractTitle(doc, 'img#big_preview');
+        if (!title) {
+            title = utils.extractTitle(doc, 'title');
+        }
+
+        return {
+            tags: uniqueTags,
+            imageUrl: utils.extractImageUrl(doc, 'img#big_preview', 'src'),
+            title: title
+        };
+    },
+    zerochan: (doc: Document): ExtractionResult => {
+        const tagsString = doc.querySelector('#large > p')?.textContent?.trim();
+        const tags: ExtractedTag[] = tagsString
+            ? tagsString.split(',').map(name => ({ name: name.trim(), category: 'general' as TagCategory })).filter(tag => tag.name)
+            : [];
+        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        let imageUrl = utils.extractImageUrl(doc, '#large > a.preview', 'href');
+        if (!imageUrl) {
+            imageUrl = utils.extractImageUrl(doc, '#large > a.preview > img.jpg', 'src');
+        }
+
+        let title = utils.extractTitle(doc, 'title');
+        if (title) {
+            title = title.replace(/ - Zerochan Anime Image Board$/i, '').trim();
+            title = title.replace(/ Image #\d+$/i, '').trim();
+            title = title.replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '').trim();
+        }
+        if (!title || title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
+            const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
+            if (imgTitle) {
+                const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
+                if (titleMatch && titleMatch[1]) {
+                    title = titleMatch[1].trim();
+                } else {
+                    title = imgTitle.split(' (')[0].trim(); // Simpler fallback
+                }
+            }
+        }
+
+        return {
+            tags: uniqueTags,
+            imageUrl: imageUrl,
+            title: title || undefined
+        };
+    }
 };
 
 const BOORU_SITES = [
@@ -285,7 +401,10 @@ const BOORU_SITES = [
     { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
     { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
     { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru },
-    { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere }
+    { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere },
+    { name: 'Konachan', urlPattern: /konachan\.(?:com|net)\/post\/show\/\d+/i, extractTags: extractionStrategies.konachan },
+    { name: 'Anime-Pictures', urlPattern: /anime-pictures\.net\/posts\/\d+/i, extractTags: extractionStrategies.animePictures },
+    { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan }
 ];
 
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
