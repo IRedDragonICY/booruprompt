@@ -1,4 +1,6 @@
-// page.tsx
+// prompt: the comprehensive engineer
+// Add feature to support aibooru (e.g., https://aibooru.online/posts/111157/)
+
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -198,6 +200,7 @@ const utils = {
         title = title || doc.title?.trim() || undefined;
         if (title) {
             title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -)/i, '').trim();
+            title = title.replace(/aibooru \| #\d+ \| /i, '').trim();
             title = title.replace(/ » /g, ' - ').trim();
             title = title.replace(/^Post #\d+ /i, '').trim();
             title = title.replace(/ - e621$/i, '').trim();
@@ -231,6 +234,11 @@ const extractionStrategies = {
         tags: utils.extractTagsByClass(doc, { container: '#tag-list section > ul > li[class*="tag-type-"]', tag: '.tag a span.tag-name, a.tag-name' }),
         imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source', 'src'),
         title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc, 'title')
+    }),
+    aibooru: (doc: Document): ExtractionResult => ({
+        tags: utils.extractTagsByClass(doc, { container: 'div.categorized-tag-list li[class*="tag-type-"]', tag: 'a.search-tag' }),
+        imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
+        title: utils.extractTitle(doc, 'title')
     })
 };
 
@@ -239,7 +247,8 @@ const BOORU_SITES = [
     { name: 'Safebooru', urlPattern: /safebooru\.org\/(index\.php\?page=post&s=view&id=\d+|post\/view\/\d+)/i, extractTags: extractionStrategies.safebooru },
     { name: 'Gelbooru', urlPattern: /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.gelbooru },
     { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
-    { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 }
+    { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
+    { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru }
 ];
 
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
