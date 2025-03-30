@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {AnimatePresence, motion} from 'framer-motion';
 import Image from 'next/image';
 
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
@@ -120,9 +120,9 @@ const utils = {
     },
     getCategoryFromHeader: (text: string): TagCategory => {
         const normalized = text.toLowerCase().trim();
-        if (normalized.includes('copyright')) return 'copyright';
+        if (normalized.includes('copyright') || normalized.includes('source:')) return 'copyright';
         if (normalized.includes('character')) return 'character';
-        if (normalized.includes('general')) return 'general';
+        if (normalized.includes('general') || normalized.includes('tags:')) return 'general';
         if (normalized.includes('meta') || normalized.includes('metadata')) return 'meta';
         if (normalized.includes('artist')) return 'other';
         return 'other';
@@ -211,9 +211,9 @@ const utils = {
         if (src && !src.startsWith('http') && !src.startsWith('//') && doc.baseURI) {
             try {
                 src = new URL(src, doc.baseURI).href;
-            } catch (e) { console.error("Error resolving relative image URL:", src, e); }
+            } catch (e) { console.error(`Error resolving relative image URL: ${src} against base: ${doc.baseURI}`, e); }
         } else if (src && src.startsWith('//')) {
-            src = `https://${src.slice(2)}`;
+            src = `https:${src.slice(2)}`;
         }
         return src || undefined;
     },
@@ -241,6 +241,7 @@ const utils = {
             title = title.replace(/ - e621$/i, '').trim();
             title = title.replace(/ \| Anime-Pictures\.net$/i, '').trim();
             title = title.replace(/Anime picture \d+x\d+ with /i, '').trim();
+            title = title.replace(/^Image #\d+\s?/i, '').trim();
             const tagListIndex = title.indexOf(' single tall image');
             if (tagListIndex > 0) {
                 title = title.substring(0, tagListIndex).trim();
@@ -381,7 +382,7 @@ const extractionStrategies = {
                 if (titleMatch && titleMatch[1]) {
                     title = titleMatch[1].trim();
                 } else {
-                    title = imgTitle.split(' (')[0].trim(); // Simpler fallback
+                    title = imgTitle.split(' (')[0].trim();
                 }
             }
         }
@@ -391,6 +392,46 @@ const extractionStrategies = {
             imageUrl: imageUrl,
             title: title || undefined
         };
+    },
+    eShuushuu: (doc: Document): ExtractionResult => {
+        const tags: ExtractedTag[] = [];
+        const metaContainer = doc.querySelector('div.meta dl');
+        if (metaContainer) {
+            const dtElements = metaContainer.querySelectorAll('dt');
+            dtElements.forEach(dt => {
+                const headerText = dt.textContent?.trim().toLowerCase();
+                let category: TagCategory | null = null;
+                switch (headerText) {
+                    case 'tags:': category = 'general'; break;
+                    case 'source:': category = 'copyright'; break;
+                    case 'characters:': category = 'character'; break;
+                    case 'artist:': category = 'other'; break;
+                }
+
+                if (category) {
+                    const dd = dt.nextElementSibling as HTMLElement | null;
+                    if (dd && dd.tagName === 'DD' && dd.classList.contains('quicktag')) {
+                        const tagLinks = dd.querySelectorAll('span.tag a');
+                        tagLinks.forEach(link => {
+                            const tagName = link.textContent?.trim();
+                            if (tagName) {
+                                const cleanName = utils.cleanTagName(tagName);
+                                if (cleanName) {
+                                    tags.push({ name: cleanName, category: category as TagCategory });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        return {
+            tags: uniqueTags,
+            imageUrl: utils.extractImageUrl(doc, 'a.thumb_image', 'href'),
+            title: utils.extractTitle(doc, 'div.title h2 a') || utils.extractTitle(doc, 'title')
+        }
     }
 };
 
@@ -404,7 +445,8 @@ const BOORU_SITES = [
     { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere },
     { name: 'Konachan', urlPattern: /konachan\.(?:com|net)\/post\/show\/\d+/i, extractTags: extractionStrategies.konachan },
     { name: 'Anime-Pictures', urlPattern: /anime-pictures\.net\/posts\/\d+/i, extractTags: extractionStrategies.animePictures },
-    { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan }
+    { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan },
+    { name: 'E-Shuushuu', urlPattern: /e-shuushuu\.net\/image\/\d+/i, extractTags: extractionStrategies.eShuushuu }
 ];
 
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
@@ -1306,13 +1348,26 @@ const BooruTagExtractor = () => {
 
             const parser = new DOMParser();
             doc = parser.parseFromString(html, 'text/html');
-            if (!doc.baseURI && trimmedUrl) {
-                try {
-                    const urlObject = new URL(trimmedUrl);
-                    Object.defineProperty(doc, 'baseURI', { value: urlObject.origin + urlObject.pathname, writable: false });
-                } catch (e) {
-                    console.warn("Could not set baseURI for DOMParser document:", e);
+
+            try {
+                const existingBase = doc.querySelector('base');
+                if (existingBase) {
+                    existingBase.remove();
                 }
+                if (!doc.head) {
+                    const head = doc.createElement('head');
+                    if (doc.documentElement.firstChild) {
+                        doc.documentElement.insertBefore(head, doc.documentElement.firstChild);
+                    } else {
+                        doc.documentElement.appendChild(head);
+                    }
+                }
+                const base = doc.createElement('base');
+                base.href = new URL('./', trimmedUrl).href;
+                doc.head.insertBefore(base, doc.head.firstChild);
+                console.log(`Injected/Updated base tag href to: ${base.href}`);
+            } catch (e) {
+                console.warn(`Could not set base tag for URL ${trimmedUrl}:`, e);
             }
 
 
