@@ -1,10 +1,8 @@
-// prompt: the comprehensive engineer
-// Add feature to support aibooru (e.g., https://aibooru.online/posts/111157/)
-
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
@@ -51,6 +49,8 @@ const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
+const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
+const FETCH_TIMEOUT_MS = 25000; // 25 seconds timeout
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -179,11 +179,12 @@ const utils = {
             const sourceElement = imgElement.querySelector('source');
             src = sourceElement?.src || null;
         }
-        if (src && !src.startsWith('http') && !src.startsWith('//')) {
+        if (src && !src.startsWith('http') && !src.startsWith('//') && doc.baseURI) {
             try {
-                const baseURI = doc.baseURI;
-                if (baseURI) src = new URL(src, baseURI).href;
+                src = new URL(src, doc.baseURI).href;
             } catch (e) { console.error("Error resolving relative image URL:", src, e); }
+        } else if (src && src.startsWith('//')) {
+            src = `https://${src.slice(2)}`;
         }
         return src || undefined;
     },
@@ -199,7 +200,7 @@ const utils = {
         }
         title = title || doc.title?.trim() || undefined;
         if (title) {
-            title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -)/i, '').trim();
+            title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande.re)/i, '').trim();
             title = title.replace(/aibooru \| #\d+ \| /i, '').trim();
             title = title.replace(/ » /g, ' - ').trim();
             title = title.replace(/^Post #\d+ /i, '').trim();
@@ -239,6 +240,11 @@ const extractionStrategies = {
         tags: utils.extractTagsByClass(doc, { container: 'div.categorized-tag-list li[class*="tag-type-"]', tag: 'a.search-tag' }),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
         title: utils.extractTitle(doc, 'title')
+    }),
+    yandere: (doc: Document): ExtractionResult => ({
+        tags: utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="/post?tags="]' }),
+        imageUrl: utils.extractImageUrl(doc, '#image', 'src') || utils.extractImageUrl(doc, 'img.fit-width', 'src'),
+        title: utils.extractTitle(doc, 'title')
     })
 };
 
@@ -248,7 +254,8 @@ const BOORU_SITES = [
     { name: 'Gelbooru', urlPattern: /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.gelbooru },
     { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
     { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
-    { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru }
+    { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru },
+    { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere }
 ];
 
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
@@ -414,19 +421,62 @@ const LoadingSpinner = () => (
         </motion.svg> Extracting...
     </motion.span>
 );
-const ImagePreview = React.memo(({ url, title, isLoading }: { url?: string; title?: string; isLoading: boolean; }) => {
-    const [imgLoading, setImgLoading] = useState(true); const [imgError, setImgError] = useState(false); const isVideo = url?.match(/\.(mp4|webm|ogg)$/i);
-    useEffect(() => { if (url || isLoading) { setImgLoading(true); setImgError(false); } }, [url, isLoading]);
+
+const ImagePreview = React.memo(({ originalUrl, title, isLoading }: { originalUrl?: string; title?: string; isLoading: boolean; }) => {
+    const [imgLoading, setImgLoading] = useState(true);
+    const [imgError, setImgError] = useState(false);
+    const isVideo = originalUrl?.match(/\.(mp4|webm|ogg)$/i);
+
+    const proxiedUrl = useMemo(() => {
+        if (!originalUrl) return undefined;
+        // Avoid double-proxying if URL already comes from history/cache
+        if (originalUrl.includes(CORS_PROXY_URL.split('?')[0])) {
+            return originalUrl;
+        }
+        return `${CORS_PROXY_URL}${encodeURIComponent(originalUrl)}`;
+    }, [originalUrl]);
+
+    useEffect(() => {
+        if (originalUrl || isLoading) {
+            setImgLoading(true);
+            setImgError(false);
+        }
+    }, [originalUrl, isLoading]);
+
+    const handleLoad = () => setImgLoading(false);
+    const handleError = () => { setImgLoading(false); setImgError(true); };
+
     const placeholderClasses = "w-full h-64 flex items-center justify-center bg-surface-alt-2 rounded-lg text-on-surface-faint";
+
     if (isLoading) return <div className={`${placeholderClasses} animate-pulse`}>Loading preview...</div>;
-    if (!url) return null;
-    if (imgError) return <div className={`${placeholderClasses} border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Possibly CORS or invalid URL)</p></div></div>;
+    if (!originalUrl) return null;
+    if (imgError) return <div className={`${placeholderClasses} border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Possibly CORS, invalid URL, or proxy issue)</p></div></div>;
+
     return (
         <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+            {/* Keep loading indicator based on state, useful for initial load before Image component hydrates/mounts */}
             {(imgLoading && !isVideo) && <div className="absolute inset-0 flex items-center justify-center bg-surface-alt-2 animate-pulse text-on-surface-faint">Loading...</div>}
-            {isVideo ? (<video key={url} controls muted className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={() => setImgLoading(false)} onError={() => { setImgLoading(false); setImgError(true); }}><source src={url} /> Your browser does not support video.</video>)
-                : (/* eslint-disable @next/next/no-img-element */ <img key={url} src={url} alt={title || "Booru preview"} className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoad={() => setImgLoading(false)} onError={() => { setImgLoading(false); setImgError(true); }} loading="lazy" /> /* eslint-enable @next/next/no-img-element */)}
-            {title && !imgLoading && !imgError && <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-white text-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><p className="truncate">{title}</p></motion.div>}
+            {isVideo ? (
+                <video key={proxiedUrl} controls muted className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
+                    <source src={proxiedUrl} /> Your browser does not support video.
+                </video>
+            ) : (
+                <Image
+                    key={proxiedUrl}
+                    src={proxiedUrl!} // Assert non-null as we check originalUrl earlier
+                    alt={title || "Booru preview"}
+                    fill={true}
+                    unoptimized={true} // Use unoptimized to avoid next.config.js changes and potential dimension issues
+                    onLoad={handleLoad}
+                    onError={handleError}
+                    className={`object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}
+                />
+            )}
+            {title && !imgLoading && !imgError && (
+                <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-white text-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                    <p className="truncate">{title}</p>
+                </motion.div>
+            )}
         </motion.div>
     );
 });
@@ -612,20 +662,27 @@ interface HistoryItemProps {
     onDelete: (id: string) => void;
 }
 const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onDelete }) => {
+    const [showPlaceholder, setShowPlaceholder] = useState(!entry.imageUrl);
     const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
         dateStyle: 'short',
         timeStyle: 'short',
     }), [entry.timestamp]);
 
-    const handleLoadClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onLoad(entry);
-    };
+    const handleLoadClick = (e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); };
+    const handleDeleteClick = (e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); };
 
-    const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onDelete(entry.id);
-    };
+    const proxiedImageUrl = useMemo(() => {
+        if (!entry.imageUrl) return undefined;
+        if (entry.imageUrl.includes(CORS_PROXY_URL.split('?')[0])) return entry.imageUrl;
+        return `${CORS_PROXY_URL}${encodeURIComponent(entry.imageUrl)}`;
+    }, [entry.imageUrl]);
+
+    useEffect(() => {
+        setShowPlaceholder(!proxiedImageUrl); // Reset placeholder visibility when entry changes
+    }, [proxiedImageUrl]);
+
+    const handleError = () => { setShowPlaceholder(true); };
+
 
     return (
         <motion.div
@@ -635,22 +692,24 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
             className="flex items-center space-x-3 p-3 bg-surface-alt-2 rounded-lg hover:bg-surface-border transition-colors"
         >
-            {entry.imageUrl ? (
-                <motion.img
-                    layoutId={`history-image-${entry.id}`}
-                    src={entry.imageUrl}
-                    alt="preview"
-                    className="w-10 h-10 rounded object-cover flex-shrink-0 bg-surface-border"
-                    loading="lazy"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }}
-                />
-            ) : (
-                <div className="w-10 h-10 rounded bg-surface-border flex items-center justify-center flex-shrink-0">
-                    <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
-                </div>
-            )}
-            <div className="w-10 h-10 rounded bg-surface-border items-center justify-center flex-shrink-0 hidden">
-                <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
+            <div className="w-10 h-10 rounded flex-shrink-0 bg-surface-border overflow-hidden relative">
+                {!showPlaceholder && proxiedImageUrl && (
+                    <Image
+                        src={proxiedImageUrl}
+                        alt="preview"
+                        width={40}
+                        height={40}
+                        unoptimized={true}
+                        className="object-cover w-full h-full"
+                        onError={handleError}
+                        onLoad={() => setShowPlaceholder(false)} // Ensure placeholder hides on successful load
+                    />
+                )}
+                {showPlaceholder && (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -989,7 +1048,6 @@ const BooruTagExtractor = () => {
         if (settings.colorTheme === 'custom' && settings.customColorHex) {
             applyCustomTheme(settings.customColorHex, isDark);
         } else if (settings.colorTheme !== 'custom') {
-            // Use type assertion here or check explicitly
             applyPredefinedTheme(settings.colorTheme as Exclude<ColorTheme, 'custom'>, isDark);
         } else {
             applyPredefinedTheme(DEFAULT_COLOR_THEME, isDark);
@@ -1065,12 +1123,19 @@ const BooruTagExtractor = () => {
         setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
         let doc: Document;
 
         try {
             setActiveSite(site.name);
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(trimmedUrl)}`;
-            const response = await fetch(proxyUrl, { cache: 'no-store' });
+            const pageProxyUrl = `${CORS_PROXY_URL}${encodeURIComponent(trimmedUrl)}`;
+            const response = await fetch(pageProxyUrl, {
+                cache: 'no-store',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 let errorMsg = `Failed to fetch from proxy (Status: ${response.status}).`;
@@ -1094,6 +1159,15 @@ const BooruTagExtractor = () => {
 
             const parser = new DOMParser();
             doc = parser.parseFromString(html, 'text/html');
+            if (!doc.baseURI && trimmedUrl) {
+                try {
+                    const urlObject = new URL(trimmedUrl);
+                    Object.defineProperty(doc, 'baseURI', { value: urlObject.origin + urlObject.pathname, writable: false });
+                } catch (e) {
+                    console.warn("Could not set baseURI for DOMParser document:", e);
+                }
+            }
+
 
             let pageErrorDetected = false;
             let specificError = "Check URL, site status, or try again later.";
@@ -1181,15 +1255,23 @@ const BooruTagExtractor = () => {
             }
 
         } catch (err) {
-            const message = (err instanceof Error) ? err.message : String(err);
-            const finalMessage = `Unexpected extraction error: ${message}`;
-            setError(finalMessage);
-            console.error(finalMessage, err);
+            clearTimeout(timeoutId);
+            if ((err as Error).name === 'AbortError') {
+                const timeoutMessage = `Request timed out after ${FETCH_TIMEOUT_MS / 1000}s. Proxy or target site might be slow.`;
+                setError(timeoutMessage);
+                console.error(timeoutMessage);
+            } else {
+                const message = (err instanceof Error) ? err.message : String(err);
+                const finalMessage = `Unexpected extraction error: ${message}`;
+                setError(finalMessage);
+                console.error(finalMessage, err);
+            }
             setAllExtractedTags([]);
             setActiveSite(null);
             currentExtractionUrl.current = null;
         } finally {
             setLoading(false);
+            clearTimeout(timeoutId);
         }
     }, [loading]);
 
@@ -1223,7 +1305,7 @@ const BooruTagExtractor = () => {
                 if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
             }
         } else if (!trimmedUrl && currentExtractionUrl.current) {
-            setError('');
+            handleReset();
         } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
             if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
         }
@@ -1338,7 +1420,7 @@ const BooruTagExtractor = () => {
                     {(imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)) && (
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-on-surface-muted">Preview</h3>
-                            <ImagePreview url={imageUrl} title={imageTitle} isLoading={loading && !imageUrl} />
+                            <ImagePreview originalUrl={imageUrl} title={imageTitle} isLoading={loading && !imageUrl} />
                         </div>
                     )}
 
