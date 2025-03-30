@@ -1,164 +1,185 @@
-/* globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* Define base styles and transition */
   body {
     @apply bg-surface text-on-surface transition-colors duration-300;
   }
 
-  /* Ensure focus rings use appropriate offset colors */
   *:focus-visible {
     @apply ring-offset-surface dark:ring-offset-surface-alt;
   }
 
-  /* --- Theme: Blue (Default) --- */
-  /* Defines the base light theme colors */
   :root, html[data-color-theme="blue"] {
-    --color-primary: 29 78 216; /* blue-700 */
-    --color-primary-focus: 30 64 175; /* blue-800 */
+    --color-primary: 59 130 246; /* blue-500 - Adjusted for better vibrancy */
+    --color-primary-focus: 37 99 235; /* blue-600 */
     --color-primary-content: 255 255 255;
-    --color-secondary: 249 115 22; /* orange-500 */
-    --color-secondary-focus: 234 88 12; /* orange-600 */
+    --color-secondary: 249 115 22;
+    --color-secondary-focus: 234 88 12;
     --color-secondary-content: 255 255 255;
-    --color-accent: 13 148 136; /* teal-600 */
-    --color-accent-focus: 15 118 110; /* teal-700 */
+    --color-accent: 13 148 136;
+    --color-accent-focus: 15 118 110;
     --color-accent-content: 255 255 255;
-    --color-surface: 248 250 252; /* slate-50 */
-    --color-surface-alt: 255 255 255; /* white */
-    --color-surface-alt-2: 243 244 246; /* gray-100 */
-    --color-surface-border: 229 231 235; /* gray-200 */
-    --color-on-surface: 17 24 39; /* gray-900 */
-    --color-on-surface-muted: 75 85 99; /* gray-600 */
-    --color-on-surface-faint: 156 163 175; /* gray-400 */
-    --color-error: 220 38 38; /* red-600 */
-    --color-error-content: 190 24 24; /* red-700 on light bg */
-    --color-error-bg: 254 242 242; /* red-50 */
-    --color-success: 22 163 74; /* green-600 */
-    --color-success-content: 255 255 255; /* white on green */
-    --color-info: 59 130 246; /* blue-500 */
-    --color-info-content: 30 64 175; /* blue-800 on light bg */
-    --color-info-bg: 239 246 255; /* blue-50 */
-    --cat-color-copyright: 236 72 153; /* pink-500 */
-    --cat-color-character: 99 102 241; /* indigo-500 */
-    --cat-color-general: 29 78 216; /* Matches light primary (blue-700) */
-    --cat-color-meta: 16 185 129; /* emerald-500 */
-    --cat-color-other: 245 158 11; /* amber-500 */
+    --color-surface: 248 250 252;
+    --color-surface-alt: 255 255 255;
+    --color-surface-alt-2: 243 244 246;
+    --color-surface-border: 229 231 235;
+    --color-on-surface: 17 24 39;
+    --color-on-surface-muted: 75 85 99;
+    --color-on-surface-faint: 156 163 175;
+    --color-error: 220 38 38;
+    --color-error-content: 190 24 24;
+    --color-error-bg: 254 242 242;
+    --color-success: 22 163 74;
+    --color-success-content: 255 255 255;
+    --color-info: 59 130 246;
+    --color-info-content: 30 64 175;
+    --color-info-bg: 239 246 255;
+    --cat-color-copyright: 236 72 153;
+    --cat-color-character: 99 102 241;
+    --cat-color-general: 59 130 246; /* Match primary */
+    --cat-color-meta: 16 185 129;
+    --cat-color-other: 245 158 11;
   }
 
-  /* Common dark theme base (shared across all dark variants) */
   html.dark {
-    --color-surface: 17 24 39; /* gray-900 */
-    --color-surface-alt: 31 41 55; /* gray-800 */
-    --color-surface-alt-2: 55 65 81; /* gray-700 */
-    --color-surface-border: 55 65 81; /* gray-700 */
-    --color-on-surface: 229 231 235; /* gray-200 */
-    --color-on-surface-muted: 156 163 175; /* gray-400 */
-    --color-on-surface-faint: 107 114 128; /* gray-500 */
-    --color-error: 248 113 113; /* red-400 */
-    --color-error-content: 248 113 113; /* red-400 on dark bg */
-    --color-error-bg: 76 29 29 / 0.5; /* red-900 with alpha */
-    --color-success: 74 222 128; /* green-400 */
-    --color-success-content: 240 253 244; /* green-50 */
-    --color-info: 147 197 253; /* blue-300 */
-    --color-info-content: 147 197 253; /* blue-300 on dark bg */
-    --color-info-bg: 30 58 138 / 0.5; /* blue-800 with alpha */
-    --cat-color-copyright: 244 114 182; /* pink-400 */
-    --cat-color-character: 129 140 248; /* indigo-400 */
-    --cat-color-meta: 52 211 153; /* emerald-400 */
-    --cat-color-other: 251 191 36; /* amber-400 */
+    --color-surface: 17 24 39;
+    --color-surface-alt: 31 41 55;
+    --color-surface-alt-2: 55 65 81;
+    --color-surface-border: 55 65 81;
+    --color-on-surface: 229 231 235;
+    --color-on-surface-muted: 156 163 175;
+    --color-on-surface-faint: 107 114 128;
+    --color-error: 248 113 113;
+    --color-error-content: 248 113 113;
+    --color-error-bg: 76 29 29 / 0.5;
+    --color-success: 74 222 128;
+    --color-success-content: 240 253 244;
+    --color-info: 147 197 253;
+    --color-info-content: 147 197 253;
+    --color-info-bg: 30 58 138 / 0.5;
+    --cat-color-copyright: 244 114 182;
+    --cat-color-character: 129 140 248;
+    --cat-color-meta: 52 211 153;
+    --cat-color-other: 251 191 36;
   }
 
-  /* Dark theme: Blue (Default) */
   html[data-color-theme="blue"].dark {
     --color-primary: 96 165 250; /* blue-400 */
     --color-primary-focus: 59 130 246; /* blue-500 */
-    --color-primary-content: 17 24 39; /* gray-900 */
-    --color-secondary: 251 146 60; /* orange-400 */
-    --color-secondary-focus: 249 115 22; /* orange-500 */
-    --color-secondary-content: 55 65 81; /* gray-700 */
-    --color-accent: 45 212 191; /* teal-400 */
-    --color-accent-focus: 20 184 166; /* teal-500 */
-    --color-accent-content: 15 118 110; /* teal-700 on light teal bg */
-    --cat-color-general: 96 165 250; /* Matches dark primary (blue-400) */
+    --color-primary-content: 17 24 39;
+    --color-secondary: 251 146 60;
+    --color-secondary-focus: 249 115 22;
+    --color-secondary-content: 55 65 81;
+    --color-accent: 45 212 191;
+    --color-accent-focus: 20 184 166;
+    --color-accent-content: 15 118 110;
+    --cat-color-general: 96 165 250; /* Match primary */
   }
 
-  /* --- Theme: Orange --- */
   html[data-color-theme="orange"] {
-    --color-primary: 249 115 22; /* orange-500 */
-    --color-primary-focus: 234 88 12; /* orange-600 */
+    --color-primary: 249 115 22;
+    --color-primary-focus: 234 88 12;
     --color-primary-content: 255 255 255;
-    --color-secondary: 29 78 216; /* blue-700 */
-    --color-secondary-focus: 30 64 175; /* blue-800 */
+    --color-secondary: 59 130 246; /* Switch secondary */
+    --color-secondary-focus: 37 99 235;
     --color-secondary-content: 255 255 255;
-    --cat-color-general: 249 115 22; /* orange-500 */
+    --cat-color-general: 249 115 22;
   }
 
   html[data-color-theme="orange"].dark {
-    --color-primary: 251 146 60; /* orange-400 */
-    --color-primary-focus: 249 115 22; /* orange-500 */
-    --color-primary-content: 17 24 39; /* dark text on orange */
-    --color-secondary: 96 165 250; /* blue-400 */
-    --color-secondary-focus: 59 130 246; /* blue-500 */
+    --color-primary: 251 146 60;
+    --color-primary-focus: 249 115 22;
+    --color-primary-content: 17 24 39;
+    --color-secondary: 96 165 250;
+    --color-secondary-focus: 59 130 246;
     --color-secondary-content: 17 24 39;
-    --color-accent: 45 212 191; /* teal-400 */
-    --color-accent-focus: 20 184 166; /* teal-500 */
-    --color-accent-content: 15 118 110; /* teal-700 on light teal bg */
-    --cat-color-general: 251 146 60; /* orange-400 */
+    --cat-color-general: 251 146 60;
   }
 
-  /* --- Theme: Teal --- */
   html[data-color-theme="teal"] {
-    --color-primary: 13 148 136; /* teal-600 */
-    --color-primary-focus: 15 118 110; /* teal-700 */
+    --color-primary: 13 148 136;
+    --color-primary-focus: 15 118 110;
     --color-primary-content: 255 255 255;
-    --color-secondary: 236 72 153; /* pink-500 */
-    --color-secondary-focus: 219 39 119; /* pink-600 */
+    --color-secondary: 236 72 153;
+    --color-secondary-focus: 219 39 119;
     --color-secondary-content: 255 255 255;
-    --cat-color-general: 13 148 136; /* teal-600 */
+    --cat-color-general: 13 148 136;
   }
 
   html[data-color-theme="teal"].dark {
-    --color-primary: 45 212 191; /* teal-400 */
-    --color-primary-focus: 20 184 166; /* teal-500 */
-    --color-primary-content: 17 24 39; /* dark text on teal */
-    --color-secondary: 244 114 182; /* pink-400 */
-    --color-secondary-focus: 236 72 153; /* pink-500 */
+    --color-primary: 45 212 191;
+    --color-primary-focus: 20 184 166;
+    --color-primary-content: 17 24 39;
+    --color-secondary: 244 114 182;
+    --color-secondary-focus: 236 72 153;
     --color-secondary-content: 17 24 39;
-    --color-accent: 45 212 191; /* teal-400 - Using primary for accent */
-    --color-accent-focus: 20 184 166; /* teal-500 */
-    --color-accent-content: 17 24 39;
-    --cat-color-general: 45 212 191; /* teal-400 */
+    --cat-color-general: 45 212 191;
   }
 
-  /* --- Theme: Rose --- */
   html[data-color-theme="rose"] {
-    --color-primary: 225 29 72; /* rose-600 */
-    --color-primary-focus: 190 18 60; /* rose-700 */
+    --color-primary: 225 29 72;
+    --color-primary-focus: 190 18 60;
     --color-primary-content: 255 255 255;
-    --color-secondary: 79 70 229; /* indigo-600 */
-    --color-secondary-focus: 67 56 202; /* indigo-700 */
+    --color-secondary: 79 70 229;
+    --color-secondary-focus: 67 56 202;
     --color-secondary-content: 255 255 255;
-    --cat-color-general: 225 29 72; /* rose-600 */
+    --cat-color-general: 225 29 72;
   }
 
   html[data-color-theme="rose"].dark {
-    --color-primary: 251 113 133; /* rose-400 */
-    --color-primary-focus: 244 63 94; /* rose-500 */
-    --color-primary-content: 17 24 39; /* dark text on rose */
-    --color-secondary: 129 140 248; /* indigo-400 */
-    --color-secondary-focus: 99 102 241; /* indigo-500 */
+    --color-primary: 251 113 133;
+    --color-primary-focus: 244 63 94;
+    --color-primary-content: 17 24 39;
+    --color-secondary: 129 140 248;
+    --color-secondary-focus: 99 102 241;
     --color-secondary-content: 17 24 39;
-    --color-accent: 45 212 191; /* teal-400 */
-    --color-accent-focus: 20 184 166; /* teal-500 */
-    --color-accent-content: 15 118 110;
-    --cat-color-general: 251 113 133; /* rose-400 */
+    --cat-color-general: 251 113 133;
   }
+
+  html[data-color-theme="purple"] {
+    --color-primary: 139 92 246; /* purple-500 */
+    --color-primary-focus: 124 58 237; /* purple-600 */
+    --color-primary-content: 255 255 255;
+    --color-secondary: 16 185 129; /* emerald-500 */
+    --color-secondary-focus: 5 150 105; /* emerald-600 */
+    --color-secondary-content: 255 255 255;
+    --cat-color-general: 139 92 246; /* Match primary */
+  }
+
+  html[data-color-theme="purple"].dark {
+    --color-primary: 167 139 250; /* purple-400 */
+    --color-primary-focus: 139 92 246; /* purple-500 */
+    --color-primary-content: 17 24 39;
+    --color-secondary: 52 211 153; /* emerald-400 */
+    --color-secondary-focus: 16 185 129; /* emerald-500 */
+    --color-secondary-content: 17 24 39;
+    --cat-color-general: 167 139 250; /* Match primary */
+  }
+
+  html[data-color-theme="green"] {
+    --color-primary: 22 163 74; /* green-600 */
+    --color-primary-focus: 21 128 61; /* green-700 */
+    --color-primary-content: 255 255 255;
+    --color-secondary: 245 158 11; /* amber-500 */
+    --color-secondary-focus: 217 119 6; /* amber-600 */
+    --color-secondary-content: 255 255 255;
+    --cat-color-general: 22 163 74; /* Match primary */
+  }
+
+  html[data-color-theme="green"].dark {
+    --color-primary: 74 222 128; /* green-400 */
+    --color-primary-focus: 34 197 94; /* green-500 */
+    --color-primary-content: 17 24 39;
+    --color-secondary: 251 191 36; /* amber-400 */
+    --color-secondary-focus: 245 158 11; /* amber-500 */
+    --color-secondary-content: 17 24 39;
+    --cat-color-general: 74 222 128; /* Match primary */
+  }
+
 }
 
-/* Custom Animations */
 @keyframes heartBeat {
   0% { transform: scale(1); }
   14% { transform: scale(1.3); }
@@ -170,7 +191,6 @@
   animation: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
-/* Custom Scrollbar */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;

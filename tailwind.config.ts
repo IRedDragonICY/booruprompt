@@ -1,6 +1,5 @@
-// tailwind.config.ts
 import type { Config } from 'tailwindcss';
-import scrollbarPlugin from 'tailwind-scrollbar'; // Use ES module import
+import scrollbarPlugin from 'tailwind-scrollbar';
 
 const config: Config = {
   content: [
@@ -12,9 +11,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: 'rgb(var(--color-primary) / <alpha-value>)',
-        'primary-focus': 'rgb(var(--color-primary-focus) / <alpha-value>)',
-        'primary-content': 'rgb(var(--color-primary-content) / <alpha-value>)',
+        primary: 'rgb(var(--color-primary-rgb, var(--color-primary)) / <alpha-value>)',
+        'primary-focus': 'rgb(var(--color-primary-focus-rgb, var(--color-primary-focus)) / <alpha-value>)',
+        'primary-content': 'rgb(var(--color-primary-content-rgb, var(--color-primary-content)) / <alpha-value>)',
         secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
         'secondary-focus': 'rgb(var(--color-secondary-focus) / <alpha-value>)',
         'secondary-content': 'rgb(var(--color-secondary-content) / <alpha-value>)',
@@ -68,7 +67,7 @@ const config: Config = {
     },
   },
   plugins: [
-    scrollbarPlugin({ nocompatible: true }), // Use the imported plugin
+    scrollbarPlugin({ nocompatible: true }),
   ],
 };
 

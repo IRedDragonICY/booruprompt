@@ -1,16 +1,21 @@
 // page.tsx
 'use client';
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {AnimatePresence, motion} from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
-type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose';
-type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; color: string; };
-interface ExtractedTag { name: string; category: TagCategory; }
-interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string; }
-interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; }
+type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
+type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; color: string };
+interface ExtractedTag { name: string; category: TagCategory }
+interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string }
+interface Settings {
+    theme: ThemePreference;
+    autoExtract: boolean;
+    colorTheme: ColorTheme;
+    customColorHex?: string;
+}
 interface HistoryEntry {
     id: string;
     url: string;
@@ -29,14 +34,52 @@ interface StoredHistoryItem {
     siteName?: string;
     timestamp: number;
 }
+interface ColorSet {
+    primary: string;
+    'primary-focus': string;
+    'primary-content': string;
+}
 
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
+const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
+const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
+
+const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+        }
+        : null;
+};
+
+const getContrastColor = (r: number, g: number, b: number): string => {
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness >= 128 ? '0 0 0' : '255 255 255';
+};
+
+const adjustRgb = (r: number, g: number, b: number, factor: number): string => {
+    const adjust = (color: number) => Math.max(0, Math.min(255, Math.round(color * factor)));
+    return `${adjust(r)} ${adjust(g)} ${adjust(b)}`;
+};
+
+const PREDEFINED_COLORS: { [key in Exclude<ColorTheme, 'custom'>]: { light: ColorSet; dark: ColorSet } } = {
+    blue: { light: { primary: '59 130 246', 'primary-focus': '37 99 235', 'primary-content': '255 255 255' }, dark: { primary: '96 165 250', 'primary-focus': '59 130 246', 'primary-content': '17 24 39' } },
+    orange: { light: { primary: '249 115 22', 'primary-focus': '234 88 12', 'primary-content': '255 255 255' }, dark: { primary: '251 146 60', 'primary-focus': '249 115 22', 'primary-content': '17 24 39' } },
+    teal: { light: { primary: '13 148 136', 'primary-focus': '15 118 110', 'primary-content': '255 255 255' }, dark: { primary: '45 212 191', 'primary-focus': '20 184 166', 'primary-content': '17 24 39' } },
+    rose: { light: { primary: '225 29 72', 'primary-focus': '190 18 60', 'primary-content': '255 255 255' }, dark: { primary: '251 113 133', 'primary-focus': '244 63 94', 'primary-content': '17 24 39' } },
+    purple: { light: { primary: '139 92 246', 'primary-focus': '124 58 237', 'primary-content': '255 255 255' }, dark: { primary: '167 139 250', 'primary-focus': '139 92 246', 'primary-content': '17 24 39' } },
+    green: { light: { primary: '22 163 74', 'primary-focus': '21 128 61', 'primary-content': '255 255 255' }, dark: { primary: '74 222 128', 'primary-focus': '34 197 94', 'primary-content': '17 24 39' } },
+};
+
 
 const utils = {
     getCategoryFromClassList: (element: Element): TagCategory => {
@@ -207,6 +250,55 @@ const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'other', label: 'Other', enabled: true, color: 'bg-cat-other' }
 ];
 
+const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; tipContent: React.ReactNode | string; }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnter = () => {
+        if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+        showTimeoutRef.current = setTimeout(() => {
+            setIsVisible(true);
+        }, 300);
+    };
+
+    const handleMouseLeave = () => {
+        if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+        showTimeoutRef.current = null;
+        hideTimeoutRef.current = setTimeout(() => {
+            setIsVisible(false);
+        }, 150);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
+            if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+        };
+    }, []);
+
+    return (
+        <span className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            {children}
+            <AnimatePresence>
+                {isVisible && (
+                    <motion.div
+                        role="tooltip"
+                        initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                        transition={{ duration: 0.15, ease: 'easeOut' }}
+                        className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-gray-100 dark:text-gray-900 z-50"
+                    >
+                        {tipContent}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </span>
+    );
+};
+
 const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { children: React.ReactNode, isActive?: boolean, animation?: "default" | "spin" | "gentle" }) => {
     const variants = {
         default: {
@@ -333,8 +425,41 @@ ImagePreview.displayName = 'ImagePreview';
 
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
+    const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
+
+    useEffect(() => {
+        setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
+    }, [settings.customColorHex]);
+
     const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference });
-    const handleColorThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ colorTheme: event.target.value as ColorTheme });
+
+    const handleColorThemeRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value as ColorTheme;
+        if (value === 'custom') {
+            const validHex = /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : DEFAULT_CUSTOM_COLOR_HEX;
+            onSettingsChange({ colorTheme: 'custom', customColorHex: validHex });
+            setCurrentCustomHex(validHex);
+        } else {
+            onSettingsChange({ colorTheme: value });
+        }
+    };
+
+    const handleCustomColorInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newHex = event.target.value;
+        setCurrentCustomHex(newHex);
+        onSettingsChange({ colorTheme: 'custom', customColorHex: newHex });
+    };
+
+    const handleCustomColorTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newHex = event.target.value;
+        const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
+        setCurrentCustomHex(cleanHex);
+
+        if (/^#[0-9a-fA-F]{6}$/.test(cleanHex)) {
+            onSettingsChange({ colorTheme: 'custom', customColorHex: cleanHex });
+        }
+    };
+
     const handleAutoExtractChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked });
 
     const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode; animation: "default" | "spin" | "gentle" }[] = [
@@ -343,11 +468,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         { value: 'dark', label: 'Dark', icon: <MoonIcon />, animation: "default" },
     ];
 
-    const colorThemeOptions: { value: ColorTheme; label: string; colorClass: string }[] = [
+    const colorThemeOptions: { value: Exclude<ColorTheme, 'custom'>; label: string; colorClass: string }[] = [
         { value: 'blue', label: 'Blue', colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' },
         { value: 'orange', label: 'Orange', colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' },
         { value: 'teal', label: 'Teal', colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' },
         { value: 'rose', label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
+        { value: 'purple', label: 'Purple', colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
+        { value: 'green', label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
     ];
 
     return (
@@ -357,9 +484,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                     <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                             <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
-                            <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
-                                <XMarkIcon className="w-6 h-6" />
-                            </motion.button>
+                            <TooltipWrapper tipContent="Close Settings">
+                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
+                                    <XMarkIcon className="w-6 h-6" />
+                                </motion.button>
+                            </TooltipWrapper>
                         </div>
                         <div className="space-y-6">
                             <div>
@@ -377,35 +506,71 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-on-surface mb-2">Color</label>
-                                <div className="flex items-center space-x-2 rounded-lg bg-surface-alt-2 p-1">
+                                <label className="block text-sm font-medium text-on-surface mb-2">Color Theme</label>
+                                <div className="grid grid-cols-3 gap-2 rounded-lg bg-surface-alt-2 p-1">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
-                                        <motion.label whileHover={{ scale: 1.05 }} key={value} className={`relative flex-1 flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`} title={label}>
-                                            <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeChange} className="sr-only" aria-label={`Color Theme ${label}`} />
-                                            <span className={`block w-5 h-5 rounded-full ${colorClass}`}></span>
+                                        <TooltipWrapper key={value} tipContent={label}>
+                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                                <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
+                                                <span className={`block w-5 h-5 rounded-full ${colorClass}`}></span>
+                                                <AnimatePresence>
+                                                    {settings.colorTheme === value && (
+                                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
+                                                            <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                                <span className="sr-only">{label}</span>
+                                            </motion.label>
+                                        </TooltipWrapper>
+                                    ))}
+                                    <TooltipWrapper tipContent="Custom Color">
+                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === 'custom' ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                            <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
+                                            <span className="block w-5 h-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
-                                                {settings.colorTheme === value && (
-                                                    <motion.div
-                                                        className="absolute inset-0 flex items-center justify-center"
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
-                                                        exit={{ scale: 0 }}
-                                                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                                                    >
-                                                        <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                        </svg>
+                                                {settings.colorTheme === 'custom' && (
+                                                    <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
+                                                        <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
-                                            <span className="sr-only">{label}</span>
+                                            <span className="sr-only">Custom</span>
                                         </motion.label>
-                                    ))}
+                                    </TooltipWrapper>
                                 </div>
+                                {settings.colorTheme === 'custom' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="mt-3 flex items-center space-x-3 bg-surface-alt-2 p-3 rounded-lg"
+                                    >
+                                        <input
+                                            type="color"
+                                            value={/^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff'}
+                                            onChange={handleCustomColorInputChange}
+                                            className="w-8 h-8 rounded border border-surface-border cursor-pointer p-0 appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-none"
+                                            aria-label="Custom color picker"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={currentCustomHex}
+                                            onChange={handleCustomColorTextChange}
+                                            maxLength={7}
+                                            className="flex-1 appearance-none bg-surface border border-surface-border rounded-md px-2 py-1 text-sm text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition duration-200 font-mono"
+                                            placeholder="#rrggbb"
+                                            aria-label="Custom color hex code"
+                                            pattern="^#?([a-fA-F0-9]{6})$"
+                                        />
+                                    </motion.div>
+                                )}
                             </div>
                             <div>
                                 <label className="flex items-center justify-between cursor-pointer select-none">
-                                    <span className="text-sm font-medium text-on-surface mr-3">Automatic Extraction</span>
+                                    <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting a valid URL">
+                                        <span className="text-sm font-medium text-on-surface mr-3">Automatic Extraction</span>
+                                    </TooltipWrapper>
                                     <div className="relative">
                                         <input type="checkbox" id="autoExtractToggle" className="sr-only peer" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
                                         <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
@@ -488,26 +653,28 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                     {formattedDate} • {entry.tags.length} tags
                 </p>
             </div>
-            <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
-                onClick={handleLoadClick}
-                className="p-1.5 rounded-full text-on-surface-faint hover:text-primary dark:hover:text-primary transition-colors"
-                title="Load this entry"
-                aria-label="Load this history entry"
-            >
-                <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
-            </motion.button>
-            <motion.button
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
-                onClick={handleDeleteClick}
-                className="p-1.5 rounded-full text-on-surface-faint hover:text-error dark:hover:text-error transition-colors"
-                title="Delete this entry"
-                aria-label="Delete this history entry"
-            >
-                <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-            </motion.button>
+            <TooltipWrapper tipContent="Load Entry">
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
+                    onClick={handleLoadClick}
+                    className="p-1.5 rounded-full text-on-surface-faint hover:text-primary dark:hover:text-primary transition-colors"
+                    aria-label="Load this history entry"
+                >
+                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
+                </motion.button>
+            </TooltipWrapper>
+            <TooltipWrapper tipContent="Delete Entry">
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
+                    onClick={handleDeleteClick}
+                    className="p-1.5 rounded-full text-on-surface-faint hover:text-error dark:hover:text-error transition-colors"
+                    aria-label="Delete this history entry"
+                >
+                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
+                </motion.button>
+            </TooltipWrapper>
         </motion.div>
     );
 });
@@ -599,17 +766,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     <MagnifyingGlassIcon />
                                 </span>
                                 {searchQuery && (
-                                    <motion.button
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full text-on-surface-faint hover:text-on-surface hover:bg-surface-border transition-colors"
-                                        aria-label="Clear search"
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.5 }}
-                                    >
-                                        <XMarkIcon className="w-4 h-4"/>
-                                    </motion.button>
+                                    <TooltipWrapper tipContent="Clear Search">
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full text-on-surface-faint hover:text-on-surface hover:bg-surface-border transition-colors"
+                                            aria-label="Clear search"
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.5 }}
+                                        >
+                                            <XMarkIcon className="w-4 h-4"/>
+                                        </motion.button>
+                                    </TooltipWrapper>
                                 )}
                             </div>
                         </div>
@@ -662,15 +831,17 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                                <motion.button
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setShowClearConfirm(true)}
-                                    className="inline-flex items-center space-x-1 text-xs bg-error-bg text-error hover:bg-red-100 dark:hover:bg-red-900/50 px-2.5 py-1 rounded-md transition-colors font-medium"
-                                    aria-label="Clear History"
-                                >
-                                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-                                    <span>Clear History</span>
-                                </motion.button>
+                                <TooltipWrapper tipContent="Clear All History">
+                                    <motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setShowClearConfirm(true)}
+                                        className="inline-flex items-center space-x-1 text-xs bg-error-bg text-error hover:bg-red-100 dark:hover:bg-red-900/50 px-2.5 py-1 rounded-md transition-colors font-medium"
+                                        aria-label="Clear History"
+                                    >
+                                        <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
+                                        <span>Clear History</span>
+                                    </motion.button>
+                                </TooltipWrapper>
                             </div>
                         )}
                     </motion.div>
@@ -700,7 +871,8 @@ const BooruTagExtractor = () => {
     const [settings, setSettings] = useState<Settings>({
         theme: 'system',
         autoExtract: true,
-        colorTheme: DEFAULT_COLOR_THEME
+        colorTheme: DEFAULT_COLOR_THEME,
+        customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -708,6 +880,7 @@ const BooruTagExtractor = () => {
     useEffect(() => {
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
         const savedColorTheme = localStorage.getItem(COLOR_THEME_STORAGE_KEY) as ColorTheme | null;
+        const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
@@ -715,27 +888,15 @@ const BooruTagExtractor = () => {
             const savedHistoryData = localStorage.getItem(HISTORY_STORAGE_KEY);
             if (savedHistoryData) {
                 const parsed = JSON.parse(savedHistoryData);
-
                 const isValidHistory = (item: unknown): item is StoredHistoryItem => {
-                    if (typeof item !== 'object' || item === null) {
-                        return false;
-                    }
-                    if (!('id' in item && 'url' in item && 'timestamp' in item)) {
-                        return false;
-                    }
-
+                    if (typeof item !== 'object' || item === null) return false;
+                    if (!('id' in item && 'url' in item && 'timestamp' in item)) return false;
                     return !('tags' in item && item.tags !== undefined && !Array.isArray(item.tags));
-
                 };
-
-
                 if (Array.isArray(parsed) && parsed.every(isValidHistory)) {
                     loadedHistory = parsed.map((item) => {
                         const validItem = item as StoredHistoryItem;
-                        return {
-                            ...validItem,
-                            tags: Array.isArray(validItem.tags) ? validItem.tags : []
-                        };
+                        return { ...validItem, tags: Array.isArray(validItem.tags) ? validItem.tags : [] };
                     }).sort((a, b) => b.timestamp - a.timestamp);
                 } else {
                     console.warn("Invalid history data structure in localStorage. Clearing.");
@@ -751,6 +912,7 @@ const BooruTagExtractor = () => {
             setSettings({
                 theme: savedTheme ?? 'system',
                 colorTheme: savedColorTheme ?? DEFAULT_COLOR_THEME,
+                customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
                 autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true
             });
             setHistory(loadedHistory);
@@ -761,41 +923,86 @@ const BooruTagExtractor = () => {
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
+        const root = window.document.documentElement;
+        const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.classList.toggle('dark', isDark);
+        localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
+        localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
+        localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
+        if (settings.customColorHex) {
+            localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
+        } else {
+            localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
+        }
 
-        const applyTheme = (pref: ThemePreference, colorPref: ColorTheme) => {
-            const root = window.document.documentElement;
-            const isDark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            root.classList.toggle('dark', isDark);
-            localStorage.setItem(THEME_STORAGE_KEY, pref);
-            root.setAttribute('data-color-theme', colorPref);
-            localStorage.setItem(COLOR_THEME_STORAGE_KEY, colorPref);
+        const applyCustomTheme = (hex: string, isDarkTheme: boolean) => {
+            root.removeAttribute('data-color-theme');
+            const rootStyle = root.style;
+            const rgb = hexToRgb(hex);
+            if (rgb) {
+                const primaryRgbStr = `${rgb.r} ${rgb.g} ${rgb.b}`;
+                const focusFactor = isDarkTheme ? 1.2 : 0.85;
+                const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
+                const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
 
-            const colors = {
-                blue: { light: { primary: '59 130 246', 'primary-focus': '37 99 235', 'primary-content': '255 255 255' }, dark: { primary: '96 165 250', 'primary-focus': '147 197 253', 'primary-content': '17 24 39' } },
-                orange: { light: { primary: '249 115 22', 'primary-focus': '234 88 12', 'primary-content': '255 255 255' }, dark: { primary: '251 146 60', 'primary-focus': '253 186 116', 'primary-content': '77 21 0' } },
-                teal: { light: { primary: '13 148 136', 'primary-focus': '15 118 110', 'primary-content': '255 255 255' }, dark: { primary: '45 212 191', 'primary-focus': '94 234 212', 'primary-content': '7 43 40' } },
-                rose: { light: { primary: '225 29 72', 'primary-focus': '190 18 60', 'primary-content': '255 255 255' }, dark: { primary: '251 113 133', 'primary-focus': '253 164 175', 'primary-content': '64 8 20' } },
-            };
-            const currentColors = colors[colorPref][isDark ? 'dark' : 'light'];
-            root.style.setProperty('--color-primary-rgb', currentColors.primary);
-            root.style.setProperty('--color-primary-focus-rgb', currentColors['primary-focus']);
-            root.style.setProperty('--color-primary-content-rgb', currentColors['primary-content']);
-            root.style.setProperty('--color-error-rgb', isDark ? '248 113 113' : '239 68 68');
-            root.style.setProperty('--color-error-content-rgb', isDark ? '55 4 4' : '255 255 255');
-            root.style.setProperty('--color-success-rgb', isDark ? '74 222 128' : '34 197 94');
-            root.style.setProperty('--color-success-content-rgb', isDark ? '6 40 15' : '255 255 255');
-            root.style.setProperty('--color-info-rgb', isDark ? '96 165 250' : '59 130 246');
-            root.style.setProperty('--color-info-content-rgb', isDark ? '30 58 138' : '30 64 175');
+                rootStyle.setProperty('--color-primary-rgb', primaryRgbStr);
+                rootStyle.setProperty('--color-primary-focus-rgb', focusRgbStr);
+                rootStyle.setProperty('--color-primary-content-rgb', contentRgbStr);
+            } else {
+                applyPredefinedTheme(DEFAULT_COLOR_THEME, isDarkTheme);
+            }
         };
 
-        applyTheme(settings.theme, settings.colorTheme);
-        localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
+        const applyPredefinedTheme = (themeName: Exclude<ColorTheme, 'custom'>, isDarkTheme: boolean) => {
+            root.setAttribute('data-color-theme', themeName);
+            const rootStyle = root.style;
+            rootStyle.removeProperty('--color-primary-rgb');
+            rootStyle.removeProperty('--color-primary-focus-rgb');
+            rootStyle.removeProperty('--color-primary-content-rgb');
+
+            const theme = PREDEFINED_COLORS[themeName] ?? PREDEFINED_COLORS.blue;
+            const currentColors = theme[isDarkTheme ? 'dark' : 'light'];
+            rootStyle.setProperty('--color-primary', currentColors.primary);
+            rootStyle.setProperty('--color-primary-focus', currentColors['primary-focus']);
+            rootStyle.setProperty('--color-primary-content', currentColors['primary-content']);
+        };
+
+        const applyBaseColors = (isDarkTheme: boolean) => {
+            const rootStyle = root.style;
+            rootStyle.setProperty('--color-error-rgb', isDarkTheme ? '248 113 113' : '220 38 38');
+            rootStyle.setProperty('--color-error-content-rgb', isDarkTheme ? '55 4 4' : '255 255 255');
+            rootStyle.setProperty('--color-success-rgb', isDarkTheme ? '74 222 128' : '22 163 74');
+            rootStyle.setProperty('--color-success-content-rgb', isDarkTheme ? '6 40 15' : '255 255 255');
+            rootStyle.setProperty('--color-info-rgb', isDarkTheme ? '147 197 253' : '59 130 246');
+            rootStyle.setProperty('--color-info-content-rgb', isDarkTheme ? '30 58 138' : '30 64 175');
+        };
+
+        if (settings.colorTheme === 'custom' && settings.customColorHex) {
+            applyCustomTheme(settings.customColorHex, isDark);
+        } else if (settings.colorTheme !== 'custom') {
+            // Use type assertion here or check explicitly
+            applyPredefinedTheme(settings.colorTheme as Exclude<ColorTheme, 'custom'>, isDark);
+        } else {
+            applyPredefinedTheme(DEFAULT_COLOR_THEME, isDark);
+        }
+        applyBaseColors(isDark);
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => { if (settings.theme === 'system') { applyTheme('system', settings.colorTheme); } };
+        const handleChange = () => { if (settings.theme === 'system') {
+            const newIsDark = mediaQuery.matches;
+            if (settings.colorTheme === 'custom' && settings.customColorHex) {
+                applyCustomTheme(settings.customColorHex, newIsDark);
+            } else if (settings.colorTheme !== 'custom'){
+                applyPredefinedTheme(settings.colorTheme as Exclude<ColorTheme, 'custom'>, newIsDark);
+            } else {
+                applyPredefinedTheme(DEFAULT_COLOR_THEME, newIsDark);
+            }
+            applyBaseColors(newIsDark);
+        } };
         if (settings.theme === 'system') { mediaQuery.addEventListener('change', handleChange); }
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
+
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -1066,21 +1273,23 @@ const BooruTagExtractor = () => {
                             <span className="text-sm text-on-surface-muted mr-2">Supports:</span>
                             {BOORU_SITES.map((site) => (
                                 <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' : 'bg-surface-alt-2 text-on-surface-muted'}`}>
-                                     {site.name}
-                                 </span>
+                                    {site.name}
+                                </span>
                             ))}
                         </div>
                     </div>
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        whileHover={{ rotate: 15, scale: 1.1 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                        onClick={() => setShowSettings(true)}
-                        className="flex-shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
-                        aria-label="Open Settings"
-                    >
-                        <CogIcon />
-                    </motion.button>
+                    <TooltipWrapper tipContent="Settings">
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            whileHover={{ rotate: 15, scale: 1.1 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                            onClick={() => setShowSettings(true)}
+                            className="flex-shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
+                            aria-label="Open Settings"
+                        >
+                            <CogIcon />
+                        </motion.button>
+                    </TooltipWrapper>
                 </div>
 
                 <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
@@ -1092,22 +1301,24 @@ const BooruTagExtractor = () => {
                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-sm hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
                             {loading ? <LoadingSpinner /> : 'Extract Manually'}
                         </motion.button>
-                        <motion.button
-                            whileTap={{ scale: 0.97 }}
-                            onClick={handleReset}
-                            className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
-                            aria-label="Reset Form"
-                        >
-                            <motion.span
-                                whileTap={{ rotate: -90 }}
-                                whileHover={{ rotate: -15 }}
-                                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                                className="mr-2 inline-block"
+                        <TooltipWrapper tipContent="Clear input, results, and filters">
+                            <motion.button
+                                whileTap={{ scale: 0.97 }}
+                                onClick={handleReset}
+                                className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
+                                aria-label="Reset Form"
                             >
-                                <ArrowPathIcon />
-                            </motion.span>
-                            Reset
-                        </motion.button>
+                                <motion.span
+                                    whileTap={{ rotate: -90 }}
+                                    whileHover={{ rotate: -15 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                    className="mr-2 inline-block"
+                                >
+                                    <ArrowPathIcon />
+                                </motion.span>
+                                Reset
+                            </motion.button>
+                        </TooltipWrapper>
                     </div>
 
                     <AnimatePresence>
