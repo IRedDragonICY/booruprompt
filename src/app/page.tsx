@@ -559,6 +559,8 @@ const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" view
 const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
 const PhotoIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
 const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
+const ArrowDownTrayIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
+
 
 const MotionCard = motion.div;
 
@@ -1171,6 +1173,7 @@ const BooruTagExtractor = () => {
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
+    const [isDraggingOver, setIsDraggingOver] = useState(false);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
@@ -1593,6 +1596,43 @@ const BooruTagExtractor = () => {
         localStorage.removeItem(HISTORY_STORAGE_KEY);
     }, []);
 
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const types = e.dataTransfer.types;
+        if (types.includes('text/uri-list') || types.includes('text/plain')) {
+            e.dataTransfer.dropEffect = 'copy';
+            setIsDraggingOver(true);
+        } else {
+            e.dataTransfer.dropEffect = 'none';
+        }
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDraggingOver(false);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDraggingOver(false);
+
+        let droppedUrl = e.dataTransfer.getData('text/uri-list');
+        if (!droppedUrl) {
+            droppedUrl = e.dataTransfer.getData('text/plain');
+        }
+
+        if (droppedUrl && (droppedUrl.startsWith('http://') || droppedUrl.startsWith('https://'))) {
+            const trimmedUrl = droppedUrl.trim();
+            if (trimmedUrl) {
+                handleReset();
+                currentExtractionUrl.current = null;
+                setUrl(trimmedUrl);
+            }
+        } else {
+            console.warn("Dropped item is not a valid URL:", droppedUrl);
+        }
+    }, [handleReset]);
+
     const shouldShowPreviewSection = useMemo(() => {
         return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
     }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
@@ -1600,11 +1640,31 @@ const BooruTagExtractor = () => {
     return (
         <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 overflow-hidden">
             <MotionCard
-                className="w-full max-w-xl bg-surface-alt rounded-xl shadow-lg flex flex-col overflow-hidden border border-surface-border max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
+                className="relative w-full max-w-xl bg-surface-alt rounded-xl shadow-lg flex flex-col overflow-hidden border border-surface-border max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
             >
+                <AnimatePresence>
+                    {isDraggingOver && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-primary/20 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary"
+                        >
+                            <div className="text-center text-primary-content bg-primary/80 px-4 py-2 rounded-lg shadow">
+                                <ArrowDownTrayIcon className="w-8 h-8 mx-auto mb-1"/>
+                                <p className="font-semibold">Drop URL Here</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className="flex-shrink-0 sticky top-0 z-10 px-6 py-5 border-b border-surface-border bg-surface-alt flex justify-between items-start">
                     <div className="flex-grow pr-4 sm:pr-10">
                         <h1 className="text-xl sm:text-2xl font-semibold text-on-surface">Booru Tag Extractor</h1>
@@ -1634,7 +1694,7 @@ const BooruTagExtractor = () => {
                 <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                     <div>
                         <label htmlFor="url" className="block text-sm font-medium text-on-surface mb-1.5">Booru Post URL</label>
-                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder={settings.autoExtract ? "Paste URL here for auto-magic..." : "Paste URL here..."} value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
+                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder={settings.autoExtract ? "Paste URL here or Drag & Drop..." : "Paste URL here or Drag & Drop..."} value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
                     </div>
                     <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-sm hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
