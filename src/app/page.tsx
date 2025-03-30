@@ -50,7 +50,7 @@ const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
-const FETCH_TIMEOUT_MS = 25000; // 25 seconds timeout
+const FETCH_TIMEOUT_MS = 25000;
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -96,6 +96,17 @@ const utils = {
             return utils.getCategoryFromClassList(parentCategoryElement);
         }
         return 'general';
+    },
+    getCategoryFromE621DataAttr: (dataCategory: string | undefined | null): TagCategory => {
+        switch (dataCategory?.toLowerCase()) {
+            case 'copyright': return 'copyright';
+            case 'character': return 'character';
+            case 'general': return 'general';
+            case 'meta': return 'meta';
+            case 'artist': return 'other';
+            case 'species': return 'general';
+            default: return 'other';
+        }
     },
     getCategoryFromHeader: (text: string): TagCategory => {
         const normalized = text.toLowerCase().trim();
@@ -231,11 +242,30 @@ const extractionStrategies = {
         imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source, video#videoelement source', 'src'),
         title: utils.extractTitle(doc, 'title')
     }),
-    e621: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: '#tag-list section > ul > li[class*="tag-type-"]', tag: '.tag a span.tag-name, a.tag-name' }),
-        imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source', 'src'),
-        title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc, 'title')
-    }),
+    e621: (doc: Document): ExtractionResult => {
+        const tags: ExtractedTag[] = [];
+        const listItems = doc.querySelectorAll('section#tag-list > ul > li.tag-list-item');
+        listItems.forEach(item => {
+            const dataCategory = item.getAttribute('data-category');
+            const category = utils.getCategoryFromE621DataAttr(dataCategory);
+            const tagNameElement = item.querySelector('a.tag-list-search > span:not(.tag-list-count)');
+            const tagName = tagNameElement?.textContent?.trim();
+
+            if (tagName) {
+                const cleanName = utils.cleanTagName(tagName);
+                if (cleanName) {
+                    tags.push({ name: cleanName, category });
+                }
+            }
+        });
+        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        return {
+            tags: uniqueTags,
+            imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source', 'src'),
+            title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc, 'title')
+        };
+    },
     aibooru: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsByClass(doc, { container: 'div.categorized-tag-list li[class*="tag-type-"]', tag: 'a.search-tag' }),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
@@ -429,7 +459,6 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading }: { originalUr
 
     const proxiedUrl = useMemo(() => {
         if (!originalUrl) return undefined;
-        // Avoid double-proxying if URL already comes from history/cache
         if (originalUrl.includes(CORS_PROXY_URL.split('?')[0])) {
             return originalUrl;
         }
@@ -454,7 +483,6 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading }: { originalUr
 
     return (
         <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            {/* Keep loading indicator based on state, useful for initial load before Image component hydrates/mounts */}
             {(imgLoading && !isVideo) && <div className="absolute inset-0 flex items-center justify-center bg-surface-alt-2 animate-pulse text-on-surface-faint">Loading...</div>}
             {isVideo ? (
                 <video key={proxiedUrl} controls muted className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
@@ -463,10 +491,10 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading }: { originalUr
             ) : (
                 <Image
                     key={proxiedUrl}
-                    src={proxiedUrl!} // Assert non-null as we check originalUrl earlier
+                    src={proxiedUrl!}
                     alt={title || "Booru preview"}
                     fill={true}
-                    unoptimized={true} // Use unoptimized to avoid next.config.js changes and potential dimension issues
+                    unoptimized={true}
                     onLoad={handleLoad}
                     onError={handleError}
                     className={`object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}
@@ -678,7 +706,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
     }, [entry.imageUrl]);
 
     useEffect(() => {
-        setShowPlaceholder(!proxiedImageUrl); // Reset placeholder visibility when entry changes
+        setShowPlaceholder(!proxiedImageUrl);
     }, [proxiedImageUrl]);
 
     const handleError = () => { setShowPlaceholder(true); };
@@ -702,7 +730,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                         unoptimized={true}
                         className="object-cover w-full h-full"
                         onError={handleError}
-                        onLoad={() => setShowPlaceholder(false)} // Ensure placeholder hides on successful load
+                        onLoad={() => setShowPlaceholder(false)}
                     />
                 )}
                 {showPlaceholder && (
