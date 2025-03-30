@@ -15,6 +15,7 @@ interface Settings {
     autoExtract: boolean;
     colorTheme: ColorTheme;
     customColorHex?: string;
+    enableImagePreviews: boolean;
 }
 interface HistoryEntry {
     id: string;
@@ -45,6 +46,7 @@ const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
+const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
@@ -555,7 +557,7 @@ const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
 const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
-const PhotoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint"><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
+const PhotoIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
 const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
 
 const MotionCard = motion.div;
@@ -613,34 +615,47 @@ const LoadingSpinner = () => (
     </motion.span>
 );
 
-const ImagePreview = React.memo(({ originalUrl, title, isLoading }: { originalUrl?: string; title?: string; isLoading: boolean; }) => {
+interface ImagePreviewProps {
+    originalUrl?: string;
+    title?: string;
+    isLoading: boolean;
+    enableImagePreviews: boolean;
+}
+
+const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePreviews }: ImagePreviewProps) => {
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
     const isVideo = originalUrl?.match(/\.(mp4|webm|ogg)$/i);
+    const placeholderBaseClasses = "w-full h-64 flex items-center justify-center rounded-lg text-on-surface-faint";
 
     const proxiedUrl = useMemo(() => {
-        if (!originalUrl) return undefined;
+        if (!originalUrl || !enableImagePreviews) return undefined;
         if (originalUrl.includes(CORS_PROXY_URL.split('?')[0])) {
             return originalUrl;
         }
         return `${CORS_PROXY_URL}${encodeURIComponent(originalUrl)}`;
-    }, [originalUrl]);
+    }, [originalUrl, enableImagePreviews]);
 
     useEffect(() => {
-        if (originalUrl || isLoading) {
+        if (enableImagePreviews && (originalUrl || isLoading)) {
             setImgLoading(true);
             setImgError(false);
+        } else {
+            setImgLoading(false);
+            setImgError(false);
         }
-    }, [originalUrl, isLoading]);
+    }, [originalUrl, isLoading, enableImagePreviews]);
 
     const handleLoad = () => setImgLoading(false);
     const handleError = () => { setImgLoading(false); setImgError(true); };
 
-    const placeholderClasses = "w-full h-64 flex items-center justify-center bg-surface-alt-2 rounded-lg text-on-surface-faint";
+    if (!enableImagePreviews) {
+        return null;
+    }
 
-    if (isLoading) return <div className={`${placeholderClasses} animate-pulse`}>Loading preview...</div>;
+    if (isLoading) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 animate-pulse`}>Loading preview...</div>;
     if (!originalUrl) return null;
-    if (imgError) return <div className={`${placeholderClasses} border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Possibly CORS, invalid URL, or proxy issue)</p></div></div>;
+    if (imgError) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Possibly CORS, invalid URL, or proxy issue)</p></div></div>;
 
     return (
         <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
@@ -709,6 +724,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     };
 
     const handleAutoExtractChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked });
+    const handleImagePreviewsChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked });
 
     const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode; animation: "default" | "spin" | "gentle" }[] = [
         { value: 'system', label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" },
@@ -833,6 +849,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 </label>
                                 <p className="text-xs text-on-surface-muted mt-1.5">Extract tags automatically after pasting a valid URL.</p>
                             </div>
+                            <div>
+                                <label className="flex items-center justify-between cursor-pointer select-none">
+                                    <TooltipWrapper tipContent="Enable or disable image previews to save bandwidth">
+                                        <span className="text-sm font-medium text-on-surface mr-3">Enable Image Previews</span>
+                                    </TooltipWrapper>
+                                    <div className="relative">
+                                        <input type="checkbox" id="imagePreviewsToggle" className="sr-only peer" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
+                                        <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
+                                        <motion.div
+                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm"
+                                            layout
+                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                                            initial={false}
+                                            animate={{ x: settings.enableImagePreviews ? 20 : 0 }}
+                                        ></motion.div>
+                                    </div>
+                                </label>
+                                <p className="text-xs text-on-surface-muted mt-1.5">Show image previews during extraction and in history. Disabling saves bandwidth.</p>
+                            </div>
                         </div>
                         <div className="mt-8 pt-4 border-t border-surface-border text-right">
                             <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200">Done</motion.button>
@@ -849,9 +884,10 @@ interface HistoryItemProps {
     entry: HistoryEntry;
     onLoad: (entry: HistoryEntry) => void;
     onDelete: (id: string) => void;
+    enableImagePreviews: boolean;
 }
-const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onDelete }) => {
-    const [showPlaceholder, setShowPlaceholder] = useState(!entry.imageUrl);
+const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }) => {
+    const [showPlaceholder, setShowPlaceholder] = useState(!entry.imageUrl || !enableImagePreviews);
     const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
         dateStyle: 'short',
         timeStyle: 'short',
@@ -861,17 +897,16 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
     const handleDeleteClick = (e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); };
 
     const proxiedImageUrl = useMemo(() => {
-        if (!entry.imageUrl) return undefined;
+        if (!entry.imageUrl || !enableImagePreviews) return undefined;
         if (entry.imageUrl.includes(CORS_PROXY_URL.split('?')[0])) return entry.imageUrl;
         return `${CORS_PROXY_URL}${encodeURIComponent(entry.imageUrl)}`;
-    }, [entry.imageUrl]);
+    }, [entry.imageUrl, enableImagePreviews]);
 
     useEffect(() => {
         setShowPlaceholder(!proxiedImageUrl);
     }, [proxiedImageUrl]);
 
     const handleError = () => { setShowPlaceholder(true); };
-
 
     return (
         <motion.div
@@ -882,7 +917,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             className="flex items-center space-x-3 p-3 bg-surface-alt-2 rounded-lg hover:bg-surface-border transition-colors"
         >
             <div className="w-10 h-10 rounded flex-shrink-0 bg-surface-border overflow-hidden relative">
-                {!showPlaceholder && proxiedImageUrl && (
+                {enableImagePreviews && !showPlaceholder && proxiedImageUrl && (
                     <Image
                         src={proxiedImageUrl}
                         alt="preview"
@@ -894,9 +929,9 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                         onLoad={() => setShowPlaceholder(false)}
                     />
                 )}
-                {showPlaceholder && (
+                {(!enableImagePreviews || showPlaceholder) && (
                     <div className="w-full h-full flex items-center justify-center">
-                        <AnimatedIcon animation="gentle"><PhotoIcon /></AnimatedIcon>
+                        <AnimatedIcon animation="gentle"><PhotoIcon className="w-5 h-5 text-on-surface-faint" /></AnimatedIcon>
                     </div>
                 )}
             </div>
@@ -942,8 +977,9 @@ interface HistoryPanelProps {
     onLoadEntry: (entry: HistoryEntry) => void;
     onDeleteEntry: (id: string) => void;
     onClearHistory: () => void;
+    enableImagePreviews: boolean;
 }
-const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory }) => {
+const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory, enableImagePreviews }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -1048,6 +1084,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                         entry={entry}
                                         onLoad={onLoadEntry}
                                         onDelete={onDeleteEntry}
+                                        enableImagePreviews={enableImagePreviews}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -1130,6 +1167,7 @@ const BooruTagExtractor = () => {
         autoExtract: true,
         colorTheme: DEFAULT_COLOR_THEME,
         customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
+        enableImagePreviews: true,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -1139,6 +1177,7 @@ const BooruTagExtractor = () => {
         const savedColorTheme = localStorage.getItem(COLOR_THEME_STORAGE_KEY) as ColorTheme | null;
         const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
+        const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -1166,12 +1205,14 @@ const BooruTagExtractor = () => {
         }
 
         if (typeof window !== 'undefined') {
-            setSettings({
+            const initialSettings: Settings = {
                 theme: savedTheme ?? 'system',
                 colorTheme: savedColorTheme ?? DEFAULT_COLOR_THEME,
                 customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
-                autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true
-            });
+                autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
+                enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
+            };
+            setSettings(initialSettings);
             setHistory(loadedHistory);
             setIsMobile(window.innerWidth < 768);
         }
@@ -1186,6 +1227,7 @@ const BooruTagExtractor = () => {
         localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
+        localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
         if (settings.customColorHex) {
             localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         } else {
@@ -1551,6 +1593,10 @@ const BooruTagExtractor = () => {
         localStorage.removeItem(HISTORY_STORAGE_KEY);
     }, []);
 
+    const shouldShowPreviewSection = useMemo(() => {
+        return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
+    }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
+
     return (
         <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 overflow-hidden">
             <MotionCard
@@ -1619,10 +1665,15 @@ const BooruTagExtractor = () => {
                         {error && <StatusMessage type="error">{error}</StatusMessage>}
                     </AnimatePresence>
 
-                    {(imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)) && (
+                    {shouldShowPreviewSection && (
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-on-surface-muted">Preview</h3>
-                            <ImagePreview originalUrl={imageUrl} title={imageTitle} isLoading={loading && !imageUrl} />
+                            <ImagePreview
+                                originalUrl={imageUrl}
+                                title={imageTitle}
+                                isLoading={loading && !imageUrl}
+                                enableImagePreviews={settings.enableImagePreviews}
+                            />
                         </div>
                     )}
 
@@ -1688,6 +1739,7 @@ const BooruTagExtractor = () => {
                         onLoadEntry={handleLoadHistoryEntry}
                         onDeleteEntry={handleDeleteHistoryEntry}
                         onClearHistory={handleClearHistory}
+                        enableImagePreviews={settings.enableImagePreviews}
                     />
 
                 </div>
