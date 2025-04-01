@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  *:focus-visible {
-    @apply ring-offset-surface dark:ring-offset-surface-alt;
-  }
-
   :root, html[data-color-theme="blue"] {
     --color-primary: 59 130 246;
     --color-primary-focus: 37 99 235;
@@ -37,6 +33,13 @@
     --cat-color-general: 59 130 246;
     --cat-color-meta: 16 185 129;
     --cat-color-other: 245 158 11;
+
+    --color-primary-rgb: 59, 130, 246;
+    --color-primary-focus-rgb: 37, 99, 235;
+    --color-primary-content-rgb: 255, 255, 255;
+    --color-surface-rgb: 248, 250, 252;
+    --color-error-rgb: 220, 38, 38;
+    --color-error-content-rgb: 190, 24, 24;
   }
 
   html.dark {
@@ -59,6 +62,10 @@
     --cat-color-character: 129 140 248;
     --cat-color-meta: 52 211 153;
     --cat-color-other: 251 191 36;
+
+    --color-surface-rgb: 17, 24, 39;
+    --color-error-rgb: 248, 113, 113;
+    --color-error-content-rgb: 248, 113, 113;
   }
 
   html[data-color-theme="blue"].dark {
@@ -72,6 +79,10 @@
     --color-accent-focus: 20 184 166;
     --color-accent-content: 15 118 110;
     --cat-color-general: 96 165 250;
+
+    --color-primary-rgb: 96, 165, 250;
+    --color-primary-focus-rgb: 59, 130, 246;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
   html[data-color-theme="orange"] {
@@ -82,6 +93,10 @@
     --color-secondary-focus: 37 99 235;
     --color-secondary-content: 255 255 255;
     --cat-color-general: 249 115 22;
+
+    --color-primary-rgb: 249, 115, 22;
+    --color-primary-focus-rgb: 234, 88, 12;
+    --color-primary-content-rgb: 255, 255, 255;
   }
 
   html[data-color-theme="orange"].dark {
@@ -92,6 +107,10 @@
     --color-secondary-focus: 59 130 246;
     --color-secondary-content: 17 24 39;
     --cat-color-general: 251 146 60;
+
+    --color-primary-rgb: 251, 146, 60;
+    --color-primary-focus-rgb: 249, 115, 22;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
   html[data-color-theme="teal"] {
@@ -102,6 +121,10 @@
     --color-secondary-focus: 219 39 119;
     --color-secondary-content: 255 255 255;
     --cat-color-general: 13 148 136;
+
+    --color-primary-rgb: 13, 148, 136;
+    --color-primary-focus-rgb: 15, 118, 110;
+    --color-primary-content-rgb: 255, 255, 255;
   }
 
   html[data-color-theme="teal"].dark {
@@ -112,6 +135,10 @@
     --color-secondary-focus: 236 72 153;
     --color-secondary-content: 17 24 39;
     --cat-color-general: 45 212 191;
+
+    --color-primary-rgb: 45, 212, 191;
+    --color-primary-focus-rgb: 20, 184, 166;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
   html[data-color-theme="rose"] {
@@ -122,6 +149,10 @@
     --color-secondary-focus: 67 56 202;
     --color-secondary-content: 255 255 255;
     --cat-color-general: 225 29 72;
+
+    --color-primary-rgb: 225, 29, 72;
+    --color-primary-focus-rgb: 190, 18, 60;
+    --color-primary-content-rgb: 255, 255, 255;
   }
 
   html[data-color-theme="rose"].dark {
@@ -132,6 +163,10 @@
     --color-secondary-focus: 99 102 241;
     --color-secondary-content: 17 24 39;
     --cat-color-general: 251 113 133;
+
+    --color-primary-rgb: 251, 113, 133;
+    --color-primary-focus-rgb: 244, 63, 94;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
   html[data-color-theme="purple"] {
@@ -142,6 +177,10 @@
     --color-secondary-focus: 5 150 105;
     --color-secondary-content: 255 255 255;
     --cat-color-general: 139 92 246;
+
+    --color-primary-rgb: 139, 92, 246;
+    --color-primary-focus-rgb: 124, 58, 237;
+    --color-primary-content-rgb: 255, 255, 255;
   }
 
   html[data-color-theme="purple"].dark {
@@ -152,6 +191,10 @@
     --color-secondary-focus: 16 185 129;
     --color-secondary-content: 17 24 39;
     --cat-color-general: 167 139 250;
+
+    --color-primary-rgb: 167, 139, 250;
+    --color-primary-focus-rgb: 139, 92, 246;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
   html[data-color-theme="green"] {
@@ -162,6 +205,10 @@
     --color-secondary-focus: 217 119 6;
     --color-secondary-content: 255 255 255;
     --cat-color-general: 22 163 74;
+
+    --color-primary-rgb: 22, 163, 74;
+    --color-primary-focus-rgb: 21, 128, 61;
+    --color-primary-content-rgb: 255, 255, 255;
   }
 
   html[data-color-theme="green"].dark {
@@ -172,6 +219,10 @@
     --color-secondary-focus: 245 158 11;
     --color-secondary-content: 17 24 39;
     --cat-color-general: 74 222 128;
+
+    --color-primary-rgb: 74, 222, 128;
+    --color-primary-focus-rgb: 34, 197, 94;
+    --color-primary-content-rgb: 17, 24, 39;
   }
 
 }
