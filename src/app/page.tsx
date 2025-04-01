@@ -32,6 +32,12 @@ type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'cu
 type FetchMode = 'server' | 'clientProxy';
 type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; variable: string };
 
+interface ClientProxyOption {
+    id: string;
+    label: string;
+    value: string;
+}
+
 interface Settings {
     theme: ThemePreference;
     autoExtract: boolean;
@@ -39,6 +45,7 @@ interface Settings {
     customColorHex?: string;
     enableImagePreviews: boolean;
     fetchMode: FetchMode;
+    clientProxyUrl: string;
 }
 interface HistoryEntry {
     id: string;
@@ -65,6 +72,7 @@ const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
 const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
+const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
@@ -72,8 +80,14 @@ const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
-const CLIENT_PROXY_URL = 'https://api.allorigins.win/get?url=';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
+
+const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
+    { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
+    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
+    { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
+];
+const DEFAULT_CLIENT_PROXY_URL = CLIENT_PROXY_OPTIONS[0].value;
 
 
 const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; tipContent: React.ReactNode | string; }) => {
@@ -208,16 +222,16 @@ const CategoryToggle = React.memo(({ category, count, onToggle }: { category: Ta
                 />
                 <div
                     className={`
-                        relative h-8 w-14 rounded-full 
-                        bg-[rgb(var(--color-surface-border-rgb))] 
+                        relative h-8 w-14 rounded-full
+                        bg-[rgb(var(--color-surface-border-rgb))]
                         transition-all duration-300 ease-out
-                        peer-focus:outline-none peer-focus:ring-2 
-                        peer-focus:ring-[rgb(var(--color-primary-rgb))] 
-                        peer-focus:ring-offset-2 
-                        peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))] 
+                        peer-focus:outline-none peer-focus:ring-2
+                        peer-focus:ring-[rgb(var(--color-primary-rgb))]
+                        peer-focus:ring-offset-2
+                        peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]
                         peer-checked:bg-[rgb(var(${category.variable}))]
                         after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                        after:h-7 after:w-7 after:rounded-full after:bg-white 
+                        after:h-7 after:w-7 after:rounded-full after:bg-white
                         peer-checked:after:translate-x-6
                         after:shadow-sm after:transition-all after:duration-300
                         dark:after:bg-gray-200
@@ -379,6 +393,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
     const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
+    const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
@@ -397,7 +412,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
 
     const fetchModeOptions = useMemo(() => [
         { value: 'server' as FetchMode, label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
-        { value: 'clientProxy' as FetchMode, label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy (AllOrigins) in your browser. May be less reliable or rate-limited.' },
+        { value: 'clientProxy' as FetchMode, label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy in your browser. May be less reliable or rate-limited.' },
     ], []);
 
     const isValidHex = useMemo(() => /^#[0-9a-fA-F]{6}$/.test(currentCustomHex), [currentCustomHex]);
@@ -496,26 +511,53 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Data Fetching Method</label>
                                 <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
-                                        <label key={value} className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                            <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
-                                            <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                                {icon}
-                                            </div>
-                                            <div className="flex-1">
-                                                <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                                <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
-                                            </div>
-                                            <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
-                                                <AnimatePresence>
-                                                    {settings.fetchMode === value && (
-                                                        <motion.div
-                                                            initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                                                            className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
-                                                        />
-                                                    )}
-                                                </AnimatePresence>
-                                            </div>
-                                        </label>
+                                        <div key={value}>
+                                            <label className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                                <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
+                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                                                    {icon}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
+                                                </div>
+                                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
+                                                    <AnimatePresence>
+                                                        {settings.fetchMode === value && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                                                                className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
+                                                            />
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </label>
+                                            {value === 'clientProxy' && settings.fetchMode === 'clientProxy' && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
+                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    className="pl-12 pr-3"
+                                                >
+                                                    <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Select Client Proxy Service:</label>
+                                                    <select
+                                                        id="clientProxySelect"
+                                                        value={settings.clientProxyUrl}
+                                                        onChange={handleClientProxyChange}
+                                                        className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                                        aria-label="Client Proxy Service Selector"
+                                                    >
+                                                        {CLIENT_PROXY_OPTIONS.map(option => (
+                                                            <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Performance and reliability vary between proxies.</p>
+                                                </motion.div>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -585,6 +627,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
 };
 SettingsModal.displayName = 'SettingsModal';
 
+// ... rest of the BooruTagExtractor component and other components remain unchanged ...
+
+// HistoryItem component
 interface HistoryItemProps {
     entry: HistoryEntry;
     onLoad: (entry: HistoryEntry) => void;
@@ -677,6 +722,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
 });
 HistoryItem.displayName = 'HistoryItem';
 
+// HistoryPanel component
 interface HistoryPanelProps {
     history: HistoryEntry[];
     onLoadEntry: (entry: HistoryEntry) => void;
@@ -836,6 +882,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 };
 HistoryPanel.displayName = 'HistoryPanel';
 
+// BooruTagExtractor component (main)
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<ExtractedTag[]>([]);
@@ -858,6 +905,7 @@ const BooruTagExtractor = () => {
         customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
         enableImagePreviews: true,
         fetchMode: DEFAULT_FETCH_MODE,
+        clientProxyUrl: DEFAULT_CLIENT_PROXY_URL,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -870,6 +918,7 @@ const BooruTagExtractor = () => {
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
         const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
         const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
+        const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -901,6 +950,7 @@ const BooruTagExtractor = () => {
             autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
             enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
             fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
+            clientProxyUrl: savedClientProxyUrl ?? DEFAULT_CLIENT_PROXY_URL,
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
@@ -940,6 +990,7 @@ const BooruTagExtractor = () => {
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
         localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
+        localStorage.setItem(CLIENT_PROXY_URL_STORAGE_KEY, settings.clientProxyUrl);
         if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
 
@@ -1018,9 +1069,12 @@ const BooruTagExtractor = () => {
 
         let html = '';
         let fetchError = '';
+        let proxyUsed = '';
+        let selectedProxy: ClientProxyOption | undefined;
 
         try {
             if (settings.fetchMode === 'server') {
+                proxyUsed = 'Server Proxy';
                 const response = await fetch(API_ROUTE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetUrl: trimmedUrl }), signal: controller.signal });
                 const responseData = await response.json();
                 if (!response.ok || responseData.error) {
@@ -1032,13 +1086,37 @@ const BooruTagExtractor = () => {
                 } else if (!responseData.html) fetchError = 'Received empty HTML from server proxy.';
                 else html = responseData.html;
             } else {
-                const proxyFetchUrl = `${CLIENT_PROXY_URL}${encodeURIComponent(trimmedUrl)}`;
+                selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0];
+                proxyUsed = `Client Proxy (${selectedProxy.label})`;
+                const proxyFetchUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`;
                 const response = await fetch(proxyFetchUrl, { signal: controller.signal });
-                if (!response.ok) fetchError = `Client proxy failed: ${response.status}. Service may be down/blocking.`;
-                else {
-                    const data = await response.json();
-                    if (!data?.contents) fetchError = 'Client proxy returned invalid/empty content.';
-                    else html = data.contents;
+                if (!response.ok) {
+                     fetchError = `Client proxy (${selectedProxy.label}) failed: ${response.status}. Service may be down/blocking.`;
+                } else {
+                    html = await response.text();
+
+                    if (!html) {
+                        fetchError = `Client proxy (${selectedProxy.label}) returned empty content.`;
+                    } else if (selectedProxy.id === 'allorigins') {
+                        try {
+                            const jsonData = JSON.parse(html);
+                            if (jsonData && jsonData.contents) {
+                                html = jsonData.contents;
+                            } else {
+                                fetchError = `Client proxy (${selectedProxy.label}) returned JSON but missing 'contents' field.`;
+                                html = '';
+                            }
+                        } catch (parseError) {
+                             console.warn(`Received non-JSON response from AllOrigins, treating as direct content: ${parseError}`);
+                             if (html.toLowerCase().includes("error") || html.toLowerCase().includes("cloudflare") || html.length < 100) {
+                                fetchError = `Client proxy (${selectedProxy.label}) returned non-JSON content (possibly an error page or blocked request).`;
+                             }
+                        }
+                    }
+
+                    if (!html && !fetchError) {
+                         fetchError = `Client proxy (${selectedProxy.label}) resulted in empty HTML after processing.`;
+                    }
                 }
             }
             clearTimeout(timeoutId);
@@ -1053,8 +1131,8 @@ const BooruTagExtractor = () => {
             }
 
             if (!html) {
-                setError('Failed to retrieve HTML content.');
-                console.error("Error: Empty HTML content received.");
+                setError('Failed to retrieve valid HTML content.');
+                console.error("Error: Empty or invalid HTML content after processing.");
                 setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
                 currentExtractionUrl.current = null;
                 setLoading(false);
@@ -1074,26 +1152,30 @@ const BooruTagExtractor = () => {
 
             let pageErrorDetected = false;
             let specificError = "Check URL, site status, or try again later.";
-            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied")) { pageErrorDetected = true; specificError = `Site returned error/denial in title: ${doc.title.substring(0, 100)}`; }
-            const errorElement = doc.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"]');
+            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied") || doc.title.toLowerCase().includes("cloudflare")) { pageErrorDetected = true; specificError = `Site returned error/denial/block in title: ${doc.title.substring(0, 100)}`; }
+            const errorElement = doc.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"], #challenge-running');
             if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
                 pageErrorDetected = true;
                 const pageErrorText = errorElement.textContent.trim();
                 if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded on target site.";
                 else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) specificError = "Content may require login.";
                 else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
+                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) specificError = "Blocked by Cloudflare or similar security check.";
                 else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
             }
-            doc.querySelectorAll('#content > div > p, #content p, .content p').forEach(p => {
-                const textContent = p.textContent?.toLowerCase();
-                if (textContent?.includes('you must be logged in') || textContent?.includes('requires an account') || textContent?.includes('please login')) { pageErrorDetected = true; if (!specificError.includes("login")) specificError = `Content may require login.`; }
-                else if (textContent?.includes('error')) { pageErrorDetected = true; if (!specificError.startsWith("Site Error") && !specificError.includes("login")) specificError = `Site page may contain an error message.`; }
-            });
+             if (!pageErrorDetected && doc.body) {
+                 const bodyText = doc.body.textContent?.toLowerCase() || '';
+                 if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) { pageErrorDetected = true; specificError = `Content may require login.`; }
+                 else if (bodyText.includes('access denied')) { pageErrorDetected = true; specificError = `Access denied by target site.`; }
+                 else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) { pageErrorDetected = true; specificError = `Blocked by Cloudflare or similar security check.`; }
+                 else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) { pageErrorDetected = true; specificError = `Target site requires JS/Cookies, may be incompatible with proxy.`; }
+             }
+
 
             if (pageErrorDetected) {
                 const pageErrorMessage = `Extraction stopped: ${specificError}`;
                 setError(pageErrorMessage);
-                console.error("Page Error Detected:", pageErrorMessage);
+                console.error("Page Error Detected:", pageErrorMessage, "URL:", trimmedUrl);
                 setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
                 currentExtractionUrl.current = null;
                 setLoading(false);
@@ -1133,11 +1215,11 @@ const BooruTagExtractor = () => {
 
         } catch (err) {
             clearTimeout(timeoutId);
-            const mode = settings.fetchMode === 'server' ? 'Server Proxy' : 'Client Proxy';
             let finalMessage: string;
-            if ((err as Error).name === 'AbortError') finalMessage = `Request via ${mode} timed out after ${fetchTimeout / 1000}s.`;
-            else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect via ${mode}. Check connection or proxy status.`;
-            else finalMessage = `Error via ${mode}: ${(err as Error).message}`;
+            if ((err as Error).name === 'AbortError') finalMessage = `Request via ${proxyUsed} timed out after ${fetchTimeout / 1000}s.`;
+            else if (err instanceof SyntaxError) finalMessage = `Error via ${proxyUsed}: Failed to parse response (received invalid data, possibly blocked).`;
+            else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect via ${proxyUsed}. Check connection or proxy status.`;
+            else finalMessage = `Error via ${proxyUsed}: ${(err as Error).message}`;
             setError(finalMessage);
             console.error(finalMessage, err);
             setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
@@ -1145,7 +1227,7 @@ const BooruTagExtractor = () => {
         } finally {
             setLoading(false);
         }
-    }, [loading, settings.fetchMode]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl]);
 
     const handleReset = useCallback(() => {
         setUrl(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
@@ -1258,6 +1340,10 @@ const BooruTagExtractor = () => {
     const shouldShowPreviewSection = useMemo(() => {
         return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
     }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
+
+    const getSelectedProxyLabel = useCallback(() => {
+        return CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown Proxy';
+    }, [settings.clientProxyUrl]);
 
     return (
         <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-surface-rgb))] p-4 text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300 sm:p-6">
@@ -1407,7 +1493,7 @@ const BooruTagExtractor = () => {
                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
                         {settings.fetchMode === 'server'
                             ? 'All requests proxied through this server. Respect source site ToS.'
-                            : 'Using Client Proxy (AllOrigins). Respect source site ToS & AllOrigins usage policy.'
+                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
                         }
                     </p>
                 </div>
