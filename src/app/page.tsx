@@ -251,7 +251,7 @@ const extractionStrategies = {
         title: utils.extractTitle(doc, 'title')
     }),
     safebooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"].tag', tag: 'a[href*="page=post"]:last-of-type' }),
+        tags: utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]:last-of-type'),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
         title: utils.extractTitle(doc, 'title')
     }),
