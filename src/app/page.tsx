@@ -7,6 +7,7 @@ import Image from 'next/image';
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
+type FetchMode = 'server' | 'clientProxy';
 type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; color: string };
 interface ExtractedTag { name: string; category: TagCategory }
 interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string }
@@ -16,6 +17,7 @@ interface Settings {
     colorTheme: ColorTheme;
     customColorHex?: string;
     enableImagePreviews: boolean;
+    fetchMode: FetchMode;
 }
 interface HistoryEntry {
     id: string;
@@ -47,12 +49,15 @@ const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
+const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
-const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
+const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const FETCH_TIMEOUT_MS = 25000;
+const API_ROUTE_URL = '/api/fetch-booru';
+const CLIENT_PROXY_URL = 'https://api.allorigins.win/get?url=';
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -249,6 +254,22 @@ const utils = {
                 title = title.substring(0, tagListIndex).trim();
             }
             title = title.replace(/ with.*$/, '').trim();
+            title = title.replace(/ - Zerochan Anime Image Board$/i, '').trim();
+            title = title.replace(/ Image #\d+$/i, '').trim();
+            title = title.replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '').trim();
+            if (title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
+                const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
+                if (imgTitle) {
+                    const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
+                    if (titleMatch && titleMatch[1]) {
+                        title = titleMatch[1].trim();
+                    } else {
+                        title = imgTitle.split(' (')[0].trim();
+                    }
+                } else {
+                    title = undefined;
+                }
+            }
         }
         return title || undefined;
     }
@@ -371,23 +392,7 @@ const extractionStrategies = {
             imageUrl = utils.extractImageUrl(doc, '#large > a.preview > img.jpg', 'src');
         }
 
-        let title = utils.extractTitle(doc, 'title');
-        if (title) {
-            title = title.replace(/ - Zerochan Anime Image Board$/i, '').trim();
-            title = title.replace(/ Image #\d+$/i, '').trim();
-            title = title.replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '').trim();
-        }
-        if (!title || title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
-            const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
-            if (imgTitle) {
-                const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
-                if (titleMatch && titleMatch[1]) {
-                    title = titleMatch[1].trim();
-                } else {
-                    title = imgTitle.split(' (')[0].trim();
-                }
-            }
-        }
+        const title = utils.extractTitle(doc, 'title');
 
         return {
             tags: uniqueTags,
@@ -560,7 +565,8 @@ const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="
 const PhotoIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
 const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
 const ArrowDownTrayIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
-
+const ServerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.816H7.923a3.375 3.375 0 0 0-3.285 2.816l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" /></svg>;
+const CloudArrowDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>;
 
 const MotionCard = motion.div;
 
@@ -595,15 +601,24 @@ const CategoryToggle = React.memo(({ category, count, onToggle }: { category: Ta
     </MotionCard>
 ));
 CategoryToggle.displayName = 'CategoryToggle';
-const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error', children: React.ReactNode }) => (
-    <motion.div
-        className={`border-l-4 p-4 rounded-md ${type === 'info' ? 'bg-info-bg border-info' : 'bg-error-bg border-error'}`}
-        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
-    >
-        <p className={`text-sm font-medium ${type === 'info' ? 'text-info-content' : 'text-error'}`}>{children}</p>
-    </motion.div>
-));
+
+const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' | 'warning', children: React.ReactNode }) => {
+    const typeClasses = {
+        info: 'bg-info-bg border-info text-info-content',
+        error: 'bg-error-bg border-error text-error',
+        warning: 'bg-yellow-50 border-yellow-400 text-yellow-700 dark:bg-yellow-900/30 dark:border-yellow-600 dark:text-yellow-300'
+    };
+    return (
+        <motion.div
+            className={`border-l-4 p-4 rounded-md ${typeClasses[type]}`}
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
+        >
+            <p className={`text-sm font-medium`}>{children}</p>
+        </motion.div>
+    );
+});
 StatusMessage.displayName = 'StatusMessage';
+
 const LoadingSpinner = () => (
     <motion.span className="flex items-center justify-center text-primary-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.svg
@@ -632,10 +647,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
 
     const proxiedUrl = useMemo(() => {
         if (!originalUrl || !enableImagePreviews) return undefined;
-        if (originalUrl.includes(CORS_PROXY_URL.split('?')[0])) {
-            return originalUrl;
-        }
-        return `${CORS_PROXY_URL}${encodeURIComponent(originalUrl)}`;
+        return `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}`;
     }, [originalUrl, enableImagePreviews]);
 
     useEffect(() => {
@@ -657,7 +669,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
 
     if (isLoading) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 animate-pulse`}>Loading preview...</div>;
     if (!originalUrl) return null;
-    if (imgError) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Possibly CORS, invalid URL, or proxy issue)</p></div></div>;
+    if (imgError) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Proxy error or invalid image)</p></div></div>;
 
     return (
         <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
@@ -720,13 +732,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
         setCurrentCustomHex(cleanHex);
 
-        if (/^#[0-9a-fA-F]{6}$/.test(cleanHex)) {
-            onSettingsChange({ colorTheme: 'custom', customColorHex: cleanHex });
+        if (/^#?[0-9a-fA-F]{6}$/.test(cleanHex)) {
+            const finalHex = cleanHex.startsWith('#') ? cleanHex : '#' + cleanHex;
+            if(finalHex.length === 7){
+                onSettingsChange({ colorTheme: 'custom', customColorHex: finalHex });
+            }
         }
     };
 
     const handleAutoExtractChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked });
     const handleImagePreviewsChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked });
+    const handleFetchModeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode });
 
     const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode; animation: "default" | "spin" | "gentle" }[] = [
         { value: 'system', label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" },
@@ -743,11 +759,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         { value: 'green', label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
     ];
 
+    const fetchModeOptions: { value: FetchMode; label: string; icon: React.ReactNode; description: string }[] = [
+        { value: 'server', label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
+        { value: 'clientProxy', label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy (AllOrigins) in your browser. May be less reliable or rate-limited.' },
+    ];
+
     return (
         <AnimatePresence>
             {isOpen && (
                 <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-                    <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
+                    <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                             <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
                             <TooltipWrapper tipContent="Close Settings">
@@ -832,9 +853,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                     </motion.div>
                                 )}
                             </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-2">Data Fetching Method</label>
+                                <div className="space-y-2 rounded-lg bg-surface-alt-2 p-2">
+                                    {fetchModeOptions.map(({ value, label, icon, description }) => (
+                                        <label key={value} className={`flex items-start p-3 rounded-md cursor-pointer transition-all ${settings.fetchMode === value ? 'bg-surface shadow ring-1 ring-primary/50' : 'hover:bg-surface-border'}`}>
+                                            <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="sr-only peer" aria-label={label} />
+                                            <div className={`mr-3 mt-0.5 flex-shrink-0 w-5 h-5 ${settings.fetchMode === value ? 'text-primary' : 'text-on-surface-muted'}`}>
+                                                {icon}
+                                            </div>
+                                            <div className="flex-1">
+                                                <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-on-surface' : 'text-on-surface-muted'}`}>{label}</span>
+                                                <span className="block text-xs text-on-surface-faint mt-0.5">{description}</span>
+                                            </div>
+                                            <div className="ml-3 mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center peer-checked:border-primary peer-checked:bg-primary transition-colors border-surface-border bg-surface">
+                                                <AnimatePresence>
+                                                    {settings.fetchMode === value && (
+                                                        <motion.div
+                                                            initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                                                            className="w-2 h-2 bg-primary-content rounded-full"
+                                                        />
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="flex items-center justify-between cursor-pointer select-none">
-                                    <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting a valid URL">
+                                    <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
                                         <span className="text-sm font-medium text-on-surface mr-3">Automatic Extraction</span>
                                     </TooltipWrapper>
                                     <div className="relative">
@@ -849,12 +899,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="text-xs text-on-surface-muted mt-1.5">Extract tags automatically after pasting a valid URL.</p>
+                                <p className="text-xs text-on-surface-muted mt-1.5">Extract tags automatically after pasting/typing a valid URL.</p>
                             </div>
                             <div>
                                 <label className="flex items-center justify-between cursor-pointer select-none">
-                                    <TooltipWrapper tipContent="Enable or disable image previews to save bandwidth">
-                                        <span className="text-sm font-medium text-on-surface mr-3">Enable Image Previews</span>
+                                    <TooltipWrapper tipContent="Enable or disable image/video previews to save bandwidth or avoid potential issues">
+                                        <span className="text-sm font-medium text-on-surface mr-3">Enable Previews</span>
                                     </TooltipWrapper>
                                     <div className="relative">
                                         <input type="checkbox" id="imagePreviewsToggle" className="sr-only peer" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
@@ -868,7 +918,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="text-xs text-on-surface-muted mt-1.5">Show image previews during extraction and in history. Disabling saves bandwidth.</p>
+                                <p className="text-xs text-on-surface-muted mt-1.5">Show image/video previews during extraction and in history. Images fetched via Server Proxy require server bandwidth.</p>
                             </div>
                         </div>
                         <div className="mt-8 pt-4 border-t border-surface-border text-right">
@@ -900,8 +950,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
 
     const proxiedImageUrl = useMemo(() => {
         if (!entry.imageUrl || !enableImagePreviews) return undefined;
-        if (entry.imageUrl.includes(CORS_PROXY_URL.split('?')[0])) return entry.imageUrl;
-        return `${CORS_PROXY_URL}${encodeURIComponent(entry.imageUrl)}`;
+        return `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(entry.imageUrl)}`;
     }, [entry.imageUrl, enableImagePreviews]);
 
     useEffect(() => {
@@ -940,7 +989,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
 
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-on-surface truncate" title={entry.title || entry.url}>
-                    {entry.title || entry.url}
+                    {entry.title || new URL(entry.url).pathname.split('/').pop() || entry.url}
                 </p>
                 <p className="text-xs text-on-surface-muted">
                     {entry.siteName ? `${entry.siteName} • ` : ''}
@@ -1170,6 +1219,7 @@ const BooruTagExtractor = () => {
         colorTheme: DEFAULT_COLOR_THEME,
         customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
         enableImagePreviews: true,
+        fetchMode: DEFAULT_FETCH_MODE,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -1181,6 +1231,7 @@ const BooruTagExtractor = () => {
         const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
         const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
+        const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -1214,6 +1265,7 @@ const BooruTagExtractor = () => {
                 customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
                 autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
                 enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
+                fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
             };
             setSettings(initialSettings);
             setHistory(loadedHistory);
@@ -1231,6 +1283,8 @@ const BooruTagExtractor = () => {
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
+        localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
+
         if (settings.customColorHex) {
             localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         } else {
@@ -1353,37 +1407,76 @@ const BooruTagExtractor = () => {
             return;
         }
 
-        console.log(`Attempting extraction for: ${trimmedUrl} using strategy for ${site.name}`);
+        console.log(`Attempting extraction for: ${trimmedUrl} using strategy for ${site.name} via ${settings.fetchMode} mode.`);
         setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0));
 
-        let doc: Document;
+        let html = '';
+        let fetchError = '';
 
         try {
             setActiveSite(site.name);
-            const pageProxyUrl = `${CORS_PROXY_URL}${encodeURIComponent(trimmedUrl)}`;
-            const response = await fetch(pageProxyUrl, {
-                cache: 'no-store',
-                signal: controller.signal
-            });
+
+            if (settings.fetchMode === 'server') {
+                const response = await fetch(API_ROUTE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUrl: trimmedUrl }),
+                    signal: controller.signal
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok || responseData.error) {
+                    let errorMsg = responseData.error || `Server proxy failed with status: ${response.status}`;
+                    if (response.status === 504 || (responseData.error && responseData.error.toLowerCase().includes('timed out'))) {
+                        errorMsg = 'Request timed out via server proxy. Target site might be slow or unreachable.';
+                    } else if (response.status === 502) {
+                        errorMsg = `Could not fetch from target site via server proxy (Bad Gateway). ${responseData.error || ''}`.trim();
+                    } else if (response.status === 400) {
+                        errorMsg = `Invalid request to server proxy: ${responseData.error || ''}`.trim();
+                    }
+                    fetchError = errorMsg;
+                    console.error("Server Proxy Error Response:", response.status, responseData);
+                } else if (!responseData.html) {
+                    fetchError = 'Received empty HTML from server proxy.';
+                    console.error(fetchError);
+                } else {
+                    html = responseData.html;
+                }
+
+            } else {
+                const proxyFetchUrl = `${CLIENT_PROXY_URL}${encodeURIComponent(trimmedUrl)}`;
+                const response = await fetch(proxyFetchUrl, { signal: controller.signal });
+
+                if (!response.ok) {
+                    fetchError = `Client proxy (AllOrigins) failed with status: ${response.status}. Service might be down or blocking the request.`;
+                    console.error(fetchError);
+                } else {
+                    const data = await response.json();
+                    if (!data || !data.contents) {
+                        fetchError = 'Client proxy (AllOrigins) returned an invalid response or empty content.';
+                        console.error(fetchError, "Response Data:", data);
+                    } else {
+                        html = data.contents;
+                    }
+                }
+            }
+
             clearTimeout(timeoutId);
 
-            if (!response.ok) {
-                let errorMsg = `Failed to fetch from proxy (Status: ${response.status}).`;
-                try { const text = await response.text(); if (text) { try { const jsonError = JSON.parse(text); if (jsonError?.contents?.error) errorMsg = `Proxy Error: ${jsonError.contents.error}`; else if (jsonError?.error) errorMsg = `Proxy Error: ${jsonError.error}`; else if (text.length < 500) errorMsg += ` Response: ${text.substring(0,100)}...`; } catch { if (text.length < 500) errorMsg += ` Response: ${text.substring(0,100)}...`; } } } catch { /* Ignore */ }
-                setError(errorMsg);
-                console.error(errorMsg);
+            if (fetchError) {
+                setError(fetchError);
                 setLoading(false);
                 currentExtractionUrl.current = null;
                 return;
             }
 
-            const html = await response.text();
             if (!html) {
-                const errorMsg = "Received empty response from proxy.";
+                const errorMsg = 'Failed to retrieve HTML content using the selected method.';
                 setError(errorMsg);
                 console.error(errorMsg);
                 setLoading(false);
@@ -1392,20 +1485,15 @@ const BooruTagExtractor = () => {
             }
 
             const parser = new DOMParser();
-            doc = parser.parseFromString(html, 'text/html');
+            const doc = parser.parseFromString(html, 'text/html');
 
             try {
                 const existingBase = doc.querySelector('base');
-                if (existingBase) {
-                    existingBase.remove();
-                }
+                if (existingBase) { existingBase.remove(); }
                 if (!doc.head) {
                     const head = doc.createElement('head');
-                    if (doc.documentElement.firstChild) {
-                        doc.documentElement.insertBefore(head, doc.documentElement.firstChild);
-                    } else {
-                        doc.documentElement.appendChild(head);
-                    }
+                    if (doc.documentElement.firstChild) { doc.documentElement.insertBefore(head, doc.documentElement.firstChild); }
+                    else { doc.documentElement.appendChild(head); }
                 }
                 const base = doc.createElement('base');
                 base.href = new URL('./', trimmedUrl).href;
@@ -1415,42 +1503,45 @@ const BooruTagExtractor = () => {
                 console.warn(`Could not set base tag for URL ${trimmedUrl}:`, e);
             }
 
-
             let pageErrorDetected = false;
             let specificError = "Check URL, site status, or try again later.";
 
-            if (doc.title.toLowerCase().includes("error")) {
+            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied")) {
                 pageErrorDetected = true;
-                specificError = `Site returned error in title: ${doc.title.substring(0, 100)}`;
+                specificError = `Site returned error/denial in title: ${doc.title.substring(0, 100)}`;
             }
-            if (doc.body.textContent?.includes("Could not retrieve contents") || doc.body.textContent?.includes("Rate limit exceeded")) {
-                pageErrorDetected = true;
-                if (doc.body.textContent?.includes("Rate limit exceeded")) specificError = "Rate limit likely exceeded.";
-                else specificError = "Proxy could not retrieve contents.";
-            }
-            const errorElement = doc.querySelector('.error, #error-page, .dtext-error');
-            if (errorElement?.textContent) {
+            const errorElement = doc.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"]');
+            if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
                 pageErrorDetected = true;
                 const pageErrorText = errorElement.textContent.trim();
-                if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded.";
-                else if (pageErrorText.toLowerCase().includes("login")) specificError = "Content requires login.";
-                else if (pageErrorText.toLowerCase().includes("not found")) specificError = "Post not found (404).";
-                else specificError = `Site Error: ${pageErrorText.substring(0, 150)}`;
+                if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded on target site.";
+                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) specificError = "Content may require login.";
+                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
+                else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
             }
-            const contentParagraphs = doc.querySelectorAll('#content > div > p');
+            const contentParagraphs = doc.querySelectorAll('#content > div > p, #content p, .content p');
             contentParagraphs.forEach(p => {
-                if (p.textContent?.toLowerCase().includes('error')) {
-                    pageErrorDetected = true;
-                    if (!specificError.startsWith("Site Error:")) {
-                        specificError = `Site page contains an error message: ${p.textContent.substring(0,100)}...`;
+                const textContent = p.textContent;
+                if (textContent) {
+                    const textContentLower = textContent.toLowerCase();
+                    if (textContentLower.includes('you must be logged in') || textContentLower.includes('requires an account') || textContentLower.includes('please login')) {
+                        pageErrorDetected = true;
+                        if (!specificError.includes("login")) {
+                            specificError = `Content may require login: ${textContent.substring(0,100)}...`;
+                        }
+                    } else if (textContentLower.includes('error')) {
+                        pageErrorDetected = true;
+                        if (!specificError.startsWith("Site Error") && !specificError.includes("login")) {
+                            specificError = `Site page may contain an error message: ${textContent.substring(0,100)}...`;
+                        }
                     }
                 }
             });
 
             if (pageErrorDetected) {
-                const errorMsg = `Proxy or target site returned an error page. ${specificError}`;
+                const errorMsg = `Extraction stopped: ${specificError}`;
                 setError(errorMsg);
-                console.warn(errorMsg);
+                console.warn(errorMsg, "URL:", trimmedUrl);
                 setLoading(false);
                 currentExtractionUrl.current = null;
                 return;
@@ -1490,11 +1581,11 @@ const BooruTagExtractor = () => {
             updateHistory(newEntry);
 
             if (extractionResult.tags.length === 0 && !extractionResult.imageUrl) {
-                const warnMsg = 'No tags or image found. Page structure might have changed, post is unavailable, or requires login.';
-                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
+                const warnMsg = 'Warning: No tags or image found. Page structure might have changed, post is unavailable/deleted, or requires login.';
                 setError(warnMsg);
+                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
             } else if (extractionResult.tags.length === 0 && extractionResult.imageUrl) {
-                const warnMsg = 'Image found, but no tags were extracted. Selectors may need update.';
+                const warnMsg = 'Warning: Image found, but no tags were extracted. Selectors may need update or tags might genuinely be absent.';
                 setError(warnMsg);
                 console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
             } else {
@@ -1503,16 +1594,19 @@ const BooruTagExtractor = () => {
 
         } catch (err) {
             clearTimeout(timeoutId);
+            let finalMessage: string;
+            const mode = settings.fetchMode === 'server' ? 'Server Proxy' : 'Client Proxy (AllOrigins)';
             if ((err as Error).name === 'AbortError') {
-                const timeoutMessage = `Request timed out after ${FETCH_TIMEOUT_MS / 1000}s. Proxy or target site might be slow.`;
-                setError(timeoutMessage);
-                console.error(timeoutMessage);
+                finalMessage = `Request via ${mode} timed out.`;
+            } else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) {
+                finalMessage = `Failed to connect via ${mode}. Server/Proxy might be down or unreachable.`;
+            } else if (err instanceof Error) {
+                finalMessage = `Extraction error via ${mode}: ${err.message}`;
             } else {
-                const message = (err instanceof Error) ? err.message : String(err);
-                const finalMessage = `Unexpected extraction error: ${message}`;
-                setError(finalMessage);
-                console.error(finalMessage, err);
+                finalMessage = `Unknown extraction error via ${mode}: ${String(err)}`;
             }
+            setError(finalMessage);
+            console.error(finalMessage, err);
             setAllExtractedTags([]);
             setActiveSite(null);
             currentExtractionUrl.current = null;
@@ -1520,7 +1614,7 @@ const BooruTagExtractor = () => {
             setLoading(false);
             clearTimeout(timeoutId);
         }
-    }, [loading]);
+    }, [loading, settings.fetchMode]);
 
     const handleReset = useCallback(() => {
         setUrl(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
@@ -1549,12 +1643,18 @@ const BooruTagExtractor = () => {
                     }, 750);
                 }
             } else {
-                if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
+                if (trimmedUrl !== currentExtractionUrl.current) {
+                    setError('URL detected, but does not match supported sites.');
+                }
             }
         } else if (!trimmedUrl && currentExtractionUrl.current) {
             handleReset();
         } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-            if (trimmedUrl !== currentExtractionUrl.current) { setError(''); }
+            if (trimmedUrl !== currentExtractionUrl.current) {
+                setError('Please enter a valid URL starting with http:// or https://');
+            }
+        } else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) {
+            setError('');
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset]);
@@ -1627,11 +1727,15 @@ const BooruTagExtractor = () => {
                 handleReset();
                 currentExtractionUrl.current = null;
                 setUrl(trimmedUrl);
+                if (settings.autoExtract) {
+                    void extractTags(trimmedUrl);
+                }
             }
         } else {
+            setError("Dropped item is not a valid URL.");
             console.warn("Dropped item is not a valid URL:", droppedUrl);
         }
-    }, [handleReset]);
+    }, [handleReset, settings.autoExtract, extractTags]);
 
     const shouldShowPreviewSection = useMemo(() => {
         return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
@@ -1694,7 +1798,7 @@ const BooruTagExtractor = () => {
                 <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                     <div>
                         <label htmlFor="url" className="block text-sm font-medium text-on-surface mb-1.5">Booru Post URL</label>
-                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder={settings.autoExtract ? "Paste URL here or Drag & Drop..." : "Paste URL here or Drag & Drop..."} value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
+                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
                     </div>
                     <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-sm hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
@@ -1722,7 +1826,8 @@ const BooruTagExtractor = () => {
 
                     <AnimatePresence>
                         {activeSite && !error && !loading && (allExtractedTags.length > 0 || imageUrl) && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                        {error && <StatusMessage type="error">{error}</StatusMessage>}
+                        {error && error.toLowerCase().includes('warning') && <StatusMessage type="warning">{error}</StatusMessage>}
+                        {error && !error.toLowerCase().includes('warning') && <StatusMessage type="error">{error}</StatusMessage>}
                     </AnimatePresence>
 
                     {shouldShowPreviewSection && (
@@ -1806,7 +1911,12 @@ const BooruTagExtractor = () => {
 
                 <div className="flex-shrink-0 border-t border-surface-border p-4 bg-surface-alt text-on-surface-muted text-xs text-center">
                     <p>Made with <span className="animate-heartBeat inline-block text-red-500 dark:text-red-400 mx-0.5">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary transition-colors font-medium">IRedDragonICY</a></p>
-                    <p className="text-on-surface-faint text-[10px] mt-1">Uses AllOrigins CORS proxy. Respect source site ToS.</p>
+                    <p className="text-on-surface-faint text-[10px] mt-1">
+                        {settings.fetchMode === 'server'
+                            ? 'All requests proxied through this server. Respect source site ToS.'
+                            : 'Using Client Proxy (AllOrigins). Respect source site ToS & AllOrigins usage policy.'
+                        }
+                    </p>
                 </div>
             </MotionCard>
 
