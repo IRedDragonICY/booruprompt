@@ -1,7 +1,6 @@
 export type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 export type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; variable: string };
 export interface ExtractedTag { name: string; category: TagCategory }
-export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string }
 
 const utils = {
@@ -333,4 +332,3 @@ export const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'meta', label: 'Meta', enabled: true, variable: '--cat-color-meta-rgb' },
     { id: 'other', label: 'Other', enabled: true, variable: '--cat-color-other-rgb' }
 ];
-
