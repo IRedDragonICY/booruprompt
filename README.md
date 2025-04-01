@@ -1,17 +1,28 @@
-# 🏷️ Booru Tag Extractor
 
-<p align="center">
-  <a href="https://github.com/IRedDragonICY/booruprompt/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js->=14-black?logo=next.js&logoColor=white" alt="Next.js"></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React->=18-blue?logo=react" alt="React"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Included-blue?logo=typescript&logoColor=white" alt="TypeScript"></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-Included-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
-  <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-Included-purple?logo=framer&logoColor=white" alt="Framer Motion"></a>
-</p>
-
-<p align="center">
-  Effortlessly extract, categorize, and copy tags from your favorite booru sites.
-</p>
+<div align="center">
+  <img src="./public/icon.svg" alt="Booru Tag Extractor" width="120" height="120">
+  
+  <h1>Booru Tag Extractor</h1>
+  
+  <p>
+    <b>Effortlessly extract, categorize, and copy tags from your favorite booru sites</b>
+  </p>
+  
+  <div>
+    <a href="https://github.com/IRedDragonICY/booruprompt/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+    <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-14+-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js"></a>
+    <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React"></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
+    <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white" alt="Framer Motion"></a>
+  </div>
+  
+  <br/>
+  
+  <div>
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20Status-Active-brightgreen?style=for-the-badge" alt="Status">
+  </div>
+</div>
 
 <p align="center">
   <a href="https://booruprompt.vercel.app"><strong>🚀 Live Demo</strong></a> ·

@@ -76,11 +76,13 @@ export const metadata: Metadata = {
         creator: `@${siteConfig.author}`,
     },
 
-    icons: {
-        icon: "/favicon.ico",
-        shortcut: "/favicon-16x16.png",
-        apple: "/apple-touch-icon.png",
-    },
+icons: {
+    icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+},
 
     robots: {
         index: true,
