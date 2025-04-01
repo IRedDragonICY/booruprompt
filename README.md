@@ -31,12 +31,6 @@ Tired of manually selecting and copying tags for your AI prompts or image organi
 ## ✨ Core Features
 
 *   **🤖 Automatic Extraction:** Paste a URL, and tags appear automatically (configurable).
-*   **🖼️ Broad Site Support:** Works seamlessly with:
-  *   **Danbooru**
-  *   **Safebooru** (Multiple URL formats)
-  *   **Gelbooru**
-  *   **Rule34**
-  *   **e621**
 *   **🏷️ Smart Categorization:** Tags are automatically sorted into:
   *   `Copyright` `Character` `General` `Meta` `Other (Artist, etc.)`
 *   **🎨 Sleek & Modern UI:** Clean interface built with Tailwind CSS and Framer Motion.
@@ -45,6 +39,25 @@ Tired of manually selecting and copying tags for your AI prompts or image organi
 *   **📋 Effortless Copy-Paste:** Copy the filtered, comma-separated tags with a single click.
 *   **📱 Responsive Design:** Looks and works great on desktop, tablet, and mobile.
 *   **🌐 Reliable Fetching:** Uses a CORS proxy (`AllOrigins`) to bypass browser restrictions.
+
+## Supported Sites
+
+The extractor currently supports fetching data from the following booru-style sites:
+
+| Site Name          | Status    |
+|:-------------------|:----------|
+| Danbooru           | Supported |
+| Safebooru (Donmai) | Supported |
+| Safebooru (Org)    | Supported |
+| Gelbooru           | Supported |
+| Rule34             | Supported |
+| e621               | Supported |
+| AIBooru            | Supported |
+| Yande.re           | Supported |
+| Konachan           | Supported |
+| Anime-Pictures.net | Supported |
+| Zerochan           | Supported |
+| E-Shuushuu         | Supported |
 
 ## 🚀 Getting Started
 
