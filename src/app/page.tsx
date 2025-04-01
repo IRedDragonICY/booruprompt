@@ -131,7 +131,7 @@ const utils = {
         return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/^\? /, '').trim();
     },
     extractTagsByClass: (doc: Document, selectors: { container: string, tag: string }): ExtractedTag[] => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         const elements = doc.querySelectorAll(selectors.container);
         elements.forEach(element => {
             const tagElement = element.querySelector(selectors.tag);
@@ -139,18 +139,16 @@ const utils = {
             if (tagName) {
                 const category = utils.getCategoryFromClassList(element);
                 const cleanName = utils.cleanTagName(tagName);
-                if (cleanName && !['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists'].includes(cleanName.toLowerCase())) {
-                    const tagIsCategoryName = cleanName.toLowerCase() === category;
-                    if (!tagIsCategoryName) {
-                        tags.push({ name: cleanName, category });
-                    }
+                const tagIsCategoryName = ['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists'].includes(cleanName.toLowerCase()) || cleanName.toLowerCase() === category;
+                if (cleanName && !tagIsCategoryName) {
+                    tags.set(`${category}-${cleanName}`, { name: cleanName, category });
                 }
             }
         });
-        return Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+        return Array.from(tags.values());
     },
     extractTagsBySection: (doc: Document, selector: string, tagLinkSelector: string): ExtractedTag[] => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         let currentCategory: TagCategory = 'other';
         const container = doc.querySelector(selector);
         if (!container) return [];
@@ -159,8 +157,9 @@ const utils = {
             if ((child.tagName === 'H3' || child.tagName === 'H6' || child.classList.contains('tag-type-header') || child.classList.contains('tag-sidebar-header') || (child.tagName === 'LI' && child.querySelector('h6'))) && child.textContent) {
                 currentCategory = utils.getCategoryFromHeader(child.textContent);
             }
-            else if (child.tagName === 'UL') {
-                Array.from(child.children).forEach(tagLi => {
+            else if (child.tagName === 'UL' || (child.tagName === 'LI' && child.classList.contains('tag'))) {
+                const listItems = child.tagName === 'UL' ? Array.from(child.children) : [child];
+                listItems.forEach(tagLi => {
                     if (tagLi.tagName === 'LI') {
                         let itemCategory = utils.getCategoryFromClassList(tagLi);
                         if (itemCategory === 'general' && currentCategory !== 'general') itemCategory = currentCategory;
@@ -170,44 +169,32 @@ const utils = {
                         if (tagName) {
                             const cleanName = utils.cleanTagName(tagName);
                             if (cleanName && cleanName.toLowerCase() !== 'tag list' && cleanName.toLowerCase() !== '?') {
-                                tags.push({ name: cleanName, category: itemCategory });
+                                tags.set(`${itemCategory}-${cleanName}`, { name: cleanName, category: itemCategory });
                             }
                         }
                     }
                 });
             }
-            else if (child.tagName === 'LI' && child.classList.contains('tag')) {
-                let itemCategory = utils.getCategoryFromClassList(child);
-                if (itemCategory === 'general' && currentCategory !== 'general') itemCategory = currentCategory;
-
-                const tagElement = child.querySelector(tagLinkSelector);
-                const tagName = tagElement?.textContent?.trim();
-                if (tagName) {
-                    const cleanName = utils.cleanTagName(tagName);
-                    if (cleanName && cleanName.toLowerCase() !== 'tag list' && cleanName.toLowerCase() !== '?') {
-                        tags.push({ name: cleanName, category: itemCategory });
-                    }
-                }
-            }
         });
-        return Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+        return Array.from(tags.values());
     },
     extractImageUrl: (doc: Document, selector: string, attribute: string = 'src'): string | undefined => {
-        const imgElement = doc.querySelector(selector) as HTMLImageElement | HTMLVideoElement | HTMLElement | HTMLAnchorElement;
+        const imgElement = doc.querySelector(selector);
         if (!imgElement) return undefined;
         let src = imgElement.getAttribute(attribute) || imgElement.getAttribute('src');
         if (imgElement.tagName === 'VIDEO' && !src) {
             const sourceElement = imgElement.querySelector('source');
             src = sourceElement?.src || null;
         }
-        if (src && !src.startsWith('http') && !src.startsWith('//') && doc.baseURI) {
-            try {
-                src = new URL(src, doc.baseURI).href;
-            } catch (e) { console.error(`Error resolving relative image URL: ${src} against base: ${doc.baseURI}`, e); }
-        } else if (src && src.startsWith('//')) {
-            src = `https:${src.slice(2)}`;
+        if (!src) return undefined;
+
+        if (!src.startsWith('http') && !src.startsWith('//') && doc.baseURI) {
+            try { src = new URL(src, doc.baseURI).href; }
+            catch (e) { console.error(`Error resolving relative image URL: ${src} against base: ${doc.baseURI}`, e); return undefined; }
+        } else if (src.startsWith('//')) {
+            src = `https:${src}`;
         }
-        return src || undefined;
+        return src;
     },
     extractTitle: (doc: Document, selector: string): string | undefined => {
         let title: string | undefined | null;
@@ -217,45 +204,42 @@ const utils = {
             title = elementWithAttr?.getAttribute(attrName);
         } else {
             const titleElement = doc.querySelector(selector);
-            if (titleElement?.tagName === 'IMG') {
-                title = (titleElement as HTMLImageElement).alt?.trim();
+            if (titleElement?.tagName === 'IMG') title = (titleElement as HTMLImageElement).alt;
+            else title = titleElement?.textContent;
+        }
+        title = title || doc.title;
+        if (!title) return undefined;
+
+        title = title.trim()
+            .replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande\.re|Konachan\.com - Anime Wallpapers \|)/i, '')
+            .replace(/aibooru \| #\d+ \| /i, '')
+            .replace(/ » /g, ' - ')
+            .replace(/^Post #\d+ /i, '')
+            .replace(/ \| Post #\d+$/i, '')
+            .replace(/ - e621$/i, '')
+            .replace(/ \| Anime-Pictures\.net$/i, '')
+            .replace(/Anime picture \d+x\d+ with /i, '')
+            .replace(/^Image #\d+\s?/i, '')
+            .replace(/ Image #\d+$/i, '')
+            .replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '');
+
+        const tagListIndex = title.indexOf(' single tall image');
+        if (tagListIndex > 0) title = title.substring(0, tagListIndex);
+
+        title = title.replace(/ with.*$/, '')
+            .replace(/ - Zerochan Anime Image Board$/i, '')
+            .trim();
+
+        if (title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
+            const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
+            if (imgTitle) {
+                const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
+                title = titleMatch?.[1]?.trim() || imgTitle.split(' (')[0].trim();
             } else {
-                title = titleElement?.textContent?.trim();
+                title = undefined;
             }
         }
-        title = title || doc.title?.trim() || undefined;
-        if (title) {
-            title = title.replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande.re|Konachan\.com - Anime Wallpapers \|)/i, '').trim();
-            title = title.replace(/aibooru \| #\d+ \| /i, '').trim();
-            title = title.replace(/ » /g, ' - ').trim();
-            title = title.replace(/^Post #\d+ /i, '').trim();
-            title = title.replace(/ \| Post #\d+$/i, '').trim();
-            title = title.replace(/ - e621$/i, '').trim();
-            title = title.replace(/ \| Anime-Pictures\.net$/i, '').trim();
-            title = title.replace(/Anime picture \d+x\d+ with /i, '').trim();
-            title = title.replace(/^Image #\d+\s?/i, '').trim();
-            const tagListIndex = title.indexOf(' single tall image');
-            if (tagListIndex > 0) {
-                title = title.substring(0, tagListIndex).trim();
-            }
-            title = title.replace(/ with.*$/, '').trim();
-            title = title.replace(/ - Zerochan Anime Image Board$/i, '').trim();
-            title = title.replace(/ Image #\d+$/i, '').trim();
-            title = title.replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '').trim();
-            if (title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
-                const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
-                if (imgTitle) {
-                    const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
-                    if (titleMatch && titleMatch[1]) {
-                        title = titleMatch[1].trim();
-                    } else {
-                        title = imgTitle.split(' (')[0].trim();
-                    }
-                } else {
-                    title = undefined;
-                }
-            }
-        }
+
         return title || undefined;
     }
 };
@@ -282,25 +266,20 @@ const extractionStrategies = {
         title: utils.extractTitle(doc, 'title')
     }),
     e621: (doc: Document): ExtractionResult => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         const listItems = doc.querySelectorAll('section#tag-list > ul > li.tag-list-item');
         listItems.forEach(item => {
             const dataCategory = item.getAttribute('data-category');
             const category = utils.getCategoryFromE621DataAttr(dataCategory);
             const tagNameElement = item.querySelector('a.tag-list-search > span:not(.tag-list-count)');
             const tagName = tagNameElement?.textContent?.trim();
-
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
-                if (cleanName) {
-                    tags.push({ name: cleanName, category });
-                }
+                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category });
             }
         });
-        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
         return {
-            tags: uniqueTags,
+            tags: Array.from(tags.values()),
             imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source', 'src'),
             title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc, 'title')
         };
@@ -312,81 +291,64 @@ const extractionStrategies = {
     }),
     yandere: (doc: Document): ExtractionResult => ({
         tags: utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="/post?tags="]' }),
-        imageUrl: utils.extractImageUrl(doc, '#image', 'src') || utils.extractImageUrl(doc, 'img.fit-width', 'src'),
+        imageUrl: utils.extractImageUrl(doc, '#image') || utils.extractImageUrl(doc, 'img.fit-width'),
         title: utils.extractTitle(doc, 'title')
     }),
     konachan: (doc: Document): ExtractionResult => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         const listItems = doc.querySelectorAll('ul#tag-sidebar li.tag-link');
         listItems.forEach(item => {
             const dataType = item.getAttribute('data-type');
             const category = utils.getCategoryFromDataType(dataType);
             const tagNameElement = item.querySelector('a:nth-of-type(2)');
             const tagName = tagNameElement?.textContent?.trim();
-
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
                 if (cleanName && cleanName.toLowerCase() !== 'tagme (character)') {
-                    tags.push({ name: cleanName, category });
+                    tags.set(`${category}-${cleanName}`, { name: cleanName, category });
                 }
             }
         });
-        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
         return {
-            tags: uniqueTags,
-            imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
+            tags: Array.from(tags.values()),
+            imageUrl: utils.extractImageUrl(doc, '#image'),
             title: utils.extractTitle(doc, 'title')
         };
     },
     animePictures: (doc: Document): ExtractionResult => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         const tagElements = doc.querySelectorAll('ul.tags li a.svelte-1a4tkgo');
         tagElements.forEach(element => {
             const tagName = element?.textContent?.trim();
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
                 const category = utils.getAnimePicturesCategory(element);
-                if (cleanName) {
-                    tags.push({ name: cleanName, category });
-                }
+                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category });
             }
         });
-        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
-        let title = utils.extractTitle(doc, 'img#big_preview');
-        if (!title) {
-            title = utils.extractTitle(doc, 'title');
-        }
-
         return {
-            tags: uniqueTags,
-            imageUrl: utils.extractImageUrl(doc, 'img#big_preview', 'src'),
-            title: title
+            tags: Array.from(tags.values()),
+            imageUrl: utils.extractImageUrl(doc, 'img#big_preview'),
+            title: utils.extractTitle(doc, 'img#big_preview') || utils.extractTitle(doc, 'title')
         };
     },
     zerochan: (doc: Document): ExtractionResult => {
+        const tags = new Map<string, ExtractedTag>();
         const tagsString = doc.querySelector('#large > p')?.textContent?.trim();
-        const tags: ExtractedTag[] = tagsString
-            ? tagsString.split(',').map(name => ({ name: name.trim(), category: 'general' as TagCategory })).filter(tag => tag.name)
-            : [];
-        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
-        let imageUrl = utils.extractImageUrl(doc, '#large > a.preview', 'href');
-        if (!imageUrl) {
-            imageUrl = utils.extractImageUrl(doc, '#large > a.preview > img.jpg', 'src');
+        if (tagsString) {
+            tagsString.split(',').forEach(name => {
+                const cleanName = name.trim();
+                if (cleanName) tags.set(`general-${cleanName}`, { name: cleanName, category: 'general' });
+            });
         }
-
-        const title = utils.extractTitle(doc, 'title');
-
         return {
-            tags: uniqueTags,
-            imageUrl: imageUrl,
-            title: title || undefined
+            tags: Array.from(tags.values()),
+            imageUrl: utils.extractImageUrl(doc, '#large > a.preview', 'href') || utils.extractImageUrl(doc, '#large > a.preview > img.jpg', 'src'),
+            title: utils.extractTitle(doc, 'title')
         };
     },
     eShuushuu: (doc: Document): ExtractionResult => {
-        const tags: ExtractedTag[] = [];
+        const tags = new Map<string, ExtractedTag>();
         const metaContainer = doc.querySelector('div.meta dl');
         if (metaContainer) {
             const dtElements = metaContainer.querySelectorAll('dt');
@@ -399,28 +361,22 @@ const extractionStrategies = {
                     case 'characters:': category = 'character'; break;
                     case 'artist:': category = 'other'; break;
                 }
-
                 if (category) {
                     const dd = dt.nextElementSibling as HTMLElement | null;
-                    if (dd && dd.tagName === 'DD' && dd.classList.contains('quicktag')) {
-                        const tagLinks = dd.querySelectorAll('span.tag a');
-                        tagLinks.forEach(link => {
+                    if (dd?.tagName === 'DD' && dd.classList.contains('quicktag')) {
+                        dd.querySelectorAll<HTMLAnchorElement>('span.tag a').forEach(link => {
                             const tagName = link.textContent?.trim();
                             if (tagName) {
                                 const cleanName = utils.cleanTagName(tagName);
-                                if (cleanName) {
-                                    tags.push({ name: cleanName, category: category as TagCategory });
-                                }
+                                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category: category as TagCategory });
                             }
                         });
                     }
                 }
             });
         }
-        const uniqueTags = Array.from(new Map(tags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
         return {
-            tags: uniqueTags,
+            tags: Array.from(tags.values()),
             imageUrl: utils.extractImageUrl(doc, 'a.thumb_image', 'href'),
             title: utils.extractTitle(doc, 'div.title h2 a') || utils.extractTitle(doc, 'title')
         }
@@ -454,21 +410,17 @@ const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; t
     const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = useCallback(() => {
         if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
-        showTimeoutRef.current = setTimeout(() => {
-            setIsVisible(true);
-        }, 300);
-    };
+        showTimeoutRef.current = setTimeout(() => setIsVisible(true), 300);
+    }, []);
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = useCallback(() => {
         if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
         showTimeoutRef.current = null;
-        hideTimeoutRef.current = setTimeout(() => {
-            setIsVisible(false);
-        }, 150);
-    };
+        hideTimeoutRef.current = setTimeout(() => setIsVisible(false), 150);
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -497,9 +449,10 @@ const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; t
         </span>
     );
 };
+TooltipWrapper.displayName = 'TooltipWrapper';
 
 const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { children: React.ReactNode, isActive?: boolean, animation?: "default" | "spin" | "gentle" }) => {
-    const variants = {
+    const variants = useMemo(() => ({
         default: {
             hover: { scale: 1.15, rotate: isActive ? 0 : 5 },
             tap: { scale: 0.9 },
@@ -518,7 +471,7 @@ const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { c
             active: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 15 } },
             inactive: { scale: 1 }
         }
-    } as const;
+    }), [isActive]);
 
     return (
         <motion.span
@@ -534,6 +487,7 @@ const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { c
         </motion.span>
     );
 };
+AnimatedIcon.displayName = 'AnimatedIcon';
 
 const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>;
 const MoonIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>;
@@ -590,11 +544,11 @@ const CategoryToggle = React.memo(({ category, count, onToggle }: { category: Ta
 CategoryToggle.displayName = 'CategoryToggle';
 
 const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' | 'warning', children: React.ReactNode }) => {
-    const typeClasses = {
+    const typeClasses = useMemo(() => ({
         info: 'border-[rgb(var(--color-info-rgb))] bg-[rgb(var(--color-info-bg-rgb))] text-[rgb(var(--color-info-content-rgb))]',
         error: 'border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-error-bg-rgb))] text-[rgb(var(--color-error-rgb))]',
         warning: 'border-yellow-400 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-300'
-    };
+    }), []);
     return (
         <motion.div
             className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`}
@@ -618,6 +572,7 @@ const LoadingSpinner = () => (
         </motion.svg> Extracting...
     </motion.span>
 );
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 interface ImagePreviewProps {
     originalUrl?: string;
@@ -629,7 +584,7 @@ interface ImagePreviewProps {
 const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePreviews }: ImagePreviewProps) => {
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
-    const isVideo = originalUrl?.match(/\.(mp4|webm|ogg)$/i);
+    const isVideo = useMemo(() => originalUrl?.match(/\.(mp4|webm|ogg)$/i), [originalUrl]);
     const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
 
     const proxiedUrl = useMemo(() => {
@@ -647,12 +602,10 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
         }
     }, [originalUrl, isLoading, enableImagePreviews]);
 
-    const handleLoad = () => setImgLoading(false);
-    const handleError = () => { setImgLoading(false); setImgError(true); };
+    const handleLoad = useCallback(() => setImgLoading(false), []);
+    const handleError = useCallback(() => { setImgLoading(false); setImgError(true); }, []);
 
-    if (!enableImagePreviews) {
-        return null;
-    }
+    if (!enableImagePreviews) return null;
 
     if (isLoading) return <div className={`${placeholderBaseClasses} animate-pulse bg-[rgb(var(--color-surface-alt-2-rgb))]`}>Loading preview...</div>;
     if (!originalUrl) return null;
@@ -695,9 +648,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     }, [settings.customColorHex]);
 
-    const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference });
+    const handleThemeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference }), [onSettingsChange]);
 
-    const handleColorThemeRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleColorThemeRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value as ColorTheme;
         if (value === 'custom') {
             const validHex = /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : DEFAULT_CUSTOM_COLOR_HEX;
@@ -706,50 +659,51 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         } else {
             onSettingsChange({ colorTheme: value });
         }
-    };
+    }, [onSettingsChange, currentCustomHex]);
 
-    const handleCustomColorInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCustomColorInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         setCurrentCustomHex(newHex);
         onSettingsChange({ colorTheme: 'custom', customColorHex: newHex });
-    };
+    }, [onSettingsChange]);
 
-    const handleCustomColorTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCustomColorTextChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
         setCurrentCustomHex(cleanHex);
-
         if (/^#?[0-9a-fA-F]{6}$/.test(cleanHex)) {
             const finalHex = cleanHex.startsWith('#') ? cleanHex : '#' + cleanHex;
             if(finalHex.length === 7){
                 onSettingsChange({ colorTheme: 'custom', customColorHex: finalHex });
             }
         }
-    };
+    }, [onSettingsChange]);
 
-    const handleAutoExtractChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked });
-    const handleImagePreviewsChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked });
-    const handleFetchModeChange = (event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode });
+    const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
+    const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
+    const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
 
-    const themeOptions: { value: ThemePreference; label: string; icon: React.ReactNode; animation: "default" | "spin" | "gentle" }[] = [
-        { value: 'system', label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" },
-        { value: 'light', label: 'Light', icon: <SunIcon />, animation: "spin" },
-        { value: 'dark', label: 'Dark', icon: <MoonIcon />, animation: "default" },
-    ];
+    const themeOptions = useMemo(() => [
+        { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
+        { value: 'light' as ThemePreference, label: 'Light', icon: <SunIcon />, animation: "spin" as const },
+        { value: 'dark' as ThemePreference, label: 'Dark', icon: <MoonIcon />, animation: "default" as const },
+    ], []);
 
-    const colorThemeOptions: { value: Exclude<ColorTheme, 'custom'>; label: string; colorClass: string }[] = [
-        { value: 'blue', label: 'Blue', colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' },
-        { value: 'orange', label: 'Orange', colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' },
-        { value: 'teal', label: 'Teal', colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' },
-        { value: 'rose', label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
-        { value: 'purple', label: 'Purple', colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
-        { value: 'green', label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
-    ];
+    const colorThemeOptions = useMemo(() => [
+        { value: 'blue' as ColorTheme, label: 'Blue', colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' },
+        { value: 'orange' as ColorTheme, label: 'Orange', colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' },
+        { value: 'teal' as ColorTheme, label: 'Teal', colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' },
+        { value: 'rose' as ColorTheme, label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
+        { value: 'purple' as ColorTheme, label: 'Purple', colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
+        { value: 'green' as ColorTheme, label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
+    ], []);
 
-    const fetchModeOptions: { value: FetchMode; label: string; icon: React.ReactNode; description: string }[] = [
-        { value: 'server', label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
-        { value: 'clientProxy', label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy (AllOrigins) in your browser. May be less reliable or rate-limited.' },
-    ];
+    const fetchModeOptions = useMemo(() => [
+        { value: 'server' as FetchMode, label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
+        { value: 'clientProxy' as FetchMode, label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy (AllOrigins) in your browser. May be less reliable or rate-limited.' },
+    ], []);
+
+    const isValidHex = useMemo(() => /^#[0-9a-fA-F]{6}$/.test(currentCustomHex), [currentCustomHex]);
 
     return (
         <AnimatePresence>
@@ -771,7 +725,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                     {themeOptions.map(({ value, label, icon, animation }) => (
                                         <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
-                                            <AnimatedIcon isActive={settings.theme === value} animation={animation as "default" | "spin" | "gentle"}>
+                                            <AnimatedIcon isActive={settings.theme === value} animation={animation}>
                                                 {icon}
                                             </AnimatedIcon>
                                             <span>{label}</span>
@@ -801,7 +755,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                     <TooltipWrapper tipContent="Custom Color">
                                         <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
-                                            <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff' }}></span>
+                                            <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: isValidHex ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
                                                 {settings.colorTheme === 'custom' && (
                                                     <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
@@ -822,7 +776,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                     >
                                         <input
                                             type="color"
-                                            value={/^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff'}
+                                            value={isValidHex ? currentCustomHex : '#ffffff'}
                                             onChange={handleCustomColorInputChange}
                                             className="h-8 w-8 cursor-pointer appearance-none rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border-none"
                                             aria-label="Custom color picker"
@@ -941,14 +895,14 @@ interface HistoryItemProps {
     enableImagePreviews: boolean;
 }
 const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }) => {
-    const [showPlaceholder, setShowPlaceholder] = useState(!entry.imageUrl || !enableImagePreviews);
+    const [showPlaceholder, setShowPlaceholder] = useState(true);
     const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
         dateStyle: 'short',
         timeStyle: 'short',
     }), [entry.timestamp]);
 
-    const handleLoadClick = (e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); };
-    const handleDeleteClick = (e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); };
+    const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
+    const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
 
     const proxiedImageUrl = useMemo(() => {
         if (!entry.imageUrl || !enableImagePreviews) return undefined;
@@ -959,7 +913,8 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
         setShowPlaceholder(!proxiedImageUrl);
     }, [proxiedImageUrl]);
 
-    const handleError = () => { setShowPlaceholder(true); };
+    const handleError = useCallback(() => setShowPlaceholder(true), []);
+    const handleLoadSuccess = useCallback(() => setShowPlaceholder(false), []);
 
     return (
         <motion.div
@@ -979,7 +934,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                         unoptimized={true}
                         className="h-full w-full object-cover"
                         onError={handleError}
-                        onLoad={() => setShowPlaceholder(false)}
+                        onLoad={handleLoadSuccess}
                     />
                 )}
                 {(!enableImagePreviews || showPlaceholder) && (
@@ -1037,38 +992,37 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const handleClearClick = () => {
+    const handleClearClick = useCallback(() => {
         onClearHistory();
         setShowClearConfirm(false);
         setSearchQuery('');
-    };
+    }, [onClearHistory]);
+
+    const handleToggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
+    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), []);
+    const handleClearSearch = useCallback(() => setSearchQuery(''), []);
+    const handleShowConfirm = useCallback(() => setShowClearConfirm(true), []);
+    const handleHideConfirm = useCallback(() => setShowClearConfirm(false), []);
 
     const filteredHistory = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return history;
-        }
+        if (!searchQuery.trim()) return history;
         const lowerCaseQuery = searchQuery.toLowerCase();
-        return history.filter(entry => {
-            const titleMatch = entry.title?.toLowerCase().includes(lowerCaseQuery);
-            const urlMatch = entry.url.toLowerCase().includes(lowerCaseQuery);
-            const siteNameMatch = entry.siteName?.toLowerCase().includes(lowerCaseQuery);
-            const tagMatch = entry.tags.some(tag =>
-                tag.name.toLowerCase().includes(lowerCaseQuery)
-            );
-            return titleMatch || urlMatch || siteNameMatch || tagMatch;
-        });
+        return history.filter(entry =>
+            entry.title?.toLowerCase().includes(lowerCaseQuery) ||
+            entry.url.toLowerCase().includes(lowerCaseQuery) ||
+            entry.siteName?.toLowerCase().includes(lowerCaseQuery) ||
+            entry.tags.some(tag => tag.name.toLowerCase().includes(lowerCaseQuery))
+        );
     }, [history, searchQuery]);
 
-    if (history.length === 0 && !isOpen) {
-        return null;
-    }
+    if (history.length === 0 && !isOpen) return null;
 
     return (
         <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
             <motion.button
                 whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }}
                 transition={{ duration: 0.05 }}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleToggleOpen}
                 className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]"
                 aria-expanded={isOpen}
                 aria-controls="history-content"
@@ -1104,7 +1058,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     type="text"
                                     placeholder="Search history (title, url, tags...)"
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={handleSearchChange}
                                     className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                     aria-label="Search history entries"
                                 />
@@ -1115,7 +1069,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     <TooltipWrapper tipContent="Clear Search">
                                         <motion.button
                                             whileTap={{ scale: 0.9 }}
-                                            onClick={() => setSearchQuery('')}
+                                            onClick={handleClearSearch}
                                             className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]"
                                             aria-label="Clear search"
                                             initial={{ opacity: 0, scale: 0.5 }}
@@ -1159,27 +1113,15 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                             className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"
                                         >
                                             <p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p>
-                                            <motion.button
-                                                whileTap={{ scale: 0.95 }}
-                                                onClick={handleClearClick}
-                                                className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"
-                                            >
-                                                Yes, Clear
-                                            </motion.button>
-                                            <motion.button
-                                                whileTap={{ scale: 0.95 }}
-                                                onClick={() => setShowClearConfirm(false)}
-                                                className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"
-                                            >
-                                                Cancel
-                                            </motion.button>
+                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"> Yes, Clear </motion.button>
+                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"> Cancel </motion.button>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                                 <TooltipWrapper tipContent="Clear All History">
                                     <motion.button
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => setShowClearConfirm(true)}
+                                        onClick={handleShowConfirm}
                                         className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
                                         aria-label="Clear History"
                                     >
@@ -1196,7 +1138,6 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
     );
 };
 HistoryPanel.displayName = 'HistoryPanel';
-
 
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
@@ -1238,16 +1179,14 @@ const BooruTagExtractor = () => {
             const savedHistoryData = localStorage.getItem(HISTORY_STORAGE_KEY);
             if (savedHistoryData) {
                 const parsed = JSON.parse(savedHistoryData);
-                const isValidHistory = (item: unknown): item is StoredHistoryItem => {
-                    if (typeof item !== 'object' || item === null) return false;
-                    if (!('id' in item && 'url' in item && 'timestamp' in item)) return false;
-                    return !('tags' in item && item.tags !== undefined && !Array.isArray(item.tags));
-                };
+                const isValidHistory = (item: unknown): item is StoredHistoryItem =>
+                    typeof item === 'object' && item !== null &&
+                    'id' in item && 'url' in item && 'timestamp' in item &&
+                    (!('tags' in item) || item.tags === undefined || Array.isArray(item.tags));
+
                 if (Array.isArray(parsed) && parsed.every(isValidHistory)) {
-                    loadedHistory = parsed.map((item) => {
-                        const validItem = item as StoredHistoryItem;
-                        return { ...validItem, tags: Array.isArray(validItem.tags) ? validItem.tags : [] };
-                    }).sort((a, b) => b.timestamp - a.timestamp);
+                    loadedHistory = parsed.map((item) => ({ ...(item as StoredHistoryItem), tags: Array.isArray(item.tags) ? item.tags : [] }))
+                        .sort((a, b) => b.timestamp - a.timestamp);
                 } else {
                     console.warn("Invalid history data structure in localStorage. Clearing.");
                     localStorage.removeItem(HISTORY_STORAGE_KEY);
@@ -1258,24 +1197,21 @@ const BooruTagExtractor = () => {
             localStorage.removeItem(HISTORY_STORAGE_KEY);
         }
 
-        if (typeof window !== 'undefined') {
-            const initialSettings: Settings = {
-                theme: savedTheme ?? 'system',
-                colorTheme: savedColorTheme ?? DEFAULT_COLOR_THEME,
-                customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
-                autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
-                enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
-                fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
-            };
-            setSettings(initialSettings);
-            setHistory(loadedHistory);
-            setIsMobile(window.innerWidth < 768);
-        }
+        const initialSettings: Settings = {
+            theme: savedTheme ?? 'system',
+            colorTheme: savedColorTheme ?? DEFAULT_COLOR_THEME,
+            customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
+            autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
+            enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
+            fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
+        };
+        setSettings(initialSettings);
+        setHistory(loadedHistory);
+        setIsMobile(window.innerWidth < 768);
     }, []);
 
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
         const root = window.document.documentElement;
         const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         root.classList.toggle('dark', isDark);
@@ -1288,7 +1224,6 @@ const BooruTagExtractor = () => {
                 const focusFactor = isDark ? 1.2 : 0.85;
                 const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
                 const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
-
                 root.style.setProperty('--custom-primary-rgb', primaryRgbStr);
                 root.style.setProperty('--custom-primary-focus-rgb', focusRgbStr);
                 root.style.setProperty('--custom-primary-content-rgb', contentRgbStr);
@@ -1308,11 +1243,8 @@ const BooruTagExtractor = () => {
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
         localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
-        if (settings.customColorHex) {
-            localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
-        } else {
-            localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
-        }
+        if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
+        else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = (e: MediaQueryListEvent) => {
@@ -1332,40 +1264,30 @@ const BooruTagExtractor = () => {
             }
         };
 
-        if (settings.theme === 'system') {
-            mediaQuery.addEventListener('change', handleChange);
-        }
+        if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
 
-        return () => {
-            mediaQuery.removeEventListener('change', handleChange);
-        };
     }, [settings]);
 
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
         const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', checkIfMobile);
         return () => window.removeEventListener('resize', checkIfMobile);
     }, []);
 
     useEffect(() => {
-        if (allExtractedTags.length > 0) {
-            const enabledCategories = new Set(tagCategories.filter(cat => cat.enabled).map(cat => cat.id));
-            const filteredTags = allExtractedTags
-                .filter(tag => enabledCategories.has(tag.category))
-                .map(tag => tag.name.replace(/_/g, ' '));
-            setDisplayedTags(filteredTags.join(', '));
-        } else { setDisplayedTags(''); }
+        const enabledCategories = new Set(tagCategories.filter(cat => cat.enabled).map(cat => cat.id));
+        const filteredTags = allExtractedTags
+            .filter(tag => enabledCategories.has(tag.category))
+            .map(tag => tag.name.replace(/_/g, ' '));
+        setDisplayedTags(filteredTags.join(', '));
     }, [allExtractedTags, tagCategories]);
 
     useEffect(() => {
         try {
-            if (history && history.length > 0) {
-                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-            } else if (history && history.length === 0 && localStorage.getItem(HISTORY_STORAGE_KEY)) {
-                localStorage.removeItem(HISTORY_STORAGE_KEY);
-            }
+            if (history.length > 0) localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+            else if (localStorage.getItem(HISTORY_STORAGE_KEY)) localStorage.removeItem(HISTORY_STORAGE_KEY);
         } catch (e) {
             console.error("Failed to save history to localStorage:", e);
         }
@@ -1390,80 +1312,55 @@ const BooruTagExtractor = () => {
             return;
         }
 
-        console.log(`Attempting extraction for: ${trimmedUrl} using strategy for ${site.name} via ${settings.fetchMode} mode.`);
-        setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
+        setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0));
+        const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0);
+        const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
 
         let html = '';
         let fetchError = '';
 
         try {
-            setActiveSite(site.name);
-
             if (settings.fetchMode === 'server') {
-                const response = await fetch(API_ROUTE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetUrl: trimmedUrl }),
-                    signal: controller.signal
-                });
-
+                const response = await fetch(API_ROUTE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetUrl: trimmedUrl }), signal: controller.signal });
                 const responseData = await response.json();
-
                 if (!response.ok || responseData.error) {
-                    let errorMsg = responseData.error || `Server proxy failed with status: ${response.status}`;
-                    if (response.status === 504 || (responseData.error && responseData.error.toLowerCase().includes('timed out'))) {
-                        errorMsg = 'Request timed out via server proxy. Target site might be slow or unreachable.';
-                    } else if (response.status === 502) {
-                        errorMsg = `Could not fetch from target site via server proxy (Bad Gateway). ${responseData.error || ''}`.trim();
-                    } else if (response.status === 400) {
-                        errorMsg = `Invalid request to server proxy: ${responseData.error || ''}`.trim();
-                    }
+                    let errorMsg = responseData.error || `Server proxy failed: ${response.status}`;
+                    if (response.status === 504 || responseData.error?.toLowerCase().includes('timed out')) errorMsg = 'Request timed out (Server Proxy). Site might be slow.';
+                    else if (response.status === 502) errorMsg = `Server proxy couldn't reach site (Bad Gateway). ${responseData.error || ''}`.trim();
+                    else if (response.status === 400) errorMsg = `Invalid request to server proxy: ${responseData.error || ''}`.trim();
                     fetchError = errorMsg;
-                    console.error("Server Proxy Error Response:", response.status, responseData);
-                } else if (!responseData.html) {
-                    fetchError = 'Received empty HTML from server proxy.';
-                    console.error(fetchError);
-                } else {
-                    html = responseData.html;
-                }
-
+                } else if (!responseData.html) fetchError = 'Received empty HTML from server proxy.';
+                else html = responseData.html;
             } else {
                 const proxyFetchUrl = `${CLIENT_PROXY_URL}${encodeURIComponent(trimmedUrl)}`;
                 const response = await fetch(proxyFetchUrl, { signal: controller.signal });
-
-                if (!response.ok) {
-                    fetchError = `Client proxy (AllOrigins) failed with status: ${response.status}. Service might be down or blocking the request.`;
-                    console.error(fetchError);
-                } else {
+                if (!response.ok) fetchError = `Client proxy failed: ${response.status}. Service may be down/blocking.`;
+                else {
                     const data = await response.json();
-                    if (!data || !data.contents) {
-                        fetchError = 'Client proxy (AllOrigins) returned an invalid response or empty content.';
-                        console.error(fetchError, "Response Data:", data);
-                    } else {
-                        html = data.contents;
-                    }
+                    if (!data?.contents) fetchError = 'Client proxy returned invalid/empty content.';
+                    else html = data.contents;
                 }
             }
-
             clearTimeout(timeoutId);
 
             if (fetchError) {
                 setError(fetchError);
-                setLoading(false);
+                console.error("Fetch Error:", fetchError);
+                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
                 currentExtractionUrl.current = null;
+                setLoading(false);
                 return;
             }
 
             if (!html) {
-                const errorMsg = 'Failed to retrieve HTML content using the selected method.';
-                setError(errorMsg);
-                console.error(errorMsg);
-                setLoading(false);
+                setError('Failed to retrieve HTML content.');
+                console.error("Error: Empty HTML content received.");
+                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
                 currentExtractionUrl.current = null;
+                setLoading(false);
                 return;
             }
 
@@ -1471,28 +1368,16 @@ const BooruTagExtractor = () => {
             const doc = parser.parseFromString(html, 'text/html');
 
             try {
-                const existingBase = doc.querySelector('base');
-                if (existingBase) { existingBase.remove(); }
-                if (!doc.head) {
-                    const head = doc.createElement('head');
-                    if (doc.documentElement.firstChild) { doc.documentElement.insertBefore(head, doc.documentElement.firstChild); }
-                    else { doc.documentElement.appendChild(head); }
-                }
+                doc.querySelector('base')?.remove();
+                const head = doc.head || doc.documentElement.appendChild(doc.createElement('head'));
                 const base = doc.createElement('base');
                 base.href = new URL('./', trimmedUrl).href;
-                doc.head.insertBefore(base, doc.head.firstChild);
-                console.log(`Injected/Updated base tag href to: ${base.href}`);
-            } catch (e) {
-                console.warn(`Could not set base tag for URL ${trimmedUrl}:`, e);
-            }
+                head.insertBefore(base, head.firstChild);
+            } catch (e) { console.warn(`Could not set base tag for URL ${trimmedUrl}:`, e); }
 
             let pageErrorDetected = false;
             let specificError = "Check URL, site status, or try again later.";
-
-            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied")) {
-                pageErrorDetected = true;
-                specificError = `Site returned error/denial in title: ${doc.title.substring(0, 100)}`;
-            }
+            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied")) { pageErrorDetected = true; specificError = `Site returned error/denial in title: ${doc.title.substring(0, 100)}`; }
             const errorElement = doc.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"]');
             if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
                 pageErrorDetected = true;
@@ -1502,100 +1387,66 @@ const BooruTagExtractor = () => {
                 else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
                 else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
             }
-            const contentParagraphs = doc.querySelectorAll('#content > div > p, #content p, .content p');
-            contentParagraphs.forEach(p => {
-                const textContent = p.textContent;
-                if (textContent) {
-                    const textContentLower = textContent.toLowerCase();
-                    if (textContentLower.includes('you must be logged in') || textContentLower.includes('requires an account') || textContentLower.includes('please login')) {
-                        pageErrorDetected = true;
-                        if (!specificError.includes("login")) {
-                            specificError = `Content may require login: ${textContent.substring(0,100)}...`;
-                        }
-                    } else if (textContentLower.includes('error')) {
-                        pageErrorDetected = true;
-                        if (!specificError.startsWith("Site Error") && !specificError.includes("login")) {
-                            specificError = `Site page may contain an error message: ${textContent.substring(0,100)}...`;
-                        }
-                    }
-                }
+            doc.querySelectorAll('#content > div > p, #content p, .content p').forEach(p => {
+                const textContent = p.textContent?.toLowerCase();
+                if (textContent?.includes('you must be logged in') || textContent?.includes('requires an account') || textContent?.includes('please login')) { pageErrorDetected = true; if (!specificError.includes("login")) specificError = `Content may require login.`; }
+                else if (textContent?.includes('error')) { pageErrorDetected = true; if (!specificError.startsWith("Site Error") && !specificError.includes("login")) specificError = `Site page may contain an error message.`; }
             });
 
             if (pageErrorDetected) {
-                const errorMsg = `Extraction stopped: ${specificError}`;
-                setError(errorMsg);
-                console.warn(errorMsg, "URL:", trimmedUrl);
-                setLoading(false);
+                const pageErrorMessage = `Extraction stopped: ${specificError}`;
+                setError(pageErrorMessage);
+                console.error("Page Error Detected:", pageErrorMessage);
+                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
                 currentExtractionUrl.current = null;
+                setLoading(false);
                 return;
             }
 
-            console.log(`Applying extraction strategy: ${site.name}`);
             const extractionResult = site.extractTags(doc);
-            console.log("Raw extraction result:", extractionResult);
-
-            const updateHistory = (entry: HistoryEntry) => {
-                const entryWithSafeTags = { ...entry, tags: Array.isArray(entry.tags) ? entry.tags : [] };
-                setHistory(prevHistory => {
-                    const existingIndex = prevHistory.findIndex(h => h.url === entryWithSafeTags.url);
-                    let updatedHistory = [...prevHistory];
-                    if (existingIndex > -1) { updatedHistory.splice(existingIndex, 1); }
-                    updatedHistory = [entryWithSafeTags, ...updatedHistory];
-                    if (updatedHistory.length > MAX_HISTORY_SIZE) { return updatedHistory.slice(0, MAX_HISTORY_SIZE); }
-                    return updatedHistory;
-                });
-            }
-
-            const newEntryBase = {
-                id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                url: trimmedUrl,
-                imageUrl: extractionResult.imageUrl,
-                title: extractionResult.title,
-                siteName: site.name,
-                timestamp: Date.now(),
-            };
 
             setAllExtractedTags(extractionResult.tags || []);
             setImageUrl(extractionResult.imageUrl);
             setImageTitle(extractionResult.title);
             setError('');
 
-            const newEntry: HistoryEntry = { ...newEntryBase, tags: extractionResult.tags || [] };
-            updateHistory(newEntry);
+            const newEntry: HistoryEntry = {
+                id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                url: trimmedUrl,
+                tags: extractionResult.tags || [],
+                imageUrl: extractionResult.imageUrl,
+                title: extractionResult.title,
+                siteName: site.name,
+                timestamp: Date.now(),
+            };
+            setHistory(prevHistory => {
+                const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
+                return updatedHistory.slice(0, MAX_HISTORY_SIZE);
+            });
 
-            if (extractionResult.tags.length === 0 && !extractionResult.imageUrl) {
-                const warnMsg = 'Warning: No tags or image found. Page structure might have changed, post is unavailable/deleted, or requires login.';
-                setError(warnMsg);
-                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
-            } else if (extractionResult.tags.length === 0 && extractionResult.imageUrl) {
-                const warnMsg = 'Warning: Image found, but no tags were extracted. Selectors may need update or tags might genuinely be absent.';
+            if (extractionResult.tags.length === 0) {
+                const warnMsg = extractionResult.imageUrl
+                    ? 'Warning: Image found, but no tags were extracted. Selectors may need update or tags might be absent.'
+                    : 'Warning: No tags or image found. Page structure might have changed, post unavailable/deleted, or requires login.';
                 setError(warnMsg);
                 console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
             } else {
-                console.log(`Successfully extracted ${extractionResult.tags.length} tags.`);
+                console.log(`Successfully extracted ${extractionResult.tags.length} tags from ${site.name}.`);
             }
 
         } catch (err) {
             clearTimeout(timeoutId);
+            const mode = settings.fetchMode === 'server' ? 'Server Proxy' : 'Client Proxy';
             let finalMessage: string;
-            const mode = settings.fetchMode === 'server' ? 'Server Proxy' : 'Client Proxy (AllOrigins)';
-            if ((err as Error).name === 'AbortError') {
-                finalMessage = `Request via ${mode} timed out.`;
-            } else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) {
-                finalMessage = `Failed to connect via ${mode}. Server/Proxy might be down or unreachable.`;
-            } else if (err instanceof Error) {
-                finalMessage = `Extraction error via ${mode}: ${err.message}`;
-            } else {
-                finalMessage = `Unknown extraction error via ${mode}: ${String(err)}`;
-            }
+            if ((err as Error).name === 'AbortError') finalMessage = `Request via ${mode} timed out after ${fetchTimeout / 1000}s.`;
+            else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect via ${mode}. Check connection or proxy status.`;
+            else finalMessage = `Error via ${mode}: ${(err as Error).message}`;
             setError(finalMessage);
             console.error(finalMessage, err);
-            setAllExtractedTags([]);
-            setActiveSite(null);
+            setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
             currentExtractionUrl.current = null;
         } finally {
             setLoading(false);
-            clearTimeout(timeoutId);
         }
     }, [loading, settings.fetchMode]);
 
@@ -1625,59 +1476,50 @@ const BooruTagExtractor = () => {
                         }
                     }, 750);
                 }
-            } else {
-                if (trimmedUrl !== currentExtractionUrl.current) {
-                    setError('URL detected, but does not match supported sites.');
-                }
+            } else if (trimmedUrl !== currentExtractionUrl.current) {
+                setError('URL detected, but does not match supported sites.');
             }
         } else if (!trimmedUrl && currentExtractionUrl.current) {
             handleReset();
         } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-            if (trimmedUrl !== currentExtractionUrl.current) {
-                setError('Please enter a valid URL starting with http:// or https://');
-            }
+            if (trimmedUrl !== currentExtractionUrl.current) setError('Please enter a valid URL starting with http:// or https://');
         } else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) {
             setError('');
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset]);
 
-    const handleSettingsChange = (newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings }));
-    const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => { setUrl(e.target.value); };
-    const handleManualExtract = () => {
+    const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
+    const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
+    const handleManualExtract = useCallback(() => {
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
         currentExtractionUrl.current = null;
         void extractTags(url.trim());
-    };
-    const toggleTagCategory = (categoryId: TagCategory) => setTagCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, enabled: !cat.enabled } : cat));
-    const toggleAllCategories = (enabled: boolean) => setTagCategories(prev => prev.map(cat => ({ ...cat, enabled })));
-    const handleCopy = async () => { if (!displayedTags) return; try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); } catch (err) { console.error('Failed to copy tags:', err); setError("Failed to copy tags."); } };
+    }, [extractTags, url]);
+    const toggleTagCategory = useCallback((categoryId: TagCategory) => setTagCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, enabled: !cat.enabled } : cat)), []);
+    const toggleAllCategories = useCallback((enabled: boolean) => setTagCategories(prev => prev.map(cat => ({ ...cat, enabled }))), []);
+    const handleCopy = useCallback(async () => {
+        if (!displayedTags) return;
+        try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); }
+        catch (err) { console.error('Failed to copy tags:', err); setError("Failed to copy tags."); }
+    }, [displayedTags]);
     const areAllCategoriesEnabled = useMemo(() => tagCategories.every(cat => cat.enabled), [tagCategories]);
     const areAllCategoriesDisabled = useMemo(() => !tagCategories.some(cat => cat.enabled), [tagCategories]);
 
     const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => {
         if (loading) return;
+        handleReset();
         setUrl(entry.url);
         setAllExtractedTags(Array.isArray(entry.tags) ? entry.tags : []);
         setImageUrl(entry.imageUrl);
         setImageTitle(entry.title);
         setActiveSite(entry.siteName || null);
-        setTagCategories(DEFAULT_TAG_CATEGORIES);
-        setError('');
-        setLoading(false);
-        setCopySuccess(false);
         currentExtractionUrl.current = entry.url;
         cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [loading]);
+    }, [loading, handleReset]);
 
-    const handleDeleteHistoryEntry = useCallback((id: string) => {
-        setHistory(prev => prev.filter(item => item.id !== id));
-    }, []);
-
-    const handleClearHistory = useCallback(() => {
-        setHistory([]);
-        localStorage.removeItem(HISTORY_STORAGE_KEY);
-    }, []);
+    const handleDeleteHistoryEntry = useCallback((id: string) => setHistory(prev => prev.filter(item => item.id !== id)), []);
+    const handleClearHistory = useCallback(() => { setHistory([]); localStorage.removeItem(HISTORY_STORAGE_KEY); }, []);
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -1698,27 +1540,23 @@ const BooruTagExtractor = () => {
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDraggingOver(false);
-
-        let droppedUrl = e.dataTransfer.getData('text/uri-list');
-        if (!droppedUrl) {
-            droppedUrl = e.dataTransfer.getData('text/plain');
-        }
-
+        const droppedUrl = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
         if (droppedUrl && (droppedUrl.startsWith('http://') || droppedUrl.startsWith('https://'))) {
             const trimmedUrl = droppedUrl.trim();
             if (trimmedUrl) {
                 handleReset();
                 currentExtractionUrl.current = null;
                 setUrl(trimmedUrl);
-                if (settings.autoExtract) {
-                    void extractTags(trimmedUrl);
-                }
+                if (settings.autoExtract) void extractTags(trimmedUrl);
             }
         } else {
             setError("Dropped item is not a valid URL.");
             console.warn("Dropped item is not a valid URL:", droppedUrl);
         }
     }, [handleReset, settings.autoExtract, extractTags]);
+
+    const handleOpenSettings = useCallback(() => setShowSettings(true), []);
+    const handleCloseSettings = useCallback(() => setShowSettings(false), []);
 
     const shouldShowPreviewSection = useMemo(() => {
         return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
@@ -1738,11 +1576,8 @@ const BooruTagExtractor = () => {
                 <AnimatePresence>
                     {isDraggingOver && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
                         >
                             <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                 <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
@@ -1766,15 +1601,11 @@ const BooruTagExtractor = () => {
                     </div>
                     <TooltipWrapper tipContent="Settings">
                         <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            whileHover={{ rotate: 15, scale: 1.1 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                            onClick={() => setShowSettings(true)}
+                            whileTap={{ scale: 0.9 }} whileHover={{ rotate: 15, scale: 1.1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                            onClick={handleOpenSettings}
                             className="shrink-0 rounded-full p-2 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
                             aria-label="Open Settings"
-                        >
-                            <CogIcon />
-                        </motion.button>
+                        ><CogIcon /></motion.button>
                     </TooltipWrapper>
                 </div>
 
@@ -1788,20 +1619,8 @@ const BooruTagExtractor = () => {
                             {loading ? <LoadingSpinner /> : 'Extract Manually'}
                         </motion.button>
                         <TooltipWrapper tipContent="Clear input, results, and filters">
-                            <motion.button
-                                whileTap={{ scale: 0.97 }}
-                                onClick={handleReset}
-                                className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
-                                aria-label="Reset Form"
-                            >
-                                <motion.span
-                                    whileTap={{ rotate: -90 }}
-                                    whileHover={{ rotate: -15 }}
-                                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                                    className="mr-2 inline-block"
-                                >
-                                    <ArrowPathIcon />
-                                </motion.span>
+                            <motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset Form">
+                                <motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"> <ArrowPathIcon /> </motion.span>
                                 Reset
                             </motion.button>
                         </TooltipWrapper>
@@ -1839,7 +1658,7 @@ const BooruTagExtractor = () => {
                                         </div>
                                         <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
                                             {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
-                                                const categoryOption = tagCategories.find(c => c.id === categoryDef.id) || { ...categoryDef, enabled: DEFAULT_TAG_CATEGORIES.find(d => d.id === categoryDef.id)?.enabled ?? false };
+                                                const categoryOption = tagCategories.find(c => c.id === categoryDef.id) ?? categoryDef;
                                                 const count = tagCounts[categoryOption.id] || 0;
                                                 if (count > 0 || DEFAULT_TAG_CATEGORIES.some(def => def.id === categoryOption.id)) {
                                                     return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
@@ -1856,16 +1675,11 @@ const BooruTagExtractor = () => {
                                             <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
                                         </div>
                                         <motion.button
-                                            whileTap={{ scale: 0.97 }}
-                                            onClick={handleCopy}
-                                            disabled={!displayedTags || copySuccess}
+                                            whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess}
                                             className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
                                             aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
                                         >
-                                            <motion.div
-                                                className="inline-flex items-center justify-center overflow-hidden"
-                                                style={{ width: '1.25rem', height: '1.25rem' }}
-                                            >
+                                            <motion.div className="inline-flex items-center justify-center overflow-hidden" style={{ width: '1.25rem', height: '1.25rem' }}>
                                                 <AnimatePresence mode="popLayout" initial={false}>
                                                     {copySuccess ? (
                                                         <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <CheckCircleIcon /> </motion.span>
@@ -1889,7 +1703,6 @@ const BooruTagExtractor = () => {
                         onClearHistory={handleClearHistory}
                         enableImagePreviews={settings.enableImagePreviews}
                     />
-
                 </div>
 
                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
@@ -1903,7 +1716,7 @@ const BooruTagExtractor = () => {
                 </div>
             </MotionCard>
 
-            <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} settings={settings} onSettingsChange={handleSettingsChange} />
+            <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
         </div>
     );
 };
