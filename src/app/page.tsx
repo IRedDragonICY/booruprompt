@@ -58,6 +58,7 @@ const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
 const CLIENT_PROXY_URL = 'https://api.allorigins.win/get?url=';
+const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -567,6 +568,8 @@ const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="
 const ArrowDownTrayIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
 const ServerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.816H7.923a3.375 3.375 0 0 0-3.285 2.816l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" /></svg>;
 const CloudArrowDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>;
+const BugAntIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm0 0c0 1.657-1.007 3-2.25 3S10.5 13.657 10.5 12M7.5 8.25c0-1.657-.507-3-1.125-3S5.25 6.593 5.25 8.25m9.75 3.75c0-1.657.507-3 1.125-3s1.125 1.343 1.125 3M12 15.75c0 1.657.507 3 1.125 3s1.125-1.343 1.125-3m-6 3c0 1.657-.507 3-1.125 3s-1.125-1.343-1.125-3m1.5-6.75c.618 0 1.125.507 1.125 1.125v3.375" /></svg>;
+
 
 const MotionCard = motion.div;
 
@@ -921,7 +924,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 <p className="text-xs text-on-surface-muted mt-1.5">Show image/video previews during extraction and in history. Images fetched via Server Proxy require server bandwidth.</p>
                             </div>
                         </div>
-                        <div className="mt-8 pt-4 border-t border-surface-border text-right">
+
+                        <div className="mt-6 pt-4 border-t border-surface-border space-y-3">
+                            <label className="block text-sm font-medium text-on-surface">Support & Feedback</label>
+                            <a
+                                href={REPORT_ISSUE_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center w-full space-x-2 px-4 py-2.5 rounded-lg border border-surface-border text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200 text-sm font-medium"
+                            >
+                                <BugAntIcon />
+                                <span>Report an Issue on GitHub</span>
+                            </a>
+                            <p className="text-xs text-on-surface-faint text-center">Found a bug or have a suggestion? Let us know!</p>
+                        </div>
+
+                        <div className="mt-6 pt-4 border-t border-surface-border text-right">
                             <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200">Done</motion.button>
                         </div>
                     </motion.div>
