@@ -575,24 +575,24 @@ const MotionCard = motion.div;
 
 const CategoryToggle = React.memo(({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
     <MotionCard
-        className="flex items-center justify-between bg-surface-alt-2 p-3 rounded-lg shadow-sm transition-shadow hover:shadow-md"
+        className="flex items-center justify-between bg-surface-alt-2 p-3 rounded-lg shadow-xs transition-shadow hover:shadow-md"
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}
         whileHover={{ y: -2 }}
     >
         <div className="flex items-center space-x-3 overflow-hidden">
             <motion.span
-                className={`inline-block w-3 h-3 rounded-full ${category.color} flex-shrink-0`}
+                className={`inline-block w-3 h-3 rounded-full ${category.color} shrink-0`}
                 animate={{ scale: category.enabled ? 1 : 0.8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
             ></motion.span>
             <span className="truncate text-sm font-medium text-on-surface" title={category.label}>{category.label}</span>
-            {count > 0 && (<span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted flex-shrink-0">{count}</span>)}
+            {count > 0 && (<span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted shrink-0">{count}</span>)}
         </div>
-        <label className="inline-flex items-center cursor-pointer flex-shrink-0 ml-2">
+        <label className="inline-flex items-center cursor-pointer shrink-0 ml-2">
             <input type="checkbox" className="sr-only peer" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
-            <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary ${category.enabled ? category.color : 'bg-surface-border'}`}>
+            <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 peer-focus:outline-hidden peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary ${category.enabled ? category.color : 'bg-surface-border'}`}>
                 <motion.div
-                    className={`absolute left-1 top-1 bg-white dark:bg-gray-300 w-4 h-4 rounded-full shadow-sm`}
+                    className={`absolute left-1 top-1 bg-white dark:bg-gray-300 w-4 h-4 rounded-full shadow-xs`}
                     layout
                     transition={{ type: "spring", stiffness: 700, damping: 30 }}
                     initial={false}
@@ -675,7 +675,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
     if (imgError) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Proxy error or invalid image)</p></div></div>;
 
     return (
-        <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-xs" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
             {(imgLoading && !isVideo) && <div className="absolute inset-0 flex items-center justify-center bg-surface-alt-2 animate-pulse text-on-surface-faint">Loading...</div>}
             {isVideo ? (
                 <video key={proxiedUrl} controls muted className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
@@ -694,7 +694,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
                 />
             )}
             {title && !imgLoading && !imgError && (
-                <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-white text-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <motion.div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 via-black/50 to-transparent p-3 text-white text-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                     <p className="truncate">{title}</p>
                 </motion.div>
             )}
@@ -770,12 +770,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
                     <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
                             <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
                             <TooltipWrapper tipContent="Close Settings">
-                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
+                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
                                     <XMarkIcon className="w-6 h-6" />
                                 </motion.button>
                             </TooltipWrapper>
@@ -785,7 +785,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 <label className="block text-sm font-medium text-on-surface mb-2">Appearance</label>
                                 <div className="flex items-center space-x-2 rounded-lg bg-surface-alt-2 p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
-                                        <label key={value} className={`flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.theme === value ? 'bg-surface shadow text-primary' : 'text-on-surface-muted hover:bg-surface-border'}`}>
+                                        <label key={value} className={`flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.theme === value ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-muted hover:bg-surface-border'}`}>
                                             <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
                                             <AnimatedIcon isActive={settings.theme === value} animation={animation as "default" | "spin" | "gentle"}>
                                                 {icon}
@@ -800,7 +800,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 <div className="grid grid-cols-3 gap-2 rounded-lg bg-surface-alt-2 p-1">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
-                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow-sm ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
                                                 <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
                                                 <span className={`block w-5 h-5 rounded-full ${colorClass}`}></span>
                                                 <AnimatePresence>
@@ -815,7 +815,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         </TooltipWrapper>
                                     ))}
                                     <TooltipWrapper tipContent="Custom Color">
-                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === 'custom' ? 'bg-surface shadow ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === 'custom' ? 'bg-surface shadow-sm ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
                                             <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
                                             <span className="block w-5 h-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
@@ -840,7 +840,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                             type="color"
                                             value={/^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff'}
                                             onChange={handleCustomColorInputChange}
-                                            className="w-8 h-8 rounded border border-surface-border cursor-pointer p-0 appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-none"
+                                            className="w-8 h-8 rounded-sm border border-surface-border cursor-pointer p-0 appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border-none"
                                             aria-label="Custom color picker"
                                         />
                                         <input
@@ -848,7 +848,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                             value={currentCustomHex}
                                             onChange={handleCustomColorTextChange}
                                             maxLength={7}
-                                            className="flex-1 appearance-none bg-surface border border-surface-border rounded-md px-2 py-1 text-sm text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition duration-200 font-mono"
+                                            className="flex-1 appearance-none bg-surface border border-surface-border rounded-md px-2 py-1 text-sm text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-transparent transition duration-200 font-mono"
                                             placeholder="#rrggbb"
                                             aria-label="Custom color hex code"
                                             pattern="^#?([a-fA-F0-9]{6})$"
@@ -861,16 +861,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 <label className="block text-sm font-medium text-on-surface mb-2">Data Fetching Method</label>
                                 <div className="space-y-2 rounded-lg bg-surface-alt-2 p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
-                                        <label key={value} className={`flex items-start p-3 rounded-md cursor-pointer transition-all ${settings.fetchMode === value ? 'bg-surface shadow ring-1 ring-primary/50' : 'hover:bg-surface-border'}`}>
+                                        <label key={value} className={`flex items-start p-3 rounded-md cursor-pointer transition-all ${settings.fetchMode === value ? 'bg-surface shadow-sm ring-1 ring-primary/50' : 'hover:bg-surface-border'}`}>
                                             <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="sr-only peer" aria-label={label} />
-                                            <div className={`mr-3 mt-0.5 flex-shrink-0 w-5 h-5 ${settings.fetchMode === value ? 'text-primary' : 'text-on-surface-muted'}`}>
+                                            <div className={`mr-3 mt-0.5 shrink-0 w-5 h-5 ${settings.fetchMode === value ? 'text-primary' : 'text-on-surface-muted'}`}>
                                                 {icon}
                                             </div>
                                             <div className="flex-1">
                                                 <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-on-surface' : 'text-on-surface-muted'}`}>{label}</span>
                                                 <span className="block text-xs text-on-surface-faint mt-0.5">{description}</span>
                                             </div>
-                                            <div className="ml-3 mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center peer-checked:border-primary peer-checked:bg-primary transition-colors border-surface-border bg-surface">
+                                            <div className="ml-3 mt-0.5 shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center peer-checked:border-primary peer-checked:bg-primary transition-colors border-surface-border bg-surface">
                                                 <AnimatePresence>
                                                     {settings.fetchMode === value && (
                                                         <motion.div
@@ -894,7 +894,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         <input type="checkbox" id="autoExtractToggle" className="sr-only peer" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
                                         <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
                                         <motion.div
-                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm"
+                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
@@ -913,7 +913,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         <input type="checkbox" id="imagePreviewsToggle" className="sr-only peer" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
                                         <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
                                         <motion.div
-                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm"
+                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
@@ -931,7 +931,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 href={REPORT_ISSUE_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center w-full space-x-2 px-4 py-2.5 rounded-lg border border-surface-border text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200 text-sm font-medium"
+                                className="inline-flex items-center justify-center w-full space-x-2 px-4 py-2.5 rounded-lg border border-surface-border text-on-surface hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200 text-sm font-medium"
                             >
                                 <BugAntIcon />
                                 <span>Report an Issue on GitHub</span>
@@ -940,7 +940,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                         </div>
 
                         <div className="mt-6 pt-4 border-t border-surface-border text-right">
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200">Done</motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200">Done</motion.button>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -985,7 +985,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
             className="flex items-center space-x-3 p-3 bg-surface-alt-2 rounded-lg hover:bg-surface-border transition-colors"
         >
-            <div className="w-10 h-10 rounded flex-shrink-0 bg-surface-border overflow-hidden relative">
+            <div className="w-10 h-10 rounded-sm shrink-0 bg-surface-border overflow-hidden relative">
                 {enableImagePreviews && !showPlaceholder && proxiedImageUrl && (
                     <Image
                         src={proxiedImageUrl}
@@ -1085,7 +1085,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                 whileTap={{ backgroundColor: 'rgba(var(--color-surface-border), 0.5)' }}
                 transition={{ duration: 0.05 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex justify-between items-center p-4 text-left hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors"
+                className="w-full flex justify-between items-center p-4 text-left hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors"
                 aria-expanded={isOpen}
                 aria-controls="history-content"
             >
@@ -1121,7 +1121,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     placeholder="Search history (title, url, tags...)"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-surface-alt-2 border border-surface-border rounded-lg pl-10 pr-10 py-2 text-sm text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition duration-200"
+                                    className="w-full bg-surface-alt-2 border border-surface-border rounded-lg pl-10 pr-10 py-2 text-sm text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary transition duration-200"
                                     aria-label="Search history entries"
                                 />
                                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-faint pointer-events-none">
@@ -1174,20 +1174,20 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                             initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 5 }}
-                                            className="absolute right-3 bottom-full mb-2 flex gap-2 items-center bg-surface p-2 rounded shadow-lg border border-surface-border z-10"
+                                            className="absolute right-3 bottom-full mb-2 flex gap-2 items-center bg-surface p-2 rounded-sm shadow-lg border border-surface-border z-10"
                                         >
                                             <p className="text-xs text-on-surface">Really clear?</p>
                                             <motion.button
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={handleClearClick}
-                                                className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors font-medium"
+                                                className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-sm transition-colors font-medium"
                                             >
                                                 Yes, Clear
                                             </motion.button>
                                             <motion.button
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => setShowClearConfirm(false)}
-                                                className="text-xs bg-surface-border hover:bg-gray-300 dark:hover:bg-gray-500 text-on-surface px-2 py-1 rounded transition-colors font-medium"
+                                                className="text-xs bg-surface-border hover:bg-gray-300 dark:hover:bg-gray-500 text-on-surface px-2 py-1 rounded-sm transition-colors font-medium"
                                             >
                                                 Cancel
                                             </motion.button>
@@ -1777,9 +1777,9 @@ const BooruTagExtractor = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-primary/20 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary"
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-primary/20 backdrop-blur-xs rounded-xl border-2 border-dashed border-primary"
                         >
-                            <div className="text-center text-primary-content bg-primary/80 px-4 py-2 rounded-lg shadow">
+                            <div className="text-center text-primary-content bg-primary/80 px-4 py-2 rounded-lg shadow-sm">
                                 <ArrowDownTrayIcon className="w-8 h-8 mx-auto mb-1"/>
                                 <p className="font-semibold">Drop URL Here</p>
                             </div>
@@ -1787,8 +1787,8 @@ const BooruTagExtractor = () => {
                     )}
                 </AnimatePresence>
 
-                <div className="flex-shrink-0 sticky top-0 z-10 px-6 py-5 border-b border-surface-border bg-surface-alt flex justify-between items-start">
-                    <div className="flex-grow pr-4 sm:pr-10">
+                <div className="shrink-0 sticky top-0 z-10 px-6 py-5 border-b border-surface-border bg-surface-alt flex justify-between items-start">
+                    <div className="grow pr-4 sm:pr-10">
                         <h1 className="text-xl sm:text-2xl font-semibold text-on-surface">Booru Tag Extractor</h1>
                         <div className="mt-2">
                             <span className="text-sm text-on-surface-muted mr-2">Supports:</span>
@@ -1805,7 +1805,7 @@ const BooruTagExtractor = () => {
                             whileHover={{ rotate: 15, scale: 1.1 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                             onClick={() => setShowSettings(true)}
-                            className="flex-shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
+                            className="shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
                             aria-label="Open Settings"
                         >
                             <CogIcon />
@@ -1813,20 +1813,20 @@ const BooruTagExtractor = () => {
                     </TooltipWrapper>
                 </div>
 
-                <div ref={cardBodyRef} className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
+                <div ref={cardBodyRef} className="grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
                     <div>
                         <label htmlFor="url" className="block text-sm font-medium text-on-surface mb-1.5">Booru Post URL</label>
-                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
+                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
                     </div>
                     <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-sm hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
+                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-xs hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
                             {loading ? <LoadingSpinner /> : 'Extract Manually'}
                         </motion.button>
                         <TooltipWrapper tipContent="Clear input, results, and filters">
                             <motion.button
                                 whileTap={{ scale: 0.97 }}
                                 onClick={handleReset}
-                                className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
+                                className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
                                 aria-label="Reset Form"
                             >
                                 <motion.span
@@ -1867,7 +1867,7 @@ const BooruTagExtractor = () => {
                                     <div className="bg-surface-alt-2 p-4 rounded-lg border border-surface-border">
                                         <div className="flex justify-between items-center mb-4 gap-2 flex-wrap">
                                             <h3 className="text-sm font-semibold text-on-surface">Filter Categories</h3>
-                                            <div className="flex space-x-2 flex-shrink-0">
+                                            <div className="flex space-x-2 shrink-0">
                                                 {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900 px-2.5 py-1 rounded-md transition-colors font-medium" aria-label="Select All Categories">All</motion.button>)}
                                                 {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="text-xs bg-surface-border text-on-surface-muted hover:bg-gray-300 dark:hover:bg-gray-500 px-2.5 py-1 rounded-md transition-colors font-medium" aria-label="Clear All Tag Categories">None</motion.button>)}
                                             </div>
@@ -1888,13 +1888,13 @@ const BooruTagExtractor = () => {
                                     <div className="space-y-3">
                                         <div>
                                             <label htmlFor="tags" className="block text-sm font-medium text-on-surface mb-1.5">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
-                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 text-sm scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
+                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 text-sm scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
                                         </div>
                                         <motion.button
                                             whileTap={{ scale: 0.97 }}
                                             onClick={handleCopy}
                                             disabled={!displayedTags || copySuccess}
-                                            className={`w-full inline-flex items-center justify-center font-semibold py-2.5 px-5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-all duration-300 shadow-sm hover:shadow-md disabled:shadow-none ${copySuccess ? 'bg-success text-success-content focus-visible:ring-success disabled:opacity-100 cursor-default' : 'bg-on-surface hover:opacity-90 text-surface dark:text-surface-alt focus-visible:ring-on-surface-muted disabled:opacity-50 disabled:cursor-not-allowed'}`}
+                                            className={`w-full inline-flex items-center justify-center font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-all duration-300 shadow-xs hover:shadow-md disabled:shadow-none ${copySuccess ? 'bg-success text-success-content focus-visible:ring-success disabled:opacity-100 cursor-default' : 'bg-on-surface hover:opacity-90 text-surface dark:text-surface-alt focus-visible:ring-on-surface-muted disabled:opacity-50 disabled:cursor-not-allowed'}`}
                                             aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
                                         >
                                             <motion.div
@@ -1927,7 +1927,7 @@ const BooruTagExtractor = () => {
 
                 </div>
 
-                <div className="flex-shrink-0 border-t border-surface-border p-4 bg-surface-alt text-on-surface-muted text-xs text-center">
+                <div className="shrink-0 border-t border-surface-border p-4 bg-surface-alt text-on-surface-muted text-xs text-center">
                     <p>Made with <span className="animate-heartBeat inline-block text-red-500 dark:text-red-400 mx-0.5">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary transition-colors font-medium">IRedDragonICY</a></p>
                     <p className="text-on-surface-faint text-[10px] mt-1">
                         {settings.fetchMode === 'server'
