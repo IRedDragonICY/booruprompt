@@ -3,352 +3,128 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary: rgb(var(--color-primary-rgb, var(--color-primary)));
-  --color-primary-focus: rgb(
-    var(--color-primary-focus-rgb, var(--color-primary-focus))
-  );
-  --color-primary-content: rgb(
-    var(--color-primary-content-rgb, var(--color-primary-content))
-  );
-  --color-secondary: rgb(var(--color-secondary));
-  --color-secondary-focus: rgb(var(--color-secondary-focus));
-  --color-secondary-content: rgb(var(--color-secondary-content));
-  --color-accent: rgb(var(--color-accent));
-  --color-accent-focus: rgb(var(--color-accent-focus));
-  --color-accent-content: rgb(var(--color-accent-content));
-  --color-surface: rgb(var(--color-surface));
-  --color-surface-alt: rgb(var(--color-surface-alt));
-  --color-surface-alt-2: rgb(var(--color-surface-alt-2));
-  --color-surface-border: rgb(var(--color-surface-border));
-  --color-on-surface: rgb(var(--color-on-surface));
-  --color-on-surface-muted: rgb(var(--color-on-surface-muted));
-  --color-on-surface-faint: rgb(var(--color-on-surface-faint));
-  --color-error: rgb(var(--color-error));
-  --color-error-content: rgb(var(--color-error-content));
-  --color-error-bg: rgb(var(--color-error-bg));
-  --color-success: rgb(var(--color-success));
-  --color-success-content: rgb(var(--color-success-content));
-  --color-info: rgb(var(--color-info));
-  --color-info-content: rgb(var(--color-info-content));
-  --color-info-bg: rgb(var(--color-info-bg));
-  --color-cat-copyright: rgb(var(--cat-color-copyright));
-  --color-cat-character: rgb(var(--cat-color-character));
-  --color-cat-general: rgb(var(--cat-color-general));
-  --color-cat-meta: rgb(var(--cat-color-meta));
-  --color-cat-other: rgb(var(--cat-color-other));
-
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-gradient-conic: conic-gradient(
-    from 180deg at 50% 50%,
-    var(--tw-gradient-stops)
-  );
-
-  --animate-heart-beat: heartBeat 1.2s infinite
-    cubic-bezier(0.215, 0.61, 0.355, 1);
+  --animate-heart-beat: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
 
   @keyframes heartBeat {
-    0% {
-      transform: scale(1);
-    }
-    14% {
-      transform: scale(1.3);
-    }
-    28% {
-      transform: scale(1);
-    }
-    42% {
-      transform: scale(1.3);
-    }
-    70% {
-      transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.3); }
+    70% { transform: scale(1); }
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: rgb(var(--color-surface-border-rgb, 229 231 235));
+  }
+
+  body {
+    background-color: rgb(var(--color-surface-rgb));
+    color: rgb(var(--color-on-surface-rgb));
+    @apply transition-colors duration-300;
+  }
+
+  *:focus-visible {
+    @apply ring-offset-current ring-2 ring-[rgb(var(--color-primary-rgb))] dark:ring-offset-current;
+  }
+
+  :root, html[data-color-theme="blue"]:not(.dark) {
+    --color-primary-rgb: 59 130 246;
+    --color-primary-focus-rgb: 37 99 235;
+    --color-primary-content-rgb: 255 255 255;
+    --color-secondary-rgb: 249 115 22;
+    --color-secondary-focus-rgb: 234 88 12;
+    --color-secondary-content-rgb: 255 255 255;
+    --color-accent-rgb: 13 148 136;
+    --color-accent-focus-rgb: 15 118 110;
+    --color-accent-content-rgb: 255 255 255;
+    --color-surface-rgb: 248 250 252;
+    --color-surface-alt-rgb: 255 255 255;
+    --color-surface-alt-2-rgb: 243 244 246;
+    --color-surface-border-rgb: 229 231 235;
+    --color-on-surface-rgb: 17 24 39;
+    --color-on-surface-muted-rgb: 75 85 99;
+    --color-on-surface-faint-rgb: 156 163 175;
+    --color-error-rgb: 220 38 38;
+    --color-error-content-rgb: 255 255 255;
+    --color-error-bg-rgb: 254 242 242;
+    --color-success-rgb: 22 163 74;
+    --color-success-content-rgb: 255 255 255;
+    --color-info-rgb: 59 130 246;
+    --color-info-content-rgb: 255 255 255;
+    --color-info-bg-rgb: 239 246 255;
+    --cat-color-copyright-rgb: 236 72 153;
+    --cat-color-character-rgb: 99 102 241;
+    --cat-color-general-rgb: var(--color-primary-rgb);
+    --cat-color-meta-rgb: 16 185 129;
+    --cat-color-other-rgb: 245 158 11;
+  }
+
+  html.dark {
+    --color-surface-rgb: 17 24 39;
+    --color-surface-alt-rgb: 31 41 55;
+    --color-surface-alt-2-rgb: 55 65 81;
+    --color-surface-border-rgb: 55 65 81;
+    --color-on-surface-rgb: 229 231 235;
+    --color-on-surface-muted-rgb: 156 163 175;
+    --color-on-surface-faint-rgb: 107 114 128;
+    --color-error-rgb: 248 113 113;
+    --color-error-content-rgb: 55 4 4;
+    --color-error-bg-rgb: 76 29 29;
+    --color-success-rgb: 74 222 128;
+    --color-success-content-rgb: 6 40 15;
+    --color-info-rgb: 147 197 253;
+    --color-info-content-rgb: 30 58 138;
+    --color-info-bg-rgb: 30 41 59;
+    --cat-color-copyright-rgb: 244 114 182;
+    --cat-color-character-rgb: 129 140 248;
+    --cat-color-meta-rgb: 52 211 153;
+    --cat-color-other-rgb: 251 191 36;
+  }
+
+  html[data-color-theme="orange"]:not(.dark) { --color-primary-rgb: 249 115 22; --color-primary-focus-rgb: 234 88 12; --color-primary-content-rgb: 255 255 255; --color-secondary-rgb: 59 130 246; --color-secondary-focus-rgb: 37 99 235; --color-secondary-content-rgb: 255 255 255; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="teal"]:not(.dark) { --color-primary-rgb: 13 148 136; --color-primary-focus-rgb: 15 118 110; --color-primary-content-rgb: 255 255 255; --color-secondary-rgb: 236 72 153; --color-secondary-focus-rgb: 219 39 119; --color-secondary-content-rgb: 255 255 255; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="rose"]:not(.dark) { --color-primary-rgb: 225 29 72; --color-primary-focus-rgb: 190 18 60; --color-primary-content-rgb: 255 255 255; --color-secondary-rgb: 79 70 229; --color-secondary-focus-rgb: 67 56 202; --color-secondary-content-rgb: 255 255 255; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="purple"]:not(.dark) { --color-primary-rgb: 139 92 246; --color-primary-focus-rgb: 124 58 237; --color-primary-content-rgb: 255 255 255; --color-secondary-rgb: 16 185 129; --color-secondary-focus-rgb: 5 150 105; --color-secondary-content-rgb: 255 255 255; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="green"]:not(.dark) { --color-primary-rgb: 22 163 74; --color-primary-focus-rgb: 21 128 61; --color-primary-content-rgb: 255 255 255; --color-secondary-rgb: 245 158 11; --color-secondary-focus-rgb: 217 119 6; --color-secondary-content-rgb: 255 255 255; --cat-color-general-rgb: var(--color-primary-rgb); }
+
+  html[data-color-theme="blue"].dark { --color-primary-rgb: 96 165 250; --color-primary-focus-rgb: 59 130 246; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 251 146 60; --color-secondary-focus-rgb: 249 115 22; --color-secondary-content-rgb: 55 65 81; --color-accent-rgb: 45 212 191; --color-accent-focus-rgb: 20 184 166; --color-accent-content-rgb: 15 118 110; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="orange"].dark { --color-primary-rgb: 251 146 60; --color-primary-focus-rgb: 249 115 22; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 96 165 250; --color-secondary-focus-rgb: 59 130 246; --color-secondary-content-rgb: 17 24 39; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="teal"].dark { --color-primary-rgb: 45 212 191; --color-primary-focus-rgb: 20 184 166; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 244 114 182; --color-secondary-focus-rgb: 236 72 153; --color-secondary-content-rgb: 17 24 39; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="rose"].dark { --color-primary-rgb: 251 113 133; --color-primary-focus-rgb: 244 63 94; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 129 140 248; --color-secondary-focus-rgb: 99 102 241; --color-secondary-content-rgb: 17 24 39; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="purple"].dark { --color-primary-rgb: 167 139 250; --color-primary-focus-rgb: 139 92 246; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 52 211 153; --color-secondary-focus-rgb: 16 185 129; --color-secondary-content-rgb: 17 24 39; --cat-color-general-rgb: var(--color-primary-rgb); }
+  html[data-color-theme="green"].dark { --color-primary-rgb: 74 222 128; --color-primary-focus-rgb: 34 197 94; --color-primary-content-rgb: 17 24 39; --color-secondary-rgb: 251 191 36; --color-secondary-focus-rgb: 245 158 11; --color-secondary-content-rgb: 17 24 39; --cat-color-general-rgb: var(--color-primary-rgb); }
+
+  html[data-color-theme="custom"] {
+    --color-primary-rgb: var(--custom-primary-rgb, 59 130 246);
+    --color-primary-focus-rgb: var(--custom-primary-focus-rgb, 37 99 235);
+    --color-primary-content-rgb: var(--custom-primary-content-rgb, 255 255 255);
+    --cat-color-general-rgb: var(--color-primary-rgb);
+  }
+  html[data-color-theme="custom"].dark {
+    --color-primary-rgb: var(--custom-primary-rgb, 96 165 250);
+    --color-primary-focus-rgb: var(--custom-primary-focus-rgb, 59 130 246);
+    --color-primary-content-rgb: var(--custom-primary-content-rgb, 17 24 39);
+    --cat-color-general-rgb: var(--color-primary-rgb);
   }
 }
 
 @utility scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--color-surface-border)) transparent;
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+  scrollbar-color: rgb(var(--color-surface-border-rgb)) transparent;
+  &::-webkit-scrollbar { width: 8px; height: 8px; }
 }
-
 @utility scrollbar-thumb-surface-border {
-  &::-webkit-scrollbar-thumb {
-    background-color: rgb(var(--color-surface-border));
-    border-radius: 4px;
-  }
+  &::-webkit-scrollbar-thumb { background-color: rgb(var(--color-surface-border-rgb)); border-radius: 4px; }
 }
-
 @utility scrollbar-track-transparent {
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
+  &::-webkit-scrollbar-track { background-color: transparent; }
 }
-
-@layer base {
-  :root, html[data-color-theme="blue"] {
-    --color-primary: 59 130 246;
-    --color-primary-focus: 37 99 235;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 249 115 22;
-    --color-secondary-focus: 234 88 12;
-    --color-secondary-content: 255 255 255;
-    --color-accent: 13 148 136;
-    --color-accent-focus: 15 118 110;
-    --color-accent-content: 255 255 255;
-    --color-surface: 248 250 252;
-    --color-surface-alt: 255 255 255;
-    --color-surface-alt-2: 243 244 246;
-    --color-surface-border: 229 231 235;
-    --color-on-surface: 17 24 39;
-    --color-on-surface-muted: 75 85 99;
-    --color-on-surface-faint: 156 163 175;
-    --color-error: 220 38 38;
-    --color-error-content: 190 24 24;
-    --color-error-bg: 254 242 242;
-    --color-success: 22 163 74;
-    --color-success-content: 255 255 255;
-    --color-info: 59 130 246;
-    --color-info-content: 30 64 175;
-    --color-info-bg: 239 246 255;
-    --cat-color-copyright: 236 72 153;
-    --cat-color-character: 99 102 241;
-    --cat-color-general: 59 130 246;
-    --cat-color-meta: 16 185 129;
-    --cat-color-other: 245 158 11;
-
-    --color-primary-rgb: 59, 130, 246;
-    --color-primary-focus-rgb: 37, 99, 235;
-    --color-primary-content-rgb: 255, 255, 255;
-    --color-surface-rgb: 248, 250, 252;
-    --color-error-rgb: 220, 38, 38;
-    --color-error-content-rgb: 190, 24, 24;
-  }
-
-  html.dark {
-    --color-surface: 17 24 39;
-    --color-surface-alt: 31 41 55;
-    --color-surface-alt-2: 55 65 81;
-    --color-surface-border: 55 65 81;
-    --color-on-surface: 229 231 235;
-    --color-on-surface-muted: 156 163 175;
-    --color-on-surface-faint: 107 114 128;
-    --color-error: 248 113 113;
-    --color-error-content: 248 113 113;
-    --color-error-bg: 76 29 29 / 0.5;
-    --color-success: 74 222 128;
-    --color-success-content: 240 253 244;
-    --color-info: 147 197 253;
-    --color-info-content: 147 197 253;
-    --color-info-bg: 30 58 138 / 0.5;
-    --cat-color-copyright: 244 114 182;
-    --cat-color-character: 129 140 248;
-    --cat-color-meta: 52 211 153;
-    --cat-color-other: 251 191 36;
-
-    --color-surface-rgb: 17, 24, 39;
-    --color-error-rgb: 248, 113, 113;
-    --color-error-content-rgb: 248, 113, 113;
-  }
-
-  html[data-color-theme="blue"].dark {
-    --color-primary: 96 165 250;
-    --color-primary-focus: 59 130 246;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 251 146 60;
-    --color-secondary-focus: 249 115 22;
-    --color-secondary-content: 55 65 81;
-    --color-accent: 45 212 191;
-    --color-accent-focus: 20 184 166;
-    --color-accent-content: 15 118 110;
-    --cat-color-general: 96 165 250;
-
-    --color-primary-rgb: 96, 165, 250;
-    --color-primary-focus-rgb: 59, 130, 246;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-  html[data-color-theme="orange"] {
-    --color-primary: 249 115 22;
-    --color-primary-focus: 234 88 12;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 59 130 246;
-    --color-secondary-focus: 37 99 235;
-    --color-secondary-content: 255 255 255;
-    --cat-color-general: 249 115 22;
-
-    --color-primary-rgb: 249, 115, 22;
-    --color-primary-focus-rgb: 234, 88, 12;
-    --color-primary-content-rgb: 255, 255, 255;
-  }
-
-  html[data-color-theme="orange"].dark {
-    --color-primary: 251 146 60;
-    --color-primary-focus: 249 115 22;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 96 165 250;
-    --color-secondary-focus: 59 130 246;
-    --color-secondary-content: 17 24 39;
-    --cat-color-general: 251 146 60;
-
-    --color-primary-rgb: 251, 146, 60;
-    --color-primary-focus-rgb: 249, 115, 22;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-  html[data-color-theme="teal"] {
-    --color-primary: 13 148 136;
-    --color-primary-focus: 15 118 110;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 236 72 153;
-    --color-secondary-focus: 219 39 119;
-    --color-secondary-content: 255 255 255;
-    --cat-color-general: 13 148 136;
-
-    --color-primary-rgb: 13, 148, 136;
-    --color-primary-focus-rgb: 15, 118, 110;
-    --color-primary-content-rgb: 255, 255, 255;
-  }
-
-  html[data-color-theme="teal"].dark {
-    --color-primary: 45 212 191;
-    --color-primary-focus: 20 184 166;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 244 114 182;
-    --color-secondary-focus: 236 72 153;
-    --color-secondary-content: 17 24 39;
-    --cat-color-general: 45 212 191;
-
-    --color-primary-rgb: 45, 212, 191;
-    --color-primary-focus-rgb: 20, 184, 166;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-  html[data-color-theme="rose"] {
-    --color-primary: 225 29 72;
-    --color-primary-focus: 190 18 60;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 79 70 229;
-    --color-secondary-focus: 67 56 202;
-    --color-secondary-content: 255 255 255;
-    --cat-color-general: 225 29 72;
-
-    --color-primary-rgb: 225, 29, 72;
-    --color-primary-focus-rgb: 190, 18, 60;
-    --color-primary-content-rgb: 255, 255, 255;
-  }
-
-  html[data-color-theme="rose"].dark {
-    --color-primary: 251 113 133;
-    --color-primary-focus: 244 63 94;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 129 140 248;
-    --color-secondary-focus: 99 102 241;
-    --color-secondary-content: 17 24 39;
-    --cat-color-general: 251 113 133;
-
-    --color-primary-rgb: 251, 113, 133;
-    --color-primary-focus-rgb: 244, 63, 94;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-  html[data-color-theme="purple"] {
-    --color-primary: 139 92 246;
-    --color-primary-focus: 124 58 237;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 16 185 129;
-    --color-secondary-focus: 5 150 105;
-    --color-secondary-content: 255 255 255;
-    --cat-color-general: 139 92 246;
-
-    --color-primary-rgb: 139, 92, 246;
-    --color-primary-focus-rgb: 124, 58, 237;
-    --color-primary-content-rgb: 255, 255, 255;
-  }
-
-  html[data-color-theme="purple"].dark {
-    --color-primary: 167 139 250;
-    --color-primary-focus: 139 92 246;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 52 211 153;
-    --color-secondary-focus: 16 185 129;
-    --color-secondary-content: 17 24 39;
-    --cat-color-general: 167 139 250;
-
-    --color-primary-rgb: 167, 139, 250;
-    --color-primary-focus-rgb: 139, 92, 246;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-  html[data-color-theme="green"] {
-    --color-primary: 22 163 74;
-    --color-primary-focus: 21 128 61;
-    --color-primary-content: 255 255 255;
-    --color-secondary: 245 158 11;
-    --color-secondary-focus: 217 119 6;
-    --color-secondary-content: 255 255 255;
-    --cat-color-general: 22 163 74;
-
-    --color-primary-rgb: 22, 163, 74;
-    --color-primary-focus-rgb: 21, 128, 61;
-    --color-primary-content-rgb: 255, 255, 255;
-  }
-
-  html[data-color-theme="green"].dark {
-    --color-primary: 74 222 128;
-    --color-primary-focus: 34 197 94;
-    --color-primary-content: 17 24 39;
-    --color-secondary: 251 191 36;
-    --color-secondary-focus: 245 158 11;
-    --color-secondary-content: 17 24 39;
-    --cat-color-general: 74 222 128;
-
-    --color-primary-rgb: 74, 222, 128;
-    --color-primary-focus-rgb: 34, 197, 94;
-    --color-primary-content-rgb: 17, 24, 39;
-  }
-
-}
-
-@layer utilities {
-  @keyframes heartBeat {
-    0% {
-      transform: scale(1);
-    }
-    14% {
-      transform: scale(1.3);
-    }
-    28% {
-      transform: scale(1);
-    }
-    42% {
-      transform: scale(1.3);
-    }
-    70% {
-      transform: scale(1);
-    }
-  }
-  .animate-heartBeat {
-    animation: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-  }
+@utility animate-heartBeat {
+  animation: var(--animate-heart-beat);
 }

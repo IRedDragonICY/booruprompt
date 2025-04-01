@@ -1,14 +1,14 @@
 'use client';
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {AnimatePresence, motion} from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 
 type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
 type FetchMode = 'server' | 'clientProxy';
-type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; color: string };
+type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; variable: string };
 interface ExtractedTag { name: string; category: TagCategory }
 interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string }
 interface Settings {
@@ -37,12 +37,6 @@ interface StoredHistoryItem {
     siteName?: string;
     timestamp: number;
 }
-interface ColorSet {
-    primary: string;
-    'primary-focus': string;
-    'primary-content': string;
-}
-
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
@@ -80,16 +74,6 @@ const adjustRgb = (r: number, g: number, b: number, factor: number): string => {
     const adjust = (color: number) => Math.max(0, Math.min(255, Math.round(color * factor)));
     return `${adjust(r)} ${adjust(g)} ${adjust(b)}`;
 };
-
-const PREDEFINED_COLORS: { [key in Exclude<ColorTheme, 'custom'>]: { light: ColorSet; dark: ColorSet } } = {
-    blue: { light: { primary: '59 130 246', 'primary-focus': '37 99 235', 'primary-content': '255 255 255' }, dark: { primary: '96 165 250', 'primary-focus': '59 130 246', 'primary-content': '17 24 39' } },
-    orange: { light: { primary: '249 115 22', 'primary-focus': '234 88 12', 'primary-content': '255 255 255' }, dark: { primary: '251 146 60', 'primary-focus': '249 115 22', 'primary-content': '17 24 39' } },
-    teal: { light: { primary: '13 148 136', 'primary-focus': '15 118 110', 'primary-content': '255 255 255' }, dark: { primary: '45 212 191', 'primary-focus': '20 184 166', 'primary-content': '17 24 39' } },
-    rose: { light: { primary: '225 29 72', 'primary-focus': '190 18 60', 'primary-content': '255 255 255' }, dark: { primary: '251 113 133', 'primary-focus': '244 63 94', 'primary-content': '17 24 39' } },
-    purple: { light: { primary: '139 92 246', 'primary-focus': '124 58 237', 'primary-content': '255 255 255' }, dark: { primary: '167 139 250', 'primary-focus': '139 92 246', 'primary-content': '17 24 39' } },
-    green: { light: { primary: '22 163 74', 'primary-focus': '21 128 61', 'primary-content': '255 255 255' }, dark: { primary: '74 222 128', 'primary-focus': '34 197 94', 'primary-content': '17 24 39' } },
-};
-
 
 const utils = {
     getCategoryFromClassList: (element: Element): TagCategory => {
@@ -458,11 +442,11 @@ const BOORU_SITES = [
 ];
 
 const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
-    { id: 'copyright', label: 'Copyright', enabled: true, color: 'bg-cat-copyright' },
-    { id: 'character', label: 'Character', enabled: true, color: 'bg-cat-character' },
-    { id: 'general', label: 'General', enabled: true, color: 'bg-cat-general' },
-    { id: 'meta', label: 'Meta', enabled: true, color: 'bg-cat-meta' },
-    { id: 'other', label: 'Other', enabled: true, color: 'bg-cat-other' }
+    { id: 'copyright', label: 'Copyright', enabled: true, variable: '--cat-color-copyright-rgb' },
+    { id: 'character', label: 'Character', enabled: true, variable: '--cat-color-character-rgb' },
+    { id: 'general', label: 'General', enabled: true, variable: '--cat-color-general-rgb' },
+    { id: 'meta', label: 'Meta', enabled: true, variable: '--cat-color-meta-rgb' },
+    { id: 'other', label: 'Other', enabled: true, variable: '--cat-color-other-rgb' }
 ];
 
 const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; tipContent: React.ReactNode | string; }) => {
@@ -504,7 +488,7 @@ const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; t
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 5 }}
                         transition={{ duration: 0.15, ease: 'easeOut' }}
-                        className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-gray-100 dark:text-gray-900 z-50"
+                        className="absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-md dark:bg-gray-100 dark:text-gray-900"
                     >
                         {tipContent}
                     </motion.div>
@@ -551,48 +535,48 @@ const AnimatedIcon = ({ children, isActive = false, animation = "default" }: { c
     );
 };
 
-const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>;
-const MoonIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>;
-const ComputerDesktopIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" /></svg>;
-const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826 3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg>;
-const ClipboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>;
-const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
-const ArrowPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
+const SunIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>;
+const MoonIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>;
+const ComputerDesktopIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" /></svg>;
+const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826 3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg>;
+const ClipboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>;
+const CheckCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
+const ArrowPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
 const XMarkIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>;
-const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
-const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
-const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
-const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
-const PhotoIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-on-surface-faint" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
-const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
+const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>;
+const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>;
+const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>;
+const ArrowUpOnSquareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" /></svg>;
+const PhotoIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8 w-8 text-[rgb(var(--color-on-surface-faint-rgb))]" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>;
+const MagnifyingGlassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>;
 const ArrowDownTrayIcon = (props: React.SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
-const ServerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.816H7.923a3.375 3.375 0 0 0-3.285 2.816l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" /></svg>;
-const CloudArrowDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>;
-const BugAntIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm0 0c0 1.657-1.007 3-2.25 3S10.5 13.657 10.5 12M7.5 8.25c0-1.657-.507-3-1.125-3S5.25 6.593 5.25 8.25m9.75 3.75c0-1.657.507-3 1.125-3s1.125 1.343 1.125 3M12 15.75c0 1.657.507 3 1.125 3s1.125-1.343 1.125-3m-6 3c0 1.657-.507 3-1.125 3s-1.125-1.343-1.125-3m1.5-6.75c.618 0 1.125.507 1.125 1.125v3.375" /></svg>;
-
+const ServerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.816H7.923a3.375 3.375 0 0 0-3.285 2.816l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" /></svg>;
+const CloudArrowDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>;
+const BugAntIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm0 0c0 1.657-1.007 3-2.25 3S10.5 13.657 10.5 12M7.5 8.25c0-1.657-.507-3-1.125-3S5.25 6.593 5.25 8.25m9.75 3.75c0-1.657.507-3 1.125-3s1.125 1.343 1.125 3M12 15.75c0 1.657.507 3 1.125 3s1.125-1.343 1.125-3m-6 3c0 1.657-.507 3-1.125 3s-1.125-1.343-1.125-3m1.5-6.75c.618 0 1.125.507 1.125 1.125v3.375" /></svg>;
 
 const MotionCard = motion.div;
 
 const CategoryToggle = React.memo(({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
     <MotionCard
-        className="flex items-center justify-between bg-surface-alt-2 p-3 rounded-lg shadow-xs transition-shadow hover:shadow-md"
+        className="flex items-center justify-between rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 shadow-xs transition-shadow hover:shadow-md"
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}
         whileHover={{ y: -2 }}
     >
         <div className="flex items-center space-x-3 overflow-hidden">
             <motion.span
-                className={`inline-block w-3 h-3 rounded-full ${category.color} shrink-0`}
+                className={`inline-block h-3 w-3 shrink-0 rounded-full`}
+                style={{ backgroundColor: `rgb(var(${category.variable}))` }}
                 animate={{ scale: category.enabled ? 1 : 0.8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
             ></motion.span>
-            <span className="truncate text-sm font-medium text-on-surface" title={category.label}>{category.label}</span>
-            {count > 0 && (<span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted shrink-0">{count}</span>)}
+            <span className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={category.label}>{category.label}</span>
+            {count > 0 && (<span className="shrink-0 rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{count}</span>)}
         </div>
-        <label className="inline-flex items-center cursor-pointer shrink-0 ml-2">
-            <input type="checkbox" className="sr-only peer" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
-            <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 peer-focus:outline-hidden peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary ${category.enabled ? category.color : 'bg-surface-border'}`}>
+        <label className="ml-2 inline-flex shrink-0 cursor-pointer items-center">
+            <input type="checkbox" className="peer sr-only" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
+            <div className={`relative h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-focus:outline-hidden peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))] peer-checked:bg-[rgb(var(${category.variable}))]`}>
                 <motion.div
-                    className={`absolute left-1 top-1 bg-white dark:bg-gray-300 w-4 h-4 rounded-full shadow-xs`}
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs dark:bg-gray-300`}
                     layout
                     transition={{ type: "spring", stiffness: 700, damping: 30 }}
                     initial={false}
@@ -607,13 +591,13 @@ CategoryToggle.displayName = 'CategoryToggle';
 
 const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' | 'warning', children: React.ReactNode }) => {
     const typeClasses = {
-        info: 'bg-info-bg border-info text-info-content',
-        error: 'bg-error-bg border-error text-error',
-        warning: 'bg-yellow-50 border-yellow-400 text-yellow-700 dark:bg-yellow-900/30 dark:border-yellow-600 dark:text-yellow-300'
+        info: 'border-[rgb(var(--color-info-rgb))] bg-[rgb(var(--color-info-bg-rgb))] text-[rgb(var(--color-info-content-rgb))]',
+        error: 'border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-error-bg-rgb))] text-[rgb(var(--color-error-rgb))]',
+        warning: 'border-yellow-400 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-300'
     };
     return (
         <motion.div
-            className={`border-l-4 p-4 rounded-md ${typeClasses[type]}`}
+            className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`}
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
         >
             <p className={`text-sm font-medium`}>{children}</p>
@@ -623,7 +607,7 @@ const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' |
 StatusMessage.displayName = 'StatusMessage';
 
 const LoadingSpinner = () => (
-    <motion.span className="flex items-center justify-center text-primary-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.span className="flex items-center justify-center text-[rgb(var(--color-primary-content-rgb))]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.svg
             className="-ml-1 mr-2 h-5 w-5 text-currentColor" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             animate={{ rotate: 360 }}
@@ -646,7 +630,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
     const isVideo = originalUrl?.match(/\.(mp4|webm|ogg)$/i);
-    const placeholderBaseClasses = "w-full h-64 flex items-center justify-center rounded-lg text-on-surface-faint";
+    const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
 
     const proxiedUrl = useMemo(() => {
         if (!originalUrl || !enableImagePreviews) return undefined;
@@ -670,15 +654,15 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
         return null;
     }
 
-    if (isLoading) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 animate-pulse`}>Loading preview...</div>;
+    if (isLoading) return <div className={`${placeholderBaseClasses} animate-pulse bg-[rgb(var(--color-surface-alt-2-rgb))]`}>Loading preview...</div>;
     if (!originalUrl) return null;
-    if (imgError) return <div className={`${placeholderBaseClasses} bg-surface-alt-2 border border-error`}><div className="text-center text-error text-sm px-4"><p>Could not load preview.</p><p className="text-xs text-on-surface-faint">(Proxy error or invalid image)</p></div></div>;
+    if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]"><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">(Proxy error or invalid image)</p></div></div>;
 
     return (
-        <motion.div className="relative w-full h-64 group bg-surface-alt-2 rounded-lg overflow-hidden shadow-xs" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            {(imgLoading && !isVideo) && <div className="absolute inset-0 flex items-center justify-center bg-surface-alt-2 animate-pulse text-on-surface-faint">Loading...</div>}
+        <motion.div className="relative h-64 w-full overflow-hidden rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+            {(imgLoading && !isVideo) && <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))]">Loading...</div>}
             {isVideo ? (
-                <video key={proxiedUrl} controls muted className={`w-full h-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
+                <video key={proxiedUrl} controls muted className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
                     <source src={proxiedUrl} /> Your browser does not support video.
                 </video>
             ) : (
@@ -694,7 +678,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
                 />
             )}
             {title && !imgLoading && !imgError && (
-                <motion.div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 via-black/50 to-transparent p-3 text-white text-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-sm text-white" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                     <p className="truncate">{title}</p>
                 </motion.div>
             )}
@@ -770,22 +754,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-                    <motion.div className="bg-surface-alt rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-6 border-b border-surface-border pb-4">
-                            <h2 id="settings-title" className="text-xl font-semibold text-on-surface">Settings</h2>
+                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                    <motion.div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-6 shadow-xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
+                        <div className="mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] pb-4">
+                            <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">Settings</h2>
                             <TooltipWrapper tipContent="Close Settings">
-                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="text-on-surface-muted hover:text-on-surface transition-colors rounded-full p-1 -mr-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt" aria-label="Close Settings">
-                                    <XMarkIcon className="w-6 h-6" />
+                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Close Settings">
+                                    <XMarkIcon className="h-6 w-6" />
                                 </motion.button>
                             </TooltipWrapper>
                         </div>
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-on-surface mb-2">Appearance</label>
-                                <div className="flex items-center space-x-2 rounded-lg bg-surface-alt-2 p-1">
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Appearance</label>
+                                <div className="flex items-center space-x-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
-                                        <label key={value} className={`flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.theme === value ? 'bg-surface shadow-sm text-primary' : 'text-on-surface-muted hover:bg-surface-border'}`}>
+                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
                                             <AnimatedIcon isActive={settings.theme === value} animation={animation as "default" | "spin" | "gentle"}>
                                                 {icon}
@@ -796,17 +780,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-on-surface mb-2">Color Theme</label>
-                                <div className="grid grid-cols-3 gap-2 rounded-lg bg-surface-alt-2 p-1">
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Color Theme</label>
+                                <div className="grid grid-cols-3 gap-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
-                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === value ? 'bg-surface shadow-sm ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                                 <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
-                                                <span className={`block w-5 h-5 rounded-full ${colorClass}`}></span>
+                                                <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
                                                 <AnimatePresence>
                                                     {settings.colorTheme === value && (
                                                         <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
-                                                            <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                                            <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
@@ -815,13 +799,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         </TooltipWrapper>
                                     ))}
                                     <TooltipWrapper tipContent="Custom Color">
-                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex items-center justify-center px-3 py-1.5 rounded-md cursor-pointer transition-all text-sm font-medium ${settings.colorTheme === 'custom' ? 'bg-surface shadow-sm ring-2 ring-primary ring-offset-1 ring-offset-surface-alt-2' : 'hover:bg-surface-border'}`}>
+                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
-                                            <span className="block w-5 h-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff' }}></span>
+                                            <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
                                                 {settings.colorTheme === 'custom' && (
                                                     <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
-                                                        <svg className="w-3 h-3 text-primary-content dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                                        <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
@@ -834,13 +818,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="mt-3 flex items-center space-x-3 bg-surface-alt-2 p-3 rounded-lg"
+                                        className="mt-3 flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3"
                                     >
                                         <input
                                             type="color"
                                             value={/^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : '#ffffff'}
                                             onChange={handleCustomColorInputChange}
-                                            className="w-8 h-8 rounded-sm border border-surface-border cursor-pointer p-0 appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border-none"
+                                            className="h-8 w-8 cursor-pointer appearance-none rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border-none"
                                             aria-label="Custom color picker"
                                         />
                                         <input
@@ -848,7 +832,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                             value={currentCustomHex}
                                             onChange={handleCustomColorTextChange}
                                             maxLength={7}
-                                            className="flex-1 appearance-none bg-surface border border-surface-border rounded-md px-2 py-1 text-sm text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-transparent transition duration-200 font-mono"
+                                            className="flex-1 appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-2 py-1 font-mono text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                             placeholder="#rrggbb"
                                             aria-label="Custom color hex code"
                                             pattern="^#?([a-fA-F0-9]{6})$"
@@ -858,24 +842,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-on-surface mb-2">Data Fetching Method</label>
-                                <div className="space-y-2 rounded-lg bg-surface-alt-2 p-2">
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Data Fetching Method</label>
+                                <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
-                                        <label key={value} className={`flex items-start p-3 rounded-md cursor-pointer transition-all ${settings.fetchMode === value ? 'bg-surface shadow-sm ring-1 ring-primary/50' : 'hover:bg-surface-border'}`}>
-                                            <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="sr-only peer" aria-label={label} />
-                                            <div className={`mr-3 mt-0.5 shrink-0 w-5 h-5 ${settings.fetchMode === value ? 'text-primary' : 'text-on-surface-muted'}`}>
+                                        <label key={value} className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
+                                            <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
                                                 {icon}
                                             </div>
                                             <div className="flex-1">
-                                                <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-on-surface' : 'text-on-surface-muted'}`}>{label}</span>
-                                                <span className="block text-xs text-on-surface-faint mt-0.5">{description}</span>
+                                                <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                                <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
                                             </div>
-                                            <div className="ml-3 mt-0.5 shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center peer-checked:border-primary peer-checked:bg-primary transition-colors border-surface-border bg-surface">
+                                            <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
                                                 <AnimatePresence>
                                                     {settings.fetchMode === value && (
                                                         <motion.div
                                                             initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                                                            className="w-2 h-2 bg-primary-content rounded-full"
+                                                            className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
                                                         />
                                                     )}
                                                 </AnimatePresence>
@@ -886,15 +870,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                             </div>
 
                             <div>
-                                <label className="flex items-center justify-between cursor-pointer select-none">
+                                <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
-                                        <span className="text-sm font-medium text-on-surface mr-3">Automatic Extraction</span>
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Automatic Extraction</span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="autoExtractToggle" className="sr-only peer" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
-                                        <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
+                                        <input type="checkbox" id="autoExtractToggle" className="peer sr-only" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
+                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
-                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-xs"
+                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
@@ -902,18 +886,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="text-xs text-on-surface-muted mt-1.5">Extract tags automatically after pasting/typing a valid URL.</p>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Extract tags automatically after pasting/typing a valid URL.</p>
                             </div>
                             <div>
-                                <label className="flex items-center justify-between cursor-pointer select-none">
+                                <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable image/video previews to save bandwidth or avoid potential issues">
-                                        <span className="text-sm font-medium text-on-surface mr-3">Enable Previews</span>
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Enable Previews</span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="imagePreviewsToggle" className="sr-only peer" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
-                                        <div className="block w-11 h-6 rounded-full bg-surface-border peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-surface-alt peer-focus:ring-primary"></div>
+                                        <input type="checkbox" id="imagePreviewsToggle" className="peer sr-only" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
+                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
-                                            className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-xs"
+                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
@@ -921,26 +905,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="text-xs text-on-surface-muted mt-1.5">Show image/video previews during extraction and in history. Images fetched via Server Proxy require server bandwidth.</p>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images fetched via Server Proxy require server bandwidth.</p>
                             </div>
                         </div>
 
-                        <div className="mt-6 pt-4 border-t border-surface-border space-y-3">
-                            <label className="block text-sm font-medium text-on-surface">Support & Feedback</label>
+                        <div className="mt-6 space-y-3 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4">
+                            <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Support & Feedback</label>
                             <a
                                 href={REPORT_ISSUE_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center w-full space-x-2 px-4 py-2.5 rounded-lg border border-surface-border text-on-surface hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200 text-sm font-medium"
+                                className="inline-flex w-full items-center justify-center space-x-2 rounded-lg border border-[rgb(var(--color-surface-border-rgb))] px-4 py-2.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-200 hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
                             >
                                 <BugAntIcon />
                                 <span>Report an Issue on GitHub</span>
                             </a>
-                            <p className="text-xs text-on-surface-faint text-center">Found a bug or have a suggestion? Let us know!</p>
+                            <p className="text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">Found a bug or have a suggestion? Let us know!</p>
                         </div>
 
-                        <div className="mt-6 pt-4 border-t border-surface-border text-right">
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors duration-200">Done</motion.button>
+                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right">
+                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] transition-colors duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</motion.button>
                         </div>
                     </motion.div>
                 </motion.div>
@@ -983,9 +967,9 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-            className="flex items-center space-x-3 p-3 bg-surface-alt-2 rounded-lg hover:bg-surface-border transition-colors"
+            className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]"
         >
-            <div className="w-10 h-10 rounded-sm shrink-0 bg-surface-border overflow-hidden relative">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))]">
                 {enableImagePreviews && !showPlaceholder && proxiedImageUrl && (
                     <Image
                         src={proxiedImageUrl}
@@ -993,23 +977,23 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                         width={40}
                         height={40}
                         unoptimized={true}
-                        className="object-cover w-full h-full"
+                        className="h-full w-full object-cover"
                         onError={handleError}
                         onLoad={() => setShowPlaceholder(false)}
                     />
                 )}
                 {(!enableImagePreviews || showPlaceholder) && (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <AnimatedIcon animation="gentle"><PhotoIcon className="w-5 h-5 text-on-surface-faint" /></AnimatedIcon>
+                    <div className="flex h-full w-full items-center justify-center">
+                        <AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>
                     </div>
                 )}
             </div>
 
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-on-surface truncate" title={entry.title || entry.url}>
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.title || entry.url}>
                     {entry.title || new URL(entry.url).pathname.split('/').pop() || entry.url}
                 </p>
-                <p className="text-xs text-on-surface-muted">
+                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                     {entry.siteName ? `${entry.siteName} • ` : ''}
                     {formattedDate} • {entry.tags.length} tags
                 </p>
@@ -1019,7 +1003,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                     whileTap={{ scale: 0.9 }}
                     whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
                     onClick={handleLoadClick}
-                    className="p-1.5 rounded-full text-on-surface-faint hover:text-primary dark:hover:text-primary transition-colors"
+                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]"
                     aria-label="Load this history entry"
                 >
                     <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
@@ -1030,7 +1014,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                     whileTap={{ scale: 0.9 }}
                     whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
                     onClick={handleDeleteClick}
-                    className="p-1.5 rounded-full text-on-surface-faint hover:text-error dark:hover:text-error transition-colors"
+                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
                     aria-label="Delete this history entry"
                 >
                     <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
@@ -1080,19 +1064,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
     }
 
     return (
-        <div className="mt-6 bg-surface-alt border border-surface-border rounded-lg overflow-hidden">
+        <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
             <motion.button
-                whileTap={{ backgroundColor: 'rgba(var(--color-surface-border), 0.5)' }}
+                whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }}
                 transition={{ duration: 0.05 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex justify-between items-center p-4 text-left hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors"
+                className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]"
                 aria-expanded={isOpen}
                 aria-controls="history-content"
             >
                 <div className="flex items-center space-x-2">
                     <AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon>
-                    <span className="font-semibold text-on-surface">Extraction History</span>
-                    <span className="text-xs bg-surface-border px-2 py-0.5 rounded-full text-on-surface-muted">{history.length}</span>
+                    <span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">Extraction History</span>
+                    <span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span>
                 </div>
                 <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
                     <ChevronDownIcon />
@@ -1114,17 +1098,17 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                         transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                         className="overflow-hidden"
                     >
-                        <div className="p-4 border-t border-surface-border">
+                        <div className="border-t border-[rgb(var(--color-surface-border-rgb))] p-4">
                             <div className="relative">
                                 <input
                                     type="text"
                                     placeholder="Search history (title, url, tags...)"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-surface-alt-2 border border-surface-border rounded-lg pl-10 pr-10 py-2 text-sm text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary transition duration-200"
+                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                     aria-label="Search history entries"
                                 />
-                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-faint pointer-events-none">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]">
                                     <MagnifyingGlassIcon />
                                 </span>
                                 {searchQuery && (
@@ -1132,20 +1116,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                         <motion.button
                                             whileTap={{ scale: 0.9 }}
                                             onClick={() => setSearchQuery('')}
-                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full text-on-surface-faint hover:text-on-surface hover:bg-surface-border transition-colors"
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]"
                                             aria-label="Clear search"
                                             initial={{ opacity: 0, scale: 0.5 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.5 }}
                                         >
-                                            <XMarkIcon className="w-4 h-4"/>
+                                            <XMarkIcon className="h-4 w-4"/>
                                         </motion.button>
                                     </TooltipWrapper>
                                 )}
                             </div>
                         </div>
-
-                        <div className="px-4 pb-4 space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
+                        <div className="max-h-80 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                             <AnimatePresence mode="popLayout">
                                 {filteredHistory.map((entry) => (
                                     <HistoryItem
@@ -1157,37 +1140,36 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     />
                                 ))}
                             </AnimatePresence>
-
                             {history.length > 0 && filteredHistory.length === 0 && searchQuery && (
-                                <p className="text-sm text-center text-on-surface-muted py-4">No history entries match your search.</p>
+                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No history entries match your search.</p>
                             )}
                             {history.length === 0 && (
-                                <p className="text-sm text-center text-on-surface-muted py-4">History is empty.</p>
+                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">History is empty.</p>
                             )}
                         </div>
 
                         {history.length > 0 && (
-                            <div className="p-3 border-t border-surface-border bg-surface-alt-2 text-right relative">
+                            <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
                                 <AnimatePresence>
                                     {showClearConfirm && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 5 }}
-                                            className="absolute right-3 bottom-full mb-2 flex gap-2 items-center bg-surface p-2 rounded-sm shadow-lg border border-surface-border z-10"
+                                            className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"
                                         >
-                                            <p className="text-xs text-on-surface">Really clear?</p>
+                                            <p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p>
                                             <motion.button
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={handleClearClick}
-                                                className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-sm transition-colors font-medium"
+                                                className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"
                                             >
                                                 Yes, Clear
                                             </motion.button>
                                             <motion.button
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => setShowClearConfirm(false)}
-                                                className="text-xs bg-surface-border hover:bg-gray-300 dark:hover:bg-gray-500 text-on-surface px-2 py-1 rounded-sm transition-colors font-medium"
+                                                className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"
                                             >
                                                 Cancel
                                             </motion.button>
@@ -1198,7 +1180,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     <motion.button
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => setShowClearConfirm(true)}
-                                        className="inline-flex items-center space-x-1 text-xs bg-error-bg text-error hover:bg-red-100 dark:hover:bg-red-900/50 px-2.5 py-1 rounded-md transition-colors font-medium"
+                                        className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
                                         aria-label="Clear History"
                                     >
                                         <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
@@ -1297,83 +1279,66 @@ const BooruTagExtractor = () => {
         const root = window.document.documentElement;
         const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         root.classList.toggle('dark', isDark);
+        root.dataset.colorTheme = settings.colorTheme;
+
+        if (settings.colorTheme === 'custom' && settings.customColorHex) {
+            const rgb = hexToRgb(settings.customColorHex);
+            if (rgb) {
+                const primaryRgbStr = `${rgb.r} ${rgb.g} ${rgb.b}`;
+                const focusFactor = isDark ? 1.2 : 0.85;
+                const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
+                const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
+
+                root.style.setProperty('--custom-primary-rgb', primaryRgbStr);
+                root.style.setProperty('--custom-primary-focus-rgb', focusRgbStr);
+                root.style.setProperty('--custom-primary-content-rgb', contentRgbStr);
+            } else {
+                root.style.removeProperty('--custom-primary-rgb');
+                root.style.removeProperty('--custom-primary-focus-rgb');
+                root.style.removeProperty('--custom-primary-content-rgb');
+            }
+        } else {
+            root.style.removeProperty('--custom-primary-rgb');
+            root.style.removeProperty('--custom-primary-focus-rgb');
+            root.style.removeProperty('--custom-primary-content-rgb');
+        }
+
         localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
         localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
-
         if (settings.customColorHex) {
             localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         } else {
             localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         }
 
-        const applyCustomTheme = (hex: string, isDarkTheme: boolean) => {
-            root.removeAttribute('data-color-theme');
-            const rootStyle = root.style;
-            const rgb = hexToRgb(hex);
-            if (rgb) {
-                const primaryRgbStr = `${rgb.r} ${rgb.g} ${rgb.b}`;
-                const focusFactor = isDarkTheme ? 1.2 : 0.85;
-                const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
-                const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
-
-                rootStyle.setProperty('--color-primary-rgb', primaryRgbStr);
-                rootStyle.setProperty('--color-primary-focus-rgb', focusRgbStr);
-                rootStyle.setProperty('--color-primary-content-rgb', contentRgbStr);
-            } else {
-                applyPredefinedTheme(DEFAULT_COLOR_THEME, isDarkTheme);
-            }
-        };
-
-        const applyPredefinedTheme = (themeName: Exclude<ColorTheme, 'custom'>, isDarkTheme: boolean) => {
-            root.setAttribute('data-color-theme', themeName);
-            const rootStyle = root.style;
-            rootStyle.removeProperty('--color-primary-rgb');
-            rootStyle.removeProperty('--color-primary-focus-rgb');
-            rootStyle.removeProperty('--color-primary-content-rgb');
-
-            const theme = PREDEFINED_COLORS[themeName] ?? PREDEFINED_COLORS.blue;
-            const currentColors = theme[isDarkTheme ? 'dark' : 'light'];
-            rootStyle.setProperty('--color-primary', currentColors.primary);
-            rootStyle.setProperty('--color-primary-focus', currentColors['primary-focus']);
-            rootStyle.setProperty('--color-primary-content', currentColors['primary-content']);
-        };
-
-        const applyBaseColors = (isDarkTheme: boolean) => {
-            const rootStyle = root.style;
-            rootStyle.setProperty('--color-error-rgb', isDarkTheme ? '248 113 113' : '220 38 38');
-            rootStyle.setProperty('--color-error-content-rgb', isDarkTheme ? '55 4 4' : '255 255 255');
-            rootStyle.setProperty('--color-success-rgb', isDarkTheme ? '74 222 128' : '22 163 74');
-            rootStyle.setProperty('--color-success-content-rgb', isDarkTheme ? '6 40 15' : '255 255 255');
-            rootStyle.setProperty('--color-info-rgb', isDarkTheme ? '147 197 253' : '59 130 246');
-            rootStyle.setProperty('--color-info-content-rgb', isDarkTheme ? '30 58 138' : '30 64 175');
-        };
-
-        if (settings.colorTheme === 'custom' && settings.customColorHex) {
-            applyCustomTheme(settings.customColorHex, isDark);
-        } else if (settings.colorTheme !== 'custom') {
-            applyPredefinedTheme(settings.colorTheme as Exclude<ColorTheme, 'custom'>, isDark);
-        } else {
-            applyPredefinedTheme(DEFAULT_COLOR_THEME, isDark);
-        }
-        applyBaseColors(isDark);
-
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => { if (settings.theme === 'system') {
-            const newIsDark = mediaQuery.matches;
-            if (settings.colorTheme === 'custom' && settings.customColorHex) {
-                applyCustomTheme(settings.customColorHex, newIsDark);
-            } else if (settings.colorTheme !== 'custom'){
-                applyPredefinedTheme(settings.colorTheme as Exclude<ColorTheme, 'custom'>, newIsDark);
-            } else {
-                applyPredefinedTheme(DEFAULT_COLOR_THEME, newIsDark);
+        const handleChange = (e: MediaQueryListEvent) => {
+            if (settings.theme === 'system') {
+                const systemIsDark = e.matches;
+                root.classList.toggle('dark', systemIsDark);
+                if (settings.colorTheme === 'custom' && settings.customColorHex) {
+                    const rgb = hexToRgb(settings.customColorHex);
+                    if (rgb) {
+                        const focusFactor = systemIsDark ? 1.2 : 0.85;
+                        const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
+                        const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
+                        root.style.setProperty('--custom-primary-focus-rgb', focusRgbStr);
+                        root.style.setProperty('--custom-primary-content-rgb', contentRgbStr);
+                    }
+                }
             }
-            applyBaseColors(newIsDark);
-        } };
-        if (settings.theme === 'system') { mediaQuery.addEventListener('change', handleChange); }
-        return () => mediaQuery.removeEventListener('change', handleChange);
+        };
+
+        if (settings.theme === 'system') {
+            mediaQuery.addEventListener('change', handleChange);
+        }
+
+        return () => {
+            mediaQuery.removeEventListener('change', handleChange);
+        };
     }, [settings]);
 
 
@@ -1760,9 +1725,9 @@ const BooruTagExtractor = () => {
     }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
 
     return (
-        <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 overflow-hidden">
+        <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-surface-rgb))] p-4 text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300 sm:p-6">
             <MotionCard
-                className="relative w-full max-w-xl bg-surface-alt rounded-xl shadow-lg flex flex-col overflow-hidden border border-surface-border max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
+                className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
@@ -1777,23 +1742,23 @@ const BooruTagExtractor = () => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-primary/20 backdrop-blur-xs rounded-xl border-2 border-dashed border-primary"
+                            className="absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
                         >
-                            <div className="text-center text-primary-content bg-primary/80 px-4 py-2 rounded-lg shadow-sm">
-                                <ArrowDownTrayIcon className="w-8 h-8 mx-auto mb-1"/>
+                            <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
+                                <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
                                 <p className="font-semibold">Drop URL Here</p>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                <div className="shrink-0 sticky top-0 z-10 px-6 py-5 border-b border-surface-border bg-surface-alt flex justify-between items-start">
+                <div className="sticky top-0 z-10 flex shrink-0 items-start justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
                     <div className="grow pr-4 sm:pr-10">
-                        <h1 className="text-xl sm:text-2xl font-semibold text-on-surface">Booru Tag Extractor</h1>
+                        <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Booru Tag Extractor</h1>
                         <div className="mt-2">
-                            <span className="text-sm text-on-surface-muted mr-2">Supports:</span>
+                            <span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>
                             {BOORU_SITES.map((site) => (
-                                <span key={site.name} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1.5 mb-1.5 transition-colors duration-150 ${ activeSite === site.name ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' : 'bg-surface-alt-2 text-on-surface-muted'}`}>
+                                <span key={site.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === site.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
                                     {site.name}
                                 </span>
                             ))}
@@ -1805,7 +1770,7 @@ const BooruTagExtractor = () => {
                             whileHover={{ rotate: 15, scale: 1.1 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                             onClick={() => setShowSettings(true)}
-                            className="shrink-0 p-2 rounded-full text-on-surface-muted hover:text-on-surface hover:bg-surface-alt-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-colors"
+                            className="shrink-0 rounded-full p-2 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
                             aria-label="Open Settings"
                         >
                             <CogIcon />
@@ -1813,20 +1778,20 @@ const BooruTagExtractor = () => {
                     </TooltipWrapper>
                 </div>
 
-                <div ref={cardBodyRef} className="grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent">
+                <div ref={cardBodyRef} className="grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                     <div>
-                        <label htmlFor="url" className="block text-sm font-medium text-on-surface mb-1.5">Booru Post URL</label>
-                        <input id="url" type="url" className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface placeholder-on-surface-faint focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
+                        <label htmlFor="url" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Booru Post URL</label>
+                        <input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
                     </div>
-                    <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center bg-primary hover:bg-primary-focus text-primary-content font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt disabled:opacity-60 disabled:cursor-not-allowed transition duration-200 shadow-xs hover:shadow-md disabled:shadow-none" aria-label="Extract Tags Manually">
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags Manually">
                             {loading ? <LoadingSpinner /> : 'Extract Manually'}
                         </motion.button>
                         <TooltipWrapper tipContent="Clear input, results, and filters">
                             <motion.button
                                 whileTap={{ scale: 0.97 }}
                                 onClick={handleReset}
-                                className="inline-flex items-center justify-center bg-surface-alt-2 hover:bg-surface-border text-on-surface font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-on-surface-muted focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition duration-200"
+                                className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
                                 aria-label="Reset Form"
                             >
                                 <motion.span
@@ -1850,7 +1815,7 @@ const BooruTagExtractor = () => {
 
                     {shouldShowPreviewSection && (
                         <div className="space-y-2">
-                            <h3 className="text-sm font-medium text-on-surface-muted">Preview</h3>
+                            <h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3>
                             <ImagePreview
                                 originalUrl={imageUrl}
                                 title={imageTitle}
@@ -1864,15 +1829,15 @@ const BooruTagExtractor = () => {
                         {!loading && (allExtractedTags.length > 0 || (imageUrl && !error)) && (
                             <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                 {allExtractedTags.length > 0 && (
-                                    <div className="bg-surface-alt-2 p-4 rounded-lg border border-surface-border">
-                                        <div className="flex justify-between items-center mb-4 gap-2 flex-wrap">
-                                            <h3 className="text-sm font-semibold text-on-surface">Filter Categories</h3>
-                                            <div className="flex space-x-2 shrink-0">
-                                                {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900 px-2.5 py-1 rounded-md transition-colors font-medium" aria-label="Select All Categories">All</motion.button>)}
-                                                {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="text-xs bg-surface-border text-on-surface-muted hover:bg-gray-300 dark:hover:bg-gray-500 px-2.5 py-1 rounded-md transition-colors font-medium" aria-label="Clear All Tag Categories">None</motion.button>)}
+                                    <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
+                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                                            <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Filter Categories</h3>
+                                            <div className="flex shrink-0 space-x-2">
+                                                {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="Select All Categories">All</motion.button>)}
+                                                {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="Clear All Tag Categories">None</motion.button>)}
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
                                             {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
                                                 const categoryOption = tagCategories.find(c => c.id === categoryDef.id) || { ...categoryDef, enabled: DEFAULT_TAG_CATEGORIES.find(d => d.id === categoryDef.id)?.enabled ?? false };
                                                 const count = tagCounts[categoryOption.id] || 0;
@@ -1887,14 +1852,14 @@ const BooruTagExtractor = () => {
                                 {allExtractedTags.length > 0 && (
                                     <div className="space-y-3">
                                         <div>
-                                            <label htmlFor="tags" className="block text-sm font-medium text-on-surface mb-1.5">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
-                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none bg-surface-alt-2 border border-surface-border rounded-lg px-4 py-2.5 text-on-surface focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 text-sm scrollbar-thin scrollbar-thumb-surface-border scrollbar-track-transparent" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
+                                            <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
+                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
                                         </div>
                                         <motion.button
                                             whileTap={{ scale: 0.97 }}
                                             onClick={handleCopy}
                                             disabled={!displayedTags || copySuccess}
-                                            className={`w-full inline-flex items-center justify-center font-semibold py-2.5 px-5 rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-alt transition-all duration-300 shadow-xs hover:shadow-md disabled:shadow-none ${copySuccess ? 'bg-success text-success-content focus-visible:ring-success disabled:opacity-100 cursor-default' : 'bg-on-surface hover:opacity-90 text-surface dark:text-surface-alt focus-visible:ring-on-surface-muted disabled:opacity-50 disabled:cursor-not-allowed'}`}
+                                            className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
                                             aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
                                         >
                                             <motion.div
@@ -1927,9 +1892,9 @@ const BooruTagExtractor = () => {
 
                 </div>
 
-                <div className="shrink-0 border-t border-surface-border p-4 bg-surface-alt text-on-surface-muted text-xs text-center">
-                    <p>Made with <span className="animate-heartBeat inline-block text-red-500 dark:text-red-400 mx-0.5">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary transition-colors font-medium">IRedDragonICY</a></p>
-                    <p className="text-on-surface-faint text-[10px] mt-1">
+                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
+                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
                         {settings.fetchMode === 'server'
                             ? 'All requests proxied through this server. Respect source site ToS.'
                             : 'Using Client Proxy (AllOrigins). Respect source site ToS & AllOrigins usage policy.'
