@@ -5,8 +5,8 @@ import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type Extra
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
-import {AnimatedIcon} from './components/AnimatedIcon';
-import {SettingsModal} from './components/SettingsModal';
+import { AnimatedIcon } from './components/AnimatedIcon';
+import { SettingsModal } from './components/SettingsModal';
 import {
   CogIcon,
   ClipboardIcon,
@@ -25,6 +25,13 @@ import { TooltipWrapper } from './components/TooltipWrapper';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
+type FetchMode = 'server' | 'clientProxy';
+
+interface ClientProxyOption {
+    id: string;
+    label: string;
+    value: string;
+}
 
 interface Settings {
     theme: ThemePreference;
@@ -32,6 +39,8 @@ interface Settings {
     colorTheme: ColorTheme;
     customColorHex?: string;
     enableImagePreviews: boolean;
+    fetchMode: FetchMode;
+    clientProxyUrl: string;
 }
 interface HistoryEntry {
     id: string;
@@ -56,6 +65,7 @@ interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
     tags?: Partial<Record<TagCategory, string[]>>;
     error?: string;
     status?: number;
+    html?: string;
 }
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
@@ -63,11 +73,23 @@ const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
+const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
+const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
+const DEFAULT_FETCH_MODE: FetchMode = 'server';
+const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
+
+const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
+    { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
+    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
+    { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
+];
+const DEFAULT_CLIENT_PROXY_URL = CLIENT_PROXY_OPTIONS[0].value;
+
 const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => {
     return Object.values(tags || {}).reduce((sum, arr) => sum + (arr?.length ?? 0), 0);
 };
@@ -217,7 +239,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
 
     if (isLoading) return <div className={`${placeholderBaseClasses} animate-pulse bg-[rgb(var(--color-surface-alt-2-rgb))]`}>Loading preview...</div>;
     if (!originalUrl) return null;
-    if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]"><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">(Proxy error or invalid image)</p></div></div>;
+    if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]"><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">(Server proxy error or invalid image)</p></div></div>;
 
     return (
         <motion.div className="relative h-64 w-full overflow-hidden rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
@@ -228,7 +250,7 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
                 </video>
             ) : (
                 <Image
-                    key={proxiedUrl}
+                    key={proxiedUrl!}
                     src={proxiedUrl!}
                     alt={title || "Booru preview"}
                     fill={true}
@@ -247,8 +269,6 @@ const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePre
     );
 });
 ImagePreview.displayName = 'ImagePreview';
-
-
 
 interface HistoryItemProps {
     entry: HistoryEntry;
@@ -527,6 +547,8 @@ const BooruTagExtractor = () => {
         colorTheme: DEFAULT_COLOR_THEME,
         customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
         enableImagePreviews: true,
+        fetchMode: DEFAULT_FETCH_MODE,
+        clientProxyUrl: DEFAULT_CLIENT_PROXY_URL,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -538,6 +560,8 @@ const BooruTagExtractor = () => {
         const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
         const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
+        const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
+        const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -573,6 +597,8 @@ const BooruTagExtractor = () => {
             customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
             autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
             enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
+            fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
+            clientProxyUrl: savedClientProxyUrl ?? DEFAULT_CLIENT_PROXY_URL,
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
@@ -611,6 +637,8 @@ const BooruTagExtractor = () => {
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
+        localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
+        localStorage.setItem(CLIENT_PROXY_URL_STORAGE_KEY, settings.clientProxyUrl);
         if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
 
@@ -662,7 +690,7 @@ const BooruTagExtractor = () => {
         } catch (e) {
             console.error("Failed to save history to localStorage:", e);
             if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
-                 setError("History limit reached. Cannot save more entries.");
+                 setError("History storage limit reached. Cannot save more entries.");
             }
         }
     }, [history]);
@@ -682,75 +710,242 @@ const BooruTagExtractor = () => {
         const trimmedUrl = targetUrl.trim();
         if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
 
-        const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
-        if (!isSupported) {
-             setError('URL does not match supported sites/formats.');
-             setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null);
-             currentExtractionUrl.current = null;
-             return;
+        const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
+        if (!site) {
+            setError('URL does not match supported sites/formats.');
+            setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null);
+            currentExtractionUrl.current = null;
+            return;
         }
 
-        setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
+        setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
+        const controller = new AbortController();
+        const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0);
+        const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
+
+        let proxyUsed = '';
+        let selectedProxy: ClientProxyOption | undefined;
+
         try {
-            const response = await fetch(API_ROUTE_URL, {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify({ targetUrl: trimmedUrl }),
-             });
+            let extractionResult: ExtractionResult = { tags: {} };
+            let extractionError: string | null = null;
+            let extractionSiteName: string = site.name;
+            let extractionImageUrl: string | undefined = undefined;
+            let extractionTitle: string | undefined = undefined;
 
-            const resultData: ApiExtractionResponse = await response.json();
-            const responseTags = resultData.tags || {};
-            const responseTotalTags = calculateTotalTags(responseTags);
+            if (settings.fetchMode === 'server') {
+                proxyUsed = 'Server Proxy';
+                const response = await fetch(API_ROUTE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUrl: trimmedUrl }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
 
-            if (!response.ok || resultData.error) {
-                let errorMsg = resultData.error || `API Error: ${response.status}`;
-                if (response.status === 504) errorMsg = 'Server timed out fetching data from the target site.';
-                else if (response.status === 502) errorMsg = `Server couldn't reach target site (Bad Gateway). ${resultData.error || ''}`.trim();
-                else if (response.status === 400) errorMsg = `Invalid request: ${resultData.error || ''}`.trim();
-                else if (response.status === 422) errorMsg = `${resultData.error || 'Extraction failed (e.g., page error, login needed).'}`;
-                else if (response.status === 500) errorMsg = `Internal Server Error: ${resultData.error || 'Unknown server issue.'}`;
+                const resultData: ApiExtractionResponse = await response.json();
+                const responseTags = resultData.tags || {};
+                const responseTotalTags = calculateTotalTags(responseTags);
 
-                if (!(resultData.error && resultData.error.toLowerCase().includes('warning') && responseTotalTags > 0)){
-                    setError(errorMsg);
-                    console.error("API Error:", errorMsg, "Status:", response.status, "Response Data:", resultData);
-                    setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-                    currentExtractionUrl.current = null;
+                if (!response.ok || resultData.error) {
+                    let errorMsg = resultData.error || `API Error: ${response.status}`;
+                    if (response.status === 504) errorMsg = 'Server timed out fetching data from the target site.';
+                    else if (response.status === 502) errorMsg = `Server couldn't reach target site (Bad Gateway). ${resultData.error || ''}`.trim();
+                    else if (response.status === 400) errorMsg = `Invalid request: ${resultData.error || ''}`.trim();
+                    else if (response.status === 422) errorMsg = `${resultData.error || 'Extraction failed (e.g., page error, login needed).'}`;
+                    else if (response.status === 500) errorMsg = `Internal Server Error: ${resultData.error || 'Unknown server issue.'}`;
+
+                    if (!(resultData.error && resultData.error.toLowerCase().includes('warning') && responseTotalTags > 0)) {
+                        extractionError = errorMsg;
+                        extractionSiteName = '';
+                    } else {
+                        extractionResult = { tags: responseTags, imageUrl: resultData.imageUrl, title: resultData.title };
+                        extractionError = errorMsg;
+                        extractionSiteName = resultData.siteName;
+                        extractionImageUrl = resultData.imageUrl;
+                        extractionTitle = resultData.title;
+                    }
+                } else {
+                    extractionResult = { tags: responseTags, imageUrl: resultData.imageUrl, title: resultData.title };
+                    extractionSiteName = resultData.siteName;
+                    extractionImageUrl = resultData.imageUrl;
+                    extractionTitle = resultData.title;
+                    if (resultData.error && resultData.error.toLowerCase().includes('warning')) {
+                        extractionError = resultData.error;
+                    } else if (responseTotalTags === 0 && resultData.imageUrl) {
+                       extractionError = `Warning: Image found on ${resultData.siteName}, but no tags were extracted. Selectors may need update or tags might be absent.`;
+                    }
+                }
+            } else {
+                selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0];
+                proxyUsed = `Client Proxy (${selectedProxy.label})`;
+                const proxyFetchUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`;
+                let html = '';
+                let clientFetchError = '';
+
+                try {
+                    const response = await fetch(proxyFetchUrl, { signal: controller.signal });
+                     clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                         clientFetchError = `Client proxy (${selectedProxy.label}) failed: ${response.status}. Service may be down/blocking.`;
+                    } else {
+                        html = await response.text();
+                        if (!html) {
+                            clientFetchError = `Client proxy (${selectedProxy.label}) returned empty content.`;
+                        } else if (selectedProxy.id === 'allorigins') {
+                            try {
+                                const jsonData = JSON.parse(html);
+                                if (jsonData && jsonData.contents) {
+                                    html = jsonData.contents;
+                                } else {
+                                    clientFetchError = `Client proxy (${selectedProxy.label}) returned JSON but missing 'contents' field.`; html = '';
+                                }
+                            } catch  {
+                                console.warn(`Received non-JSON response from AllOrigins, treating as direct content.`);
+                                if (html.toLowerCase().includes("error") || html.toLowerCase().includes("cloudflare") || html.length < 100) {
+                                    clientFetchError = `Client proxy (${selectedProxy.label}) returned non-JSON content (likely error/block).`;
+                                }
+                            }
+                        }
+                         if (!html && !clientFetchError) clientFetchError = `Client proxy (${selectedProxy.label}) resulted in empty HTML.`;
+                    }
+                } catch(fetchErr) {
+                    clearTimeout(timeoutId);
+                     if ((fetchErr as Error).name === 'AbortError') clientFetchError = `Request via ${proxyUsed} timed out after ${fetchTimeout / 1000}s.`;
+                     else if (fetchErr instanceof TypeError && fetchErr.message.toLowerCase().includes('failed to fetch')) clientFetchError = `Failed to connect via ${proxyUsed}. Check connection/proxy status.`;
+                     else clientFetchError = `Client fetch error via ${proxyUsed}: ${(fetchErr as Error).message}`;
+                }
+
+                if (clientFetchError) {
+                    extractionError = clientFetchError;
+                    extractionSiteName = '';
+                } else if (!html) {
+                    extractionError = 'Failed to retrieve valid HTML content via Client Proxy.';
+                    extractionSiteName = '';
+                } else {
+                    try {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        try {
+                            doc.querySelector('base')?.remove();
+                            const head = doc.head || doc.documentElement.appendChild(doc.createElement('head'));
+                            const base = doc.createElement('base');
+                            base.href = new URL('./', trimmedUrl).href;
+                            head.insertBefore(base, head.firstChild);
+                        } catch (e) { console.warn(`Could not set base tag via Client Proxy for ${trimmedUrl}:`, e); }
+
+                        // Helper function to detect page errors
+                        const detectPageError = (document: Document) => {
+                            let detected = false;
+                            let errorMessage = "Check URL, site status, or try again later.";
+                            
+                            // Check document title for common error indicators
+                            if (document.title.toLowerCase().includes("error") || 
+                                document.title.toLowerCase().includes("access denied") || 
+                                document.title.toLowerCase().includes("cloudflare")) {
+                                detected = true;
+                                errorMessage = `Site returned error/denial/block in title: ${document.title.substring(0, 100)}`;
+                            }
+                            
+                            // Check for error elements in the page
+                            const errorElement = document.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"], #challenge-running');
+                            if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
+                                detected = true;
+                                const pageErrorText = errorElement.textContent.trim();
+                                if (pageErrorText.toLowerCase().includes("rate limit")) 
+                                    errorMessage = "Rate limit likely exceeded on target site.";
+                                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) 
+                                    errorMessage = "Content may require login.";
+                                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) 
+                                    errorMessage = "Post not found (404).";
+                                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) 
+                                    errorMessage = "Blocked by Cloudflare or similar security check.";
+                                else 
+                                    errorMessage = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
+                            }
+                            
+                            // Check body text for additional error indicators
+                            if (!detected && document.body) {
+                                const bodyText = document.body.textContent?.toLowerCase() || '';
+                                if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) {
+                                    detected = true; 
+                                    errorMessage = `Content may require login.`;
+                                } else if (bodyText.includes('access denied')) {
+                                    detected = true; 
+                                    errorMessage = `Access denied by target site.`;
+                                } else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) {
+                                    detected = true; 
+                                    errorMessage = `Blocked by Cloudflare or similar security check.`;
+                                } else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) {
+                                    detected = true; 
+                                    errorMessage = `Target site requires JS/Cookies, may be incompatible with proxy.`;
+                                }
+                            }
+                            
+                            return { detected, errorMessage };
+                        };
+
+                        // Use the helper function to check for page errors
+                        const { detected: pageErrorDetected, errorMessage: specificError } = detectPageError(doc);
+
+                        if (pageErrorDetected) {
+                            extractionError = `Extraction stopped: ${specificError}`;
+                            extractionSiteName = '';
+                        } else {
+                             extractionResult = site.extractTags(doc);
+                             extractionImageUrl = extractionResult.imageUrl;
+                             extractionTitle = extractionResult.title;
+                             const clientTotalTags = calculateTotalTags(extractionResult.tags || {});
+                             if (clientTotalTags === 0) {
+                                 extractionError = extractionResult.imageUrl
+                                     ? 'Warning: Image found, but no tags extracted (Client Proxy). Selectors may need update or tags absent.'
+                                     : 'Warning: No tags or image found (Client Proxy). Page structure changed, post unavailable, or login needed.';
+                             }
+                        }
+                    } catch (parseErr) {
+                        extractionError = `Failed to parse or extract via ${proxyUsed}: ${(parseErr as Error).message}`;
+                        extractionSiteName = '';
+                    }
+                }
+            }
+
+            if (extractionError) {
+                 setError(extractionError);
+                 console.error("Extraction Error:", extractionError, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
+                 if (!extractionSiteName) setActiveSite(null);
+                 else setActiveSite(extractionSiteName);
+
+                 if (!(extractionError.toLowerCase().includes('warning') && calculateTotalTags(extractionResult.tags) > 0)) {
+                     setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined);
+                     currentExtractionUrl.current = null;
                  } else {
-                     setAllExtractedTags(responseTags);
-                     setImageUrl(resultData.imageUrl);
-                     setImageTitle(resultData.title);
-                     setActiveSite(resultData.siteName);
-                     setError(errorMsg);
-                     console.warn("API Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", resultData.siteName);
+                     setAllExtractedTags(extractionResult.tags || {});
+                     setImageUrl(extractionImageUrl);
+                     setImageTitle(extractionTitle);
+                     console.warn("Extraction Warning with data:", extractionError, "URL:", trimmedUrl, "Site:", extractionSiteName);
                  }
 
             } else {
-                 setAllExtractedTags(responseTags);
-                 setImageUrl(resultData.imageUrl);
-                 setImageTitle(resultData.title);
-                 setActiveSite(resultData.siteName);
+                 setAllExtractedTags(extractionResult.tags || {});
+                 setImageUrl(extractionImageUrl);
+                 setImageTitle(extractionTitle);
+                 setActiveSite(extractionSiteName);
                  setError('');
 
-                 if(resultData.error && resultData.error.toLowerCase().includes('warning')) {
-                    setError(resultData.error);
-                    console.warn("API Warning:", resultData.error, "URL:", trimmedUrl, "Site:", resultData.siteName);
-                 } else if (responseTotalTags === 0 && resultData.imageUrl) {
-                    const warnMsg = `Warning: Image found on ${resultData.siteName}, but no tags were extracted. Selectors may need update or tags might be absent.`;
-                    setError(warnMsg);
-                    console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", resultData.siteName);
-                 } else if (responseTotalTags > 0) {
-                    console.log(`Successfully extracted ${responseTotalTags} tags from ${resultData.siteName}.`);
-                 }
+                 const finalTotalTags = calculateTotalTags(extractionResult.tags || {});
+                 if(finalTotalTags > 0) console.log(`Successfully extracted ${finalTotalTags} tags from ${extractionSiteName} via ${proxyUsed}.`);
 
                  const newEntry: HistoryEntry = {
                      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
                      url: trimmedUrl,
-                     tags: responseTags,
-                     imageUrl: resultData.imageUrl,
-                     title: resultData.title,
-                     siteName: resultData.siteName,
+                     tags: extractionResult.tags || {},
+                     imageUrl: extractionImageUrl,
+                     title: extractionTitle,
+                     siteName: extractionSiteName,
                      timestamp: Date.now(),
                  };
                  setHistory(prevHistory => {
@@ -760,17 +955,16 @@ const BooruTagExtractor = () => {
              }
 
         } catch (err) {
-             let finalMessage: string;
-             if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect to the API route. Check network or server status.`;
-             else finalMessage = `Client-side error calling API: ${(err as Error).message}`;
-             setError(finalMessage);
-             console.error(finalMessage, err);
+             clearTimeout(timeoutId);
+             const errorMessage = `Unexpected error during extraction: ${(err as Error).message}`;
+             setError(errorMessage);
+             console.error(errorMessage, err);
              setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
              currentExtractionUrl.current = null;
         } finally {
              setLoading(false);
         }
-    }, [loading]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl]);
 
     const handleReset = useCallback(() => {
         setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
@@ -888,6 +1082,9 @@ const BooruTagExtractor = () => {
 
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
 
+    const getSelectedProxyLabel = useCallback(() => {
+        return CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown Proxy';
+    }, [settings.clientProxyUrl]);
 
     return (
         <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-surface-rgb))] p-4 text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300 sm:p-6">
@@ -1023,32 +1220,23 @@ const BooruTagExtractor = () => {
                         )}
                     </AnimatePresence>
 
-                    <AnimatePresence>
-                        {history.length > 0 && (
-                            <motion.div
-                                layout
-                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                animate={{ opacity: 1, height: 'auto', marginTop: '1.5rem' }}
-                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                            >
-                                <HistoryPanel
-                                    history={history}
-                                    onLoadEntry={handleLoadHistoryEntry}
-                                    onDeleteEntry={handleDeleteHistoryEntry}
-                                    onClearHistory={handleClearHistory}
-                                    enableImagePreviews={settings.enableImagePreviews}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    <HistoryPanel
+                        history={history}
+                        onLoadEntry={handleLoadHistoryEntry}
+                        onDeleteEntry={handleDeleteHistoryEntry}
+                        onClearHistory={handleClearHistory}
+                        enableImagePreviews={settings.enableImagePreviews}
+                    />
 
                 </div>
 
                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
-                        All requests proxied through this server. Respect source site ToS.
+                        {settings.fetchMode === 'server'
+                            ? 'Using Server Proxy. Respect source site ToS.'
+                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
+                        }
                     </p>
                 </div>
             </MotionCard>

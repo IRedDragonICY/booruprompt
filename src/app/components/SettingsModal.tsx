@@ -1,11 +1,19 @@
+// src/app/components/SettingsModal.tsx
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon } from './icons/icons';
+import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
-import {AnimatedIcon} from './AnimatedIcon';
+import { AnimatedIcon } from './AnimatedIcon';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
+type FetchMode = 'server' | 'clientProxy';
+
+interface ClientProxyOption {
+    id: string;
+    label: string;
+    value: string;
+}
 
 interface Settings {
     theme: ThemePreference;
@@ -13,10 +21,18 @@ interface Settings {
     colorTheme: ColorTheme;
     customColorHex?: string;
     enableImagePreviews: boolean;
+    fetchMode: FetchMode;
+    clientProxyUrl: string;
 }
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
+
+const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
+    { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
+    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
+    { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
+];
 
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
@@ -59,6 +75,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
 
     const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
+    const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
+    const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
@@ -73,6 +91,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
         { value: 'rose' as ColorTheme, label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
         { value: 'purple' as ColorTheme, label: 'Purple', colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
         { value: 'green' as ColorTheme, label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
+    ], []);
+
+    const fetchModeOptions = useMemo(() => [
+        { value: 'server' as FetchMode, label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
+        { value: 'clientProxy' as FetchMode, label: 'Client-Side Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy in your browser. May be less reliable or rate-limited.' },
     ], []);
 
     const isValidHex = useMemo(() => /^#[0-9a-fA-F]{6}$/.test(currentCustomHex), [currentCustomHex]);
@@ -168,6 +191,61 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             </div>
 
                             <div>
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Data Fetching Method</label>
+                                <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
+                                    {fetchModeOptions.map(({ value, label, icon, description }) => (
+                                        <div key={value}>
+                                            <label className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                                <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
+                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                                                    {icon}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
+                                                </div>
+                                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
+                                                    <AnimatePresence>
+                                                        {settings.fetchMode === value && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                                                                className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
+                                                            />
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </label>
+                                            {value === 'clientProxy' && settings.fetchMode === 'clientProxy' && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
+                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    className="pl-12 pr-3"
+                                                >
+                                                    <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Select Client Proxy Service:</label>
+                                                    <select
+                                                        id="clientProxySelect"
+                                                        value={settings.clientProxyUrl}
+                                                        onChange={handleClientProxyChange}
+                                                        className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                                        aria-label="Client Proxy Service Selector"
+                                                    >
+                                                        {CLIENT_PROXY_OPTIONS.map(option => (
+                                                            <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Performance and reliability vary between proxies.</p>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Automatic Extraction</span>
@@ -203,7 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images are fetched via the server proxy.</p>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images are always fetched via the Server Proxy.</p>
                             </div>
                         </div>
 
