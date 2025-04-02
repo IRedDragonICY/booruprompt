@@ -15,18 +15,18 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.0.17",
+    "@tailwindcss/postcss": "^4.1.0",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "framer-motion": "^12.6.2",
+    "framer-motion": "^12.6.3",
     "jsdom": "^26.0.0",
     "postcss": "^8",
     "tailwind-scrollbar": "^4.0.2",
-    "tailwindcss": "^4.0.17",
+    "tailwindcss": "^4.1.0",
     "typescript": "^5"
   }
 }
