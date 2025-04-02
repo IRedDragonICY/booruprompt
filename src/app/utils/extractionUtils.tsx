@@ -1,7 +1,18 @@
 export type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 export type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; variable: string };
 export interface ExtractedTag { name: string; category: TagCategory }
-export interface ExtractionResult { tags: ExtractedTag[]; imageUrl?: string; title?: string }
+export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
+
+const groupTags = (tags: ExtractedTag[]): Partial<Record<TagCategory, string[]>> => {
+    const grouped: Partial<Record<TagCategory, string[]>> = {};
+    for (const tag of tags) {
+        if (!grouped[tag.category]) {
+            grouped[tag.category] = [];
+        }
+        grouped[tag.category]!.push(tag.name);
+    }
+    return grouped;
+};
 
 const utils = {
     getCategoryFromClassList: (element: Element): TagCategory => {
@@ -124,77 +135,103 @@ const utils = {
         }
         return src;
     },
-    extractTitle: (doc: Document, selector: string): string | undefined => {
+    extractTitle: (doc: Document, selector: string = 'title'): string | undefined => {
         let title: string | undefined | null;
+        const siteNamePattern = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621)\s*[-|»]?\s*/i;
+        const siteNameSuffixPattern = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621)$/i;
+        const postNumPattern = /\s*[-|»]?\s*(?:Post|Image)\s+#\d+$/i;
+        const dimensionsPattern = /\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i;
+        const tagListHeuristicPattern = /^(?:[\w:]+\s+){5,}/;
+        const zerochanPattern = / \| Anime-Pictures\.net$/i;
+        const e621SuffixPattern = / on e621$/i;
+
         if (selector.startsWith('attr:')) {
             const attrName = selector.substring(5);
             const elementWithAttr = doc.querySelector(`[${attrName}]`);
             title = elementWithAttr?.getAttribute(attrName);
         } else {
             const titleElement = doc.querySelector(selector);
-            if (titleElement?.tagName === 'IMG') title = (titleElement as HTMLImageElement).alt;
-            else title = titleElement?.textContent;
-        }
-        title = title || doc.title;
-        if (!title) return undefined;
-
-        title = title.trim()
-            .replace(/ - (Danbooru|Safebooru|Gelbooru|Rule 34 -|Yande\.re|Konachan\.com - Anime Wallpapers \|)/i, '')
-            .replace(/aibooru \| #\d+ \| /i, '')
-            .replace(/ » /g, ' - ')
-            .replace(/^Post #\d+ /i, '')
-            .replace(/ \| Post #\d+$/i, '')
-            .replace(/ - e621$/i, '')
-            .replace(/ \| Anime-Pictures\.net$/i, '')
-            .replace(/Anime picture \d+x\d+ with /i, '')
-            .replace(/^Image #\d+\s?/i, '')
-            .replace(/ Image #\d+$/i, '')
-            .replace(/\s+\(\d+✕\d+\s+\d+(\.\d+)?\s*k?B\)$/i, '');
-
-        const tagListIndex = title.indexOf(' single tall image');
-        if (tagListIndex > 0) title = title.substring(0, tagListIndex);
-
-        title = title.replace(/ with.*$/, '')
-            .replace(/ - Zerochan Anime Image Board$/i, '')
-            .trim();
-
-        if (title.toLowerCase() === "zerochan anime image board" || title.toLowerCase() === "zerochan") {
-            const imgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
-            if (imgTitle) {
-                const titleMatch = imgTitle.match(/^([^(]+)\s+\(/);
-                title = titleMatch?.[1]?.trim() || imgTitle.split(' (')[0].trim();
-            } else {
-                title = undefined;
+            if (titleElement?.tagName === 'IMG') {
+                 title = (titleElement as HTMLImageElement).alt;
+            } else if(titleElement?.textContent) {
+                title = titleElement.textContent;
             }
         }
 
-        return title || undefined;
+        if (!title) {
+            const ogTitle = doc.querySelector('meta[property="og:title"]');
+            if (ogTitle) title = ogTitle.getAttribute('content');
+        }
+
+        if (!title) {
+            const h1 = doc.querySelector('h1');
+            if (h1?.textContent) title = h1.textContent;
+        }
+
+        if (!title) {
+             title = doc.title;
+        }
+
+        if (!title) return undefined;
+
+        let cleanedTitle = title.trim()
+            .replace(siteNamePattern, '')
+            .replace(siteNameSuffixPattern, '')
+            .replace(postNumPattern, '')
+            .replace(zerochanPattern, '')
+            .replace(e621SuffixPattern, '')
+            .replace(dimensionsPattern, '')
+            .replace(/^Post #\d+\s*[-|»]?\s*/i, '')
+            .replace(/^Image #\d+\s*[-|»]?\s*/i, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (cleanedTitle.toLowerCase() === 'image' || cleanedTitle.toLowerCase() === 'post' || /^\d+$/.test(cleanedTitle)) {
+            cleanedTitle = '';
+        }
+
+        const zerochanImgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
+        if (zerochanImgTitle && (cleanedTitle === '' || cleanedTitle.toLowerCase().includes('zerochan'))) {
+            const titleMatch = zerochanImgTitle.match(/^([^(]+)\s+\(/);
+            const potentialTitle = titleMatch?.[1]?.trim() || zerochanImgTitle.split(' (')[0].trim();
+            if (potentialTitle && potentialTitle.length > cleanedTitle.length) {
+                 cleanedTitle = potentialTitle;
+            }
+        }
+
+        if (tagListHeuristicPattern.test(cleanedTitle) && cleanedTitle.split(' ').length > 10) {
+           return undefined;
+        }
+
+        if (cleanedTitle.length < 3) return undefined;
+
+        return cleanedTitle;
     }
 };
 
 export const extractionStrategies = {
     danbooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: '#tag-list li[class*="tag-type-"]', tag: 'a.search-tag' }),
+        tags: groupTags(utils.extractTagsByClass(doc, { container: '#tag-list li[class*="tag-type-"]', tag: 'a.search-tag' })),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     safebooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]:last-of-type'),
+        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]:last-of-type')),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     gelbooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="page=post"]' }),
+        tags: groupTags(utils.extractTagsByClass(doc, { container: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="page=post"]' })),
         imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source', 'src'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     rule34: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsBySection(doc, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]'),
+        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]')),
         imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source, video#videoelement source', 'src'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     e621: (doc: Document): ExtractionResult => {
-        const tags = new Map<string, ExtractedTag>();
+        const tagsArray: ExtractedTag[] = [];
         const listItems = doc.querySelectorAll('section#tag-list > ul > li.tag-list-item');
         listItems.forEach(item => {
             const dataCategory = item.getAttribute('data-category');
@@ -203,27 +240,27 @@ export const extractionStrategies = {
             const tagName = tagNameElement?.textContent?.trim();
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
-                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category });
+                if (cleanName) tagsArray.push({ name: cleanName, category });
             }
         });
         return {
-            tags: Array.from(tags.values()),
+            tags: groupTags(tagsArray),
             imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source', 'src'),
-            title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc, 'title')
+            title: utils.extractTitle(doc, 'attr:data-title') || utils.extractTitle(doc, '#image-container h5') || utils.extractTitle(doc)
         };
     },
     aibooru: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: 'div.categorized-tag-list li[class*="tag-type-"]', tag: 'a.search-tag' }),
+        tags: groupTags(utils.extractTagsByClass(doc, { container: 'div.categorized-tag-list li[class*="tag-type-"]', tag: 'a.search-tag' })),
         imageUrl: utils.extractImageUrl(doc, '#image', 'src'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     yandere: (doc: Document): ExtractionResult => ({
-        tags: utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="/post?tags="]' }),
+        tags: groupTags(utils.extractTagsByClass(doc, { container: '#tag-sidebar li[class*="tag-type-"]', tag: 'a[href*="/post?tags="]' })),
         imageUrl: utils.extractImageUrl(doc, '#image') || utils.extractImageUrl(doc, 'img.fit-width'),
-        title: utils.extractTitle(doc, 'title')
+        title: utils.extractTitle(doc)
     }),
     konachan: (doc: Document): ExtractionResult => {
-        const tags = new Map<string, ExtractedTag>();
+        const tagsArray: ExtractedTag[] = [];
         const listItems = doc.querySelectorAll('ul#tag-sidebar li.tag-link');
         listItems.forEach(item => {
             const dataType = item.getAttribute('data-type');
@@ -233,50 +270,50 @@ export const extractionStrategies = {
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
                 if (cleanName && cleanName.toLowerCase() !== 'tagme (character)') {
-                    tags.set(`${category}-${cleanName}`, { name: cleanName, category });
+                    tagsArray.push({ name: cleanName, category });
                 }
             }
         });
         return {
-            tags: Array.from(tags.values()),
+            tags: groupTags(tagsArray),
             imageUrl: utils.extractImageUrl(doc, '#image'),
-            title: utils.extractTitle(doc, 'title')
+            title: utils.extractTitle(doc)
         };
     },
     animePictures: (doc: Document): ExtractionResult => {
-        const tags = new Map<string, ExtractedTag>();
+        const tagsArray: ExtractedTag[] = [];
         const tagElements = doc.querySelectorAll('ul.tags li a.svelte-1a4tkgo');
         tagElements.forEach(element => {
             const tagName = element?.textContent?.trim();
             if (tagName) {
                 const cleanName = utils.cleanTagName(tagName);
                 const category = utils.getAnimePicturesCategory(element);
-                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category });
+                if (cleanName) tagsArray.push({ name: cleanName, category });
             }
         });
         return {
-            tags: Array.from(tags.values()),
+            tags: groupTags(tagsArray),
             imageUrl: utils.extractImageUrl(doc, 'img#big_preview'),
-            title: utils.extractTitle(doc, 'img#big_preview') || utils.extractTitle(doc, 'title')
+            title: utils.extractTitle(doc, 'img#big_preview') || utils.extractTitle(doc)
         };
     },
     zerochan: (doc: Document): ExtractionResult => {
-        const tags = new Map<string, ExtractedTag>();
+        const tagsArray: ExtractedTag[] = [];
         const tagsString = doc.querySelector('#large > p')?.textContent?.trim();
         if (tagsString) {
             tagsString.split(',').forEach(name => {
                 const cleanName = name.trim();
-                if (cleanName) tags.set(`general-${cleanName}`, { name: cleanName, category: 'general' });
+                if (cleanName) tagsArray.push({ name: cleanName, category: 'general' });
             });
         }
         return {
-            tags: Array.from(tags.values()),
+            tags: groupTags(tagsArray),
             imageUrl: utils.extractImageUrl(doc, '#large > a.preview', 'href') || utils.extractImageUrl(doc, '#large > a.preview > img.jpg', 'src'),
-            title: utils.extractTitle(doc, 'title')
+            title: utils.extractTitle(doc)
         };
     },
     eShuushuu: (doc: Document): ExtractionResult => {
-        const tags = new Map<string, ExtractedTag>();
+        const tagsArray: ExtractedTag[] = [];
         const metaContainer = doc.querySelector('div.meta dl');
         if (metaContainer) {
             const dtElements = metaContainer.querySelectorAll('dt');
@@ -296,7 +333,7 @@ export const extractionStrategies = {
                             const tagName = link.textContent?.trim();
                             if (tagName) {
                                 const cleanName = utils.cleanTagName(tagName);
-                                if (cleanName) tags.set(`${category}-${cleanName}`, { name: cleanName, category: category as TagCategory });
+                                if (cleanName) tagsArray.push({ name: cleanName, category: category as TagCategory });
                             }
                         });
                     }
@@ -304,9 +341,9 @@ export const extractionStrategies = {
             });
         }
         return {
-            tags: Array.from(tags.values()),
+            tags: groupTags(tagsArray),
             imageUrl: utils.extractImageUrl(doc, 'a.thumb_image', 'href'),
-            title: utils.extractTitle(doc, 'div.title h2 a') || utils.extractTitle(doc, 'title')
+            title: utils.extractTitle(doc, 'div.title h2 a') || utils.extractTitle(doc)
         }
     }
 };

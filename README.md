@@ -70,6 +70,90 @@ The extractor currently supports fetching data from the following booru-style si
 | Zerochan           | Supported |
 | E-Shuushuu         | Supported |
 
+## 🌐 API Usage
+
+This project also exposes server-side API endpoints that act as a proxy to fetch data from booru sites, primarily to overcome CORS limitations in the browser. You can use these endpoints for your own integrations.
+
+**Base URL:** `https://booruprompt.vercel.app/api/fetch-booru`
+
+### 1. Fetch Page HTML (POST)
+
+Fetches the raw HTML content of a given booru post page URL.
+
+*   **Endpoint:** `/api/fetch-booru`
+*   **Method:** `POST`
+*   **Headers:**
+    *   `Content-Type: application/json`
+*   **Body (JSON):**
+    ```json
+    {
+      "targetUrl": "YOUR_BOORU_POST_URL"
+    }
+    ```
+    *   Replace `YOUR_BOORU_POST_URL` with the actual URL of the booru post (e.g., `https://safebooru.org/index.php?page=post&s=view&id=12345`).
+*   **Success Response (200 OK):**
+    *   `Content-Type: application/json`
+    *   Body:
+        ```json
+        {
+          "html": "<!DOCTYPE html>..." // Raw HTML content of the target page
+        }
+        ```
+*   **Error Response:**
+    *   JSON object with an `error` field and an appropriate HTTP status code (e.g., 400, 502, 504).
+    *   Example (400 Bad Request):
+        ```json
+        { "error": "Invalid target URL provided." }
+        ```
+    *   Example (502 Bad Gateway):
+        ```json
+        { "error": "Failed to fetch page from target site. Status: 404 - Not Found", "status": 404 }
+        ```
+*   **Example (`curl` in PowerShell/Bash):**
+    ```bash
+    # PowerShell requires backticks (`) for line continuation
+    # Bash uses backslashes (\)
+    
+    # PowerShell Example:
+    curl -X POST "https://booruprompt.vercel.app/api/fetch-booru" `
+         -H "Content-Type: application/json" `
+         -d '{"targetUrl": "https://safebooru.org/index.php?page=post&s=list"}'
+    
+    # Bash Example:
+    curl -X POST "https://booruprompt.vercel.app/api/fetch-booru" \
+         -H "Content-Type: application/json" \
+         -d '{"targetUrl": "https://safebooru.org/index.php?page=post&s=list"}'
+    ```
+
+### 2. Fetch Image (GET)
+
+Fetches and proxies an image from a given URL. This is mainly used by the frontend for previews but can be used as a simple image proxy.
+
+*   **Endpoint:** `/api/fetch-booru`
+*   **Method:** `GET`
+*   **Query Parameter:**
+    *   `imageUrl`: The URL of the image to fetch. **Important:** Ensure this URL is properly URL-encoded if it contains special characters like `&`, `?`, etc.
+*   **Success Response (200 OK):**
+    *   Headers: Includes `Content-Type` (e.g., `image/jpeg`) and `Cache-Control` from the upstream source (or a default).
+    *   Body: The raw image data.
+*   **Error Response:**
+    *   Plain text error message with an appropriate HTTP status code (e.g., 400, 502, 504).
+*   **Example (`curl`):**
+    ```bash
+    # Fetches the image and saves it as output.jpg
+    # Replace YOUR_IMAGE_URL with the actual, URL-encoded image URL
+    curl "https://booruprompt.vercel.app/api/fetch-booru?imageUrl=YOUR_IMAGE_URL" -o output.jpg
+    
+    # Example with a (simplified) URL - real URLs might need encoding
+    curl "https://booruprompt.vercel.app/api/fetch-booru?imageUrl=https%3A%2F%2Fsafebooru.org%2Fimages%2F4699%2Ff7b8d9...sample.jpg" -o sample_image.jpg
+    ```
+
+**Notes:**
+
+*   The API uses a specific `User-Agent`: `BooruTagExtractor/1.1 (Server-Side Proxy; +http://localhost/)`.
+*   Requests have a timeout of 25 seconds.
+*   Please use this API responsibly. It relies on the Vercel Hobby plan infrastructure.
+
 ## 🚀 Getting Started
 
 Get the project up and running on your local machine.

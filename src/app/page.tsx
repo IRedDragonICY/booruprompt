@@ -1,7 +1,7 @@
 'use client';
 
 import { hexToRgb, getContrastColor, adjustRgb } from './utils/colors';
-import { ExtractedTag, BOORU_SITES, DEFAULT_TAG_CATEGORIES } from './utils/extractionUtils';
+import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type ExtractionResult, type TagCategory } from './utils/extractionUtils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
@@ -21,22 +21,11 @@ import {
   PhotoIcon,
   MagnifyingGlassIcon,
   ArrowDownTrayIcon,
-  ServerIcon,
-  CloudArrowDownIcon,
   BugAntIcon
 } from './components/icons/icons';
 
-type TagCategory = 'copyright' | 'character' | 'general' | 'meta' | 'other';
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
-type FetchMode = 'server' | 'clientProxy';
-type TagCategoryOption = { id: TagCategory; label: string; enabled: boolean; variable: string };
-
-interface ClientProxyOption {
-    id: string;
-    label: string;
-    value: string;
-}
 
 interface Settings {
     theme: ThemePreference;
@@ -44,13 +33,11 @@ interface Settings {
     colorTheme: ColorTheme;
     customColorHex?: string;
     enableImagePreviews: boolean;
-    fetchMode: FetchMode;
-    clientProxyUrl: string;
 }
 interface HistoryEntry {
     id: string;
     url: string;
-    tags: ExtractedTag[];
+    tags: Partial<Record<TagCategory, string[]>>;
     imageUrl?: string;
     title?: string;
     siteName?: string;
@@ -59,36 +46,35 @@ interface HistoryEntry {
 interface StoredHistoryItem {
     id: string;
     url: string;
-    tags?: ExtractedTag[];
+    tags?: Partial<Record<TagCategory, string[]>>;
     imageUrl?: string;
     title?: string;
     siteName?: string;
     timestamp: number;
 }
+interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
+    siteName: string;
+    tags?: Partial<Record<TagCategory, string[]>>;
+    error?: string;
+    status?: number;
+}
+
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
 const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
-const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
-const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
-const DEFAULT_FETCH_MODE: FetchMode = 'server';
-const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 
-const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
-    { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
-    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
-    { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
-];
-const DEFAULT_CLIENT_PROXY_URL = CLIENT_PROXY_OPTIONS[0].value;
-
+const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => {
+    return Object.values(tags || {}).reduce((sum, arr) => sum + (arr?.length ?? 0), 0);
+};
 
 const TooltipWrapper = ({ children, tipContent }: { children: React.ReactNode; tipContent: React.ReactNode | string; }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -392,8 +378,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
 
     const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
-    const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
-    const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
@@ -408,11 +392,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         { value: 'rose' as ColorTheme, label: 'Rose', colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
         { value: 'purple' as ColorTheme, label: 'Purple', colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
         { value: 'green' as ColorTheme, label: 'Green', colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
-    ], []);
-
-    const fetchModeOptions = useMemo(() => [
-        { value: 'server' as FetchMode, label: 'Server Proxy', icon: <ServerIcon />, description: 'Uses this application\'s server to fetch data. Recommended, more reliable.' },
-        { value: 'clientProxy' as FetchMode, label: 'Client Proxy', icon: <CloudArrowDownIcon />, description: 'Uses a public CORS proxy in your browser. May be less reliable or rate-limited.' },
     ], []);
 
     const isValidHex = useMemo(() => /^#[0-9a-fA-F]{6}$/.test(currentCustomHex), [currentCustomHex]);
@@ -508,61 +487,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                             </div>
 
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Data Fetching Method</label>
-                                <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
-                                    {fetchModeOptions.map(({ value, label, icon, description }) => (
-                                        <div key={value}>
-                                            <label className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                                <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
-                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                                    {icon}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
-                                                </div>
-                                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
-                                                    <AnimatePresence>
-                                                        {settings.fetchMode === value && (
-                                                            <motion.div
-                                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                                                                className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
-                                                            />
-                                                        )}
-                                                    </AnimatePresence>
-                                                </div>
-                                            </label>
-                                            {value === 'clientProxy' && settings.fetchMode === 'clientProxy' && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                                    animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
-                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="pl-12 pr-3"
-                                                >
-                                                    <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Select Client Proxy Service:</label>
-                                                    <select
-                                                        id="clientProxySelect"
-                                                        value={settings.clientProxyUrl}
-                                                        onChange={handleClientProxyChange}
-                                                        className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                                        aria-label="Client Proxy Service Selector"
-                                                    >
-                                                        {CLIENT_PROXY_OPTIONS.map(option => (
-                                                            <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Performance and reliability vary between proxies.</p>
-                                                </motion.div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Automatic Extraction</span>
@@ -598,7 +522,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images fetched via Server Proxy require server bandwidth.</p>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images are fetched via the server proxy.</p>
                             </div>
                         </div>
 
@@ -627,9 +551,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
 };
 SettingsModal.displayName = 'SettingsModal';
 
-// ... rest of the BooruTagExtractor component and other components remain unchanged ...
-
-// HistoryItem component
 interface HistoryItemProps {
     entry: HistoryEntry;
     onLoad: (entry: HistoryEntry) => void;
@@ -642,6 +563,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
         dateStyle: 'short',
         timeStyle: 'short',
     }), [entry.timestamp]);
+    const totalTags = useMemo(() => calculateTotalTags(entry.tags), [entry.tags]);
 
     const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
     const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
@@ -692,7 +614,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
                 </p>
                 <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                     {entry.siteName ? `${entry.siteName} • ` : ''}
-                    {formattedDate} • {entry.tags.length} tags
+                    {formattedDate} • {totalTags} {totalTags === 1 ? 'tag' : 'tags'}
                 </p>
             </div>
             <TooltipWrapper tipContent="Load Entry">
@@ -722,7 +644,6 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
 });
 HistoryItem.displayName = 'HistoryItem';
 
-// HistoryPanel component
 interface HistoryPanelProps {
     history: HistoryEntry[];
     onLoadEntry: (entry: HistoryEntry) => void;
@@ -754,7 +675,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
             entry.title?.toLowerCase().includes(lowerCaseQuery) ||
             entry.url.toLowerCase().includes(lowerCaseQuery) ||
             entry.siteName?.toLowerCase().includes(lowerCaseQuery) ||
-            entry.tags.some(tag => tag.name.toLowerCase().includes(lowerCaseQuery))
+            (entry.tags && Object.values(entry.tags).flat().some(tag => tag.toLowerCase().includes(lowerCaseQuery)))
         );
     }, [history, searchQuery]);
 
@@ -882,10 +803,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 };
 HistoryPanel.displayName = 'HistoryPanel';
 
-// BooruTagExtractor component (main)
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
-    const [allExtractedTags, setAllExtractedTags] = useState<ExtractedTag[]>([]);
+    const [allExtractedTags, setAllExtractedTags] = useState<Partial<Record<TagCategory, string[]>>>({});
     const [imageUrl, setImageUrl] = useState<string | undefined>();
     const [imageTitle, setImageTitle] = useState<string | undefined>();
     const [displayedTags, setDisplayedTags] = useState('');
@@ -904,8 +824,6 @@ const BooruTagExtractor = () => {
         colorTheme: DEFAULT_COLOR_THEME,
         customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
         enableImagePreviews: true,
-        fetchMode: DEFAULT_FETCH_MODE,
-        clientProxyUrl: DEFAULT_CLIENT_PROXY_URL,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -917,8 +835,6 @@ const BooruTagExtractor = () => {
         const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
         const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
         const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
-        const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
-        const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -927,14 +843,19 @@ const BooruTagExtractor = () => {
                 const parsed = JSON.parse(savedHistoryData);
                 const isValidHistory = (item: unknown): item is StoredHistoryItem =>
                     typeof item === 'object' && item !== null &&
-                    'id' in item && 'url' in item && 'timestamp' in item &&
-                    (!('tags' in item) || item.tags === undefined || Array.isArray(item.tags));
+                    'id' in item && typeof item.id === 'string' &&
+                    'url' in item && typeof item.url === 'string' &&
+                    'timestamp' in item && typeof item.timestamp === 'number' &&
+                    (!('tags' in item) || item.tags === undefined || (typeof item.tags === 'object' && item.tags !== null && !Array.isArray(item.tags)));
 
                 if (Array.isArray(parsed) && parsed.every(isValidHistory)) {
-                    loadedHistory = parsed.map((item) => ({ ...(item as StoredHistoryItem), tags: Array.isArray(item.tags) ? item.tags : [] }))
+                    loadedHistory = parsed.map((item) => ({
+                            ...(item as StoredHistoryItem),
+                            tags: (typeof item.tags === 'object' && item.tags !== null && !Array.isArray(item.tags)) ? item.tags : {}
+                         }))
                         .sort((a, b) => b.timestamp - a.timestamp);
                 } else {
-                    console.warn("Invalid history data structure in localStorage. Clearing.");
+                    console.warn("Invalid or legacy history data structure found in localStorage. Clearing.");
                     localStorage.removeItem(HISTORY_STORAGE_KEY);
                 }
             }
@@ -949,8 +870,6 @@ const BooruTagExtractor = () => {
             customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
             autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
             enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
-            fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
-            clientProxyUrl: savedClientProxyUrl ?? DEFAULT_CLIENT_PROXY_URL,
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
@@ -989,8 +908,6 @@ const BooruTagExtractor = () => {
         localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
         localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
-        localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
-        localStorage.setItem(CLIENT_PROXY_URL_STORAGE_KEY, settings.clientProxyUrl);
         if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
 
@@ -1026,9 +943,12 @@ const BooruTagExtractor = () => {
 
     useEffect(() => {
         const enabledCategories = new Set(tagCategories.filter(cat => cat.enabled).map(cat => cat.id));
-        const filteredTags = allExtractedTags
-            .filter(tag => enabledCategories.has(tag.category))
-            .map(tag => tag.name.replace(/_/g, ' '));
+        const filteredTags: string[] = [];
+        DEFAULT_TAG_CATEGORIES.forEach(catDef => {
+            if (enabledCategories.has(catDef.id) && allExtractedTags[catDef.id]) {
+                filteredTags.push(...allExtractedTags[catDef.id]!.map(tag => tag.replace(/_/g, ' ')));
+            }
+        });
         setDisplayedTags(filteredTags.join(', '));
     }, [allExtractedTags, tagCategories]);
 
@@ -1038,199 +958,119 @@ const BooruTagExtractor = () => {
             else if (localStorage.getItem(HISTORY_STORAGE_KEY)) localStorage.removeItem(HISTORY_STORAGE_KEY);
         } catch (e) {
             console.error("Failed to save history to localStorage:", e);
+            if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
+                 setError("History limit reached. Cannot save more entries.");
+            }
         }
     }, [history]);
 
     const tagCounts = useMemo(() => {
-        return allExtractedTags.reduce((acc, tag) => {
-            acc[tag.category] = (acc[tag.category] || 0) + 1;
+        return Object.entries(allExtractedTags).reduce((acc, [category, tagsArray]) => {
+            if (tagsArray) {
+                acc[category as TagCategory] = tagsArray.length;
+            }
             return acc;
-        }, {} as Record<TagCategory, number>)
+        }, {} as Record<TagCategory, number>);
     }, [allExtractedTags]);
+
+    const totalExtractedTagCount = useMemo(() => calculateTotalTags(allExtractedTags), [allExtractedTags]);
 
     const extractTags = useCallback(async (targetUrl: string) => {
         const trimmedUrl = targetUrl.trim();
         if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
 
-        const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
-        if (!site) {
-            setError('URL does not match supported sites/formats.');
-            setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null);
-            currentExtractionUrl.current = null;
-            return;
+        const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
+        if (!isSupported) {
+             setError('URL does not match supported sites/formats.');
+             setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null);
+             currentExtractionUrl.current = null;
+             return;
         }
 
-        setLoading(true); setError(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false);
+        setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(null); setCopySuccess(false);
         currentExtractionUrl.current = trimmedUrl;
 
-        const controller = new AbortController();
-        const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0);
-        const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
-
-        let html = '';
-        let fetchError = '';
-        let proxyUsed = '';
-        let selectedProxy: ClientProxyOption | undefined;
-
         try {
-            if (settings.fetchMode === 'server') {
-                proxyUsed = 'Server Proxy';
-                const response = await fetch(API_ROUTE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetUrl: trimmedUrl }), signal: controller.signal });
-                const responseData = await response.json();
-                if (!response.ok || responseData.error) {
-                    let errorMsg = responseData.error || `Server proxy failed: ${response.status}`;
-                    if (response.status === 504 || responseData.error?.toLowerCase().includes('timed out')) errorMsg = 'Request timed out (Server Proxy). Site might be slow.';
-                    else if (response.status === 502) errorMsg = `Server proxy couldn't reach site (Bad Gateway). ${responseData.error || ''}`.trim();
-                    else if (response.status === 400) errorMsg = `Invalid request to server proxy: ${responseData.error || ''}`.trim();
-                    fetchError = errorMsg;
-                } else if (!responseData.html) fetchError = 'Received empty HTML from server proxy.';
-                else html = responseData.html;
+            const response = await fetch(API_ROUTE_URL, {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({ targetUrl: trimmedUrl }),
+             });
+
+            const resultData: ApiExtractionResponse = await response.json();
+            const responseTags = resultData.tags || {};
+            const responseTotalTags = calculateTotalTags(responseTags);
+
+            if (!response.ok || resultData.error) {
+                let errorMsg = resultData.error || `API Error: ${response.status}`;
+                if (response.status === 504) errorMsg = 'Server timed out fetching data from the target site.';
+                else if (response.status === 502) errorMsg = `Server couldn't reach target site (Bad Gateway). ${resultData.error || ''}`.trim();
+                else if (response.status === 400) errorMsg = `Invalid request: ${resultData.error || ''}`.trim();
+                else if (response.status === 422) errorMsg = `${resultData.error || 'Extraction failed (e.g., page error, login needed).'}`;
+                else if (response.status === 500) errorMsg = `Internal Server Error: ${resultData.error || 'Unknown server issue.'}`;
+
+                if (!(resultData.error && resultData.error.toLowerCase().includes('warning') && responseTotalTags > 0)){
+                    setError(errorMsg);
+                    console.error("API Error:", errorMsg, "Status:", response.status, "Response Data:", resultData);
+                    setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
+                    currentExtractionUrl.current = null;
+                 } else {
+                     setAllExtractedTags(responseTags);
+                     setImageUrl(resultData.imageUrl);
+                     setImageTitle(resultData.title);
+                     setActiveSite(resultData.siteName);
+                     setError(errorMsg);
+                     console.warn("API Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", resultData.siteName);
+                 }
+
             } else {
-                selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0];
-                proxyUsed = `Client Proxy (${selectedProxy.label})`;
-                const proxyFetchUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`;
-                const response = await fetch(proxyFetchUrl, { signal: controller.signal });
-                if (!response.ok) {
-                     fetchError = `Client proxy (${selectedProxy.label}) failed: ${response.status}. Service may be down/blocking.`;
-                } else {
-                    html = await response.text();
+                 setAllExtractedTags(responseTags);
+                 setImageUrl(resultData.imageUrl);
+                 setImageTitle(resultData.title);
+                 setActiveSite(resultData.siteName);
+                 setError('');
 
-                    if (!html) {
-                        fetchError = `Client proxy (${selectedProxy.label}) returned empty content.`;
-                    } else if (selectedProxy.id === 'allorigins') {
-                        try {
-                            const jsonData = JSON.parse(html);
-                            if (jsonData && jsonData.contents) {
-                                html = jsonData.contents;
-                            } else {
-                                fetchError = `Client proxy (${selectedProxy.label}) returned JSON but missing 'contents' field.`;
-                                html = '';
-                            }
-                        } catch (parseError) {
-                             console.warn(`Received non-JSON response from AllOrigins, treating as direct content: ${parseError}`);
-                             if (html.toLowerCase().includes("error") || html.toLowerCase().includes("cloudflare") || html.length < 100) {
-                                fetchError = `Client proxy (${selectedProxy.label}) returned non-JSON content (possibly an error page or blocked request).`;
-                             }
-                        }
-                    }
+                 if(resultData.error && resultData.error.toLowerCase().includes('warning')) {
+                    setError(resultData.error);
+                    console.warn("API Warning:", resultData.error, "URL:", trimmedUrl, "Site:", resultData.siteName);
+                 } else if (responseTotalTags === 0 && resultData.imageUrl) {
+                    const warnMsg = `Warning: Image found on ${resultData.siteName}, but no tags were extracted. Selectors may need update or tags might be absent.`;
+                    setError(warnMsg);
+                    console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", resultData.siteName);
+                 } else if (responseTotalTags > 0) {
+                    console.log(`Successfully extracted ${responseTotalTags} tags from ${resultData.siteName}.`);
+                 }
 
-                    if (!html && !fetchError) {
-                         fetchError = `Client proxy (${selectedProxy.label}) resulted in empty HTML after processing.`;
-                    }
-                }
-            }
-            clearTimeout(timeoutId);
-
-            if (fetchError) {
-                setError(fetchError);
-                console.error("Fetch Error:", fetchError);
-                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-                currentExtractionUrl.current = null;
-                setLoading(false);
-                return;
-            }
-
-            if (!html) {
-                setError('Failed to retrieve valid HTML content.');
-                console.error("Error: Empty or invalid HTML content after processing.");
-                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-                currentExtractionUrl.current = null;
-                setLoading(false);
-                return;
-            }
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            try {
-                doc.querySelector('base')?.remove();
-                const head = doc.head || doc.documentElement.appendChild(doc.createElement('head'));
-                const base = doc.createElement('base');
-                base.href = new URL('./', trimmedUrl).href;
-                head.insertBefore(base, head.firstChild);
-            } catch (e) { console.warn(`Could not set base tag for URL ${trimmedUrl}:`, e); }
-
-            let pageErrorDetected = false;
-            let specificError = "Check URL, site status, or try again later.";
-            if (doc.title.toLowerCase().includes("error") || doc.title.toLowerCase().includes("access denied") || doc.title.toLowerCase().includes("cloudflare")) { pageErrorDetected = true; specificError = `Site returned error/denial/block in title: ${doc.title.substring(0, 100)}`; }
-            const errorElement = doc.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"], #challenge-running');
-            if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
-                pageErrorDetected = true;
-                const pageErrorText = errorElement.textContent.trim();
-                if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded on target site.";
-                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) specificError = "Content may require login.";
-                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
-                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) specificError = "Blocked by Cloudflare or similar security check.";
-                else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
-            }
-             if (!pageErrorDetected && doc.body) {
-                 const bodyText = doc.body.textContent?.toLowerCase() || '';
-                 if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) { pageErrorDetected = true; specificError = `Content may require login.`; }
-                 else if (bodyText.includes('access denied')) { pageErrorDetected = true; specificError = `Access denied by target site.`; }
-                 else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) { pageErrorDetected = true; specificError = `Blocked by Cloudflare or similar security check.`; }
-                 else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) { pageErrorDetected = true; specificError = `Target site requires JS/Cookies, may be incompatible with proxy.`; }
+                 const newEntry: HistoryEntry = {
+                     id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                     url: trimmedUrl,
+                     tags: responseTags,
+                     imageUrl: resultData.imageUrl,
+                     title: resultData.title,
+                     siteName: resultData.siteName,
+                     timestamp: Date.now(),
+                 };
+                 setHistory(prevHistory => {
+                     const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
+                     return updatedHistory.slice(0, MAX_HISTORY_SIZE);
+                 });
              }
 
-
-            if (pageErrorDetected) {
-                const pageErrorMessage = `Extraction stopped: ${specificError}`;
-                setError(pageErrorMessage);
-                console.error("Page Error Detected:", pageErrorMessage, "URL:", trimmedUrl);
-                setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-                currentExtractionUrl.current = null;
-                setLoading(false);
-                return;
-            }
-
-            const extractionResult = site.extractTags(doc);
-
-            setAllExtractedTags(extractionResult.tags || []);
-            setImageUrl(extractionResult.imageUrl);
-            setImageTitle(extractionResult.title);
-            setError('');
-
-            const newEntry: HistoryEntry = {
-                id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                url: trimmedUrl,
-                tags: extractionResult.tags || [],
-                imageUrl: extractionResult.imageUrl,
-                title: extractionResult.title,
-                siteName: site.name,
-                timestamp: Date.now(),
-            };
-            setHistory(prevHistory => {
-                const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
-                return updatedHistory.slice(0, MAX_HISTORY_SIZE);
-            });
-
-            if (extractionResult.tags.length === 0) {
-                const warnMsg = extractionResult.imageUrl
-                    ? 'Warning: Image found, but no tags were extracted. Selectors may need update or tags might be absent.'
-                    : 'Warning: No tags or image found. Page structure might have changed, post unavailable/deleted, or requires login.';
-                setError(warnMsg);
-                console.warn("Extraction Warning:", warnMsg, "URL:", trimmedUrl, "Site:", site.name);
-            } else {
-                console.log(`Successfully extracted ${extractionResult.tags.length} tags from ${site.name}.`);
-            }
-
         } catch (err) {
-            clearTimeout(timeoutId);
-            let finalMessage: string;
-            if ((err as Error).name === 'AbortError') finalMessage = `Request via ${proxyUsed} timed out after ${fetchTimeout / 1000}s.`;
-            else if (err instanceof SyntaxError) finalMessage = `Error via ${proxyUsed}: Failed to parse response (received invalid data, possibly blocked).`;
-            else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect via ${proxyUsed}. Check connection or proxy status.`;
-            else finalMessage = `Error via ${proxyUsed}: ${(err as Error).message}`;
-            setError(finalMessage);
-            console.error(finalMessage, err);
-            setAllExtractedTags([]); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-            currentExtractionUrl.current = null;
+             let finalMessage: string;
+             if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) finalMessage = `Failed to connect to the API route. Check network or server status.`;
+             else finalMessage = `Client-side error calling API: ${(err as Error).message}`;
+             setError(finalMessage);
+             console.error(finalMessage, err);
+             setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
+             currentExtractionUrl.current = null;
         } finally {
-            setLoading(false);
+             setLoading(false);
         }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl]);
+    }, [loading]);
 
     const handleReset = useCallback(() => {
-        setUrl(''); setAllExtractedTags([]); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
+        setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
         currentExtractionUrl.current = null;
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
         cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1245,8 +1085,8 @@ const BooruTagExtractor = () => {
         const trimmedUrl = url.trim();
 
         if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-            const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
-            if (site) {
+            const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
+            if (isSupported) {
                 if (trimmedUrl !== currentExtractionUrl.current) {
                     debounceTimeoutRef.current = setTimeout(() => {
                         const currentInputValue = (document.getElementById('url') as HTMLInputElement)?.value.trim();
@@ -1263,7 +1103,7 @@ const BooruTagExtractor = () => {
         } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
             if (trimmedUrl !== currentExtractionUrl.current) setError('Please enter a valid URL starting with http:// or https://');
         } else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) {
-            setError('');
+             setError('');
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset]);
@@ -1289,11 +1129,12 @@ const BooruTagExtractor = () => {
         if (loading) return;
         handleReset();
         setUrl(entry.url);
-        setAllExtractedTags(Array.isArray(entry.tags) ? entry.tags : []);
+        setAllExtractedTags(typeof entry.tags === 'object' && entry.tags !== null ? entry.tags : {});
         setImageUrl(entry.imageUrl);
         setImageTitle(entry.title);
         setActiveSite(entry.siteName || null);
         currentExtractionUrl.current = entry.url;
+        setError('');
         cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, [loading, handleReset]);
 
@@ -1326,6 +1167,7 @@ const BooruTagExtractor = () => {
                 handleReset();
                 currentExtractionUrl.current = null;
                 setUrl(trimmedUrl);
+                setError('');
                 if (settings.autoExtract) void extractTags(trimmedUrl);
             }
         } else {
@@ -1341,9 +1183,8 @@ const BooruTagExtractor = () => {
         return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
     }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
 
-    const getSelectedProxyLabel = useCallback(() => {
-        return CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown Proxy';
-    }, [settings.clientProxyUrl]);
+    const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
+
 
     return (
         <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-surface-rgb))] p-4 text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300 sm:p-6">
@@ -1410,7 +1251,7 @@ const BooruTagExtractor = () => {
                     </div>
 
                     <AnimatePresence>
-                        {activeSite && !error && !loading && (allExtractedTags.length > 0 || imageUrl) && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
+                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
                         {error && error.toLowerCase().includes('warning') && <StatusMessage type="warning">{error}</StatusMessage>}
                         {error && !error.toLowerCase().includes('warning') && <StatusMessage type="error">{error}</StatusMessage>}
                     </AnimatePresence>
@@ -1421,16 +1262,16 @@ const BooruTagExtractor = () => {
                             <ImagePreview
                                 originalUrl={imageUrl}
                                 title={imageTitle}
-                                isLoading={loading && !imageUrl}
+                                isLoading={loading && !imageUrl && !error}
                                 enableImagePreviews={settings.enableImagePreviews}
                             />
                         </div>
                     )}
 
                     <AnimatePresence>
-                        {!loading && (allExtractedTags.length > 0 || (imageUrl && !error)) && (
+                        {!loading && hasResults && (
                             <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
-                                {allExtractedTags.length > 0 && (
+                                {totalExtractedTagCount > 0 && (
                                     <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
                                         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                                             <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Filter Categories</h3>
@@ -1451,7 +1292,7 @@ const BooruTagExtractor = () => {
                                         </div>
                                     </div>
                                 )}
-                                {allExtractedTags.length > 0 && (
+                                {totalExtractedTagCount > 0 && (
                                     <div className="space-y-3">
                                         <div>
                                             <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
@@ -1491,10 +1332,7 @@ const BooruTagExtractor = () => {
                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
-                        {settings.fetchMode === 'server'
-                            ? 'All requests proxied through this server. Respect source site ToS.'
-                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
-                        }
+                        All requests proxied through this server. Respect source site ToS.
                     </p>
                 </div>
             </MotionCard>
