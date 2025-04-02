@@ -635,7 +635,11 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
         );
     }, [history, searchQuery]);
 
-    if (history.length === 0 && !isOpen) return null;
+    useEffect(() => {
+        if (history.length === 0 && isOpen) {
+            setIsOpen(false);
+        }
+    }, [history.length, isOpen]);
 
     return (
         <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
@@ -1276,13 +1280,26 @@ const BooruTagExtractor = () => {
                         )}
                     </AnimatePresence>
 
-                    <HistoryPanel
-                        history={history}
-                        onLoadEntry={handleLoadHistoryEntry}
-                        onDeleteEntry={handleDeleteHistoryEntry}
-                        onClearHistory={handleClearHistory}
-                        enableImagePreviews={settings.enableImagePreviews}
-                    />
+                    <AnimatePresence>
+                        {history.length > 0 && (
+                            <motion.div
+                                layout
+                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                animate={{ opacity: 1, height: 'auto', marginTop: '1.5rem' }}
+                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                            >
+                                <HistoryPanel
+                                    history={history}
+                                    onLoadEntry={handleLoadHistoryEntry}
+                                    onDeleteEntry={handleDeleteHistoryEntry}
+                                    onClearHistory={handleClearHistory}
+                                    enableImagePreviews={settings.enableImagePreviews}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                 </div>
 
                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
