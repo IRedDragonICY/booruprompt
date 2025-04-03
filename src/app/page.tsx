@@ -21,12 +21,14 @@ import {
   PhotoIcon,
   MagnifyingGlassIcon,
   ArrowDownTrayIcon,
+  TagIcon,
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
 type FetchMode = 'server' | 'clientProxy';
+type ActiveView = 'extractor' | 'image';
 
 interface ClientProxyOption {
     id: string;
@@ -118,7 +120,7 @@ const CategoryToggle = React.memo(({ category, count, onToggle }: { category: Ta
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
                 <span
                     className="truncate text-base font-medium text-[rgb(var(--color-on-surface-rgb))]"
                     title={category.label}
@@ -318,7 +320,7 @@ const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onD
 
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.title || entry.url}>
-                    {entry.title || new URL(entry.url).pathname.split('/').pop() || entry.url}
+                    {entry.title || (entry.url && new URL(entry.url).pathname.split('/').pop()) || entry.url}
                 </p>
                 <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                     {entry.siteName ? `${entry.siteName} • ` : ''}
@@ -435,11 +437,11 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
                                     placeholder="Search history (title, url, tags...)"
                                     value={searchQuery}
                                     onChange={handleSearchChange}
-                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                     aria-label="Search history entries"
                                 />
                                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]">
-                                    <MagnifyingGlassIcon />
+                                    <MagnifyingGlassIcon/>
                                 </span>
                                 {searchQuery && (
                                     <TooltipWrapper tipContent="Clear Search">
@@ -543,6 +545,7 @@ const BooruTagExtractor = () => {
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
+    const [activeView, setActiveView] = useState<ActiveView>('extractor');
 
     useEffect(() => {
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
@@ -663,6 +666,7 @@ const BooruTagExtractor = () => {
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
+        checkIfMobile();
         window.addEventListener('resize', checkIfMobile);
         return () => window.removeEventListener('resize', checkIfMobile);
     }, []);
@@ -971,10 +975,11 @@ const BooruTagExtractor = () => {
     }, []);
 
     useEffect(() => {
-        if (!settings.autoExtract) {
-            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-            return;
-        }
+        if (activeView !== 'extractor' || !settings.autoExtract) {
+             if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+             return;
+         }
+
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
         const trimmedUrl = url.trim();
 
@@ -983,8 +988,9 @@ const BooruTagExtractor = () => {
             if (isSupported) {
                 if (trimmedUrl !== currentExtractionUrl.current) {
                     debounceTimeoutRef.current = setTimeout(() => {
-                        const currentInputValue = (document.getElementById('url') as HTMLInputElement)?.value.trim();
-                        if (trimmedUrl === currentInputValue && trimmedUrl !== currentExtractionUrl.current) {
+                        const currentInput = document.getElementById('url') as HTMLInputElement | null;
+                        const currentInputValue = currentInput?.value.trim();
+                        if (currentInputValue !== undefined && trimmedUrl === currentInputValue && trimmedUrl !== currentExtractionUrl.current) {
                             void extractTags(trimmedUrl);
                         }
                     }, 750);
@@ -1000,7 +1006,7 @@ const BooruTagExtractor = () => {
              setError('');
         }
         return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
-    }, [url, extractTags, settings.autoExtract, handleReset]);
+    }, [url, extractTags, settings.autoExtract, handleReset, activeView]);
 
     const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
@@ -1021,6 +1027,7 @@ const BooruTagExtractor = () => {
 
     const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => {
         if (loading) return;
+        setActiveView('extractor');
         handleReset();
         setUrl(entry.url);
         setAllExtractedTags(typeof entry.tags === 'object' && entry.tags !== null ? entry.tags : {});
@@ -1048,6 +1055,7 @@ const BooruTagExtractor = () => {
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (activeView !== 'extractor') return;
         const types = e.dataTransfer.types;
         if (types.includes('text/uri-list') || types.includes('text/plain')) {
             e.dataTransfer.dropEffect = 'copy';
@@ -1055,15 +1063,17 @@ const BooruTagExtractor = () => {
         } else {
             e.dataTransfer.dropEffect = 'none';
         }
-    }, []);
+    }, [activeView]);
 
     const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (activeView !== 'extractor') return;
         setIsDraggingOver(false);
-    }, []);
+    }, [activeView]);
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
+         if (activeView !== 'extractor') return;
         setIsDraggingOver(false);
         const droppedUrl = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
         if (droppedUrl && (droppedUrl.startsWith('http://') || droppedUrl.startsWith('https://'))) {
@@ -1078,14 +1088,14 @@ const BooruTagExtractor = () => {
         } else {
             setError("Dropped item is not a valid URL.");
         }
-    }, [handleReset, settings.autoExtract, extractTags]);
+    }, [handleReset, settings.autoExtract, extractTags, activeView]);
 
     const handleOpenSettings = useCallback(() => setShowSettings(true), []);
     const handleCloseSettings = useCallback(() => setShowSettings(false), []);
 
     const shouldShowPreviewSection = useMemo(() => {
-        return settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
-    }, [settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
+        return activeView === 'extractor' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
+    }, [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
 
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
 
@@ -1093,163 +1103,249 @@ const BooruTagExtractor = () => {
         return CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown Proxy';
     }, [settings.clientProxyUrl]);
 
+    const sidebarButtonClass = (view: ActiveView) => `
+        flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))]
+        focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]
+        ${activeView === view
+            ? 'bg-[rgba(var(--color-primary-rgb),0.15)] text-[rgb(var(--color-primary-rgb))]'
+            : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'
+        }
+    `;
+     const settingsButtonClass = `
+         flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out
+         focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))]
+         focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]
+         bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))]
+     `;
+
     return (
-        <div className="flex min-h-screen items-center justify-center overflow-hidden bg-[rgb(var(--color-surface-rgb))] p-4 text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300 sm:p-6">
-            <MotionCard
-                className="relative flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-            >
-                <AnimatePresence>
-                    {isDraggingOver && (
-                        <motion.div
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
-                        >
-                            <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
-                                <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
-                                <p className="font-semibold">Drop URL Here</p>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+        <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
+            <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4 z-20 pt-[1px]">
+                    <div className="flex flex-col space-y-2 rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-lg">
+                         <TooltipWrapper tipContent="Tag Extractor">
+                             <motion.button
+                                 whileTap={{ scale: 0.9 }}
+                                 whileHover={{ scale: 1.1, backgroundColor: activeView !== 'extractor' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }}
+                                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                                 onClick={() => setActiveView('extractor')}
+                                 className={sidebarButtonClass('extractor')}
+                                 aria-label="Tag Extractor View"
+                                 aria-current={activeView === 'extractor' ? 'page' : undefined}
+                             >
+                                <TagIcon/>
+                              </motion.button>
+                         </TooltipWrapper>
+                         <TooltipWrapper tipContent="Image Tools">
+                              <motion.button
+                                  whileTap={{ scale: 0.9 }}
+                                  whileHover={{ scale: 1.1, backgroundColor: activeView !== 'image' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }}
+                                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                                  onClick={() => setActiveView('image')}
+                                  className={sidebarButtonClass('image')}
+                                  aria-label="Image Tools View"
+                                  aria-current={activeView === 'image' ? 'page' : undefined}
+                              >
+                                 <PhotoIcon className="h-6 w-6"/>
+                               </motion.button>
+                          </TooltipWrapper>
+                         <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
+                         <TooltipWrapper tipContent="Settings">
+                             <motion.button
+                                 whileTap={{ scale: 0.9 }}
+                                 whileHover={{ rotate: 15, scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}
+                                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                                 onClick={handleOpenSettings}
+                                 className={settingsButtonClass}
+                                 aria-label="Open Settings"
+                             >
+                                <CogIcon/>
+                              </motion.button>
+                         </TooltipWrapper>
+                     </div>
+                 </div>
 
-                <div className="sticky top-0 z-10 flex shrink-0 items-start justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                    <div className="grow pr-4 sm:pr-10">
-                        <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Booru Tag Extractor</h1>
-                        <div className="mt-2">
-                            <span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>
-                            {BOORU_SITES.map((site) => (
-                                <span key={site.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === site.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                    {site.name}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                    <TooltipWrapper tipContent="Settings">
-                        <motion.button
-                            whileTap={{ scale: 0.9 }} whileHover={{ rotate: 15, scale: 1.1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                            onClick={handleOpenSettings}
-                            className="shrink-0 rounded-full p-2 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
-                            aria-label="Open Settings"
-                        ><CogIcon /></motion.button>
-                    </TooltipWrapper>
-                </div>
-
-                <div ref={cardBodyRef} className="grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                    <div>
-                        <label htmlFor="url" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Booru Post URL</label>
-                        <input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
-                    </div>
-                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags Manually">
-                            {loading ? <LoadingSpinner /> : 'Extract Manually'}
-                        </motion.button>
-                        <TooltipWrapper tipContent="Clear input, results, and filters">
-                            <motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset Form">
-                                <motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"> <ArrowPathIcon /> </motion.span>
-                                Reset
-                            </motion.button>
-                        </TooltipWrapper>
-                    </div>
-
+                 <div
+                    className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                 >
                     <AnimatePresence>
-                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                        {error && error.toLowerCase().includes('warning') && <StatusMessage type="warning">{error}</StatusMessage>}
-                        {error && !error.toLowerCase().includes('warning') && <StatusMessage type="error">{error}</StatusMessage>}
-                    </AnimatePresence>
-
-                    {shouldShowPreviewSection && (
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3>
-                            <ImagePreview
-                                originalUrl={imageUrl}
-                                title={imageTitle}
-                                isLoading={loading && !imageUrl && !error}
-                                enableImagePreviews={settings.enableImagePreviews}
-                            />
-                        </div>
-                    )}
-
-                    <AnimatePresence>
-                        {!loading && hasResults && (
-                            <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
-                                {totalExtractedTagCount > 0 && (
-                                    <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
-                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                                            <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Filter Categories</h3>
-                                            <div className="flex shrink-0 space-x-2">
-                                                {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="Select All Categories">All</motion.button>)}
-                                                {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="Clear All Tag Categories">None</motion.button>)}
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-                                            {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
-                                                const categoryOption = tagCategories.find(c => c.id === categoryDef.id) ?? categoryDef;
-                                                const count = tagCounts[categoryOption.id] || 0;
-                                                if (count > 0 || DEFAULT_TAG_CATEGORIES.some(def => def.id === categoryOption.id)) {
-                                                    return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
-                                                }
-                                                return null;
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
-                                {totalExtractedTagCount > 0 && (
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
-                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
-                                        </div>
-                                        <motion.button
-                                            whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess}
-                                            className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
-                                            aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
-                                        >
-                                            <motion.div className="inline-flex items-center justify-center overflow-hidden" style={{ width: '1.25rem', height: '1.25rem' }}>
-                                                <AnimatePresence mode="popLayout" initial={false}>
-                                                    {copySuccess ? (
-                                                        <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <CheckCircleIcon /> </motion.span>
-                                                    ) : (
-                                                        <motion.span key="clipboard" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <ClipboardIcon /> </motion.span>
-                                                    )}
-                                                </AnimatePresence>
-                                            </motion.div>
-                                            <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
-                                        </motion.button>
-                                    </div>
-                                )}
+                        {isDraggingOver && activeView === 'extractor' && (
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
+                            >
+                                <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
+                                    <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
+                                    <p className="font-semibold">Drop URL Here</p>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    {history.length > 0 && (
-                         <HistoryPanel
-                             history={history}
-                             onLoadEntry={handleLoadHistoryEntry}
-                             onDeleteEntry={handleDeleteHistoryEntry}
-                             onClearHistory={handleClearHistory}
-                             enableImagePreviews={settings.enableImagePreviews}
-                         />
-                     )}
+                    <AnimatePresence mode="wait">
+                        {activeView === 'extractor' && (
+                            <motion.div
+                                key="extractor-view-content"
+                                className="flex flex-col flex-1 overflow-hidden"
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 30 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                            >
+                                <div className="sticky top-0 z-10 flex shrink-0 items-start justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
+                                    <div className="grow pr-4">
+                                        <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Booru Tag Extractor</h1>
+                                        <div className="mt-2">
+                                            <span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>
+                                            {BOORU_SITES.map((site) => (
+                                                <span key={site.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === site.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                                                    {site.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
 
-                </div>
+                                <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <div>
+                                        <label htmlFor="url" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Booru Post URL</label>
+                                        <input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
+                                    </div>
+                                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags Manually">
+                                            {loading ? <LoadingSpinner /> : 'Extract Manually'}
+                                        </motion.button>
+                                        <TooltipWrapper tipContent="Clear input, results, and filters">
+                                            <motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset Form">
+                                                <motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"> <ArrowPathIcon/> </motion.span>
+                                                Reset
+                                            </motion.button>
+                                        </TooltipWrapper>
+                                    </div>
 
-                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
-                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
-                        {settings.fetchMode === 'server'
-                            ? 'Using Server Proxy. Respect source site ToS.'
-                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
-                        }
-                        {' '}History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
-                    </p>
-                </div>
-            </MotionCard>
+                                    <AnimatePresence mode='wait'>
+                                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
+                                        {error && error.toLowerCase().includes('warning') && <StatusMessage type="warning">{error}</StatusMessage>}
+                                        {error && !error.toLowerCase().includes('warning') && <StatusMessage type="error">{error}</StatusMessage>}
+                                    </AnimatePresence>
+
+                                    {shouldShowPreviewSection && (
+                                        <div className="space-y-2">
+                                            <h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3>
+                                            <ImagePreview
+                                                originalUrl={imageUrl}
+                                                title={imageTitle}
+                                                isLoading={loading && !imageUrl && !error}
+                                                enableImagePreviews={settings.enableImagePreviews}
+                                            />
+                                        </div>
+                                    )}
+
+                                    <AnimatePresence>
+                                        {!loading && hasResults && (
+                                            <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
+                                                {totalExtractedTagCount > 0 && (
+                                                    <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
+                                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                                                            <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Filter Categories</h3>
+                                                            <div className="flex shrink-0 space-x-2">
+                                                                {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="Select All Categories">All</motion.button>)}
+                                                                {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="Clear All Tag Categories">None</motion.button>)}
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+                                                            {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
+                                                                const categoryOption = tagCategories.find(c => c.id === categoryDef.id) ?? categoryDef;
+                                                                const count = tagCounts[categoryOption.id] || 0;
+                                                                if (count > 0 || DEFAULT_TAG_CATEGORIES.some(def => def.id === categoryOption.id)) {
+                                                                    return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
+                                                                }
+                                                                return null;
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {totalExtractedTagCount > 0 && (
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
+                                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
+                                                        </div>
+                                                        <motion.button
+                                                            whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess}
+                                                            className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
+                                                            aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
+                                                        >
+                                                            <motion.div className="inline-flex items-center justify-center overflow-hidden" style={{ width: '1.25rem', height: '1.25rem' }}>
+                                                                <AnimatePresence mode="popLayout" initial={false}>
+                                                                    {copySuccess ? (
+                                                                        <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <CheckCircleIcon/> </motion.span>
+                                                                    ) : (
+                                                                        <motion.span key="clipboard" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <ClipboardIcon/> </motion.span>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            </motion.div>
+                                                            <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {settings.saveHistory && (
+                                         <HistoryPanel
+                                             history={history}
+                                             onLoadEntry={handleLoadHistoryEntry}
+                                             onDeleteEntry={handleDeleteHistoryEntry}
+                                             onClearHistory={handleClearHistory}
+                                             enableImagePreviews={settings.enableImagePreviews}
+                                         />
+                                     )}
+                                </div>
+
+                                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
+                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
+                                        {settings.fetchMode === 'server'
+                                            ? 'Using Server Proxy. Respect source site ToS.'
+                                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
+                                        }
+                                        {' '}History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeView === 'image' && (
+                             <motion.div
+                                key="image-view-content"
+                                className="flex flex-col flex-1 overflow-hidden"
+                                initial={{ opacity: 0, x: 30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -30 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                            >
+                                <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
+                                     <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Image Tools</h1>
+                                </div>
+                                <div className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <p className="text-center text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                        Image view content goes here...
+                                    </p>
+                                </div>
+                                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                     <p>Image Tools Footer</p>
+                                 </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                 </div>
+            </div>
 
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
         </div>
