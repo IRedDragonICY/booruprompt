@@ -46,31 +46,6 @@ interface Settings {
     clientProxyUrl: string;
     saveHistory: boolean;
 }
-interface HistoryEntry {
-    id: string;
-    url: string;
-    tags: Partial<Record<TagCategory, string[]>>;
-    imageUrl?: string;
-    title?: string;
-    siteName?: string;
-    timestamp: number;
-}
-interface StoredHistoryItem {
-    id: string;
-    url: string;
-    tags?: Partial<Record<TagCategory, string[]>>;
-    imageUrl?: string;
-    title?: string;
-    siteName?: string;
-    timestamp: number;
-}
-interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
-    siteName: string;
-    tags?: Partial<Record<TagCategory, string[]>>;
-    error?: string;
-    status?: number;
-    html?: string;
-}
 
 interface ImageMetadata {
     positivePrompt?: string;
@@ -85,6 +60,53 @@ interface CopyStatus {
     parameters?: boolean;
 }
 
+interface HistoryEntry {
+    id: string;
+    url: string;
+    tags: Partial<Record<TagCategory, string[]>>;
+    imageUrl?: string;
+    title?: string;
+    siteName?: string;
+    timestamp: number;
+}
+
+interface ImageHistoryEntry {
+    id: string;
+    fileName: string;
+    imageData: ImageMetadata;
+    timestamp: number;
+    previewUrl?: string;
+}
+
+
+interface StoredHistoryItem {
+    id: string;
+    url: string;
+    tags?: Partial<Record<TagCategory, string[]>>;
+    imageUrl?: string;
+    title?: string;
+    siteName?: string;
+    timestamp: number;
+}
+
+interface StoredImageHistoryItem {
+    id: string;
+    fileName: string;
+    imageData?: ImageMetadata;
+    timestamp: number;
+    previewUrl?: string;
+}
+
+
+interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
+    siteName: string;
+    tags?: Partial<Record<TagCategory, string[]>>;
+    error?: string;
+    status?: number;
+    html?: string;
+}
+
+
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
@@ -94,7 +116,9 @@ const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const SAVE_HISTORY_STORAGE_KEY = 'booruExtractorSaveHistoryPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
+const IMAGE_HISTORY_STORAGE_KEY = 'booruExtractorImageHistory';
 const MAX_HISTORY_SIZE = 30;
+const MAX_IMAGE_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
@@ -531,6 +555,234 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 };
 HistoryPanel.displayName = 'HistoryPanel';
 
+interface ImageHistoryItemProps {
+    entry: ImageHistoryEntry;
+    onLoad: (entry: ImageHistoryEntry) => void;
+    onDelete: (id: string) => void;
+}
+
+const ImageHistoryItem: React.FC<ImageHistoryItemProps> = React.memo(({ entry, onLoad, onDelete }) => {
+    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
+        dateStyle: 'short',
+        timeStyle: 'short',
+    }), [entry.timestamp]);
+
+    const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
+    const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
+    const hasMetadata = useMemo(() => !!(entry.imageData.positivePrompt || entry.imageData.negativePrompt || entry.imageData.parameters), [entry.imageData]);
+
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+            className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]"
+        >
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
+                 <AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>
+            </div>
+
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.fileName}>
+                    {entry.fileName}
+                </p>
+                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                    {formattedDate} {hasMetadata ? '• Metadata found' : '• No metadata'}
+                </p>
+            </div>
+            <TooltipWrapper tipContent="Load Metadata">
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
+                    onClick={handleLoadClick}
+                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]"
+                    aria-label="Load this image metadata history entry"
+                >
+                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
+                </motion.button>
+            </TooltipWrapper>
+            <TooltipWrapper tipContent="Delete Entry">
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
+                    onClick={handleDeleteClick}
+                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
+                    aria-label="Delete this image metadata history entry"
+                >
+                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
+                </motion.button>
+            </TooltipWrapper>
+        </motion.div>
+    );
+});
+ImageHistoryItem.displayName = 'ImageHistoryItem';
+
+interface ImageHistoryPanelProps {
+    history: ImageHistoryEntry[];
+    onLoadEntry: (entry: ImageHistoryEntry) => void;
+    onDeleteEntry: (id: string) => void;
+    onClearHistory: () => void;
+}
+const ImageHistoryPanel: React.FC<ImageHistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleClearClick = useCallback(() => {
+        onClearHistory();
+        setShowClearConfirm(false);
+        setSearchQuery('');
+    }, [onClearHistory]);
+
+    const handleToggleOpen = useCallback(() => {
+        if(history.length > 0) setIsOpen(prev => !prev)
+    }, [history.length]);
+
+    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), []);
+    const handleClearSearch = useCallback(() => setSearchQuery(''), []);
+    const handleShowConfirm = useCallback(() => setShowClearConfirm(true), []);
+    const handleHideConfirm = useCallback(() => setShowClearConfirm(false), []);
+
+    const filteredHistory = useMemo(() => {
+        if (!searchQuery.trim()) return history;
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        return history.filter(entry =>
+            entry.fileName.toLowerCase().includes(lowerCaseQuery) ||
+            entry.imageData.positivePrompt?.toLowerCase().includes(lowerCaseQuery) ||
+            entry.imageData.negativePrompt?.toLowerCase().includes(lowerCaseQuery) ||
+            (entry.imageData.parameters && Object.entries(entry.imageData.parameters).some(([k, v]) =>
+                k.toLowerCase().includes(lowerCaseQuery) || v.toLowerCase().includes(lowerCaseQuery)
+            ))
+        );
+    }, [history, searchQuery]);
+
+    useEffect(() => {
+        if (history.length === 0 && isOpen) {
+            setIsOpen(false);
+        }
+    }, [history.length, isOpen]);
+
+    return (
+        <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
+            <motion.button
+                whileTap={history.length > 0 ? { backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' } : {}}
+                transition={{ duration: 0.05 }}
+                onClick={handleToggleOpen}
+                className={`flex w-full items-center justify-between p-4 text-left transition-colors ${history.length > 0 ? 'hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]' : 'cursor-default opacity-60'}`}
+                aria-expanded={isOpen}
+                aria-controls="image-history-content"
+                disabled={history.length === 0}
+            >
+                <div className="flex items-center space-x-2">
+                    <AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon>
+                    <span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">Image History</span>
+                    <span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span>
+                </div>
+                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDownIcon />
+                </motion.span>
+            </motion.button>
+
+            <AnimatePresence initial={false}>
+                {isOpen && history.length > 0 && (
+                    <motion.div
+                        id="image-history-content"
+                        key="content"
+                        initial="collapsed"
+                        animate="open"
+                        exit="collapsed"
+                        variants={{
+                            open: { opacity: 1, height: "auto" },
+                            collapsed: { opacity: 0, height: 0 }
+                        }}
+                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="overflow-hidden"
+                    >
+                        <div className="border-t border-[rgb(var(--color-surface-border-rgb))] p-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search history (filename, prompts, params...)"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                    aria-label="Search image history entries"
+                                />
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]">
+                                    <MagnifyingGlassIcon/>
+                                </span>
+                                {searchQuery && (
+                                    <TooltipWrapper tipContent="Clear Search">
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={handleClearSearch}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]"
+                                            aria-label="Clear search"
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.5 }}
+                                        >
+                                            <XMarkIcon className="h-4 w-4"/>
+                                        </motion.button>
+                                    </TooltipWrapper>
+                                )}
+                            </div>
+                        </div>
+                        <div className="max-h-80 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                            <AnimatePresence mode="popLayout">
+                                {filteredHistory.map((entry) => (
+                                    <ImageHistoryItem
+                                        key={entry.id}
+                                        entry={entry}
+                                        onLoad={onLoadEntry}
+                                        onDelete={onDeleteEntry}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                            {history.length > 0 && filteredHistory.length === 0 && searchQuery && (
+                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No image history entries match your search.</p>
+                            )}
+                        </div>
+
+                        {history.length > 0 && (
+                            <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
+                                <AnimatePresence>
+                                    {showClearConfirm && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 5 }}
+                                            className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"
+                                        >
+                                            <p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p>
+                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"> Yes, Clear </motion.button>
+                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"> Cancel </motion.button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <TooltipWrapper tipContent="Clear All Image History">
+                                    <motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={handleShowConfirm}
+                                        className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
+                                        aria-label="Clear Image History"
+                                    >
+                                        <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
+                                        <span>Clear History</span>
+                                    </motion.button>
+                                </TooltipWrapper>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+ImageHistoryPanel.displayName = 'ImageHistoryPanel';
+
+
 const ParameterItem = React.memo(({ label, value }: { label: string; value: string }) => (
     <div className="flex flex-col sm:flex-row sm:justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
         <span className="font-medium text-[rgb(var(--color-on-surface-muted-rgb))] mr-2 shrink-0">{label}:</span>
@@ -585,7 +837,7 @@ async function extractImageMetadata(file: File): Promise<ImageMetadata> {
                     offset += 4;
 
                     if (offset + length + 4 > view.byteLength) {
-                         parametersText = null; // Chunk length exceeds buffer
+                         parametersText = null;
                          break;
                     }
 
@@ -684,7 +936,7 @@ async function extractImageMetadata(file: File): Promise<ImageMetadata> {
                  if (negParts.length > 0 && Object.keys(parameters).length > 0) {
                      let firstParamIdx = -1;
                      for(let i=0; i<negParts.length; i++) {
-                          // Check if the start of the part matches a known parameter key
+
                           const potentialKeyMatch = negParts[i].match(/^([a-zA-Z0-9\s\-_.'"]+):\s*/);
                           if (potentialKeyMatch && parameters.hasOwnProperty(potentialKeyMatch[1].trim())) {
                             firstParamIdx = i;
@@ -694,7 +946,7 @@ async function extractImageMetadata(file: File): Promise<ImageMetadata> {
                      if (firstParamIdx > 0) {
                          finalNegativePrompt = negParts.slice(0, firstParamIdx).join(', ').trim();
                      } else if (firstParamIdx === 0) {
-                           finalNegativePrompt = ""; // Assume the entire negative prompt was actually parameters
+                           finalNegativePrompt = "";
                      }
                  }
 
@@ -749,6 +1001,7 @@ const BooruTagExtractor = () => {
         saveHistory: false,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
+    const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
     const imageCardBodyRef = useRef<HTMLDivElement>(null);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -774,6 +1027,7 @@ const BooruTagExtractor = () => {
         const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
         const savedSaveHistory = localStorage.getItem(SAVE_HISTORY_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
+        let loadedImageHistory: ImageHistoryEntry[] = [];
 
         try {
             const savedHistoryData = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -797,9 +1051,36 @@ const BooruTagExtractor = () => {
                 }
             }
         } catch (e) {
-            console.error("Failed to load or parse history:", e);
+            console.error("Failed to load or parse tag history:", e);
             localStorage.removeItem(HISTORY_STORAGE_KEY);
         }
+
+         try {
+            const savedImageHistoryData = localStorage.getItem(IMAGE_HISTORY_STORAGE_KEY);
+            if (savedImageHistoryData) {
+                const parsed = JSON.parse(savedImageHistoryData);
+                const isValidImageHistory = (item: unknown): item is StoredImageHistoryItem =>
+                    typeof item === 'object' && item !== null &&
+                    'id' in item && typeof item.id === 'string' &&
+                    'fileName' in item && typeof item.fileName === 'string' &&
+                    'timestamp' in item && typeof item.timestamp === 'number' &&
+                    (!('imageData' in item) || typeof item.imageData === 'object');
+
+                if (Array.isArray(parsed) && parsed.every(isValidImageHistory)) {
+                    loadedImageHistory = parsed.map((item) => ({
+                            ...(item as StoredImageHistoryItem),
+                            imageData: (typeof item.imageData === 'object' && item.imageData !== null) ? item.imageData : {}
+                         }))
+                        .sort((a, b) => b.timestamp - a.timestamp);
+                 } else {
+                    localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
+                }
+             }
+        } catch (e) {
+             console.error("Failed to load or parse image history:", e);
+             localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
+         }
+
 
         const initialSettings: Settings = {
             theme: savedTheme ?? 'system',
@@ -813,6 +1094,7 @@ const BooruTagExtractor = () => {
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
+        setImageHistory(loadedImageHistory);
         if (typeof window !== 'undefined') {
             setIsMobile(window.innerWidth < 768);
         }
@@ -907,11 +1189,28 @@ const BooruTagExtractor = () => {
                 localStorage.removeItem(HISTORY_STORAGE_KEY);
             }
         } catch (e) {
-            console.error("Failed to save history to localStorage:", e);
+            console.error("Failed to save tag history to localStorage:", e);
             if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
                  setError("History storage limit reached. Cannot save more entries.");
             }
         }
+    }, []);
+
+    const saveImageHistoryToLocalStorage = useCallback((historyToSave: ImageHistoryEntry[]) => {
+        try {
+             const storableHistory = historyToSave.map(entry => ({ ...entry, previewUrl: undefined }));
+             if (storableHistory.length > 0) {
+                 localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(storableHistory));
+             } else if (localStorage.getItem(IMAGE_HISTORY_STORAGE_KEY)) {
+                 localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
+             }
+         } catch (e) {
+             console.error("Failed to save image history to localStorage:", e);
+             if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
+                  setImageError("Image history storage limit reached. Cannot save more entries.");
+                  setTimeout(() => setImageError(null), 3000);
+             }
+         }
     }, []);
 
 
@@ -1367,6 +1666,22 @@ const BooruTagExtractor = () => {
             } else {
                 setImageData(metadata);
                 setImageError(null);
+                 if (settings.saveHistory && (metadata.positivePrompt || metadata.negativePrompt || metadata.parameters)) {
+                     const newImageEntry: ImageHistoryEntry = {
+                         id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                         fileName: file.name,
+                         imageData: metadata,
+                         timestamp: Date.now(),
+                         previewUrl: undefined
+                     };
+                     setImageHistory(prevHistory => {
+                         const updatedHistory = [newImageEntry, ...prevHistory.filter(h => h.fileName !== file.name || h.timestamp !== newImageEntry.timestamp)];
+                         const finalHistory = updatedHistory.slice(0, MAX_IMAGE_HISTORY_SIZE);
+                         saveImageHistoryToLocalStorage(finalHistory);
+                         return finalHistory;
+                     });
+                 }
+
             }
         } catch (err) {
             setImageError(`Failed to process image: ${(err as Error).message}`);
@@ -1376,7 +1691,7 @@ const BooruTagExtractor = () => {
             setImageLoading(false);
             imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }, [imageLoading, handleClearImage]);
+    }, [imageLoading, handleClearImage, settings.saveHistory, saveImageHistoryToLocalStorage]);
 
      useEffect(() => {
         return () => {
@@ -1414,7 +1729,7 @@ const BooruTagExtractor = () => {
         e.stopPropagation();
         if (imageLoading) return;
         const items = e.dataTransfer.items;
-        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type === 'image/png') { // Only allow PNG drop
+        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type === 'image/png') {
              e.dataTransfer.dropEffect = 'copy';
              setIsDraggingOverImage(true);
         } else {
@@ -1441,7 +1756,7 @@ const BooruTagExtractor = () => {
              setImageFile(file);
              setImageData(null);
              setImageLoading(false);
-             if(fileInputRef.current) fileInputRef.current.value = ''; // Reset input
+             if(fileInputRef.current) fileInputRef.current.value = '';
              return;
          }
         void processImageFile(file);
@@ -1471,6 +1786,30 @@ const BooruTagExtractor = () => {
             .map(([key, value]) => `${key}: ${value}`)
             .join('\n');
      }, []);
+
+     const handleLoadImageHistoryEntry = useCallback((entry: ImageHistoryEntry) => {
+         if (imageLoading) return;
+         handleClearImage();
+         setImageData(entry.imageData);
+         setImageFile({ name: entry.fileName, type: 'image/png' } as File);
+         setImageError(null);
+         setImagePreviewUrl(null);
+         setCopyStatus({});
+         imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+     }, [imageLoading, handleClearImage]);
+
+     const handleDeleteImageHistoryEntry = useCallback((id: string) => {
+         setImageHistory(prev => {
+             const updatedHistory = prev.filter(item => item.id !== id);
+             saveImageHistoryToLocalStorage(updatedHistory);
+             return updatedHistory;
+         });
+     }, [saveImageHistoryToLocalStorage]);
+
+     const handleClearImageHistory = useCallback(() => {
+         setImageHistory([]);
+         saveImageHistoryToLocalStorage([]);
+     }, [saveImageHistoryToLocalStorage]);
 
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
@@ -1679,7 +2018,7 @@ const BooruTagExtractor = () => {
                                             ? 'Using Server Proxy. Respect source site ToS.'
                                             : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
                                         }
-                                        {' '}History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
+                                        {' '}Tag History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
                                     </p>
                                 </div>
                             </motion.div>
@@ -1733,6 +2072,14 @@ const BooruTagExtractor = () => {
                                                   <AnimatePresence>
                                                     {imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}
                                                 </AnimatePresence>
+                                                 {settings.saveHistory && (
+                                                    <ImageHistoryPanel
+                                                        history={imageHistory}
+                                                        onLoadEntry={handleLoadImageHistoryEntry}
+                                                        onDeleteEntry={handleDeleteImageHistoryEntry}
+                                                        onClearHistory={handleClearImageHistory}
+                                                     />
+                                                )}
                                             </motion.div>
                                         ) : (
                                             <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
@@ -1812,12 +2159,22 @@ const BooruTagExtractor = () => {
                                                 ) : (
                                                     !imageError && <StatusMessage type="info">No generation metadata found in this image.</StatusMessage>
                                                 )}
+
+                                                {settings.saveHistory && (
+                                                    <ImageHistoryPanel
+                                                        history={imageHistory}
+                                                        onLoadEntry={handleLoadImageHistoryEntry}
+                                                        onDeleteEntry={handleDeleteImageHistoryEntry}
+                                                        onClearHistory={handleClearImageHistory}
+                                                     />
+                                                )}
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                      <p>Image metadata extraction for PNG files with embedded &#39;parameters&#39; text chunk.</p>
+                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Image History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
                                  </div>
                             </motion.div>
                         )}
