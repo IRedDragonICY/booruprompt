@@ -1,4 +1,3 @@
-// src/app/components/SettingsModal.tsx
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon } from './icons/icons';
@@ -23,6 +22,7 @@ interface Settings {
     enableImagePreviews: boolean;
     fetchMode: FetchMode;
     clientProxyUrl: string;
+    saveHistory: boolean;
 }
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
@@ -77,6 +77,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
     const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
     const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
+    const handleSaveHistoryChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ saveHistory: event.target.checked }), [onSettingsChange]);
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
@@ -245,7 +246,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </div>
                             </div>
 
-                            <div>
+                             <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Automatic Extraction</span>
@@ -282,6 +283,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                     </div>
                                 </label>
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images are always fetched via the Server Proxy.</p>
+                            </div>
+                            <div>
+                                <label className="flex cursor-pointer select-none items-center justify-between">
+                                    <TooltipWrapper tipContent="Enable or disable saving extraction history to your browser's local storage">
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Save History</span>
+                                    </TooltipWrapper>
+                                    <div className="relative">
+                                        <input type="checkbox" id="saveHistoryToggle" className="peer sr-only" checked={settings.saveHistory} onChange={handleSaveHistoryChange} />
+                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
+                                        <motion.div
+                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
+                                            layout
+                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                                            initial={false}
+                                            animate={{ x: settings.saveHistory ? 20 : 0 }}
+                                        ></motion.div>
+                                    </div>
+                                </label>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Store successful extractions locally in your browser.</p>
                             </div>
                         </div>
 

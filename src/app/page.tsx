@@ -42,6 +42,7 @@ interface Settings {
     enableImagePreviews: boolean;
     fetchMode: FetchMode;
     clientProxyUrl: string;
+    saveHistory: boolean;
 }
 interface HistoryEntry {
     id: string;
@@ -76,6 +77,7 @@ const AUTO_EXTRACT_STORAGE_KEY = 'booruExtractorAutoExtractPref';
 const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
 const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
+const SAVE_HISTORY_STORAGE_KEY = 'booruExtractorSaveHistoryPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const MAX_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
@@ -536,6 +538,7 @@ const BooruTagExtractor = () => {
         enableImagePreviews: true,
         fetchMode: DEFAULT_FETCH_MODE,
         clientProxyUrl: DEFAULT_CLIENT_PROXY_URL,
+        saveHistory: false,
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -549,6 +552,7 @@ const BooruTagExtractor = () => {
         const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
         const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
         const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
+        const savedSaveHistory = localStorage.getItem(SAVE_HISTORY_STORAGE_KEY);
         let loadedHistory: HistoryEntry[] = [];
 
         try {
@@ -585,6 +589,7 @@ const BooruTagExtractor = () => {
             enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
             fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
             clientProxyUrl: savedClientProxyUrl ?? DEFAULT_CLIENT_PROXY_URL,
+            saveHistory: savedSaveHistory ? JSON.parse(savedSaveHistory) : false,
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
@@ -628,6 +633,7 @@ const BooruTagExtractor = () => {
         localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
         localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
         localStorage.setItem(CLIENT_PROXY_URL_STORAGE_KEY, settings.clientProxyUrl);
+        localStorage.setItem(SAVE_HISTORY_STORAGE_KEY, JSON.stringify(settings.saveHistory));
         if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
         else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
 
@@ -672,17 +678,21 @@ const BooruTagExtractor = () => {
         setDisplayedTags(filteredTags.join(', '));
     }, [allExtractedTags, tagCategories]);
 
-    useEffect(() => {
+    const saveHistoryToLocalStorage = useCallback((historyToSave: HistoryEntry[]) => {
         try {
-            if (history.length > 0) localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-            else if (localStorage.getItem(HISTORY_STORAGE_KEY)) localStorage.removeItem(HISTORY_STORAGE_KEY);
+            if (historyToSave.length > 0) {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyToSave));
+            } else if (localStorage.getItem(HISTORY_STORAGE_KEY)) {
+                localStorage.removeItem(HISTORY_STORAGE_KEY);
+            }
         } catch (e) {
             console.error("Failed to save history to localStorage:", e);
             if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
                  setError("History storage limit reached. Cannot save more entries.");
             }
         }
-    }, [history]);
+    }, []);
+
 
     const tagCounts = useMemo(() => {
         return Object.entries(allExtractedTags).reduce((acc, [category, tagsArray]) => {
@@ -922,19 +932,23 @@ const BooruTagExtractor = () => {
                  const finalTotalTags = calculateTotalTags(extractionResult.tags || {});
                  if(finalTotalTags > 0) console.log(`Successfully extracted ${finalTotalTags} tags from ${extractionSiteName} via ${proxyUsed}.`);
 
-                 const newEntry: HistoryEntry = {
-                     id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                     url: trimmedUrl,
-                     tags: extractionResult.tags || {},
-                     imageUrl: extractionImageUrl,
-                     title: extractionTitle,
-                     siteName: extractionSiteName,
-                     timestamp: Date.now(),
-                 };
-                 setHistory(prevHistory => {
-                     const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
-                     return updatedHistory.slice(0, MAX_HISTORY_SIZE);
-                 });
+                if (settings.saveHistory) {
+                     const newEntry: HistoryEntry = {
+                         id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                         url: trimmedUrl,
+                         tags: extractionResult.tags || {},
+                         imageUrl: extractionImageUrl,
+                         title: extractionTitle,
+                         siteName: extractionSiteName,
+                         timestamp: Date.now(),
+                     };
+                     setHistory(prevHistory => {
+                         const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
+                         const finalHistory = updatedHistory.slice(0, MAX_HISTORY_SIZE);
+                         saveHistoryToLocalStorage(finalHistory);
+                         return finalHistory;
+                     });
+                 }
              }
 
         } catch (err) {
@@ -947,7 +961,7 @@ const BooruTagExtractor = () => {
         } finally {
              setLoading(false);
         }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, saveHistoryToLocalStorage]);
 
     const handleReset = useCallback(() => {
         setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
@@ -1018,8 +1032,19 @@ const BooruTagExtractor = () => {
         cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, [loading, handleReset]);
 
-    const handleDeleteHistoryEntry = useCallback((id: string) => setHistory(prev => prev.filter(item => item.id !== id)), []);
-    const handleClearHistory = useCallback(() => { setHistory([]); localStorage.removeItem(HISTORY_STORAGE_KEY); }, []);
+    const handleDeleteHistoryEntry = useCallback((id: string) => {
+         setHistory(prev => {
+             const updatedHistory = prev.filter(item => item.id !== id);
+             saveHistoryToLocalStorage(updatedHistory);
+             return updatedHistory;
+         });
+     }, [saveHistoryToLocalStorage]);
+
+    const handleClearHistory = useCallback(() => {
+        setHistory([]);
+        saveHistoryToLocalStorage([]);
+    }, [saveHistoryToLocalStorage]);
+
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -1221,6 +1246,7 @@ const BooruTagExtractor = () => {
                             ? 'Using Server Proxy. Respect source site ToS.'
                             : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
                         }
+                        {' '}History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
                     </p>
                 </div>
             </MotionCard>
