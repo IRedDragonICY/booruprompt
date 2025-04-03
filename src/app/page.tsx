@@ -100,6 +100,7 @@ const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
@@ -531,53 +532,196 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 HistoryPanel.displayName = 'HistoryPanel';
 
 const ParameterItem = React.memo(({ label, value }: { label: string; value: string }) => (
-    <div className="flex justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
-        <span className="font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{label}:</span>
-        <span className="text-right text-[rgb(var(--color-on-surface-rgb))]">{value}</span>
+    <div className="flex flex-col sm:flex-row sm:justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
+        <span className="font-medium text-[rgb(var(--color-on-surface-muted-rgb))] mr-2 shrink-0">{label}:</span>
+        <span className="text-left sm:text-right text-[rgb(var(--color-on-surface-rgb))] break-words">{value}</span>
     </div>
 ));
 ParameterItem.displayName = 'ParameterItem';
 
 async function extractImageMetadata(file: File): Promise<ImageMetadata> {
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  if (!file.type.startsWith('image/')) {
-       return { error: "Invalid file type. Please upload an image." };
-  }
-
-  if (file.type !== 'image/png') {
-     return { error: "Metadata extraction primarily supported for PNG files. No metadata extracted." };
-  }
-
-  if (file.size > 15 * 1024 * 1024) {
-      return { error: "File is too large (max 15MB). No metadata extracted."}
-  }
-
-   if (file.name.includes("no_metadata")) {
-       return { error: "No generation metadata found in this image." };
-   }
-   if (file.name.includes("error_file")) {
-        return { error: "Could not read the image file." };
-   }
-
-  return {
-    positivePrompt: "masterpiece, best_quality, newest, absurdres, highres, safe,genshin impact, venti (genshin impact), 1boy, black hair, bow, bowtie, braid, center frills, closed mouth, collared shirt, flower, frilled shirt, frills, gem hair ornament, golden rose, green bow, green bowtie, green eyes, head wings, holding, holding flower, long sleeves, male focus, shirt, smile, solo, twin braids, upper body, white shirt, white wings, wings, absurdres, commentary, highres, symbol-only commentary, kkopoli, dynamic_pose, portrait, official art, novel illustration, tachi-e, halftone_background, outside_border, allegro, <lora:allegro.il:0.8>",
-    negativePrompt: "nsfw, worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro",
-    parameters: {
-      Steps: "110",
-      Sampler: "Euler Dy",
-      "Schedule type": "SGM Uniform",
-      "CFG scale": "3",
-      Seed: "1674905419",
-      Size: "1440x2560",
-      "Model hash": "ea4c003b14",
-      Model: "illunoob11_v10",
-      "Lora hashes": '"allegro.il: d58b087e67d6"',
-      Version: "f1.7.5dev2exp-v1.10.1RC-latest-2424-g5a1c4687"
+    if (!file.type.startsWith('image/')) {
+        return { error: "Invalid file type. Please upload an image." };
     }
-  };
-}
 
+    if (file.type !== 'image/png') {
+        return { error: "Metadata extraction only supported for PNG files. No metadata extracted." };
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        return { error: `File is too large (max ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB). No metadata extracted.` };
+    }
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            if (!e.target?.result || !(e.target.result instanceof ArrayBuffer)) {
+                resolve({ error: "Could not read the image file." });
+                return;
+            }
+
+            const buffer = e.target.result;
+            const view = new DataView(buffer);
+
+            const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+            for (let i = 0; i < pngSignature.length; i++) {
+                if (view.getUint8(i) !== pngSignature[i]) {
+                    resolve({ error: "Invalid PNG file signature." });
+                    return;
+                }
+            }
+
+            let offset = 8;
+            let parametersText: string | null = null;
+
+            try {
+                while (offset < view.byteLength) {
+                    if (offset + 8 > view.byteLength) break;
+                    const length = view.getUint32(offset, false);
+                    offset += 4;
+                    const typeBytes = [view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3)];
+                    const type = String.fromCharCode(...typeBytes);
+                    offset += 4;
+
+                    if (offset + length + 4 > view.byteLength) {
+                         parametersText = null; // Chunk length exceeds buffer
+                         break;
+                    }
+
+                    if (type === 'tEXt') {
+                        const chunkData = new Uint8Array(buffer, offset, length);
+                        let zeroIndex = -1;
+                        for(let i=0; i < chunkData.length; i++) {
+                            if (chunkData[i] === 0) {
+                                zeroIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (zeroIndex > 0) {
+                             const keyword = new TextDecoder("iso-8859-1").decode(chunkData.slice(0, zeroIndex));
+                             if (keyword === 'parameters') {
+                                parametersText = new TextDecoder("utf-8").decode(chunkData.slice(zeroIndex + 1));
+                                break;
+                             }
+                        }
+                    } else if (type === 'IEND') {
+                         break;
+                    }
+
+                    offset += length + 4;
+                }
+            } catch (parseError) {
+                 resolve({ error: `Error parsing PNG structure: ${(parseError as Error).message}` });
+                 return;
+            }
+
+
+            if (!parametersText) {
+                resolve({ error: "No 'parameters' metadata found in this PNG image." });
+                return;
+            }
+
+            try {
+                const lines = parametersText.trim().split('\n');
+                let positivePromptLines: string[];
+                let negativePrompt = '';
+                const parameters: Record<string, string> = {};
+                let parameterString = '';
+                let negativePromptIndex = -1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].trim().startsWith('Negative prompt:')) {
+                        negativePromptIndex = i;
+                        break;
+                    }
+                }
+
+                if (negativePromptIndex !== -1) {
+                    positivePromptLines = lines.slice(0, negativePromptIndex).map(l => l.trim()).filter(l => l);
+                    negativePrompt = lines[negativePromptIndex].substring('Negative prompt:'.length).trim();
+                    parameterString = lines.slice(negativePromptIndex + 1).map(l => l.trim()).filter(l => l).join(' ');
+                } else {
+                    const lastLineIndex = lines.length - 1;
+                    const lastLine = lastLineIndex >= 0 ? lines[lastLineIndex].trim() : '';
+
+                    const potentialParameterKeywords = ["Steps:", "Sampler:", "CFG scale:", "Seed:", "Size:", "Model hash:", "Model:", "Lora hashes:", "Version:"];
+                    let looksLikeParams = false;
+                    if (lastLine.includes(':') && lastLine.includes(',')) {
+                       looksLikeParams = potentialParameterKeywords.some(keyword => lastLine.includes(keyword));
+                    }
+
+
+                    if (looksLikeParams) {
+                         parameterString = lastLine;
+                         positivePromptLines = lines.slice(0, lastLineIndex).map(l => l.trim()).filter(l => l);
+                    } else {
+                         positivePromptLines = lines.map(l => l.trim()).filter(l => l);
+                    }
+                }
+
+                const positivePrompt = positivePromptLines.join('\n').trim();
+
+                if (parameterString) {
+                    const paramPairs = parameterString.split(/,\s*(?=[a-zA-Z0-9\s\-_.'"]+:)/);
+
+                    for (const pair of paramPairs) {
+                        const separatorIndex = pair.indexOf(':');
+                        if (separatorIndex > 0) {
+                            const key = pair.substring(0, separatorIndex).trim();
+                            const value = pair.substring(separatorIndex + 1).trim();
+
+                            if (key) {
+                                parameters[key] = value;
+                            }
+                        }
+                    }
+                }
+
+                 const negParts = negativePrompt.split(', ');
+                 let finalNegativePrompt = negativePrompt;
+                 if (negParts.length > 0 && Object.keys(parameters).length > 0) {
+                     let firstParamIdx = -1;
+                     for(let i=0; i<negParts.length; i++) {
+                          // Check if the start of the part matches a known parameter key
+                          const potentialKeyMatch = negParts[i].match(/^([a-zA-Z0-9\s\-_.'"]+):\s*/);
+                          if (potentialKeyMatch && parameters.hasOwnProperty(potentialKeyMatch[1].trim())) {
+                            firstParamIdx = i;
+                            break;
+                         }
+                     }
+                     if (firstParamIdx > 0) {
+                         finalNegativePrompt = negParts.slice(0, firstParamIdx).join(', ').trim();
+                     } else if (firstParamIdx === 0) {
+                           finalNegativePrompt = ""; // Assume the entire negative prompt was actually parameters
+                     }
+                 }
+
+
+                if (!positivePrompt && !finalNegativePrompt && Object.keys(parameters).length === 0) {
+                    resolve({ error: "Could not parse any meaningful data from the 'parameters' metadata." });
+                    return;
+                }
+
+                resolve({
+                    positivePrompt: positivePrompt || undefined,
+                    negativePrompt: finalNegativePrompt || undefined,
+                    parameters: Object.keys(parameters).length > 0 ? parameters : undefined
+                });
+
+            } catch (parseError) {
+                 resolve({ error: `Error parsing parameters string: ${(parseError as Error).message}` });
+            }
+        };
+
+        reader.onerror = () => {
+            resolve({ error: "Failed to read file." });
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+}
 
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
@@ -1202,6 +1346,7 @@ const BooruTagExtractor = () => {
         }
         setCopyStatus({});
         if(fileInputRef.current) fileInputRef.current.value = '';
+        imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, [imagePreviewUrl]);
 
     const processImageFile = useCallback(async (file: File | null | undefined) => {
@@ -1249,9 +1394,18 @@ const BooruTagExtractor = () => {
 
         const file = e.dataTransfer.files?.[0];
         if (file && file.type.startsWith('image/')) {
-            void processImageFile(file);
-        } else {
-            setImageError('Please drop a valid image file.');
+             if (file.type === 'image/png') {
+                void processImageFile(file);
+            } else {
+                setImageError('Please drop a PNG file for metadata extraction.');
+                 const objectUrl = URL.createObjectURL(file);
+                 setImagePreviewUrl(objectUrl);
+                 setImageFile(file);
+                 setImageData(null);
+                 setImageLoading(false);
+            }
+        } else if (file) {
+            setImageError('Please drop a valid image file (PNG required).');
         }
     }, [processImageFile, imageLoading]);
 
@@ -1260,7 +1414,7 @@ const BooruTagExtractor = () => {
         e.stopPropagation();
         if (imageLoading) return;
         const items = e.dataTransfer.items;
-        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type.startsWith('image/')) {
+        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type === 'image/png') { // Only allow PNG drop
              e.dataTransfer.dropEffect = 'copy';
              setIsDraggingOverImage(true);
         } else {
@@ -1280,8 +1434,19 @@ const BooruTagExtractor = () => {
 
     const handleImageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+         if (file && file.type !== 'image/png') {
+             setImageError('Please select a PNG file for metadata extraction.');
+             const objectUrl = URL.createObjectURL(file);
+             setImagePreviewUrl(objectUrl);
+             setImageFile(file);
+             setImageData(null);
+             setImageLoading(false);
+             if(fileInputRef.current) fileInputRef.current.value = ''; // Reset input
+             return;
+         }
         void processImageFile(file);
     }, [processImageFile]);
+
 
     const triggerFileInput = useCallback(() => {
         fileInputRef.current?.click();
@@ -1296,6 +1461,7 @@ const BooruTagExtractor = () => {
         } catch (err) {
             console.error(`Failed to copy ${type}:`, err);
             setImageError(`Failed to copy ${type}.`);
+             setTimeout(() => setImageError(null), 3000);
         }
     }, [copyStatus]);
 
@@ -1324,14 +1490,14 @@ const BooruTagExtractor = () => {
                                 <TagIcon/>
                               </motion.button>
                          </TooltipWrapper>
-                         <TooltipWrapper tipContent="Image Tools">
+                         <TooltipWrapper tipContent="Image Metadata">
                               <motion.button
                                   whileTap={{ scale: 0.9 }}
                                   whileHover={{ scale: 1.1, backgroundColor: activeView !== 'image' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }}
                                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                                   onClick={() => setActiveView('image')}
                                   className={sidebarButtonClass('image')}
-                                  aria-label="Image Tools View"
+                                  aria-label="Image Metadata View"
                                   aria-current={activeView === 'image' ? 'page' : undefined}
                               >
                                  <PhotoIcon className="h-6 w-6"/>
@@ -1355,9 +1521,9 @@ const BooruTagExtractor = () => {
 
                  <div
                     className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
-                    onDragOver={activeView === 'extractor' ? handleDragOver : undefined}
-                    onDragLeave={activeView === 'extractor' ? handleDragLeave : undefined}
-                    onDrop={activeView === 'extractor' ? handleDrop : undefined}
+                    onDragOver={activeView === 'extractor' ? handleDragOver : activeView === 'image' ? handleImageDragOver : undefined}
+                    onDragLeave={activeView === 'extractor' ? handleDragLeave : activeView === 'image' ? handleImageDragLeave : undefined}
+                    onDrop={activeView === 'extractor' ? handleDrop : activeView === 'image' ? handleImageDrop : undefined}
                  >
                     <AnimatePresence>
                         {isDraggingOver && activeView === 'extractor' && (
@@ -1378,7 +1544,7 @@ const BooruTagExtractor = () => {
                             >
                                 <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                     <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
-                                    <p className="font-semibold">Drop Image Here</p>
+                                    <p className="font-semibold">Drop PNG Image Here</p>
                                 </div>
                             </motion.div>
                         )}
@@ -1527,9 +1693,6 @@ const BooruTagExtractor = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 30 }}
                                 transition={{ duration: 0.3, ease: "easeOut" }}
-                                onDragOver={handleImageDragOver}
-                                onDragLeave={handleImageDragLeave}
-                                onDrop={handleImageDrop}
                             >
                                 <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
                                     <div className="flex items-center justify-between">
@@ -1559,12 +1722,12 @@ const BooruTagExtractor = () => {
                                         ) : !imageFile ? (
                                             <motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
                                                 <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
-                                                     <ArrowUpOnSquareIcon/>
-                                                     <p className="mb-2 font-semibold text-[rgb(var(--color-on-surface-rgb))]">Drag & Drop Image Here</p>
-                                                     <p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click button to upload (PNG preferred)</p>
-                                                     <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png,image/jpeg,image/webp" className="sr-only" />
+                                                     <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon>
+                                                     <p className="mb-2 font-semibold text-[rgb(var(--color-on-surface-rgb))]">Drag & Drop PNG Image Here</p>
+                                                     <p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click button to upload</p>
+                                                     <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" />
                                                      <motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" >
-                                                        Select Image File
+                                                        Select PNG File
                                                      </motion.button>
                                                  </div>
                                                   <AnimatePresence>
@@ -1574,12 +1737,12 @@ const BooruTagExtractor = () => {
                                         ) : (
                                             <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                                                 <AnimatePresence>
-                                                     {imageError && <StatusMessage type={imageError.toLowerCase().includes("primarily supported") ? 'warning' : 'error'}>{imageError}</StatusMessage>}
+                                                     {imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}
                                                  </AnimatePresence>
 
                                                 {imagePreviewUrl && (
                                                     <MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]">
-                                                         <div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))]">
+                                                         <div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center">
                                                              <Image src={imagePreviewUrl} alt="Image Preview" layout="fill" objectFit="contain" unoptimized />
                                                          </div>
                                                          <div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">
@@ -1638,7 +1801,7 @@ const BooruTagExtractor = () => {
                                                                          </motion.button>
                                                                      </TooltipWrapper>
                                                                 </div>
-                                                                <div className="space-y-1">
+                                                                <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">
                                                                      {Object.entries(imageData.parameters).map(([key, value]) => (
                                                                          <ParameterItem key={key} label={key} value={value} />
                                                                      ))}
@@ -1654,7 +1817,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>Image metadata extraction is experimental. Primarily supports PNG files with embedded generation data.</p>
+                                     <p>Image metadata extraction for PNG files with embedded &#39;parameters&#39; text chunk.</p>
                                  </div>
                             </motion.div>
                         )}
