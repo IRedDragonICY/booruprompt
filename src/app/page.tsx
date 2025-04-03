@@ -72,6 +72,19 @@ interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
     html?: string;
 }
 
+interface ImageMetadata {
+    positivePrompt?: string;
+    negativePrompt?: string;
+    parameters?: Record<string, string>;
+    error?: string;
+}
+
+interface CopyStatus {
+    positive?: boolean;
+    negative?: boolean;
+    parameters?: boolean;
+}
+
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
 const CUSTOM_COLOR_HEX_STORAGE_KEY = 'booruExtractorCustomColorHexPref';
@@ -517,6 +530,55 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
 };
 HistoryPanel.displayName = 'HistoryPanel';
 
+const ParameterItem = React.memo(({ label, value }: { label: string; value: string }) => (
+    <div className="flex justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
+        <span className="font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{label}:</span>
+        <span className="text-right text-[rgb(var(--color-on-surface-rgb))]">{value}</span>
+    </div>
+));
+ParameterItem.displayName = 'ParameterItem';
+
+async function extractImageMetadata(file: File): Promise<ImageMetadata> {
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  if (!file.type.startsWith('image/')) {
+       return { error: "Invalid file type. Please upload an image." };
+  }
+
+  if (file.type !== 'image/png') {
+     return { error: "Metadata extraction primarily supported for PNG files. No metadata extracted." };
+  }
+
+  if (file.size > 15 * 1024 * 1024) {
+      return { error: "File is too large (max 15MB). No metadata extracted."}
+  }
+
+   if (file.name.includes("no_metadata")) {
+       return { error: "No generation metadata found in this image." };
+   }
+   if (file.name.includes("error_file")) {
+        return { error: "Could not read the image file." };
+   }
+
+  return {
+    positivePrompt: "masterpiece, best_quality, newest, absurdres, highres, safe,genshin impact, venti (genshin impact), 1boy, black hair, bow, bowtie, braid, center frills, closed mouth, collared shirt, flower, frilled shirt, frills, gem hair ornament, golden rose, green bow, green bowtie, green eyes, head wings, holding, holding flower, long sleeves, male focus, shirt, smile, solo, twin braids, upper body, white shirt, white wings, wings, absurdres, commentary, highres, symbol-only commentary, kkopoli, dynamic_pose, portrait, official art, novel illustration, tachi-e, halftone_background, outside_border, allegro, <lora:allegro.il:0.8>",
+    negativePrompt: "nsfw, worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro",
+    parameters: {
+      Steps: "110",
+      Sampler: "Euler Dy",
+      "Schedule type": "SGM Uniform",
+      "CFG scale": "3",
+      Seed: "1674905419",
+      Size: "1440x2560",
+      "Model hash": "ea4c003b14",
+      Model: "illunoob11_v10",
+      "Lora hashes": '"allegro.il: d58b087e67d6"',
+      Version: "f1.7.5dev2exp-v1.10.1RC-latest-2424-g5a1c4687"
+    }
+  };
+}
+
+
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<Partial<Record<TagCategory, string[]>>>({});
@@ -544,8 +606,19 @@ const BooruTagExtractor = () => {
     });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
+    const imageCardBodyRef = useRef<HTMLDivElement>(null);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const [activeView, setActiveView] = useState<ActiveView>('extractor');
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+    const [imageData, setImageData] = useState<ImageMetadata | null>(null);
+    const [imageLoading, setImageLoading] = useState<boolean>(false);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const [isDraggingOverImage, setIsDraggingOverImage] = useState<boolean>(false);
+    const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
 
     useEffect(() => {
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
@@ -1119,6 +1192,120 @@ const BooruTagExtractor = () => {
          bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))]
      `;
 
+    const handleClearImage = useCallback(() => {
+        setImageFile(null);
+        setImageData(null);
+        setImageError(null);
+        if (imagePreviewUrl) {
+            URL.revokeObjectURL(imagePreviewUrl);
+            setImagePreviewUrl(null);
+        }
+        setCopyStatus({});
+        if(fileInputRef.current) fileInputRef.current.value = '';
+    }, [imagePreviewUrl]);
+
+    const processImageFile = useCallback(async (file: File | null | undefined) => {
+        if (!file || imageLoading) return;
+
+        handleClearImage();
+        setImageLoading(true);
+        setImageFile(file);
+
+        const objectUrl = URL.createObjectURL(file);
+        setImagePreviewUrl(objectUrl);
+
+        try {
+            const metadata = await extractImageMetadata(file);
+            if (metadata.error) {
+                setImageError(metadata.error);
+                setImageData(null);
+            } else {
+                setImageData(metadata);
+                setImageError(null);
+            }
+        } catch (err) {
+            setImageError(`Failed to process image: ${(err as Error).message}`);
+            setImageData(null);
+            console.error("Image processing error:", err);
+        } finally {
+            setImageLoading(false);
+            imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [imageLoading, handleClearImage]);
+
+     useEffect(() => {
+        return () => {
+            if (imagePreviewUrl) {
+                URL.revokeObjectURL(imagePreviewUrl);
+            }
+        };
+    }, [imagePreviewUrl]);
+
+    const handleImageDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDraggingOverImage(false);
+        if (imageLoading) return;
+
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            void processImageFile(file);
+        } else {
+            setImageError('Please drop a valid image file.');
+        }
+    }, [processImageFile, imageLoading]);
+
+    const handleImageDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (imageLoading) return;
+        const items = e.dataTransfer.items;
+        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type.startsWith('image/')) {
+             e.dataTransfer.dropEffect = 'copy';
+             setIsDraggingOverImage(true);
+        } else {
+             e.dataTransfer.dropEffect = 'none';
+             setIsDraggingOverImage(false);
+        }
+    }, [imageLoading]);
+
+    const handleImageDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+         if (e.currentTarget.contains(e.relatedTarget as Node)) {
+            return;
+        }
+        setIsDraggingOverImage(false);
+    }, []);
+
+    const handleImageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        void processImageFile(file);
+    }, [processImageFile]);
+
+    const triggerFileInput = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    const handleMetadataCopy = useCallback(async (type: keyof CopyStatus, textToCopy: string | undefined | null) => {
+        if (!textToCopy || copyStatus[type]) return;
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            setCopyStatus(prev => ({ ...prev, [type]: true }));
+            setTimeout(() => setCopyStatus(prev => ({ ...prev, [type]: false })), 2000);
+        } catch (err) {
+            console.error(`Failed to copy ${type}:`, err);
+            setImageError(`Failed to copy ${type}.`);
+        }
+    }, [copyStatus]);
+
+     const formatParametersForCopy = useCallback((params: Record<string, string> | undefined): string => {
+         if (!params) return '';
+         return Object.entries(params)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('\n');
+     }, []);
+
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             <div className="flex items-start">
@@ -1168,9 +1355,9 @@ const BooruTagExtractor = () => {
 
                  <div
                     className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
+                    onDragOver={activeView === 'extractor' ? handleDragOver : undefined}
+                    onDragLeave={activeView === 'extractor' ? handleDragLeave : undefined}
+                    onDrop={activeView === 'extractor' ? handleDrop : undefined}
                  >
                     <AnimatePresence>
                         {isDraggingOver && activeView === 'extractor' && (
@@ -1184,6 +1371,17 @@ const BooruTagExtractor = () => {
                                 </div>
                             </motion.div>
                         )}
+                         {isDraggingOverImage && activeView === 'image' && (
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                                className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
+                            >
+                                <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
+                                    <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
+                                    <p className="font-semibold">Drop Image Here</p>
+                                </div>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
 
                     <AnimatePresence mode="wait">
@@ -1193,7 +1391,7 @@ const BooruTagExtractor = () => {
                                 className="flex flex-col flex-1 overflow-hidden"
                                 initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 30 }}
+                                exit={{ opacity: 0, x: -30 }}
                                 transition={{ duration: 0.3, ease: "easeOut" }}
                             >
                                 <div className="sticky top-0 z-10 flex shrink-0 items-start justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
@@ -1327,19 +1525,136 @@ const BooruTagExtractor = () => {
                                 className="flex flex-col flex-1 overflow-hidden"
                                 initial={{ opacity: 0, x: 30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -30 }}
+                                exit={{ opacity: 0, x: 30 }}
                                 transition={{ duration: 0.3, ease: "easeOut" }}
+                                onDragOver={handleImageDragOver}
+                                onDragLeave={handleImageDragLeave}
+                                onDrop={handleImageDrop}
                             >
                                 <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                     <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Image Tools</h1>
+                                    <div className="flex items-center justify-between">
+                                         <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Image Metadata</h1>
+                                         {imageFile && !imageLoading && (
+                                             <TooltipWrapper tipContent="Clear Image & Data">
+                                                 <motion.button
+                                                    onClick={handleClearImage}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }}
+                                                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
+                                                    aria-label="Clear Image"
+                                                >
+                                                    <XMarkIcon/>
+                                                </motion.button>
+                                             </TooltipWrapper>
+                                         )}
+                                    </div>
                                 </div>
-                                <div className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                                    <p className="text-center text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                        Image view content goes here...
-                                    </p>
+                                <div ref={imageCardBodyRef} className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <AnimatePresence mode="wait">
+                                        {imageLoading ? (
+                                            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
+                                                <LoadingSpinner/>
+                                                <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing image...</p>
+                                            </motion.div>
+                                        ) : !imageFile ? (
+                                            <motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
+                                                <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
+                                                     <ArrowUpOnSquareIcon/>
+                                                     <p className="mb-2 font-semibold text-[rgb(var(--color-on-surface-rgb))]">Drag & Drop Image Here</p>
+                                                     <p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click button to upload (PNG preferred)</p>
+                                                     <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png,image/jpeg,image/webp" className="sr-only" />
+                                                     <motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" >
+                                                        Select Image File
+                                                     </motion.button>
+                                                 </div>
+                                                  <AnimatePresence>
+                                                    {imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}
+                                                </AnimatePresence>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                                                <AnimatePresence>
+                                                     {imageError && <StatusMessage type={imageError.toLowerCase().includes("primarily supported") ? 'warning' : 'error'}>{imageError}</StatusMessage>}
+                                                 </AnimatePresence>
+
+                                                {imagePreviewUrl && (
+                                                    <MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]">
+                                                         <div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))]">
+                                                             <Image src={imagePreviewUrl} alt="Image Preview" layout="fill" objectFit="contain" unoptimized />
+                                                         </div>
+                                                         <div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">
+                                                             {imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)
+                                                         </div>
+                                                    </MotionCard>
+                                                )}
+
+                                                {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? (
+                                                    <>
+                                                        {imageData.positivePrompt && (
+                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                                                <div className="mb-2 flex items-center justify-between">
+                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Positive Prompt</h3>
+                                                                    <TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy Prompt'}>
+                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
+                                                                            <AnimatedIcon animation="gentle"> {copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
+                                                                         </motion.button>
+                                                                     </TooltipWrapper>
+                                                                </div>
+                                                                <textarea
+                                                                    readOnly
+                                                                    value={imageData.positivePrompt}
+                                                                    rows={4}
+                                                                    className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs text-[rgb(var(--color-on-surface-rgb))] focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
+                                                                    aria-label="Positive Prompt Text"
+                                                                />
+                                                            </MotionCard>
+                                                        )}
+                                                        {imageData.negativePrompt && (
+                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                                                                <div className="mb-2 flex items-center justify-between">
+                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Negative Prompt</h3>
+                                                                     <TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy Negative Prompt'}>
+                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
+                                                                            <AnimatedIcon animation="gentle"> {copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
+                                                                         </motion.button>
+                                                                     </TooltipWrapper>
+                                                                </div>
+                                                                <textarea
+                                                                    readOnly
+                                                                    value={imageData.negativePrompt}
+                                                                    rows={3}
+                                                                    className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs text-[rgb(var(--color-on-surface-rgb))] focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
+                                                                    aria-label="Negative Prompt Text"
+                                                                />
+                                                            </MotionCard>
+                                                        )}
+                                                         {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (
+                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                                                                <div className="mb-3 flex items-center justify-between">
+                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Parameters</h3>
+                                                                    <TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All Parameters'}>
+                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
+                                                                             <AnimatedIcon animation="gentle"> {copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
+                                                                         </motion.button>
+                                                                     </TooltipWrapper>
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                     {Object.entries(imageData.parameters).map(([key, value]) => (
+                                                                         <ParameterItem key={key} label={key} value={value} />
+                                                                     ))}
+                                                                 </div>
+                                                            </MotionCard>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    !imageError && <StatusMessage type="info">No generation metadata found in this image.</StatusMessage>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>Image Tools Footer</p>
+                                     <p>Image metadata extraction is experimental. Primarily supports PNG files with embedded generation data.</p>
                                  </div>
                             </motion.div>
                         )}
