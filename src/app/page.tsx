@@ -191,8 +191,6 @@ const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' |
 });
 StatusMessage.displayName = 'StatusMessage';
 
-
-
 interface ImagePreviewProps {
     originalUrl?: string;
     title?: string;
@@ -571,7 +569,6 @@ const BooruTagExtractor = () => {
                          }))
                         .sort((a, b) => b.timestamp - a.timestamp);
                 } else {
-                    console.warn("Invalid or legacy history data structure found in localStorage. Clearing.");
                     localStorage.removeItem(HISTORY_STORAGE_KEY);
                 }
             }
@@ -591,11 +588,14 @@ const BooruTagExtractor = () => {
         };
         setSettings(initialSettings);
         setHistory(loadedHistory);
-        setIsMobile(window.innerWidth < 768);
+        if (typeof window !== 'undefined') {
+            setIsMobile(window.innerWidth < 768);
+        }
     }, []);
 
-
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
         const root = window.document.documentElement;
         const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         root.classList.toggle('dark', isDark);
@@ -654,8 +654,8 @@ const BooruTagExtractor = () => {
 
     }, [settings]);
 
-
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', checkIfMobile);
         return () => window.removeEventListener('resize', checkIfMobile);
@@ -793,7 +793,6 @@ const BooruTagExtractor = () => {
                                     clientFetchError = `Client proxy (${selectedProxy.label}) returned JSON but missing 'contents' field.`; html = '';
                                 }
                             } catch  {
-                                console.warn(`Received non-JSON response from AllOrigins, treating as direct content.`);
                                 if (html.toLowerCase().includes("error") || html.toLowerCase().includes("cloudflare") || html.length < 100) {
                                     clientFetchError = `Client proxy (${selectedProxy.label}) returned non-JSON content (likely error/block).`;
                                 }
@@ -827,58 +826,53 @@ const BooruTagExtractor = () => {
                             head.insertBefore(base, head.firstChild);
                         } catch (e) { console.warn(`Could not set base tag via Client Proxy for ${trimmedUrl}:`, e); }
 
-                        // Helper function to detect page errors
                         const detectPageError = (document: Document) => {
                             let detected = false;
                             let errorMessage = "Check URL, site status, or try again later.";
-                            
-                            // Check document title for common error indicators
-                            if (document.title.toLowerCase().includes("error") || 
-                                document.title.toLowerCase().includes("access denied") || 
+
+                            if (document.title.toLowerCase().includes("error") ||
+                                document.title.toLowerCase().includes("access denied") ||
                                 document.title.toLowerCase().includes("cloudflare")) {
                                 detected = true;
                                 errorMessage = `Site returned error/denial/block in title: ${document.title.substring(0, 100)}`;
                             }
-                            
-                            // Check for error elements in the page
+
                             const errorElement = document.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"], #challenge-running');
                             if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
                                 detected = true;
                                 const pageErrorText = errorElement.textContent.trim();
-                                if (pageErrorText.toLowerCase().includes("rate limit")) 
+                                if (pageErrorText.toLowerCase().includes("rate limit"))
                                     errorMessage = "Rate limit likely exceeded on target site.";
-                                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) 
+                                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate"))
                                     errorMessage = "Content may require login.";
-                                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) 
+                                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist"))
                                     errorMessage = "Post not found (404).";
-                                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) 
+                                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser"))
                                     errorMessage = "Blocked by Cloudflare or similar security check.";
-                                else 
+                                else
                                     errorMessage = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
                             }
-                            
-                            // Check body text for additional error indicators
+
                             if (!detected && document.body) {
                                 const bodyText = document.body.textContent?.toLowerCase() || '';
                                 if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) {
-                                    detected = true; 
+                                    detected = true;
                                     errorMessage = `Content may require login.`;
                                 } else if (bodyText.includes('access denied')) {
-                                    detected = true; 
+                                    detected = true;
                                     errorMessage = `Access denied by target site.`;
                                 } else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) {
-                                    detected = true; 
+                                    detected = true;
                                     errorMessage = `Blocked by Cloudflare or similar security check.`;
                                 } else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) {
-                                    detected = true; 
+                                    detected = true;
                                     errorMessage = `Target site requires JS/Cookies, may be incompatible with proxy.`;
                                 }
                             }
-                            
+
                             return { detected, errorMessage };
                         };
 
-                        // Use the helper function to check for page errors
                         const { detected: pageErrorDetected, errorMessage: specificError } = detectPageError(doc);
 
                         if (pageErrorDetected) {
@@ -1058,7 +1052,6 @@ const BooruTagExtractor = () => {
             }
         } else {
             setError("Dropped item is not a valid URL.");
-            console.warn("Dropped item is not a valid URL:", droppedUrl);
         }
     }, [handleReset, settings.autoExtract, extractTags]);
 
@@ -1209,13 +1202,15 @@ const BooruTagExtractor = () => {
                         )}
                     </AnimatePresence>
 
-                    <HistoryPanel
-                        history={history}
-                        onLoadEntry={handleLoadHistoryEntry}
-                        onDeleteEntry={handleDeleteHistoryEntry}
-                        onClearHistory={handleClearHistory}
-                        enableImagePreviews={settings.enableImagePreviews}
-                    />
+                    {history.length > 0 && (
+                         <HistoryPanel
+                             history={history}
+                             onLoadEntry={handleLoadHistoryEntry}
+                             onDeleteEntry={handleDeleteHistoryEntry}
+                             onClearHistory={handleClearHistory}
+                             enableImagePreviews={settings.enableImagePreviews}
+                         />
+                     )}
 
                 </div>
 
