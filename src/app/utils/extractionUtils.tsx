@@ -3,322 +3,108 @@ export type TagCategoryOption = { id: TagCategory; label: string; enabled: boole
 export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
 
-const groupTags = (tags: ExtractedTag[]): Partial<Record<TagCategory, string[]>> =>
-    tags.reduce((acc, tag) => {
-        (acc[tag.category] ??= []).push(tag.name);
-        return acc;
-    }, {} as Partial<Record<TagCategory, string[]>>);
+const grp = (t: ExtractedTag[]): Partial<Record<TagCategory, string[]>> =>
+    t.reduce((a, i) => { (a[i.category] ??= []).push(i.name); return a; }, {} as Partial<Record<TagCategory, string[]>>);
 
-const CLASS_CATEGORY_MAP: Readonly<Record<string, TagCategory>> = {
+const C_MAP: Readonly<Record<string, TagCategory>> = {
     'tag-type-copyright': 'copyright', 'tag-type-3': 'copyright', 'copyright': 'copyright',
     'tag-type-character': 'character', 'tag-type-4': 'character', 'character': 'character',
     'tag-type-artist': 'other', 'tag-type-1': 'other', 'artist': 'other',
     'tag-type-metadata': 'meta', 'tag-type-5': 'meta', 'tag-type-meta': 'meta', 'tag-type-style': 'meta', 'style': 'meta',
     'tag-type-general': 'general', 'tag-type-0': 'general', 'reference': 'general', 'object': 'general', 'general': 'general'
 };
+const D_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright', 'character': 'character', 'artist': 'other', 'style': 'meta', 'general': 'general', 'meta': 'meta', 'species': 'general' };
+const H_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright', 'source:': 'copyright', 'character': 'character', 'characters:': 'character', 'general': 'general', 'tags:': 'general', 'meta': 'meta', 'metadata': 'meta', 'artist': 'other', 'artists': 'other' };
+const K_NAMES = new Set<string>(['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists', 'tag list', '?', 'tagme (character)']);
 
-const DATA_ATTR_CATEGORY_MAP: Readonly<Record<string, TagCategory>> = {
-    'copyright': 'copyright',
-    'character': 'character',
-    'artist': 'other',
-    'style': 'meta',
-    'general': 'general',
-    'meta': 'meta',
-    'species': 'general',
-};
-
-const HEADER_TEXT_CATEGORY_MAP: Readonly<Record<string, TagCategory>> = {
-    'copyright': 'copyright', 'source:': 'copyright',
-    'character': 'character', 'characters:': 'character',
-    'general': 'general', 'tags:': 'general',
-    'meta': 'meta', 'metadata': 'meta',
-    'artist': 'other', 'artists': 'other'
-};
-
-const KNOWN_CATEGORY_NAMES = new Set<string>([
-    'copyrights', 'characters', 'general', 'meta', 'metadata', 'artists', 'tag list', '?', 'tagme (character)'
-]);
-
-const utils = {
-    getCategoryFromClassList: (element: Element | null): TagCategory => {
-        if (!element) return 'general';
-        for (const className of element.classList) {
-            const category = CLASS_CATEGORY_MAP[className];
-            if (category) return category;
-        }
-        const parentCategoryElement = element.closest('[class*="tag-type-"], [class*=" copyright"], [class*=" character"], [class*=" artist"], [class*=" meta"]');
-        if (parentCategoryElement && parentCategoryElement !== element) {
-            return utils.getCategoryFromClassList(parentCategoryElement);
-        }
-        return 'general';
+const u = {
+    cls: (e: Element | null): TagCategory => {
+        if (!e) return 'general';
+        for (const cn of e.classList) { const c = C_MAP[cn]; if (c) return c; }
+        const p = e.closest('[class*="tag-type-"], [class*=" copyright"], [class*=" character"], [class*=" artist"], [class*=" meta"]');
+        return (p && p !== e) ? u.cls(p) : 'general';
     },
-    getCategoryFromMap: (map: Readonly<Record<string, TagCategory>>, key: string | undefined | null, defaultCategory: TagCategory = 'other'): TagCategory => {
-        return key ? map[key.toLowerCase()] ?? defaultCategory : defaultCategory;
-    },
-    getCategoryFromHeaderText: (text: string | null | undefined): TagCategory => {
-        const normalized = text?.toLowerCase().trim() ?? '';
-        for (const key in HEADER_TEXT_CATEGORY_MAP) {
-            if (normalized.includes(key)) return HEADER_TEXT_CATEGORY_MAP[key];
-        }
-        return 'other';
-    },
-    cleanTagName: (tagName: string): string => {
-        return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/ \d+$/, '').replace(/^[?\s]+/, '').trim();
-    },
-    extractTags: (doc: Document, config: {
-        containerSelector: string,
-        tagSelector: string,
-        categoryStrategy: (element: Element) => TagCategory,
-        nameSelector?: string
-    }): ExtractedTag[] => {
-        const tags = new Map<string, ExtractedTag>();
-        doc.querySelectorAll(config.containerSelector).forEach(element => {
-            const tagElement = config.nameSelector ? element.querySelector(config.nameSelector) : element.querySelector(config.tagSelector);
-            const tagName = tagElement?.textContent?.trim();
-            if (tagName) {
-                const cleanName = utils.cleanTagName(tagName);
-                const category = config.categoryStrategy(element);
-                if (cleanName && !KNOWN_CATEGORY_NAMES.has(cleanName.toLowerCase()) && cleanName.toLowerCase() !== category) {
-                    tags.set(`${category}-${cleanName}`, { name: cleanName, category });
-                }
-            }
+    map: (m: Readonly<Record<string, TagCategory>>, k: string | null | undefined, d: TagCategory = 'other'): TagCategory => k ? m[k.toLowerCase()] ?? d : d,
+    hdr: (t: string | null | undefined): TagCategory => { const n = t?.toLowerCase().trim() ?? ''; const k = Object.keys(H_MAP).find(key => n.includes(key)); return k ? H_MAP[k] : 'other'; },
+    cln: (n: string): string => n.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/ \d+$/, '').replace(/^[?\s]+/, '').trim(),
+    tags: (d: Document, c: { s: string, ts: string, cat: (e: Element) => TagCategory, ns?: string }): ExtractedTag[] => {
+        const tgs = new Map<string, ExtractedTag>();
+        d.querySelectorAll(c.s).forEach(e => {
+            const nEl = c.ns ? e.querySelector(c.ns) : e.querySelector(c.ts);
+            const name = nEl?.textContent?.trim();
+            if (!name) return;
+            const cl = u.cln(name); const cat = c.cat(e); const low = cl.toLowerCase();
+            if (cl && !K_NAMES.has(low) && low !== cat) tgs.set(`${cat}-${cl}`, { name: cl, category: cat });
         });
-        return Array.from(tags.values());
+        return Array.from(tgs.values());
     },
-    extractTagsBySection: (doc: Document, sectionSelector: string, tagLinkSelector: string): ExtractedTag[] => {
-        const tags = new Map<string, ExtractedTag>();
-        let currentCategory: TagCategory = 'other';
-        const container = doc.querySelector(sectionSelector);
-        if (!container) return [];
-
-        Array.from(container.children).forEach(child => {
-             if (child.matches('h5, h3, h6, .tag-type-header, .tag-sidebar-header') || (child.matches('li') && child.querySelector('h6, h5, h3'))) {
-                 const headerElement = child.matches('h5, h3, h6, .tag-type-header, .tag-sidebar-header') ? child : child.querySelector('h6, h5, h3');
-                 const headerText = headerElement?.textContent;
-                 if (headerText) {
-                    currentCategory = utils.getCategoryFromHeaderText(headerText);
-                 }
-            }
-            else if (child.matches('ul, li.tag, div[id*="_list"] > ul')) {
-                const listParent = child.matches('ul') ? child : (child.matches('div[id*="_list"]') ? child.querySelector('ul') : null);
-                const listItems = listParent ? Array.from(listParent.children) : (child.matches('li.tag') ? [child] : []);
-
-                listItems.forEach(tagLi => {
-                    if (tagLi.matches('li')) {
-                        let itemCategory = utils.getCategoryFromClassList(tagLi);
-                         if (itemCategory === 'general' && currentCategory !== 'general') {
-                             itemCategory = currentCategory;
-                        }
-
-                        const tagElement = tagLi.querySelector(tagLinkSelector);
-                        const tagName = tagElement?.textContent?.trim();
-                        if (tagName) {
-                            const cleanName = utils.cleanTagName(tagName);
-                            if (cleanName && !KNOWN_CATEGORY_NAMES.has(cleanName.toLowerCase())) {
-                                tags.set(`${itemCategory}-${cleanName}`, { name: cleanName, category: itemCategory });
-                            }
-                        }
-                    }
+    sect: (d: Document, ss: string, ls: string): ExtractedTag[] => {
+        const tgs = new Map<string, ExtractedTag>(); let cur: TagCategory = 'other';
+        const cont = d.querySelector(ss); if (!cont) return [];
+        Array.from(cont.children).forEach(ch => {
+            const h = ch.matches('h5, h3, h6, .tag-type-header, .tag-sidebar-header') ? ch : (ch.matches('li') ? ch.querySelector('h6, h5, h3') : null);
+            if (h) cur = u.hdr(h.textContent);
+            else if (ch.matches('ul, li.tag, div[id*="_list"] > ul')) {
+                const p = ch.matches('ul') ? ch : (ch.matches('div[id*="_list"]') ? ch.querySelector('ul') : null);
+                const itms = p ? Array.from(p.children) : (ch.matches('li.tag') ? [ch] : []);
+                itms.forEach(li => {
+                    if (!li.matches('li')) return; let iCat = u.cls(li);
+                    if (iCat === 'general' && cur !== 'general') iCat = cur;
+                    const name = li.querySelector(ls)?.textContent?.trim(); if (!name) return;
+                    const cl = u.cln(name);
+                    if (cl && !K_NAMES.has(cl.toLowerCase())) tgs.set(`${iCat}-${cl}`, { name: cl, category: iCat });
                 });
             }
         });
-        return Array.from(tags.values());
+        return Array.from(tgs.values());
     },
-    extractImageUrl: (doc: Document, selector: string, attribute: string = 'src'): string | undefined => {
-        const element = doc.querySelector(selector);
-        if (!element) return undefined;
-        let src = element.getAttribute(attribute) ?? element.getAttribute('src');
-        if (element.tagName === 'VIDEO' && !src) {
-            src = element.querySelector('source')?.src ?? null;
-        }
-        if (!src) return undefined;
-
-        if (src.startsWith('//')) src = `https:${src}`;
-        try {
-            return new URL(src, doc.baseURI).href;
-        } catch (e) {
-            console.error(`Invalid URL: ${src} against base: ${doc.baseURI}`, e);
-            return src.startsWith('http') ? src : undefined;
-        }
+    img: (d: Document, s: string, a: string = 'src'): string | undefined => {
+        const e = d.querySelector(s); if (!e) return;
+        let url = e.getAttribute(a) ?? e.getAttribute('src');
+        if (e.tagName === 'VIDEO' && !url) url = e.querySelector('source')?.src ?? null;
+        if (!url) return; if (url.startsWith('//')) url = `https:${url}`;
+        try { return new URL(url, d.baseURI).href; } catch { return url.startsWith('http') ? url : undefined; }
     },
-    extractTitle: (doc: Document, customSelector?: string): string | undefined => {
-        let title: string | null | undefined;
-        const selectors = [
-            customSelector,
-            'meta[property="og:title"]',
-            'h1',
-            'img[alt]',
-            'title'
-        ].filter(Boolean) as string[];
-
-        for (const sel of selectors) {
-            const element = doc.querySelector(sel);
-            if (sel.startsWith('attr:')) {
-                 const attrName = sel.substring(5);
-                 title = doc.querySelector(`[${attrName}]`)?.getAttribute(attrName);
-            } else if (element) {
-                 title = (element as HTMLImageElement).alt ?? element.textContent;
-            }
-            if (title) break;
+    tit: (d: Document, cs?: string): string | undefined => {
+        let t: string | null | undefined;
+        const sels = [cs, 'meta[property="og:title"]', 'h1', 'img[alt]', 'title'].filter(Boolean) as string[];
+        for (const s of sels) {
+            if (s.startsWith('attr:')) t = d.querySelector(`[${s.substring(5)}]`)?.getAttribute(s.substring(5));
+            else { const e = d.querySelector(s); t = (e as HTMLImageElement)?.alt ?? e?.textContent; }
+            if (t) break;
         }
-        title = title ?? doc.title;
-        if (!title) return undefined;
-
-        const sitePatterns = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)\s*[-|»]?\s*/i;
-        const siteSuffixPatterns = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)$/i;
-        const cleanupPatterns: [RegExp, string][] = [
-            [sitePatterns, ''],
-            [siteSuffixPatterns, ''],
-            [/\s*[-|»]?\s*(?:Post|Image)\s+#\d+$/i, ''],
-            [/ \| Anime-Pictures\.net$/i, ''],
-            [/ on e621$/i, ''],
-            [/\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i, ''],
-            [/^Post #\d+\s*[-|»]?\s*/i, ''],
-            [/^Image #\d+\s*[-|»]?\s*/i, ''],
-            [/\s+/g, ' ']
+        t = t?.trim() ?? d.title?.trim(); if (!t) return;
+        const rgx: [RegExp, string][] = [
+            [/^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)\s*[-|»]?\s*/i, ''],
+            [/\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)$/i, ''],
+            [/\s*[-|»]?\s*(?:Post|Image)\s+#\d+$/i, ''], [/ \| Anime-Pictures\.net$/i, ''], [/ on e621$/i, ''],
+            [/\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i, ''], [/^Post #\d+\s*[-|»]?\s*/i, ''], [/^Image #\d+\s*[-|»]?\s*/i, ''], [/\s+/g, ' ']
         ];
-
-        let cleanedTitle = cleanupPatterns.reduce((t, [regex, replacement]) => t.replace(regex, replacement), title).trim();
-
-        if (/^(image|post)$/i.test(cleanedTitle) || /^\d+$/.test(cleanedTitle)) {
-            cleanedTitle = '';
+        let cl = rgx.reduce((str, [re, rp]) => str.replace(re, rp), t).trim();
+        if (/^(image|post)$/i.test(cl) || /^\d+$/.test(cl)) cl = '';
+        const zTit = d.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
+        if (zTit && (!cl || cl.toLowerCase().includes('zerochan'))) {
+            const p = zTit.split(' (')[0].trim(); if (p && p.length > cl.length) cl = p;
         }
-
-        const zerochanImgTitle = doc.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
-        if (zerochanImgTitle && (cleanedTitle === '' || cleanedTitle.toLowerCase().includes('zerochan'))) {
-            const potentialTitle = zerochanImgTitle.split(' (')[0].trim();
-             if (potentialTitle && potentialTitle.length > cleanedTitle.length) {
-                 cleanedTitle = potentialTitle;
-             }
-        }
-
-        const tagListHeuristicPattern = /^(?:[\w:]+\s+){5,}/;
-        if (tagListHeuristicPattern.test(cleanedTitle) && cleanedTitle.split(' ').length > 10) {
-           return undefined;
-        }
-
-        return cleanedTitle.length >= 3 ? cleanedTitle : undefined;
+        if (/^(?:[\w:]+\s+){5,}/.test(cl) && cl.split(' ').length > 10) return;
+        return cl.length >= 3 ? cl : undefined;
     }
 };
 
 export const extractionStrategies = {
-    danbooru: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, { containerSelector: '#tag-list li[class*="tag-type-"], div.categorized-tag-list li[class*="tag-type-"]', tagSelector: 'a.search-tag', categoryStrategy: utils.getCategoryFromClassList })),
-        imageUrl: utils.extractImageUrl(doc, '#image'),
-        title: utils.extractTitle(doc)
-    }),
-    safebooru: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]:last-of-type')),
-        imageUrl: utils.extractImageUrl(doc, '#image'),
-        title: utils.extractTitle(doc)
-    }),
-    gelbooru: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, { containerSelector: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', tagSelector: 'a[href*="page=post"]', categoryStrategy: utils.getCategoryFromClassList })),
-        imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source'),
-        title: utils.extractTitle(doc)
-    }),
-    rule34: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]')),
-        imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source, video#videoelement source'),
-        title: utils.extractTitle(doc)
-    }),
-    e621: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, {
-            containerSelector: 'section#tag-list > ul > li.tag-list-item',
-            tagSelector: 'a.tag-list-search > span:not(.tag-list-count)',
-            categoryStrategy: (el) => utils.getCategoryFromMap(DATA_ATTR_CATEGORY_MAP, el.getAttribute('data-category'), 'other')
-        })),
-        imageUrl: utils.extractImageUrl(doc, '#image, #image-container img, #image-container video source'),
-        title: utils.extractTitle(doc, 'attr:data-title') ?? utils.extractTitle(doc, '#image-container h5') ?? utils.extractTitle(doc)
-    }),
-    aibooru: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, { containerSelector: 'div.categorized-tag-list li[class*="tag-type-"]', tagSelector: 'a.search-tag', categoryStrategy: utils.getCategoryFromClassList })),
-        imageUrl: utils.extractImageUrl(doc, '#image'),
-        title: utils.extractTitle(doc)
-    }),
-    yandere: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, { containerSelector: '#tag-sidebar li[class*="tag-type-"]', tagSelector: 'a[href*="/post?tags="]', categoryStrategy: utils.getCategoryFromClassList })),
-        imageUrl: utils.extractImageUrl(doc, '#image, img.fit-width'),
-        title: utils.extractTitle(doc)
-    }),
-    konachan: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, {
-            containerSelector: 'ul#tag-sidebar li.tag-link',
-            tagSelector: 'a:nth-of-type(2)',
-            categoryStrategy: (el) => utils.getCategoryFromMap(DATA_ATTR_CATEGORY_MAP, el.getAttribute('data-type'), 'other')
-        })),
-        imageUrl: utils.extractImageUrl(doc, '#image'),
-        title: utils.extractTitle(doc)
-    }),
-    animePictures: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, {
-             containerSelector: 'ul.tags li a.svelte-1a4tkgo',
-             tagSelector: 'self',
-             nameSelector: 'self',
-             categoryStrategy: utils.getCategoryFromClassList
-        })),
-        imageUrl: utils.extractImageUrl(doc, 'img#big_preview'),
-        title: utils.extractTitle(doc, 'img#big_preview') ?? utils.extractTitle(doc)
-    }),
-    zerochan: (doc: Document): ExtractionResult => {
-        const tagsArray: ExtractedTag[] = [];
-        doc.querySelector('#large > p')?.textContent?.trim().split(',').forEach(name => {
-            const cleanName = name.trim();
-            if (cleanName) tagsArray.push({ name: cleanName, category: 'general' });
-        });
-        return {
-            tags: groupTags(tagsArray),
-            imageUrl: utils.extractImageUrl(doc, '#large > a.preview', 'href') ?? utils.extractImageUrl(doc, '#large > a.preview > img.jpg'),
-            title: utils.extractTitle(doc)
-        };
-    },
-    eShuushuu: (doc: Document): ExtractionResult => {
-        const tagsArray: ExtractedTag[] = [];
-        doc.querySelectorAll('div.meta dl dt').forEach(dt => {
-            const category = utils.getCategoryFromMap(HEADER_TEXT_CATEGORY_MAP, dt.textContent, 'general');
-            const dd = dt.nextElementSibling;
-            if (dd?.matches('dd.quicktag')) {
-                dd.querySelectorAll<HTMLAnchorElement>('span.tag a').forEach(link => {
-                    const tagName = link.textContent?.trim();
-                    if (tagName) {
-                        const cleanName = utils.cleanTagName(tagName);
-                        if (cleanName) tagsArray.push({ name: cleanName, category });
-                    }
-                });
-            }
-        });
-        return {
-            tags: groupTags(tagsArray),
-            imageUrl: utils.extractImageUrl(doc, 'a.thumb_image', 'href'),
-            title: utils.extractTitle(doc, 'div.title h2 a') ?? utils.extractTitle(doc)
-        }
-    },
-    tbib: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]')),
-        imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source'),
-        title: utils.extractTitle(doc)
-    }),
-    scatbooru: (doc: Document): ExtractionResult => {
-        const artistTags = utils.extractTags(doc, {
-            containerSelector: '#artist_list li',
-            tagSelector: 'a[href*="?page=post&s=list&tags="]',
-            categoryStrategy: () => 'copyright'
-        });
-        const generalTags = utils.extractTags(doc, {
-            containerSelector: '#tag_list li',
-            tagSelector: 'a[href*="?page=post&s=list&tags="]',
-            categoryStrategy: () => 'general'
-        });
-
-        const allTags = [...artistTags, ...generalTags];
-        const uniqueTags = Array.from(new Map(allTags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
-
-        return {
-            tags: groupTags(uniqueTags),
-            imageUrl: utils.extractImageUrl(doc, '#image'),
-            title: utils.extractTitle(doc)
-        };
-    }
+    danbooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '#tag-list li[class*="tag-type-"], div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    safebooru: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]:last-of-type')), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    gelbooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="page=post"]', cat: u.cls })), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
+    rule34: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source, video#videoelement source'), title: u.tit(d) }),
+    e621: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'section#tag-list > ul > li.tag-list-item', ts: 'a.tag-list-search > span:not(.tag-list-count)', cat: e => u.map(D_MAP, e.getAttribute('data-category'), 'other') })), imageUrl: u.img(d, '#image, #image-container img, #image-container video source'), title: u.tit(d, 'attr:data-title') ?? u.tit(d, '#image-container h5') ?? u.tit(d) }),
+    aibooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    yandere: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '#tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="/post?tags="]', cat: u.cls })), imageUrl: u.img(d, '#image, img.fit-width'), title: u.tit(d) }),
+    konachan: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul#tag-sidebar li.tag-link', ts: 'a:nth-of-type(2)', cat: e => u.map(D_MAP, e.getAttribute('data-type'), 'other') })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    animePictures: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul.tags li a.svelte-1a4tkgo', ts: 'self', ns: 'self', cat: u.cls })), imageUrl: u.img(d, 'img#big_preview'), title: u.tit(d, 'img#big_preview') ?? u.tit(d) }),
+    zerochan: (d: Document): ExtractionResult => ({ tags: grp((d.querySelector('#large > p')?.textContent?.trim().split(',') ?? []).map(u.cln).filter(Boolean).map(name => ({ name, category: 'general' }))), imageUrl: u.img(d, '#large > a.preview', 'href') ?? u.img(d, '#large > a.preview > img.jpg'), title: u.tit(d) }),
+    eShuushuu: (d: Document): ExtractionResult => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
+    tbib: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
+    scatbooru: (d: Document): ExtractionResult => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; }
 };
 
 export const BOORU_SITES = [
