@@ -63,7 +63,7 @@ const utils = {
         return 'other';
     },
     cleanTagName: (tagName: string): string => {
-        return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/^[?\s]+/, '').trim();
+        return tagName.replace(/ \(\d+\.?\d*[kM]?\)$/, '').replace(/ \d+$/, '').replace(/^[?\s]+/, '').trim();
     },
     extractTags: (doc: Document, config: {
         containerSelector: string,
@@ -92,16 +92,23 @@ const utils = {
         if (!container) return [];
 
         Array.from(container.children).forEach(child => {
-            const headerText = child.textContent;
-            if ((child.matches('h3, h6, .tag-type-header, .tag-sidebar-header') || (child.matches('li') && child.querySelector('h6'))) && headerText) {
-                 currentCategory = utils.getCategoryFromHeaderText(headerText);
+             if (child.matches('h5, h3, h6, .tag-type-header, .tag-sidebar-header') || (child.matches('li') && child.querySelector('h6, h5, h3'))) {
+                 const headerElement = child.matches('h5, h3, h6, .tag-type-header, .tag-sidebar-header') ? child : child.querySelector('h6, h5, h3');
+                 const headerText = headerElement?.textContent;
+                 if (headerText) {
+                    currentCategory = utils.getCategoryFromHeaderText(headerText);
+                 }
             }
-            else if (child.matches('ul, li.tag')) {
-                const listItems = child.matches('ul') ? Array.from(child.children) : [child];
+            else if (child.matches('ul, li.tag, div[id*="_list"] > ul')) {
+                const listParent = child.matches('ul') ? child : (child.matches('div[id*="_list"]') ? child.querySelector('ul') : null);
+                const listItems = listParent ? Array.from(listParent.children) : (child.matches('li.tag') ? [child] : []);
+
                 listItems.forEach(tagLi => {
                     if (tagLi.matches('li')) {
                         let itemCategory = utils.getCategoryFromClassList(tagLi);
-                        if (itemCategory === 'general' && currentCategory !== 'general') itemCategory = currentCategory;
+                         if (itemCategory === 'general' && currentCategory !== 'general') {
+                             itemCategory = currentCategory;
+                        }
 
                         const tagElement = tagLi.querySelector(tagLinkSelector);
                         const tagName = tagElement?.textContent?.trim();
@@ -157,8 +164,8 @@ const utils = {
         title = title ?? doc.title;
         if (!title) return undefined;
 
-        const sitePatterns = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB)\s*[-|»]?\s*/i;
-        const siteSuffixPatterns = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB)$/i;
+        const sitePatterns = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)\s*[-|»]?\s*/i;
+        const siteSuffixPatterns = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)$/i;
         const cleanupPatterns: [RegExp, string][] = [
             [sitePatterns, ''],
             [siteSuffixPatterns, ''],
@@ -196,7 +203,7 @@ const utils = {
 
 export const extractionStrategies = {
     danbooru: (doc: Document): ExtractionResult => ({
-        tags: groupTags(utils.extractTags(doc, { containerSelector: '#tag-list li[class*="tag-type-"]', tagSelector: 'a.search-tag', categoryStrategy: utils.getCategoryFromClassList })),
+        tags: groupTags(utils.extractTags(doc, { containerSelector: '#tag-list li[class*="tag-type-"], div.categorized-tag-list li[class*="tag-type-"]', tagSelector: 'a.search-tag', categoryStrategy: utils.getCategoryFromClassList })),
         imageUrl: utils.extractImageUrl(doc, '#image'),
         title: utils.extractTitle(doc)
     }),
@@ -290,16 +297,39 @@ export const extractionStrategies = {
         tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]')),
         imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source'),
         title: utils.extractTitle(doc)
-    })
+    }),
+    scatbooru: (doc: Document): ExtractionResult => {
+        const artistTags = utils.extractTags(doc, {
+            containerSelector: '#artist_list li',
+            tagSelector: 'a[href*="?page=post&s=list&tags="]',
+            categoryStrategy: () => 'copyright'
+        });
+        const generalTags = utils.extractTags(doc, {
+            containerSelector: '#tag_list li',
+            tagSelector: 'a[href*="?page=post&s=list&tags="]',
+            categoryStrategy: () => 'general'
+        });
+
+        const allTags = [...artistTags, ...generalTags];
+        const uniqueTags = Array.from(new Map(allTags.map(tag => [`${tag.category}-${tag.name}`, tag])).values());
+
+        return {
+            tags: groupTags(uniqueTags),
+            imageUrl: utils.extractImageUrl(doc, '#image'),
+            title: utils.extractTitle(doc)
+        };
+    }
 };
 
 export const BOORU_SITES = [
     { name: 'Danbooru', urlPattern: /danbooru\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
     { name: 'Safebooru (Donmai)', urlPattern: /safebooru\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
+    { name: 'Hijiribe', urlPattern: /hijiribe\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
     { name: 'Safebooru (Org)', urlPattern: /safebooru\.org\/(index\.php\?page=post&s=view&id=\d+|post\/view\/\d+)/i, extractTags: extractionStrategies.safebooru },
     { name: 'Gelbooru', urlPattern: /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.gelbooru },
     { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
     { name: 'TBIB', urlPattern: /tbib\.org\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.tbib },
+    { name: 'Scatbooru', urlPattern: /scatbooru\.co\.uk\/\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.scatbooru },
     { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
     { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru },
     { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere },
