@@ -157,8 +157,8 @@ const utils = {
         title = title ?? doc.title;
         if (!title) return undefined;
 
-        const sitePatterns = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621)\s*[-|»]?\s*/i;
-        const siteSuffixPatterns = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621)$/i;
+        const sitePatterns = /^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB)\s*[-|»]?\s*/i;
+        const siteSuffixPatterns = /\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB)$/i;
         const cleanupPatterns: [RegExp, string][] = [
             [sitePatterns, ''],
             [siteSuffixPatterns, ''],
@@ -285,7 +285,12 @@ export const extractionStrategies = {
             imageUrl: utils.extractImageUrl(doc, 'a.thumb_image', 'href'),
             title: utils.extractTitle(doc, 'div.title h2 a') ?? utils.extractTitle(doc)
         }
-    }
+    },
+    tbib: (doc: Document): ExtractionResult => ({
+        tags: groupTags(utils.extractTagsBySection(doc, '#tag-sidebar', 'a[href*="page=post"]')),
+        imageUrl: utils.extractImageUrl(doc, '#image, #gelcomVideoPlayer source'),
+        title: utils.extractTitle(doc)
+    })
 };
 
 export const BOORU_SITES = [
@@ -294,6 +299,7 @@ export const BOORU_SITES = [
     { name: 'Safebooru (Org)', urlPattern: /safebooru\.org\/(index\.php\?page=post&s=view&id=\d+|post\/view\/\d+)/i, extractTags: extractionStrategies.safebooru },
     { name: 'Gelbooru', urlPattern: /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.gelbooru },
     { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
+    { name: 'TBIB', urlPattern: /tbib\.org\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.tbib },
     { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
     { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru },
     { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere },
