@@ -9,19 +9,7 @@ import { AnimatedIcon } from './components/AnimatedIcon';
 import { SettingsModal } from './components/SettingsModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import {
-  CogIcon,
-  ClipboardIcon,
-  CheckCircleIcon,
-  ArrowPathIcon,
-  XMarkIcon,
-  ChevronDownIcon,
-  HistoryIcon,
-  TrashIcon,
-  ArrowUpOnSquareIcon,
-  PhotoIcon,
-  MagnifyingGlassIcon,
-  ArrowDownTrayIcon,
-  TagIcon,
+  CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, ChevronDownIcon, HistoryIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, TagIcon
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
 
@@ -30,82 +18,27 @@ type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'cu
 type FetchMode = 'server' | 'clientProxy';
 type ActiveView = 'extractor' | 'image';
 
-interface ClientProxyOption {
-    id: string;
-    label: string;
-    value: string;
+interface ClientProxyOption { id: string; label: string; value: string; }
+interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; }
+interface ImageMetadata { positivePrompt?: string; negativePrompt?: string; parameters?: Record<string, string>; error?: string; }
+interface CopyStatus { positive?: boolean; negative?: boolean; parameters?: boolean; }
+interface HistoryEntry { id: string; url: string; tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
+interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMetadata; timestamp: number; previewUrl?: string; } // previewUrl holds Base64
+interface StoredHistoryItem { id: string; url: string; tags?: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
+interface StoredImageHistoryItem { id: string; fileName: string; imageData?: ImageMetadata; timestamp: number; previewUrl?: string; } // previewUrl holds Base64
+interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> { siteName: string; tags?: Partial<Record<TagCategory, string[]>>; error?: string; status?: number; html?: string; }
+interface ImagePreviewProps { originalUrl?: string; title?: string; isLoading: boolean; enableImagePreviews: boolean; }
+interface HistoryItemProps { entry: HistoryEntry; onLoad: (entry: HistoryEntry) => void; onDelete: (id: string) => void; enableImagePreviews: boolean; }
+interface ImageHistoryItemProps { entry: ImageHistoryEntry; onLoad: (entry: ImageHistoryEntry) => void; onDelete: (id: string) => void; }
+
+interface BaseHistoryPanelProps<T extends { id: string; timestamp: number }> {
+    title: string;
+    history: T[];
+    renderItem: (entry: T) => React.ReactNode;
+    filterPredicate: (entry: T, query: string) => boolean;
+    searchPlaceholder: string;
+    onClearHistory: () => void;
 }
-
-interface Settings {
-    theme: ThemePreference;
-    autoExtract: boolean;
-    colorTheme: ColorTheme;
-    customColorHex?: string;
-    enableImagePreviews: boolean;
-    fetchMode: FetchMode;
-    clientProxyUrl: string;
-    saveHistory: boolean;
-}
-
-interface ImageMetadata {
-    positivePrompt?: string;
-    negativePrompt?: string;
-    parameters?: Record<string, string>;
-    error?: string;
-}
-
-interface CopyStatus {
-    positive?: boolean;
-    negative?: boolean;
-    parameters?: boolean;
-}
-
-interface HistoryEntry {
-    id: string;
-    url: string;
-    tags: Partial<Record<TagCategory, string[]>>;
-    imageUrl?: string;
-    title?: string;
-    siteName?: string;
-    timestamp: number;
-}
-
-interface ImageHistoryEntry {
-    id: string;
-    fileName: string;
-    imageData: ImageMetadata;
-    timestamp: number;
-    previewUrl?: string;
-}
-
-
-interface StoredHistoryItem {
-    id: string;
-    url: string;
-    tags?: Partial<Record<TagCategory, string[]>>;
-    imageUrl?: string;
-    title?: string;
-    siteName?: string;
-    timestamp: number;
-}
-
-interface StoredImageHistoryItem {
-    id: string;
-    fileName: string;
-    imageData?: ImageMetadata;
-    timestamp: number;
-    previewUrl?: string;
-}
-
-
-interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> {
-    siteName: string;
-    tags?: Partial<Record<TagCategory, string[]>>;
-    error?: string;
-    status?: number;
-    html?: string;
-}
-
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
@@ -125,6 +58,7 @@ const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+const THUMBNAIL_SIZE = 40;
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
@@ -133,84 +67,26 @@ const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
 ];
 const DEFAULT_CLIENT_PROXY_URL = CLIENT_PROXY_OPTIONS[0].value;
 
-const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => {
-    return Object.values(tags || {}).reduce((sum, arr) => sum + (arr?.length ?? 0), 0);
-};
+const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => Object.values(tags || {}).reduce((sum, arr) => sum + (arr?.length ?? 0), 0);
 
 const MotionCard = motion.div;
 
 const CategoryToggle = React.memo(({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
-    <MotionCard
-        className="flex items-center justify-between rounded-2xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-4 transition-all hover:shadow-md hover:shadow-[rgba(var(--color-primary-rgb),0.12)]"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        whileTap={{ scale: 0.98 }}
-        whileHover={{ y: -2, backgroundColor: "rgba(var(--color-surface-alt-2-rgb), 0.8)" }}
-    >
+    <MotionCard className="flex items-center justify-between rounded-2xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-4 transition-all hover:shadow-md hover:shadow-[rgba(var(--color-primary-rgb),0.12)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} whileTap={{ scale: 0.98 }} whileHover={{ y: -2, backgroundColor: "rgba(var(--color-surface-alt-2-rgb), 0.8)" }}>
         <div className="flex items-center space-x-3 overflow-hidden">
-            <motion.span
-                className={`inline-flex h-4 w-4 shrink-0 rounded-full items-center justify-center`}
-                style={{ backgroundColor: `rgb(var(${category.variable}))` }}
-                animate={{
-                    scale: category.enabled ? 1 : 0.8,
-                    boxShadow: category.enabled ? '0 2px 4px rgba(0,0,0,0.2)' : 'none'
-                }}
-                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-            />
+            <motion.span className={`inline-flex h-4 w-4 shrink-0 rounded-full items-center justify-center`} style={{ backgroundColor: `rgb(var(${category.variable}))` }} animate={{ scale: category.enabled ? 1 : 0.8, boxShadow: category.enabled ? '0 2px 4px rgba(0,0,0,0.2)' : 'none' }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}/>
             <div className="flex flex-col min-w-0">
-                <span
-                    className="truncate text-base font-medium text-[rgb(var(--color-on-surface-rgb))]"
-                    title={category.label}
-                >
-                    {category.label}
-                </span>
-                {count > 0 && (
-                    <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                        {count} {count === 1 ? 'tag' : 'tags'}
-                    </span>
-                )}
+                <span className="truncate text-base font-medium text-[rgb(var(--color-on-surface-rgb))]" title={category.label}>{category.label}</span>
+                {count > 0 && <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{count} {count === 1 ? 'tag' : 'tags'}</span>}
             </div>
         </div>
-
         <div className="relative">
             <label className="relative inline-flex shrink-0 cursor-pointer items-center">
-                <input
-                    type="checkbox"
-                    className="peer sr-only"
-                    checked={category.enabled}
-                    onChange={onToggle}
-                    aria-labelledby={`category-label-${category.id}`}
-                />
-                <div
-                    className={`
-                        relative h-8 w-14 rounded-full
-                        bg-[rgb(var(--color-surface-border-rgb))]
-                        transition-all duration-300 ease-out
-                        peer-focus:outline-none peer-focus:ring-2
-                        peer-focus:ring-[rgb(var(--color-primary-rgb))]
-                        peer-focus:ring-offset-2
-                        peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]
-                        peer-checked:bg-[rgb(var(${category.variable}))]
-                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                        after:h-7 after:w-7 after:rounded-full after:bg-white
-                        peer-checked:after:translate-x-6
-                        after:shadow-sm after:transition-all after:duration-300
-                        dark:after:bg-gray-200
-                    `}
-                />
+                <input type="checkbox" className="peer sr-only" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
+                <div className={`relative h-8 w-14 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-300 ease-out peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))] peer-checked:bg-[rgb(var(${category.variable}))] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-7 after:w-7 after:rounded-full after:bg-white peer-checked:after:translate-x-6 after:shadow-sm after:transition-all after:duration-300 dark:after:bg-gray-200`}/>
             </label>
             <span id={`category-label-${category.id}`} className="sr-only">{category.label} Toggle</span>
-
-            <motion.div
-                className="absolute inset-0 rounded-full pointer-events-none opacity-0"
-                animate={{
-                    opacity: category.enabled ? 0.12 : 0,
-                    backgroundColor: `rgb(var(${category.variable}))`
-                }}
-                initial={false}
-                transition={{ duration: 0.3 }}
-            />
+            <motion.div className="absolute inset-0 rounded-full pointer-events-none opacity-0" animate={{ opacity: category.enabled ? 0.12 : 0, backgroundColor: `rgb(var(${category.variable}))` }} initial={false} transition={{ duration: 0.3 }}/>
         </div>
     </MotionCard>
 ));
@@ -223,193 +99,101 @@ const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' |
         warning: 'border-yellow-400 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-300'
     }), []);
     return (
-        <motion.div
-            className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`}
-            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
-        >
+        <motion.div className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
             <p className={`text-sm font-medium`}>{children}</p>
         </motion.div>
     );
 });
 StatusMessage.displayName = 'StatusMessage';
 
-interface ImagePreviewProps {
-    originalUrl?: string;
-    title?: string;
-    isLoading: boolean;
-    enableImagePreviews: boolean;
-}
-
 const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePreviews }: ImagePreviewProps) => {
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
     const isVideo = useMemo(() => originalUrl?.match(/\.(mp4|webm|ogg)$/i), [originalUrl]);
     const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
+    const proxiedUrl = useMemo(() => originalUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}` : undefined, [originalUrl, enableImagePreviews]);
 
-    const proxiedUrl = useMemo(() => {
-        if (!originalUrl || !enableImagePreviews) return undefined;
-        return `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}`;
-    }, [originalUrl, enableImagePreviews]);
-
-    useEffect(() => {
-        if (enableImagePreviews && (originalUrl || isLoading)) {
-            setImgLoading(true);
-            setImgError(false);
-        } else {
-            setImgLoading(false);
-            setImgError(false);
-        }
-    }, [originalUrl, isLoading, enableImagePreviews]);
-
+    useEffect(() => { setImgLoading(enableImagePreviews && (!!originalUrl || isLoading)); setImgError(false); }, [originalUrl, isLoading, enableImagePreviews]);
     const handleLoad = useCallback(() => setImgLoading(false), []);
     const handleError = useCallback(() => { setImgLoading(false); setImgError(true); }, []);
 
     if (!enableImagePreviews) return null;
-
     if (isLoading) return <div className={`${placeholderBaseClasses} animate-pulse bg-[rgb(var(--color-surface-alt-2-rgb))]`}>Loading preview...</div>;
     if (!originalUrl) return null;
     if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]"><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">(Server proxy error or invalid image)</p></div></div>;
 
     return (
         <motion.div className="relative h-64 w-full overflow-hidden rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            {(imgLoading && !isVideo) && <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))]">Loading...</div>}
+            {imgLoading && !isVideo && <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))]">Loading...</div>}
             {isVideo ? (
                 <video key={proxiedUrl} controls muted className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
                     <source src={proxiedUrl} /> Your browser does not support video.
                 </video>
             ) : (
-                <Image
-                    key={proxiedUrl!}
-                    src={proxiedUrl!}
-                    alt={title || "Booru preview"}
-                    fill={true}
-                    unoptimized={true}
-                    onLoad={handleLoad}
-                    onError={handleError}
-                    className={`object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}
-                />
+                <Image key={proxiedUrl!} src={proxiedUrl!} alt={title || "Booru preview"} fill unoptimized onLoad={handleLoad} onError={handleError} className={`object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}/>
             )}
-            {title && !imgLoading && !imgError && (
-                <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-sm text-white" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                    <p className="truncate">{title}</p>
-                </motion.div>
-            )}
+            {title && !imgLoading && !imgError && <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-sm text-white" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><p className="truncate">{title}</p></motion.div>}
         </motion.div>
     );
 });
 ImagePreview.displayName = 'ImagePreview';
 
-interface HistoryItemProps {
-    entry: HistoryEntry;
-    onLoad: (entry: HistoryEntry) => void;
-    onDelete: (id: string) => void;
-    enableImagePreviews: boolean;
-}
-const HistoryItem: React.FC<HistoryItemProps> = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }) => {
-    const [showPlaceholder, setShowPlaceholder] = useState(true);
-    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
-        dateStyle: 'short',
-        timeStyle: 'short',
-    }), [entry.timestamp]);
+const HistoryItem = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }: HistoryItemProps) => {
+    const [showPlaceholder, setShowPlaceholder] = useState(!enableImagePreviews);
+    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }), [entry.timestamp]);
     const totalTags = useMemo(() => calculateTotalTags(entry.tags), [entry.tags]);
+    const proxiedImageUrl = useMemo(() => entry.imageUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(entry.imageUrl)}` : undefined, [entry.imageUrl, enableImagePreviews]);
 
+    useEffect(() => { setShowPlaceholder(!proxiedImageUrl); }, [proxiedImageUrl]);
+    const handleError = useCallback(() => setShowPlaceholder(true), []);
+    const handleLoadSuccess = useCallback(() => setShowPlaceholder(false), []);
     const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
     const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
 
-    const proxiedImageUrl = useMemo(() => {
-        if (!entry.imageUrl || !enableImagePreviews) return undefined;
-        return `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(entry.imageUrl)}`;
-    }, [entry.imageUrl, enableImagePreviews]);
-
-    useEffect(() => {
-        setShowPlaceholder(!proxiedImageUrl);
-    }, [proxiedImageUrl]);
-
-    const handleError = useCallback(() => setShowPlaceholder(true), []);
-    const handleLoadSuccess = useCallback(() => setShowPlaceholder(false), []);
-
     return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-            className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]"
-        >
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))]">
-                {enableImagePreviews && !showPlaceholder && proxiedImageUrl && (
-                    <Image
-                        src={proxiedImageUrl}
-                        alt="preview"
-                        width={40}
-                        height={40}
-                        unoptimized={true}
-                        className="h-full w-full object-cover"
-                        onError={handleError}
-                        onLoad={handleLoadSuccess}
-                    />
-                )}
-                {(!enableImagePreviews || showPlaceholder) && (
-                    <div className="flex h-full w-full items-center justify-center">
-                        <AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>
-                    </div>
-                )}
+        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
+                {proxiedImageUrl && !showPlaceholder ? (<Image src={proxiedImageUrl} alt="preview" width={40} height={40} unoptimized className="h-full w-full object-cover" onError={handleError} onLoad={handleLoadSuccess}/>) : (<AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>)}
             </div>
-
             <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.title || entry.url}>
-                    {entry.title || (entry.url && new URL(entry.url).pathname.split('/').pop()) || entry.url}
-                </p>
-                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                    {entry.siteName ? `${entry.siteName} • ` : ''}
-                    {formattedDate} • {totalTags} {totalTags === 1 ? 'tag' : 'tags'}
-                </p>
+                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.title || entry.url}>{entry.title || new URL(entry.url).pathname.split('/').pop() || entry.url}</p>
+                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{entry.siteName ? `${entry.siteName} • ` : ''}{formattedDate} • {totalTags} {totalTags === 1 ? 'tag' : 'tags'}</p>
             </div>
-            <TooltipWrapper tipContent="Load Entry">
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
-                    onClick={handleLoadClick}
-                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]"
-                    aria-label="Load this history entry"
-                >
-                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
-                </motion.button>
-            </TooltipWrapper>
-            <TooltipWrapper tipContent="Delete Entry">
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
-                    onClick={handleDeleteClick}
-                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
-                    aria-label="Delete this history entry"
-                >
-                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-                </motion.button>
-            </TooltipWrapper>
+            <TooltipWrapper tipContent="Load Entry"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleLoadClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]" aria-label="Load this history entry"><AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon></motion.button></TooltipWrapper>
+            <TooltipWrapper tipContent="Delete Entry"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleDeleteClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]" aria-label="Delete this history entry"><AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon></motion.button></TooltipWrapper>
         </motion.div>
     );
 });
 HistoryItem.displayName = 'HistoryItem';
 
-interface HistoryPanelProps {
-    history: HistoryEntry[];
-    onLoadEntry: (entry: HistoryEntry) => void;
-    onDeleteEntry: (id: string) => void;
-    onClearHistory: () => void;
-    enableImagePreviews: boolean;
-}
-const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory, enableImagePreviews }) => {
+const ImageHistoryItem = React.memo(({ entry, onLoad, onDelete }: ImageHistoryItemProps) => {
+    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }), [entry.timestamp]);
+    const hasMetadata = useMemo(() => !!(entry.imageData.positivePrompt || entry.imageData.negativePrompt || entry.imageData.parameters), [entry.imageData]);
+    const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
+    const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
+
+    return (
+        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
+                {entry.previewUrl ? (
+                    <Image src={entry.previewUrl} alt="thumbnail" width={THUMBNAIL_SIZE} height={THUMBNAIL_SIZE} className="h-full w-full object-cover" />
+                ) : (
+                    <AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>
+                )}
+            </div>
+            <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.fileName}>{entry.fileName}</p><p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{formattedDate} {hasMetadata ? '• Metadata found' : '• No metadata'}</p></div>
+            <TooltipWrapper tipContent="Load Metadata"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleLoadClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]" aria-label="Load metadata"><AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon></motion.button></TooltipWrapper>
+            <TooltipWrapper tipContent="Delete Entry"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleDeleteClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]" aria-label="Delete entry"><AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon></motion.button></TooltipWrapper>
+        </motion.div>
+    );
+});
+ImageHistoryItem.displayName = 'ImageHistoryItem';
+
+const HistoryPanelBase = <T extends { id: string; timestamp: number }>({ title, history, renderItem, filterPredicate, searchPlaceholder, onClearHistory }: BaseHistoryPanelProps<T>) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-
-    const handleClearClick = useCallback(() => {
-        onClearHistory();
-        setShowClearConfirm(false);
-        setSearchQuery('');
-    }, [onClearHistory]);
-
+    const handleClearClick = useCallback(() => { onClearHistory(); setShowClearConfirm(false); setSearchQuery(''); }, [onClearHistory]);
     const handleToggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
     const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), []);
     const handleClearSearch = useCallback(() => setSearchQuery(''), []);
@@ -419,369 +203,42 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onLoadEntry, onDel
     const filteredHistory = useMemo(() => {
         if (!searchQuery.trim()) return history;
         const lowerCaseQuery = searchQuery.toLowerCase();
-        return history.filter(entry =>
-            entry.title?.toLowerCase().includes(lowerCaseQuery) ||
-            entry.url.toLowerCase().includes(lowerCaseQuery) ||
-            entry.siteName?.toLowerCase().includes(lowerCaseQuery) ||
-            (entry.tags && Object.values(entry.tags).flat().some(tag => tag.toLowerCase().includes(lowerCaseQuery)))
-        );
-    }, [history, searchQuery]);
-
-    useEffect(() => {
-        if (history.length === 0 && isOpen) {
-            setIsOpen(false);
-        }
-    }, [history.length, isOpen]);
+        return history.filter(entry => filterPredicate(entry, lowerCaseQuery));
+    }, [history, searchQuery, filterPredicate]);
 
     return (
         <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
-            <motion.button
-                whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }}
-                transition={{ duration: 0.05 }}
-                onClick={handleToggleOpen}
-                className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]"
-                aria-expanded={isOpen}
-                aria-controls="history-content"
-            >
-                <div className="flex items-center space-x-2">
-                    <AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon>
-                    <span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">Extraction History</span>
-                    <span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span>
-                </div>
-                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDownIcon />
-                </motion.span>
+            <motion.button whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }} transition={{ duration: 0.05 }} onClick={handleToggleOpen} className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]" aria-expanded={isOpen} aria-controls={`${title.toLowerCase().replace(/\s+/g, '-')}-content`}>
+                <div className="flex items-center space-x-2"><AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon><span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">{title}</span><span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span></div>
+                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}><ChevronDownIcon /></motion.span>
             </motion.button>
-
             <AnimatePresence initial={false}>
                 {isOpen && (
-                    <motion.div
-                        id="history-content"
-                        key="content"
-                        initial="collapsed"
-                        animate="open"
-                        exit="collapsed"
-                        variants={{
-                            open: { opacity: 1, height: "auto" },
-                            collapsed: { opacity: 0, height: 0 }
-                        }}
-                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-                        className="overflow-hidden"
-                    >
+                    <motion.div id={`${title.toLowerCase().replace(/\s+/g, '-')}-content`} key="content" initial="collapsed" animate="open" exit="collapsed" variants={{ open: { opacity: 1, height: "auto" }, collapsed: { opacity: 0, height: 0 } }} transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }} className="overflow-hidden">
                         <div className="border-t border-[rgb(var(--color-surface-border-rgb))] p-4">
                             <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search history (title, url, tags...)"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
-                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                    aria-label="Search history entries"
-                                />
-                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]">
-                                    <MagnifyingGlassIcon/>
-                                </span>
-                                {searchQuery && (
-                                    <TooltipWrapper tipContent="Clear Search">
-                                        <motion.button
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={handleClearSearch}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]"
-                                            aria-label="Clear search"
-                                            initial={{ opacity: 0, scale: 0.5 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.5 }}
-                                        >
-                                            <XMarkIcon className="h-4 w-4"/>
-                                        </motion.button>
-                                    </TooltipWrapper>
-                                )}
+                                <input type="text" placeholder={searchPlaceholder} value={searchQuery} onChange={handleSearchChange} className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]" aria-label={`Search ${title}`}/>
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]"><MagnifyingGlassIcon/></span>
+                                {searchQuery && (<TooltipWrapper tipContent="Clear Search"><motion.button whileTap={{ scale: 0.9 }} onClick={handleClearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]" aria-label="Clear search" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}><XMarkIcon className="h-4 w-4"/></motion.button></TooltipWrapper>)}
                             </div>
                         </div>
                         <div className="max-h-80 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                             <AnimatePresence mode="popLayout">
-                                {filteredHistory.map((entry) => (
-                                    <HistoryItem
-                                        key={entry.id}
-                                        entry={entry}
-                                        onLoad={onLoadEntry}
-                                        onDelete={onDeleteEntry}
-                                        enableImagePreviews={enableImagePreviews}
-                                    />
-                                ))}
+                                {filteredHistory.map(entry => renderItem(entry))}
                             </AnimatePresence>
-                            {history.length > 0 && filteredHistory.length === 0 && searchQuery && (
-                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No history entries match your search.</p>
-                            )}
-                            {history.length === 0 && (
-                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">History is empty.</p>
-                            )}
+                            {filteredHistory.length === 0 && <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No entries match your search.</p>}
                         </div>
-
-                        {history.length > 0 && (
-                            <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
-                                <AnimatePresence>
-                                    {showClearConfirm && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 5 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 5 }}
-                                            className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"
-                                        >
-                                            <p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p>
-                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"> Yes, Clear </motion.button>
-                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"> Cancel </motion.button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                                <TooltipWrapper tipContent="Clear All History">
-                                    <motion.button
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={handleShowConfirm}
-                                        className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
-                                        aria-label="Clear History"
-                                    >
-                                        <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-                                        <span>Clear History</span>
-                                    </motion.button>
-                                </TooltipWrapper>
-                            </div>
-                        )}
+                        <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
+                            <AnimatePresence>{showClearConfirm && (<motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"><p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p><motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-red-600">Yes, Clear</motion.button><motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500">Cancel</motion.button></motion.div>)}</AnimatePresence>
+                            <TooltipWrapper tipContent="Clear All History"><motion.button whileTap={{ scale: 0.95 }} onClick={handleShowConfirm} className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition hover:bg-red-100 dark:hover:bg-red-900/50" aria-label={`Clear ${title}`}><AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon><span>Clear History</span></motion.button></TooltipWrapper>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
     );
 };
-HistoryPanel.displayName = 'HistoryPanel';
-
-interface ImageHistoryItemProps {
-    entry: ImageHistoryEntry;
-    onLoad: (entry: ImageHistoryEntry) => void;
-    onDelete: (id: string) => void;
-}
-
-const ImageHistoryItem: React.FC<ImageHistoryItemProps> = React.memo(({ entry, onLoad, onDelete }) => {
-    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, {
-        dateStyle: 'short',
-        timeStyle: 'short',
-    }), [entry.timestamp]);
-
-    const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
-    const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
-    const hasMetadata = useMemo(() => !!(entry.imageData.positivePrompt || entry.imageData.negativePrompt || entry.imageData.parameters), [entry.imageData]);
-
-    return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-            className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]"
-        >
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
-                 <AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>
-            </div>
-
-            <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.fileName}>
-                    {entry.fileName}
-                </p>
-                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                    {formattedDate} {hasMetadata ? '• Metadata found' : '• No metadata'}
-                </p>
-            </div>
-            <TooltipWrapper tipContent="Load Metadata">
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }}
-                    onClick={handleLoadClick}
-                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]"
-                    aria-label="Load this image metadata history entry"
-                >
-                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon>
-                </motion.button>
-            </TooltipWrapper>
-            <TooltipWrapper tipContent="Delete Entry">
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }}
-                    onClick={handleDeleteClick}
-                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
-                    aria-label="Delete this image metadata history entry"
-                >
-                    <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-                </motion.button>
-            </TooltipWrapper>
-        </motion.div>
-    );
-});
-ImageHistoryItem.displayName = 'ImageHistoryItem';
-
-interface ImageHistoryPanelProps {
-    history: ImageHistoryEntry[];
-    onLoadEntry: (entry: ImageHistoryEntry) => void;
-    onDeleteEntry: (id: string) => void;
-    onClearHistory: () => void;
-}
-const ImageHistoryPanel: React.FC<ImageHistoryPanelProps> = ({ history, onLoadEntry, onDeleteEntry, onClearHistory }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [showClearConfirm, setShowClearConfirm] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const handleClearClick = useCallback(() => {
-        onClearHistory();
-        setShowClearConfirm(false);
-        setSearchQuery('');
-    }, [onClearHistory]);
-
-    const handleToggleOpen = useCallback(() => {
-        if(history.length > 0) setIsOpen(prev => !prev)
-    }, [history.length]);
-
-    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), []);
-    const handleClearSearch = useCallback(() => setSearchQuery(''), []);
-    const handleShowConfirm = useCallback(() => setShowClearConfirm(true), []);
-    const handleHideConfirm = useCallback(() => setShowClearConfirm(false), []);
-
-    const filteredHistory = useMemo(() => {
-        if (!searchQuery.trim()) return history;
-        const lowerCaseQuery = searchQuery.toLowerCase();
-        return history.filter(entry =>
-            entry.fileName.toLowerCase().includes(lowerCaseQuery) ||
-            entry.imageData.positivePrompt?.toLowerCase().includes(lowerCaseQuery) ||
-            entry.imageData.negativePrompt?.toLowerCase().includes(lowerCaseQuery) ||
-            (entry.imageData.parameters && Object.entries(entry.imageData.parameters).some(([k, v]) =>
-                k.toLowerCase().includes(lowerCaseQuery) || v.toLowerCase().includes(lowerCaseQuery)
-            ))
-        );
-    }, [history, searchQuery]);
-
-    useEffect(() => {
-        if (history.length === 0 && isOpen) {
-            setIsOpen(false);
-        }
-    }, [history.length, isOpen]);
-
-    return (
-        <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
-            <motion.button
-                whileTap={history.length > 0 ? { backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' } : {}}
-                transition={{ duration: 0.05 }}
-                onClick={handleToggleOpen}
-                className={`flex w-full items-center justify-between p-4 text-left transition-colors ${history.length > 0 ? 'hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]' : 'cursor-default opacity-60'}`}
-                aria-expanded={isOpen}
-                aria-controls="image-history-content"
-                disabled={history.length === 0}
-            >
-                <div className="flex items-center space-x-2">
-                    <AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon>
-                    <span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">Image History</span>
-                    <span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span>
-                </div>
-                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDownIcon />
-                </motion.span>
-            </motion.button>
-
-            <AnimatePresence initial={false}>
-                {isOpen && history.length > 0 && (
-                    <motion.div
-                        id="image-history-content"
-                        key="content"
-                        initial="collapsed"
-                        animate="open"
-                        exit="collapsed"
-                        variants={{
-                            open: { opacity: 1, height: "auto" },
-                            collapsed: { opacity: 0, height: 0 }
-                        }}
-                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-                        className="overflow-hidden"
-                    >
-                        <div className="border-t border-[rgb(var(--color-surface-border-rgb))] p-4">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search history (filename, prompts, params...)"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
-                                    className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                    aria-label="Search image history entries"
-                                />
-                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]">
-                                    <MagnifyingGlassIcon/>
-                                </span>
-                                {searchQuery && (
-                                    <TooltipWrapper tipContent="Clear Search">
-                                        <motion.button
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={handleClearSearch}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]"
-                                            aria-label="Clear search"
-                                            initial={{ opacity: 0, scale: 0.5 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.5 }}
-                                        >
-                                            <XMarkIcon className="h-4 w-4"/>
-                                        </motion.button>
-                                    </TooltipWrapper>
-                                )}
-                            </div>
-                        </div>
-                        <div className="max-h-80 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                            <AnimatePresence mode="popLayout">
-                                {filteredHistory.map((entry) => (
-                                    <ImageHistoryItem
-                                        key={entry.id}
-                                        entry={entry}
-                                        onLoad={onLoadEntry}
-                                        onDelete={onDeleteEntry}
-                                    />
-                                ))}
-                            </AnimatePresence>
-                            {history.length > 0 && filteredHistory.length === 0 && searchQuery && (
-                                <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No image history entries match your search.</p>
-                            )}
-                        </div>
-
-                        {history.length > 0 && (
-                            <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
-                                <AnimatePresence>
-                                    {showClearConfirm && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 5 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 5 }}
-                                            className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"
-                                        >
-                                            <p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p>
-                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-600"> Yes, Clear </motion.button>
-                                            <motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500"> Cancel </motion.button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                                <TooltipWrapper tipContent="Clear All Image History">
-                                    <motion.button
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={handleShowConfirm}
-                                        className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
-                                        aria-label="Clear Image History"
-                                    >
-                                        <AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon>
-                                        <span>Clear History</span>
-                                    </motion.button>
-                                </TooltipWrapper>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-ImageHistoryPanel.displayName = 'ImageHistoryPanel';
-
+HistoryPanelBase.displayName = 'HistoryPanelBase';
 
 const ParameterItem = React.memo(({ label, value }: { label: string; value: string }) => (
     <div className="flex flex-col sm:flex-row sm:justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
@@ -792,188 +249,78 @@ const ParameterItem = React.memo(({ label, value }: { label: string; value: stri
 ParameterItem.displayName = 'ParameterItem';
 
 async function extractImageMetadata(file: File): Promise<ImageMetadata> {
-    if (!file.type.startsWith('image/')) {
-        return { error: "Invalid file type. Please upload an image." };
-    }
-
-    if (file.type !== 'image/png') {
-        return { error: "Metadata extraction only supported for PNG files. No metadata extracted." };
-    }
-
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-        return { error: `File is too large (max ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB). No metadata extracted.` };
-    }
+    if (!file.type.startsWith('image/')) return { error: "Invalid file type." };
+    if (file.type !== 'image/png') return { error: "Metadata extraction only supported for PNG files." };
+    if (file.size > MAX_IMAGE_SIZE_BYTES) return { error: `File too large (max ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB).` };
 
     return new Promise((resolve) => {
         const reader = new FileReader();
-
         reader.onload = (e) => {
-            if (!e.target?.result || !(e.target.result instanceof ArrayBuffer)) {
-                resolve({ error: "Could not read the image file." });
-                return;
-            }
-
-            const buffer = e.target.result;
-            const view = new DataView(buffer);
-
+            if (!e.target?.result || !(e.target.result instanceof ArrayBuffer)) return resolve({ error: "Could not read file." });
+            const buffer = e.target.result; const view = new DataView(buffer);
             const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
-            for (let i = 0; i < pngSignature.length; i++) {
-                if (view.getUint8(i) !== pngSignature[i]) {
-                    resolve({ error: "Invalid PNG file signature." });
-                    return;
-                }
-            }
+            for (let i = 0; i < pngSignature.length; i++) if (view.getUint8(i) !== pngSignature[i]) return resolve({ error: "Invalid PNG signature." });
 
-            let offset = 8;
-            let parametersText: string | null = null;
-
+            let offset = 8; let parametersText: string | null = null;
             try {
                 while (offset < view.byteLength) {
                     if (offset + 8 > view.byteLength) break;
-                    const length = view.getUint32(offset, false);
-                    offset += 4;
-                    const typeBytes = [view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3)];
-                    const type = String.fromCharCode(...typeBytes);
-                    offset += 4;
-
-                    if (offset + length + 4 > view.byteLength) {
-                         parametersText = null;
-                         break;
-                    }
-
-                    if (type === 'tEXt') {
-                        const chunkData = new Uint8Array(buffer, offset, length);
-                        let zeroIndex = -1;
-                        for(let i=0; i < chunkData.length; i++) {
-                            if (chunkData[i] === 0) {
-                                zeroIndex = i;
-                                break;
-                            }
-                        }
-
-                        if (zeroIndex > 0) {
-                             const keyword = new TextDecoder("iso-8859-1").decode(chunkData.slice(0, zeroIndex));
-                             if (keyword === 'parameters') {
-                                parametersText = new TextDecoder("utf-8").decode(chunkData.slice(zeroIndex + 1));
-                                break;
-                             }
-                        }
-                    } else if (type === 'IEND') {
-                         break;
-                    }
-
+                    const length = view.getUint32(offset, false); offset += 4;
+                    const type = String.fromCharCode(view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3)); offset += 4;
+                    if (offset + length + 4 > view.byteLength) { parametersText = null; break; }
+                    if (type === 'tEXt') { const chunkData = new Uint8Array(buffer, offset, length); const zeroIndex = chunkData.indexOf(0); if (zeroIndex > 0) { const keyword = new TextDecoder("iso-8859-1").decode(chunkData.slice(0, zeroIndex)); if (keyword === 'parameters') { parametersText = new TextDecoder("utf-8").decode(chunkData.slice(zeroIndex + 1)); break; } } }
+                    else if (type === 'IEND') break;
                     offset += length + 4;
                 }
-            } catch (parseError) {
-                 resolve({ error: `Error parsing PNG structure: ${(parseError as Error).message}` });
-                 return;
-            }
-
-
-            if (!parametersText) {
-                resolve({ error: "No 'parameters' metadata found in this PNG image." });
-                return;
-            }
+            } catch (err) { return resolve({ error: `Error parsing PNG: ${(err as Error).message}` }); }
+            if (!parametersText) return resolve({ error: "No 'parameters' metadata found." });
 
             try {
-                const lines = parametersText.trim().split('\n');
-                let positivePromptLines: string[];
-                let negativePrompt = '';
-                const parameters: Record<string, string> = {};
-                let parameterString = '';
-                let negativePromptIndex = -1;
-
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].trim().startsWith('Negative prompt:')) {
-                        negativePromptIndex = i;
-                        break;
-                    }
-                }
-
-                if (negativePromptIndex !== -1) {
-                    positivePromptLines = lines.slice(0, negativePromptIndex).map(l => l.trim()).filter(l => l);
-                    negativePrompt = lines[negativePromptIndex].substring('Negative prompt:'.length).trim();
-                    parameterString = lines.slice(negativePromptIndex + 1).map(l => l.trim()).filter(l => l).join(' ');
-                } else {
-                    const lastLineIndex = lines.length - 1;
-                    const lastLine = lastLineIndex >= 0 ? lines[lastLineIndex].trim() : '';
-
-                    const potentialParameterKeywords = ["Steps:", "Sampler:", "CFG scale:", "Seed:", "Size:", "Model hash:", "Model:", "Lora hashes:", "Version:"];
-                    let looksLikeParams = false;
-                    if (lastLine.includes(':') && lastLine.includes(',')) {
-                       looksLikeParams = potentialParameterKeywords.some(keyword => lastLine.includes(keyword));
-                    }
-
-
-                    if (looksLikeParams) {
-                         parameterString = lastLine;
-                         positivePromptLines = lines.slice(0, lastLineIndex).map(l => l.trim()).filter(l => l);
-                    } else {
-                         positivePromptLines = lines.map(l => l.trim()).filter(l => l);
-                    }
-                }
-
-                const positivePrompt = positivePromptLines.join('\n').trim();
-
-                if (parameterString) {
-                    const paramPairs = parameterString.split(/,\s*(?=[a-zA-Z0-9\s\-_.'"]+:)/);
-
-                    for (const pair of paramPairs) {
-                        const separatorIndex = pair.indexOf(':');
-                        if (separatorIndex > 0) {
-                            const key = pair.substring(0, separatorIndex).trim();
-                            const value = pair.substring(separatorIndex + 1).trim();
-
-                            if (key) {
-                                parameters[key] = value;
-                            }
-                        }
-                    }
-                }
-
-                 const negParts = negativePrompt.split(', ');
-                 let finalNegativePrompt = negativePrompt;
-                 if (negParts.length > 0 && Object.keys(parameters).length > 0) {
-                     let firstParamIdx = -1;
-                     for(let i=0; i<negParts.length; i++) {
-
-                          const potentialKeyMatch = negParts[i].match(/^([a-zA-Z0-9\s\-_.'"]+):\s*/);
-                          if (potentialKeyMatch && parameters.hasOwnProperty(potentialKeyMatch[1].trim())) {
-                            firstParamIdx = i;
-                            break;
-                         }
-                     }
-                     if (firstParamIdx > 0) {
-                         finalNegativePrompt = negParts.slice(0, firstParamIdx).join(', ').trim();
-                     } else if (firstParamIdx === 0) {
-                           finalNegativePrompt = "";
-                     }
-                 }
-
-
-                if (!positivePrompt && !finalNegativePrompt && Object.keys(parameters).length === 0) {
-                    resolve({ error: "Could not parse any meaningful data from the 'parameters' metadata." });
-                    return;
-                }
-
-                resolve({
-                    positivePrompt: positivePrompt || undefined,
-                    negativePrompt: finalNegativePrompt || undefined,
-                    parameters: Object.keys(parameters).length > 0 ? parameters : undefined
-                });
-
-            } catch (parseError) {
-                 resolve({ error: `Error parsing parameters string: ${(parseError as Error).message}` });
-            }
+                const lines = parametersText.trim().split('\n'); let posLines: string[]; let negPrompt = ''; const params: Record<string, string> = {}; let paramStr = ''; let negIdx = -1;
+                for (let i = 0; i < lines.length; i++) if (lines[i].trim().startsWith('Negative prompt:')) { negIdx = i; break; }
+                if (negIdx !== -1) { posLines = lines.slice(0, negIdx).map(l => l.trim()).filter(Boolean); negPrompt = lines[negIdx].substring('Negative prompt:'.length).trim(); paramStr = lines.slice(negIdx + 1).map(l => l.trim()).filter(Boolean).join(' '); }
+                else { const lastIdx = lines.length - 1; const lastLine = lastIdx >= 0 ? lines[lastIdx].trim() : ''; const keywords = ["Steps:", "Sampler:", "CFG scale:", "Seed:", "Size:", "Model hash:", "Model:", "Lora hashes:", "Version:"]; let looksLikeParams = false; if (lastLine.includes(':') && lastLine.includes(',')) looksLikeParams = keywords.some(k => lastLine.includes(k)); if (looksLikeParams) { paramStr = lastLine; posLines = lines.slice(0, lastIdx).map(l => l.trim()).filter(Boolean); } else posLines = lines.map(l => l.trim()).filter(Boolean); }
+                const posPrompt = posLines.join('\n').trim();
+                if (paramStr) { const pairs = paramStr.split(/,\s*(?=[a-zA-Z0-9\s\-_.'"]+:)/); for (const pair of pairs) { const sepIdx = pair.indexOf(':'); if (sepIdx > 0) { const key = pair.substring(0, sepIdx).trim(); const val = pair.substring(sepIdx + 1).trim(); if (key) params[key] = val; } } }
+                const negParts = negPrompt.split(', '); let finalNegPrompt = negPrompt;
+                if (negParts.length > 0 && Object.keys(params).length > 0) { let firstParamIdx = -1; for(let i=0; i<negParts.length; i++) { const match = negParts[i].match(/^([a-zA-Z0-9\s\-_.'"]+):\s*/); if (match && params.hasOwnProperty(match[1].trim())) { firstParamIdx = i; break; } } if (firstParamIdx > 0) finalNegPrompt = negParts.slice(0, firstParamIdx).join(', ').trim(); else if (firstParamIdx === 0) finalNegPrompt = ""; }
+                if (!posPrompt && !finalNegPrompt && Object.keys(params).length === 0) return resolve({ error: "Could not parse metadata." });
+                resolve({ positivePrompt: posPrompt || undefined, negativePrompt: finalNegPrompt || undefined, parameters: Object.keys(params).length > 0 ? params : undefined });
+            } catch (err) { resolve({ error: `Error parsing parameters: ${(err as Error).message}` }); }
         };
-
-        reader.onerror = () => {
-            resolve({ error: "Failed to read file." });
-        };
-
+        reader.onerror = () => resolve({ error: "Failed to read file." });
         reader.readAsArrayBuffer(file);
     });
 }
+
+// Helper to create a Base64 thumbnail from an image File
+const createThumbnail = (file: File, size: number): Promise<string | null> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (!e.target?.result || typeof e.target.result !== 'string') return resolve(null);
+            const img = document.createElement('img');
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return resolve(null);
+                canvas.width = size;
+                canvas.height = size;
+                ctx.drawImage(img, 0, 0, size, size);
+                resolve(canvas.toDataURL('image/png')); // Or image/jpeg for smaller size
+                URL.revokeObjectURL(img.src); // Clean up object URL
+            };
+            img.onerror = () => {
+                resolve(null);
+                URL.revokeObjectURL(img.src);
+            };
+            img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file); // Read as Data URL to load into Image element
+    });
+};
+
 
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
@@ -990,23 +337,13 @@ const BooruTagExtractor = () => {
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [settings, setSettings] = useState<Settings>({
-        theme: 'system',
-        autoExtract: true,
-        colorTheme: DEFAULT_COLOR_THEME,
-        customColorHex: DEFAULT_CUSTOM_COLOR_HEX,
-        enableImagePreviews: true,
-        fetchMode: DEFAULT_FETCH_MODE,
-        clientProxyUrl: DEFAULT_CLIENT_PROXY_URL,
-        saveHistory: false,
-    });
+    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
     const imageCardBodyRef = useRef<HTMLDivElement>(null);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const [activeView, setActiveView] = useState<ActiveView>('extractor');
-
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [imageData, setImageData] = useState<ImageMetadata | null>(null);
@@ -1016,1175 +353,252 @@ const BooruTagExtractor = () => {
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const loadStoredItem = <T,>(key: string, defaultValue: T, validator?: (item: unknown) => boolean): T => {
+        if (typeof window === 'undefined') return defaultValue;
+        const item = localStorage.getItem(key); if (item === null) return defaultValue;
+        try { const parsed = JSON.parse(item); return validator ? (validator(parsed) ? parsed : defaultValue) : parsed; } catch { return defaultValue; }
+    };
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemePreference | null;
-        const savedColorTheme = localStorage.getItem(COLOR_THEME_STORAGE_KEY) as ColorTheme | null;
-        const savedCustomHex = localStorage.getItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
-        const savedAutoExtract = localStorage.getItem(AUTO_EXTRACT_STORAGE_KEY);
-        const savedImagePreviews = localStorage.getItem(IMAGE_PREVIEWS_STORAGE_KEY);
-        const savedFetchMode = localStorage.getItem(FETCH_MODE_STORAGE_KEY) as FetchMode | null;
-        const savedClientProxyUrl = localStorage.getItem(CLIENT_PROXY_URL_STORAGE_KEY);
-        const savedSaveHistory = localStorage.getItem(SAVE_HISTORY_STORAGE_KEY);
-        let loadedHistory: HistoryEntry[] = [];
-        let loadedImageHistory: ImageHistoryEntry[] = [];
-
-        try {
-            const savedHistoryData = localStorage.getItem(HISTORY_STORAGE_KEY);
-            if (savedHistoryData) {
-                const parsed = JSON.parse(savedHistoryData);
-                const isValidHistory = (item: unknown): item is StoredHistoryItem =>
-                    typeof item === 'object' && item !== null &&
-                    'id' in item && typeof item.id === 'string' &&
-                    'url' in item && typeof item.url === 'string' &&
-                    'timestamp' in item && typeof item.timestamp === 'number' &&
-                    (!('tags' in item) || item.tags === undefined || (typeof item.tags === 'object' && item.tags !== null && !Array.isArray(item.tags)));
-
-                if (Array.isArray(parsed) && parsed.every(isValidHistory)) {
-                    loadedHistory = parsed.map((item) => ({
-                            ...(item as StoredHistoryItem),
-                            tags: (typeof item.tags === 'object' && item.tags !== null && !Array.isArray(item.tags)) ? item.tags : {}
-                         }))
-                        .sort((a, b) => b.timestamp - a.timestamp);
-                } else {
-                    localStorage.removeItem(HISTORY_STORAGE_KEY);
-                }
-            }
-        } catch (e) {
-            console.error("Failed to load or parse tag history:", e);
-            localStorage.removeItem(HISTORY_STORAGE_KEY);
-        }
-
-         try {
-            const savedImageHistoryData = localStorage.getItem(IMAGE_HISTORY_STORAGE_KEY);
-            if (savedImageHistoryData) {
-                const parsed = JSON.parse(savedImageHistoryData);
-                const isValidImageHistory = (item: unknown): item is StoredImageHistoryItem =>
-                    typeof item === 'object' && item !== null &&
-                    'id' in item && typeof item.id === 'string' &&
-                    'fileName' in item && typeof item.fileName === 'string' &&
-                    'timestamp' in item && typeof item.timestamp === 'number' &&
-                    (!('imageData' in item) || typeof item.imageData === 'object');
-
-                if (Array.isArray(parsed) && parsed.every(isValidImageHistory)) {
-                    loadedImageHistory = parsed.map((item) => ({
-                            ...(item as StoredImageHistoryItem),
-                            imageData: (typeof item.imageData === 'object' && item.imageData !== null) ? item.imageData : {}
-                         }))
-                        .sort((a, b) => b.timestamp - a.timestamp);
-                 } else {
-                    localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
-                }
-             }
-        } catch (e) {
-             console.error("Failed to load or parse image history:", e);
-             localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
-         }
-
-
-        const initialSettings: Settings = {
-            theme: savedTheme ?? 'system',
-            colorTheme: savedColorTheme ?? DEFAULT_COLOR_THEME,
-            customColorHex: savedCustomHex ?? DEFAULT_CUSTOM_COLOR_HEX,
-            autoExtract: savedAutoExtract ? JSON.parse(savedAutoExtract) : true,
-            enableImagePreviews: savedImagePreviews ? JSON.parse(savedImagePreviews) : true,
-            fetchMode: savedFetchMode ?? DEFAULT_FETCH_MODE,
-            clientProxyUrl: savedClientProxyUrl ?? DEFAULT_CLIENT_PROXY_URL,
-            saveHistory: savedSaveHistory ? JSON.parse(savedSaveHistory) : false,
-        };
-        setSettings(initialSettings);
-        setHistory(loadedHistory);
-        setImageHistory(loadedImageHistory);
-        if (typeof window !== 'undefined') {
-            setIsMobile(window.innerWidth < 768);
-        }
+        const isValidHistory = (i: unknown): i is StoredHistoryItem[] => Array.isArray(i) && i.every(it => typeof it === 'object' && it !== null && 'id' in it && 'url' in it && 'timestamp' in it);
+        const isValidImageHistory = (i: unknown): i is StoredImageHistoryItem[] => Array.isArray(i) && i.every(it => typeof it === 'object' && it !== null && 'id' in it && 'fileName' in it && 'timestamp' in it);
+        setSettings({
+            theme: loadStoredItem<ThemePreference>(THEME_STORAGE_KEY, 'system'), colorTheme: loadStoredItem<ColorTheme>(COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME), customColorHex: loadStoredItem<string | undefined>(CUSTOM_COLOR_HEX_STORAGE_KEY, DEFAULT_CUSTOM_COLOR_HEX),
+            autoExtract: loadStoredItem<boolean>(AUTO_EXTRACT_STORAGE_KEY, true), enableImagePreviews: loadStoredItem<boolean>(IMAGE_PREVIEWS_STORAGE_KEY, true), fetchMode: loadStoredItem<FetchMode>(FETCH_MODE_STORAGE_KEY, DEFAULT_FETCH_MODE),
+            clientProxyUrl: loadStoredItem<string>(CLIENT_PROXY_URL_STORAGE_KEY, DEFAULT_CLIENT_PROXY_URL), saveHistory: loadStoredItem<boolean>(SAVE_HISTORY_STORAGE_KEY, false),
+        });
+        setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
+        setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp)); // previewUrl is loaded as base64 string
+        if (typeof window !== 'undefined') setIsMobile(window.innerWidth < 768);
     }, []);
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const root = window.document.documentElement;
-        const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        root.classList.toggle('dark', isDark);
-        root.dataset.colorTheme = settings.colorTheme;
-
-        if (settings.colorTheme === 'custom' && settings.customColorHex) {
-            const rgb = hexToRgb(settings.customColorHex);
-            if (rgb) {
-                const primaryRgbStr = `${rgb.r} ${rgb.g} ${rgb.b}`;
-                const focusFactor = isDark ? 1.2 : 0.85;
-                const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
-                const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
-                root.style.setProperty('--custom-primary-rgb', primaryRgbStr);
-                root.style.setProperty('--custom-primary-focus-rgb', focusRgbStr);
-                root.style.setProperty('--custom-primary-content-rgb', contentRgbStr);
-            } else {
-                root.style.removeProperty('--custom-primary-rgb');
-                root.style.removeProperty('--custom-primary-focus-rgb');
-                root.style.removeProperty('--custom-primary-content-rgb');
-            }
-        } else {
-            root.style.removeProperty('--custom-primary-rgb');
-            root.style.removeProperty('--custom-primary-focus-rgb');
-            root.style.removeProperty('--custom-primary-content-rgb');
-        }
-
-        localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
-        localStorage.setItem(AUTO_EXTRACT_STORAGE_KEY, JSON.stringify(settings.autoExtract));
-        localStorage.setItem(COLOR_THEME_STORAGE_KEY, settings.colorTheme);
-        localStorage.setItem(IMAGE_PREVIEWS_STORAGE_KEY, JSON.stringify(settings.enableImagePreviews));
-        localStorage.setItem(FETCH_MODE_STORAGE_KEY, settings.fetchMode);
-        localStorage.setItem(CLIENT_PROXY_URL_STORAGE_KEY, settings.clientProxyUrl);
-        localStorage.setItem(SAVE_HISTORY_STORAGE_KEY, JSON.stringify(settings.saveHistory));
-        if (settings.customColorHex) localStorage.setItem(CUSTOM_COLOR_HEX_STORAGE_KEY, settings.customColorHex);
-        else localStorage.removeItem(CUSTOM_COLOR_HEX_STORAGE_KEY);
-
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (e: MediaQueryListEvent) => {
-            if (settings.theme === 'system') {
-                const systemIsDark = e.matches;
-                root.classList.toggle('dark', systemIsDark);
-                if (settings.colorTheme === 'custom' && settings.customColorHex) {
-                    const rgb = hexToRgb(settings.customColorHex);
-                    if (rgb) {
-                        const focusFactor = systemIsDark ? 1.2 : 0.85;
-                        const focusRgbStr = adjustRgb(rgb.r, rgb.g, rgb.b, focusFactor);
-                        const contentRgbStr = getContrastColor(rgb.r, rgb.g, rgb.b);
-                        root.style.setProperty('--custom-primary-focus-rgb', focusRgbStr);
-                        root.style.setProperty('--custom-primary-content-rgb', contentRgbStr);
-                    }
-                }
-            }
-        };
-
-        if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
-
+        if (typeof window === 'undefined') return; const root = window.document.documentElement; const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches); root.classList.toggle('dark', isDark); root.dataset.colorTheme = settings.colorTheme;
+        if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const p = `${rgb.r} ${rgb.g} ${rgb.b}`; const f = isDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-rgb', p); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); } } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); }
+        Object.entries(settings).forEach(([key, value]) => { const storageKey = `booruExtractor${key.charAt(0).toUpperCase() + key.slice(1)}Pref`; if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); });
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)'); const handleChange = (e: MediaQueryListEvent) => { if (settings.theme === 'system') { const sysDark = e.matches; root.classList.toggle('dark', sysDark); if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const f = sysDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } } } };
+        if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange); return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
-        checkIfMobile();
-        window.addEventListener('resize', checkIfMobile);
-        return () => window.removeEventListener('resize', checkIfMobile);
-    }, []);
-
-    useEffect(() => {
-        const enabledCategories = new Set(tagCategories.filter(cat => cat.enabled).map(cat => cat.id));
-        const filteredTags: string[] = [];
-        DEFAULT_TAG_CATEGORIES.forEach(catDef => {
-            if (enabledCategories.has(catDef.id) && allExtractedTags[catDef.id]) {
-                filteredTags.push(...allExtractedTags[catDef.id]!.map(tag => tag.replace(/_/g, ' ')));
-            }
-        });
-        setDisplayedTags(filteredTags.join(', '));
-    }, [allExtractedTags, tagCategories]);
-
-    const saveHistoryToLocalStorage = useCallback((historyToSave: HistoryEntry[]) => {
-        try {
-            if (historyToSave.length > 0) {
-                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyToSave));
-            } else if (localStorage.getItem(HISTORY_STORAGE_KEY)) {
-                localStorage.removeItem(HISTORY_STORAGE_KEY);
-            }
-        } catch (e) {
-            console.error("Failed to save tag history to localStorage:", e);
-            if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
-                 setError("History storage limit reached. Cannot save more entries.");
-            }
-        }
-    }, []);
-
-    const saveImageHistoryToLocalStorage = useCallback((historyToSave: ImageHistoryEntry[]) => {
-        try {
-             const storableHistory = historyToSave.map(entry => ({ ...entry, previewUrl: undefined }));
-             if (storableHistory.length > 0) {
-                 localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(storableHistory));
-             } else if (localStorage.getItem(IMAGE_HISTORY_STORAGE_KEY)) {
-                 localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY);
-             }
-         } catch (e) {
-             console.error("Failed to save image history to localStorage:", e);
-             if (e instanceof Error && e.message.toLowerCase().includes('quota')) {
-                  setImageError("Image history storage limit reached. Cannot save more entries.");
-                  setTimeout(() => setImageError(null), 3000);
-             }
-         }
-    }, []);
-
-
-    const tagCounts = useMemo(() => {
-        return Object.entries(allExtractedTags).reduce((acc, [category, tagsArray]) => {
-            if (tagsArray) {
-                acc[category as TagCategory] = tagsArray.length;
-            }
-            return acc;
-        }, {} as Record<TagCategory, number>);
-    }, [allExtractedTags]);
-
+    useEffect(() => { if (typeof window === 'undefined') return; const checkMobile = () => setIsMobile(window.innerWidth < 768); checkMobile(); window.addEventListener('resize', checkMobile); return () => window.removeEventListener('resize', checkMobile); }, []);
+    useEffect(() => { const enabled = new Set(tagCategories.filter(c => c.enabled).map(c => c.id)); const filtered: string[] = []; DEFAULT_TAG_CATEGORIES.forEach(c => { if (enabled.has(c.id) && allExtractedTags[c.id]) filtered.push(...allExtractedTags[c.id]!.map(t => t.replace(/_/g, ' '))); }); setDisplayedTags(filtered.join(', ')); }, [allExtractedTags, tagCategories]);
+    const saveHistoryToLocalStorage = useCallback((data: HistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(HISTORY_STORAGE_KEY); } catch (e) { console.error("Save tag history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) setError("History storage limit."); } }, []);
+    const saveImageHistoryToLocalStorage = useCallback((data: ImageHistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY); } catch (e) { console.error("Save image history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) { setImageError("Image history storage limit."); setTimeout(() => setImageError(null), 3000); } } }, []); // Keep previewUrl (Base64)
+    const tagCounts = useMemo(() => Object.entries(allExtractedTags).reduce((acc, [cat, tags]) => { if (tags) acc[cat as TagCategory] = tags.length; return acc; }, {} as Record<TagCategory, number>), [allExtractedTags]);
     const totalExtractedTagCount = useMemo(() => calculateTotalTags(allExtractedTags), [allExtractedTags]);
-
     const extractTags = useCallback(async (targetUrl: string) => {
-        const trimmedUrl = targetUrl.trim();
-        if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
-
-        const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
-        if (!site) {
-            setError('URL does not match supported sites/formats.');
-            setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null);
-            currentExtractionUrl.current = null;
-            return;
-        }
-
-        setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false);
-        currentExtractionUrl.current = trimmedUrl;
-
-        const controller = new AbortController();
-        const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0);
-        const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
-
-        let proxyUsed = '';
-        let selectedProxy: ClientProxyOption | undefined;
-
+        const trimmedUrl = targetUrl.trim(); if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return; const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl)); if (!site) { setError('URL not supported.'); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null); currentExtractionUrl.current = null; return; }
+        setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false); currentExtractionUrl.current = trimmedUrl; const controller = new AbortController(); const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0); const timeoutId = setTimeout(() => controller.abort(), fetchTimeout); let proxyUsed = ''; let selectedProxy: ClientProxyOption | undefined;
         try {
-            let extractionResult: ExtractionResult = { tags: {} };
-            let extractionError: string | null = null;
-            let extractionSiteName: string = site.name;
-            let extractionImageUrl: string | undefined = undefined;
-            let extractionTitle: string | undefined = undefined;
-
+            let result: ExtractionResult = { tags: {} }; let errorMsg: string | null = null; let siteName = site.name; let imgUrl: string | undefined = undefined; let imgTitle: string | undefined = undefined;
             if (settings.fetchMode === 'server') {
-                proxyUsed = 'Server Proxy';
-                const response = await fetch(API_ROUTE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ targetUrl: trimmedUrl }),
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                const resultData: ApiExtractionResponse = await response.json();
-                const responseTags = resultData.tags || {};
-                const responseTotalTags = calculateTotalTags(responseTags);
-
-                if (!response.ok || resultData.error) {
-                    let errorMsg = resultData.error || `API Error: ${response.status}`;
-                    if (response.status === 504) errorMsg = 'Server timed out fetching data from the target site.';
-                    else if (response.status === 502) errorMsg = `Server couldn't reach target site (Bad Gateway). ${resultData.error || ''}`.trim();
-                    else if (response.status === 400) errorMsg = `Invalid request: ${resultData.error || ''}`.trim();
-                    else if (response.status === 422) errorMsg = `${resultData.error || 'Extraction failed (e.g., page error, login needed).'}`;
-                    else if (response.status === 500) errorMsg = `Internal Server Error: ${resultData.error || 'Unknown server issue.'}`;
-
-                    if (!(resultData.error && resultData.error.toLowerCase().includes('warning') && responseTotalTags > 0)) {
-                        extractionError = errorMsg;
-                        extractionSiteName = '';
-                    } else {
-                        extractionResult = { tags: responseTags, imageUrl: resultData.imageUrl, title: resultData.title };
-                        extractionError = errorMsg;
-                        extractionSiteName = resultData.siteName;
-                        extractionImageUrl = resultData.imageUrl;
-                        extractionTitle = resultData.title;
-                    }
-                } else {
-                    extractionResult = { tags: responseTags, imageUrl: resultData.imageUrl, title: resultData.title };
-                    extractionSiteName = resultData.siteName;
-                    extractionImageUrl = resultData.imageUrl;
-                    extractionTitle = resultData.title;
-                    if (resultData.error && resultData.error.toLowerCase().includes('warning')) {
-                        extractionError = resultData.error;
-                    } else if (responseTotalTags === 0 && resultData.imageUrl) {
-                       extractionError = `Warning: Image found on ${resultData.siteName}, but no tags were extracted. Selectors may need update or tags might be absent.`;
-                    }
-                }
+                proxyUsed = 'Server'; const response = await fetch(API_ROUTE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetUrl: trimmedUrl }), signal: controller.signal }); clearTimeout(timeoutId); const data: ApiExtractionResponse = await response.json(); const tags = data.tags || {}; const tagCount = calculateTotalTags(tags);
+                if (!response.ok || data.error) { let apiError = data.error || `API Error: ${response.status}`; if (response.status === 504) apiError = 'Server timed out.'; else if (response.status === 502) apiError = `Server bad gateway. ${data.error || ''}`.trim(); else if (response.status === 400) apiError = `Invalid request: ${data.error || ''}`.trim(); else if (response.status === 422) apiError = `${data.error || 'Extraction failed.'}`; else if (response.status === 500) apiError = `Internal Server Error: ${data.error || ''}`.trim(); if (!(data.error?.toLowerCase().includes('warning') && tagCount > 0)) { errorMsg = apiError; siteName = ''; } else { result = { tags, imageUrl: data.imageUrl, title: data.title }; errorMsg = apiError; siteName = data.siteName; imgUrl = data.imageUrl; imgTitle = data.title; }
+                } else { result = { tags, imageUrl: data.imageUrl, title: data.title }; siteName = data.siteName; imgUrl = data.imageUrl; imgTitle = data.title; if (data.error?.toLowerCase().includes('warning')) errorMsg = data.error; else if (tagCount === 0 && data.imageUrl) errorMsg = `Warning: Image found, no tags extracted.`; }
             } else {
-                selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0];
-                proxyUsed = `Client Proxy (${selectedProxy.label})`;
-                const proxyFetchUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`;
-                let html = '';
-                let clientFetchError = '';
-
-                try {
-                    const response = await fetch(proxyFetchUrl, { signal: controller.signal });
-                     clearTimeout(timeoutId);
-
-                    if (!response.ok) {
-                         clientFetchError = `Client proxy (${selectedProxy.label}) failed: ${response.status}. Service may be down/blocking.`;
-                    } else {
-                        html = await response.text();
-                        if (!html) {
-                            clientFetchError = `Client proxy (${selectedProxy.label}) returned empty content.`;
-                        } else if (selectedProxy.id === 'allorigins') {
-                            try {
-                                const jsonData = JSON.parse(html);
-                                if (jsonData && jsonData.contents) {
-                                    html = jsonData.contents;
-                                } else {
-                                    clientFetchError = `Client proxy (${selectedProxy.label}) returned JSON but missing 'contents' field.`; html = '';
-                                }
-                            } catch  {
-                                if (html.toLowerCase().includes("error") || html.toLowerCase().includes("cloudflare") || html.length < 100) {
-                                    clientFetchError = `Client proxy (${selectedProxy.label}) returned non-JSON content (likely error/block).`;
-                                }
-                            }
-                        }
-                         if (!html && !clientFetchError) clientFetchError = `Client proxy (${selectedProxy.label}) resulted in empty HTML.`;
-                    }
-                } catch(fetchErr) {
-                    clearTimeout(timeoutId);
-                     if ((fetchErr as Error).name === 'AbortError') clientFetchError = `Request via ${proxyUsed} timed out after ${fetchTimeout / 1000}s.`;
-                     else if (fetchErr instanceof TypeError && fetchErr.message.toLowerCase().includes('failed to fetch')) clientFetchError = `Failed to connect via ${proxyUsed}. Check connection/proxy status.`;
-                     else clientFetchError = `Client fetch error via ${proxyUsed}: ${(fetchErr as Error).message}`;
-                }
-
-                if (clientFetchError) {
-                    extractionError = clientFetchError;
-                    extractionSiteName = '';
-                } else if (!html) {
-                    extractionError = 'Failed to retrieve valid HTML content via Client Proxy.';
-                    extractionSiteName = '';
-                } else {
-                    try {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        try {
-                            doc.querySelector('base')?.remove();
-                            const head = doc.head || doc.documentElement.appendChild(doc.createElement('head'));
-                            const base = doc.createElement('base');
-                            base.href = new URL('./', trimmedUrl).href;
-                            head.insertBefore(base, head.firstChild);
-                        } catch (e) { console.warn(`Could not set base tag via Client Proxy for ${trimmedUrl}:`, e); }
-
-                        const detectPageError = (document: Document) => {
-                            let detected = false;
-                            let errorMessage = "Check URL, site status, or try again later.";
-
-                            if (document.title.toLowerCase().includes("error") ||
-                                document.title.toLowerCase().includes("access denied") ||
-                                document.title.toLowerCase().includes("cloudflare")) {
-                                detected = true;
-                                errorMessage = `Site returned error/denial/block in title: ${document.title.substring(0, 100)}`;
-                            }
-
-                            const errorElement = document.querySelector('.error, #error-page, .dtext-error, [class*="error"], [id*="error"], #challenge-running');
-                            if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
-                                detected = true;
-                                const pageErrorText = errorElement.textContent.trim();
-                                if (pageErrorText.toLowerCase().includes("rate limit"))
-                                    errorMessage = "Rate limit likely exceeded on target site.";
-                                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate"))
-                                    errorMessage = "Content may require login.";
-                                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist"))
-                                    errorMessage = "Post not found (404).";
-                                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser"))
-                                    errorMessage = "Blocked by Cloudflare or similar security check.";
-                                else
-                                    errorMessage = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
-                            }
-
-                            if (!detected && document.body) {
-                                const bodyText = document.body.textContent?.toLowerCase() || '';
-                                if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) {
-                                    detected = true;
-                                    errorMessage = `Content may require login.`;
-                                } else if (bodyText.includes('access denied')) {
-                                    detected = true;
-                                    errorMessage = `Access denied by target site.`;
-                                } else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) {
-                                    detected = true;
-                                    errorMessage = `Blocked by Cloudflare or similar security check.`;
-                                } else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) {
-                                    detected = true;
-                                    errorMessage = `Target site requires JS/Cookies, may be incompatible with proxy.`;
-                                }
-                            }
-
-                            return { detected, errorMessage };
-                        };
-
-                        const { detected: pageErrorDetected, errorMessage: specificError } = detectPageError(doc);
-
-                        if (pageErrorDetected) {
-                            extractionError = `Extraction stopped: ${specificError}`;
-                            extractionSiteName = '';
-                        } else {
-                             extractionResult = site.extractTags(doc);
-                             extractionImageUrl = extractionResult.imageUrl;
-                             extractionTitle = extractionResult.title;
-                             const clientTotalTags = calculateTotalTags(extractionResult.tags || {});
-                             if (clientTotalTags === 0) {
-                                 extractionError = extractionResult.imageUrl
-                                     ? 'Warning: Image found, but no tags extracted (Client Proxy). Selectors may need update or tags absent.'
-                                     : 'Warning: No tags or image found (Client Proxy). Page structure changed, post unavailable, or login needed.';
-                             }
-                        }
-                    } catch (parseErr) {
-                        extractionError = `Failed to parse or extract via ${proxyUsed}: ${(parseErr as Error).message}`;
-                        extractionSiteName = '';
-                    }
-                }
+                selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0]; proxyUsed = `Client (${selectedProxy.label})`; const proxyUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`; let html = ''; let clientErr = '';
+                try { const resp = await fetch(proxyUrl, { signal: controller.signal }); clearTimeout(timeoutId); if (!resp.ok) clientErr = `Proxy (${selectedProxy.label}) failed: ${resp.status}.`; else { html = await resp.text(); if (!html) clientErr = `Proxy (${selectedProxy.label}) empty content.`; else if (selectedProxy.id === 'allorigins') { try { const json = JSON.parse(html); if (json?.contents) html = json.contents; else { clientErr = `Proxy JSON missing 'contents'.`; html = ''; } } catch { if (html.toLowerCase().match(/error|cloudflare/) || html.length < 100) clientErr = `Proxy non-JSON error/block.`; } } if (!html && !clientErr) clientErr = `Proxy empty HTML.`; } } catch (err) { clearTimeout(timeoutId); if ((err as Error).name === 'AbortError') clientErr = `Request via ${proxyUsed} timed out.`; else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) clientErr = `Failed to connect via ${proxyUsed}.`; else clientErr = `Client fetch error: ${(err as Error).message}`; }
+                if (clientErr) { errorMsg = clientErr; siteName = ''; } else if (!html) { errorMsg = 'Failed HTML fetch via Client Proxy.'; siteName = ''; }
+                else { try { const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); try { doc.querySelector('base')?.remove(); const head = doc.head || doc.documentElement.appendChild(doc.createElement('head')); const base = doc.createElement('base'); base.href = new URL('./', trimmedUrl).href; head.insertBefore(base, head.firstChild); } catch (e) { console.warn(`Base tag set failed:`, e); } const detectPageError = (d: Document) => { let detected = false; let msg = "Check URL/site."; if (d.title.toLowerCase().match(/error|access denied|cloudflare/)) { detected = true; msg = `Site error in title: ${d.title.substring(0, 100)}`; } const errEl = d.querySelector('.error,#error-page,.dtext-error,[class*="error"],[id*="error"],#challenge-running'); if (errEl?.textContent?.trim()) { detected = true; const errTxt = errEl.textContent.trim().toLowerCase(); if (errTxt.includes("rate limit")) msg = "Rate limit exceeded."; else if (errTxt.includes("login") || errTxt.includes("authenticate")) msg = "Login required."; else if (errTxt.includes("not found")) msg = "Post not found (404)."; else if (errTxt.includes("cloudflare")) msg = "Blocked by Cloudflare."; else msg = `Site Error: ${errEl.textContent.trim().substring(0, 150)}`; } if (!detected && d.body) { const bodyTxt = d.body.textContent?.toLowerCase() || ''; if (bodyTxt.includes('you must be logged in')) { detected = true; msg = `Login required.`; } else if (bodyTxt.includes('access denied')) { detected = true; msg = `Access denied.`; } else if (bodyTxt.includes('cloudflare')) { detected = true; msg = `Blocked by Cloudflare.`; } else if (bodyTxt.includes('enable javascript')) { detected = true; msg = `Site requires JS/Cookies.`; } } return { detected, msg }; }; const { detected: pageErr, msg: specificErr } = detectPageError(doc); if (pageErr) { errorMsg = `Extraction stopped: ${specificErr}`; siteName = ''; } else { result = site.extractTags(doc); imgUrl = result.imageUrl; imgTitle = result.title; const tagCount = calculateTotalTags(result.tags || {}); if (tagCount === 0) errorMsg = result.imageUrl ? 'Warning: Image found, no tags (Client).' : 'Warning: No tags/image (Client).'; } } catch (parseErr) { errorMsg = `Parse/extract failed via ${proxyUsed}: ${(parseErr as Error).message}`; siteName = ''; } }
             }
-
-            if (extractionError) {
-                 setError(extractionError);
-                 console.error("Extraction Error:", extractionError, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
-                 if (!extractionSiteName) setActiveSite(null);
-                 else setActiveSite(extractionSiteName);
-
-                 if (!(extractionError.toLowerCase().includes('warning') && calculateTotalTags(extractionResult.tags) > 0)) {
-                     setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined);
-                     currentExtractionUrl.current = null;
-                 } else {
-                     setAllExtractedTags(extractionResult.tags || {});
-                     setImageUrl(extractionImageUrl);
-                     setImageTitle(extractionTitle);
-                     console.warn("Extraction Warning with data:", extractionError, "URL:", trimmedUrl, "Site:", extractionSiteName);
-                 }
-
-            } else {
-                 setAllExtractedTags(extractionResult.tags || {});
-                 setImageUrl(extractionImageUrl);
-                 setImageTitle(extractionTitle);
-                 setActiveSite(extractionSiteName);
-                 setError('');
-
-                 const finalTotalTags = calculateTotalTags(extractionResult.tags || {});
-                 if(finalTotalTags > 0) console.log(`Successfully extracted ${finalTotalTags} tags from ${extractionSiteName} via ${proxyUsed}.`);
-
-                if (settings.saveHistory) {
-                     const newEntry: HistoryEntry = {
-                         id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                         url: trimmedUrl,
-                         tags: extractionResult.tags || {},
-                         imageUrl: extractionImageUrl,
-                         title: extractionTitle,
-                         siteName: extractionSiteName,
-                         timestamp: Date.now(),
-                     };
-                     setHistory(prevHistory => {
-                         const updatedHistory = [newEntry, ...prevHistory.filter(h => h.url !== trimmedUrl)];
-                         const finalHistory = updatedHistory.slice(0, MAX_HISTORY_SIZE);
-                         saveHistoryToLocalStorage(finalHistory);
-                         return finalHistory;
-                     });
-                 }
-             }
-
-        } catch (err) {
-             clearTimeout(timeoutId);
-             const errorMessage = `Unexpected error during extraction: ${(err as Error).message}`;
-             setError(errorMessage);
-             console.error(errorMessage, err);
-             setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined);
-             currentExtractionUrl.current = null;
-        } finally {
-             setLoading(false);
-        }
+            if (errorMsg) { setError(errorMsg); console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed); setActiveSite(siteName || null); if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) { setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; } else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName); } }
+            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)].slice(0, MAX_HISTORY_SIZE); saveHistoryToLocalStorage(updated); return updated; }); } }
+        } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
+        finally { setLoading(false); }
     }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, saveHistoryToLocalStorage]);
 
-    const handleReset = useCallback(() => {
-        setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false);
-        currentExtractionUrl.current = null;
-        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-        cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
-
+    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
     useEffect(() => {
-        if (activeView !== 'extractor' || !settings.autoExtract) {
-             if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-             return;
-         }
-
-        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-        const trimmedUrl = url.trim();
-
-        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-            const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
-            if (isSupported) {
-                if (trimmedUrl !== currentExtractionUrl.current) {
-                    debounceTimeoutRef.current = setTimeout(() => {
-                        const currentInput = document.getElementById('url') as HTMLInputElement | null;
-                        const currentInputValue = currentInput?.value.trim();
-                        if (currentInputValue !== undefined && trimmedUrl === currentInputValue && trimmedUrl !== currentExtractionUrl.current) {
-                            void extractTags(trimmedUrl);
-                        }
-                    }, 750);
-                }
-            } else if (trimmedUrl !== currentExtractionUrl.current) {
-                setError('URL detected, but does not match supported sites.');
-            }
-        } else if (!trimmedUrl && currentExtractionUrl.current) {
-            handleReset();
-        } else if (trimmedUrl && !(trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://'))) {
-            if (trimmedUrl !== currentExtractionUrl.current) setError('Please enter a valid URL starting with http:// or https://');
-        } else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) {
-             setError('');
-        }
-        return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
+        if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
+        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
+        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) { const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl)); if (isSupported) { if (trimmedUrl !== currentExtractionUrl.current) { debounceTimeoutRef.current = setTimeout(() => { const currentInputVal = (document.getElementById('url') as HTMLInputElement | null)?.value.trim(); if (currentInputVal !== undefined && trimmedUrl === currentInputVal && trimmedUrl !== currentExtractionUrl.current) void extractTags(trimmedUrl); }, 750); } } else if (trimmedUrl !== currentExtractionUrl.current) setError('URL not supported.'); }
+        else if (!trimmedUrl && currentExtractionUrl.current) handleReset(); else if (trimmedUrl && !trimmedUrl.startsWith('http')) { if (trimmedUrl !== currentExtractionUrl.current) setError('URL must start with http:// or https://'); }
+        else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) setError(''); return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset, activeView]);
 
     const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
-    const handleManualExtract = useCallback(() => {
-        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-        currentExtractionUrl.current = null;
-        void extractTags(url.trim());
-    }, [extractTags, url]);
-    const toggleTagCategory = useCallback((categoryId: TagCategory) => setTagCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, enabled: !cat.enabled } : cat)), []);
-    const toggleAllCategories = useCallback((enabled: boolean) => setTagCategories(prev => prev.map(cat => ({ ...cat, enabled }))), []);
-    const handleCopy = useCallback(async () => {
-        if (!displayedTags) return;
-        try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); }
-        catch (err) { console.error('Failed to copy tags:', err); setError("Failed to copy tags."); }
-    }, [displayedTags]);
-    const areAllCategoriesEnabled = useMemo(() => tagCategories.every(cat => cat.enabled), [tagCategories]);
-    const areAllCategoriesDisabled = useMemo(() => !tagCategories.some(cat => cat.enabled), [tagCategories]);
-
-    const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => {
-        if (loading) return;
-        setActiveView('extractor');
-        handleReset();
-        setUrl(entry.url);
-        setAllExtractedTags(typeof entry.tags === 'object' && entry.tags !== null ? entry.tags : {});
-        setImageUrl(entry.imageUrl);
-        setImageTitle(entry.title);
-        setActiveSite(entry.siteName || null);
-        currentExtractionUrl.current = entry.url;
-        setError('');
-        cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [loading, handleReset]);
-
-    const handleDeleteHistoryEntry = useCallback((id: string) => {
-         setHistory(prev => {
-             const updatedHistory = prev.filter(item => item.id !== id);
-             saveHistoryToLocalStorage(updatedHistory);
-             return updatedHistory;
-         });
-     }, [saveHistoryToLocalStorage]);
-
-    const handleClearHistory = useCallback(() => {
-        setHistory([]);
-        saveHistoryToLocalStorage([]);
-    }, [saveHistoryToLocalStorage]);
-
-
-    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        if (activeView !== 'extractor') return;
-        const types = e.dataTransfer.types;
-        if (types.includes('text/uri-list') || types.includes('text/plain')) {
-            e.dataTransfer.dropEffect = 'copy';
-            setIsDraggingOver(true);
-        } else {
-            e.dataTransfer.dropEffect = 'none';
-        }
-    }, [activeView]);
-
-    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        if (activeView !== 'extractor') return;
-        setIsDraggingOver(false);
-    }, [activeView]);
-
-    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-         if (activeView !== 'extractor') return;
-        setIsDraggingOver(false);
-        const droppedUrl = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
-        if (droppedUrl && (droppedUrl.startsWith('http://') || droppedUrl.startsWith('https://'))) {
-            const trimmedUrl = droppedUrl.trim();
-            if (trimmedUrl) {
-                handleReset();
-                currentExtractionUrl.current = null;
-                setUrl(trimmedUrl);
-                setError('');
-                if (settings.autoExtract) void extractTags(trimmedUrl);
-            }
-        } else {
-            setError("Dropped item is not a valid URL.");
-        }
-    }, [handleReset, settings.autoExtract, extractTags, activeView]);
-
+    const handleManualExtract = useCallback(() => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); currentExtractionUrl.current = null; void extractTags(url.trim()); }, [extractTags, url]);
+    const toggleTagCategory = useCallback((id: TagCategory) => setTagCategories(prev => prev.map(c => c.id === id ? { ...c, enabled: !c.enabled } : c)), []);
+    const toggleAllCategories = useCallback((enabled: boolean) => setTagCategories(prev => prev.map(c => ({ ...c, enabled }))), []);
+    const handleCopy = useCallback(async () => { if (!displayedTags) return; try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); } catch (err) { console.error('Copy failed:', err); setError("Failed to copy."); } }, [displayedTags]);
+    const areAllCategoriesEnabled = useMemo(() => tagCategories.every(c => c.enabled), [tagCategories]);
+    const areAllCategoriesDisabled = useMemo(() => !tagCategories.some(c => c.enabled), [tagCategories]);
+    const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => { if (loading) return; setActiveView('extractor'); handleReset(); setUrl(entry.url); setAllExtractedTags(entry.tags ?? {}); setImageUrl(entry.imageUrl); setImageTitle(entry.title); setActiveSite(entry.siteName || null); currentExtractionUrl.current = entry.url; setError(''); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [loading, handleReset]);
+    const handleDeleteHistoryEntry = useCallback((id: string) => { setHistory(prev => { const updated = prev.filter(i => i.id !== id); saveHistoryToLocalStorage(updated); return updated; }); }, [saveHistoryToLocalStorage]);
+    const handleClearHistory = useCallback(() => { setHistory([]); saveHistoryToLocalStorage([]); }, [saveHistoryToLocalStorage]);
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); if (activeView !== 'extractor') return; const types = e.dataTransfer.types; e.dataTransfer.dropEffect = (types.includes('text/uri-list') || types.includes('text/plain')) ? 'copy' : 'none'; setIsDraggingOver(e.dataTransfer.dropEffect === 'copy'); }, [activeView]);
+    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); if (activeView !== 'extractor') return; setIsDraggingOver(false); }, [activeView]);
+    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); if (activeView !== 'extractor') return; setIsDraggingOver(false); const dropped = (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain')).trim(); if (dropped?.startsWith('http')) { handleReset(); currentExtractionUrl.current = null; setUrl(dropped); setError(''); if (settings.autoExtract) void extractTags(dropped); } else setError("Invalid URL dropped."); }, [handleReset, settings.autoExtract, extractTags, activeView]);
     const handleOpenSettings = useCallback(() => setShowSettings(true), []);
     const handleCloseSettings = useCallback(() => setShowSettings(false), []);
-
-    const shouldShowPreviewSection = useMemo(() => {
-        return activeView === 'extractor' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error));
-    }, [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
-
+    const shouldShowPreviewSection = useMemo(() => activeView === 'extractor' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)), [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
-
-    const getSelectedProxyLabel = useCallback(() => {
-        return CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown Proxy';
-    }, [settings.clientProxyUrl]);
-
-    const sidebarButtonClass = (view: ActiveView) => `
-        flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))]
-        focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]
-        ${activeView === view
-            ? 'bg-[rgba(var(--color-primary-rgb),0.15)] text-[rgb(var(--color-primary-rgb))]'
-            : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'
-        }
-    `;
-     const settingsButtonClass = `
-         flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out
-         focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))]
-         focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]
-         bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))]
-     `;
-
-    const handleClearImage = useCallback(() => {
-        setImageFile(null);
-        setImageData(null);
-        setImageError(null);
-        if (imagePreviewUrl) {
-            URL.revokeObjectURL(imagePreviewUrl);
-            setImagePreviewUrl(null);
-        }
-        setCopyStatus({});
-        if(fileInputRef.current) fileInputRef.current.value = '';
-        imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [imagePreviewUrl]);
-
+    const getSelectedProxyLabel = useCallback(() => CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown', [settings.clientProxyUrl]);
+    const sidebarButtonClass = (view: ActiveView) => `flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${activeView === view ? 'bg-[rgba(var(--color-primary-rgb),0.15)] text-[rgb(var(--color-primary-rgb))]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
+    const settingsButtonClass = `flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))]`;
+    const handleClearImage = useCallback(() => { setImageFile(null); setImageData(null); setImageError(null); if (imagePreviewUrl) { URL.revokeObjectURL(imagePreviewUrl); setImagePreviewUrl(null); } setCopyStatus({}); if (fileInputRef.current) fileInputRef.current.value = ''; imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imagePreviewUrl]);
     const processImageFile = useCallback(async (file: File | null | undefined) => {
-        if (!file || imageLoading) return;
-
-        handleClearImage();
-        setImageLoading(true);
-        setImageFile(file);
-
-        const objectUrl = URL.createObjectURL(file);
-        setImagePreviewUrl(objectUrl);
-
+        if (!file || imageLoading) return; handleClearImage(); setImageLoading(true); setImageFile(file);
+        const objectUrl = URL.createObjectURL(file); setImagePreviewUrl(objectUrl);
+        let thumbnailDataUrl: string | null = null;
+        try { thumbnailDataUrl = await createThumbnail(file, THUMBNAIL_SIZE); } catch (thumbErr) { console.warn("Thumbnail creation failed:", thumbErr); }
         try {
             const metadata = await extractImageMetadata(file);
-            if (metadata.error) {
-                setImageError(metadata.error);
-                setImageData(null);
-            } else {
-                setImageData(metadata);
-                setImageError(null);
-                 if (settings.saveHistory && (metadata.positivePrompt || metadata.negativePrompt || metadata.parameters)) {
-                     const newImageEntry: ImageHistoryEntry = {
-                         id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                         fileName: file.name,
-                         imageData: metadata,
-                         timestamp: Date.now(),
-                         previewUrl: undefined
-                     };
-                     setImageHistory(prevHistory => {
-                         const updatedHistory = [newImageEntry, ...prevHistory.filter(h => h.fileName !== file.name || h.timestamp !== newImageEntry.timestamp)];
-                         const finalHistory = updatedHistory.slice(0, MAX_IMAGE_HISTORY_SIZE);
-                         saveImageHistoryToLocalStorage(finalHistory);
-                         return finalHistory;
-                     });
+            if (metadata.error) { setImageError(metadata.error); setImageData(null); }
+            else {
+                setImageData(metadata); setImageError(null);
+                if (settings.saveHistory && (metadata.positivePrompt || metadata.negativePrompt || metadata.parameters || thumbnailDataUrl)) {
+                     const newImageEntry: ImageHistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, fileName: file.name, imageData: metadata, timestamp: Date.now(), previewUrl: thumbnailDataUrl ?? undefined }; // Store Base64
+                     setImageHistory(prev => { const updated = [newImageEntry, ...prev.filter(h => h.fileName !== file.name || h.timestamp !== newImageEntry.timestamp)].slice(0, MAX_IMAGE_HISTORY_SIZE); saveImageHistoryToLocalStorage(updated); return updated; });
                  }
-
             }
-        } catch (err) {
-            setImageError(`Failed to process image: ${(err as Error).message}`);
-            setImageData(null);
-            console.error("Image processing error:", err);
-        } finally {
-            setImageLoading(false);
-            imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        } catch (err) { setImageError(`Processing failed: ${(err as Error).message}`); setImageData(null); console.error("Image error:", err); }
+        finally { setImageLoading(false); imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }
     }, [imageLoading, handleClearImage, settings.saveHistory, saveImageHistoryToLocalStorage]);
+    useEffect(() => () => { if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl); }, [imagePreviewUrl]);
+    const handleImageDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOverImage(false); if (imageLoading) return; const file = e.dataTransfer.files?.[0]; if (file?.type.startsWith('image/')) { if (file.type === 'image/png') void processImageFile(file); else { setImageError('Drop PNG only.'); const url = URL.createObjectURL(file); setImagePreviewUrl(url); setImageFile(file); setImageData(null); setImageLoading(false); } } else if (file) setImageError('Drop valid image (PNG).'); }, [processImageFile, imageLoading]);
+    const handleImageDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); if (imageLoading) return; const isPng = e.dataTransfer.items?.[0]?.kind === 'file' && e.dataTransfer.items[0].type === 'image/png'; e.dataTransfer.dropEffect = isPng ? 'copy' : 'none'; setIsDraggingOverImage(isPng); }, [imageLoading]);
+    const handleImageDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDraggingOverImage(false); }, []);
+    const handleImageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file?.type !== 'image/png' && file?.type.startsWith('image/')) { setImageError('Select PNG only.'); const url = URL.createObjectURL(file); setImagePreviewUrl(url); setImageFile(file); setImageData(null); setImageLoading(false); if (fileInputRef.current) fileInputRef.current.value = ''; return; } void processImageFile(file); }, [processImageFile]);
+    const triggerFileInput = useCallback(() => fileInputRef.current?.click(), []);
+    const handleMetadataCopy = useCallback(async (type: keyof CopyStatus, text: string | undefined | null) => { if (!text || copyStatus[type]) return; try { await navigator.clipboard.writeText(text); setCopyStatus(p => ({ ...p, [type]: true })); setTimeout(() => setCopyStatus(p => ({ ...p, [type]: false })), 2000); } catch (err) { console.error(`Copy ${type} failed:`, err); setImageError(`Failed to copy ${type}.`); setTimeout(() => setImageError(null), 3000); } }, [copyStatus]);
+    const formatParametersForCopy = useCallback((p?: Record<string, string>): string => !p ? '' : Object.entries(p).map(([k, v]) => `${k}: ${v}`).join('\n'), []);
+    const handleLoadImageHistoryEntry = useCallback((entry: ImageHistoryEntry) => { if (imageLoading) return; handleClearImage(); setImageData(entry.imageData); setImageFile({ name: entry.fileName, type: 'image/png' } as File); setImageError(null); setImagePreviewUrl(entry.previewUrl ?? null); // Use stored Base64 if available for large preview
+        setCopyStatus({}); imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imageLoading, handleClearImage]);
+    const handleDeleteImageHistoryEntry = useCallback((id: string) => { setImageHistory(prev => { const updated = prev.filter(i => i.id !== id); saveImageHistoryToLocalStorage(updated); return updated; }); }, [saveImageHistoryToLocalStorage]);
+    const handleClearImageHistory = useCallback(() => { setImageHistory([]); saveImageHistoryToLocalStorage([]); }, [saveImageHistoryToLocalStorage]);
 
-     useEffect(() => {
-        return () => {
-            if (imagePreviewUrl) {
-                URL.revokeObjectURL(imagePreviewUrl);
-            }
-        };
-    }, [imagePreviewUrl]);
+    const extractionFilterPredicate = useCallback((entry: HistoryEntry, query: string): boolean =>
+        entry.title?.toLowerCase().includes(query) ||
+        entry.url.toLowerCase().includes(query) ||
+        entry.siteName?.toLowerCase().includes(query) ||
+        (entry.tags && Object.values(entry.tags).flat().some((tag: string) => tag.toLowerCase().includes(query)))
+    , []);
 
-    const handleImageDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDraggingOverImage(false);
-        if (imageLoading) return;
+    const imageFilterPredicate = useCallback((entry: ImageHistoryEntry, query: string): boolean =>
+        entry.fileName.toLowerCase().includes(query) ||
+        !!entry.imageData.positivePrompt?.toLowerCase().includes(query) ||
+        !!entry.imageData.negativePrompt?.toLowerCase().includes(query) ||
+        !!(entry.imageData.parameters && Object.entries(entry.imageData.parameters).some(([k, v]: [string, string]) => k.toLowerCase().includes(query) || v.toLowerCase().includes(query)))
+    , []);
 
-        const file = e.dataTransfer.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-             if (file.type === 'image/png') {
-                void processImageFile(file);
-            } else {
-                setImageError('Please drop a PNG file for metadata extraction.');
-                 const objectUrl = URL.createObjectURL(file);
-                 setImagePreviewUrl(objectUrl);
-                 setImageFile(file);
-                 setImageData(null);
-                 setImageLoading(false);
-            }
-        } else if (file) {
-            setImageError('Please drop a valid image file (PNG required).');
-        }
-    }, [processImageFile, imageLoading]);
+    const renderHistoryItem = useCallback((entry: HistoryEntry) => (
+        <HistoryItem key={entry.id} entry={entry} onLoad={handleLoadHistoryEntry} onDelete={handleDeleteHistoryEntry} enableImagePreviews={settings.enableImagePreviews} />
+    ), [handleLoadHistoryEntry, handleDeleteHistoryEntry, settings.enableImagePreviews]);
 
-    const handleImageDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (imageLoading) return;
-        const items = e.dataTransfer.items;
-        if (items && items.length > 0 && items[0].kind === 'file' && items[0].type === 'image/png') {
-             e.dataTransfer.dropEffect = 'copy';
-             setIsDraggingOverImage(true);
-        } else {
-             e.dataTransfer.dropEffect = 'none';
-             setIsDraggingOverImage(false);
-        }
-    }, [imageLoading]);
-
-    const handleImageDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-         if (e.currentTarget.contains(e.relatedTarget as Node)) {
-            return;
-        }
-        setIsDraggingOverImage(false);
-    }, []);
-
-    const handleImageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-         if (file && file.type !== 'image/png') {
-             setImageError('Please select a PNG file for metadata extraction.');
-             const objectUrl = URL.createObjectURL(file);
-             setImagePreviewUrl(objectUrl);
-             setImageFile(file);
-             setImageData(null);
-             setImageLoading(false);
-             if(fileInputRef.current) fileInputRef.current.value = '';
-             return;
-         }
-        void processImageFile(file);
-    }, [processImageFile]);
-
-
-    const triggerFileInput = useCallback(() => {
-        fileInputRef.current?.click();
-    }, []);
-
-    const handleMetadataCopy = useCallback(async (type: keyof CopyStatus, textToCopy: string | undefined | null) => {
-        if (!textToCopy || copyStatus[type]) return;
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            setCopyStatus(prev => ({ ...prev, [type]: true }));
-            setTimeout(() => setCopyStatus(prev => ({ ...prev, [type]: false })), 2000);
-        } catch (err) {
-            console.error(`Failed to copy ${type}:`, err);
-            setImageError(`Failed to copy ${type}.`);
-             setTimeout(() => setImageError(null), 3000);
-        }
-    }, [copyStatus]);
-
-     const formatParametersForCopy = useCallback((params: Record<string, string> | undefined): string => {
-         if (!params) return '';
-         return Object.entries(params)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join('\n');
-     }, []);
-
-     const handleLoadImageHistoryEntry = useCallback((entry: ImageHistoryEntry) => {
-         if (imageLoading) return;
-         handleClearImage();
-         setImageData(entry.imageData);
-         setImageFile({ name: entry.fileName, type: 'image/png' } as File);
-         setImageError(null);
-         setImagePreviewUrl(null);
-         setCopyStatus({});
-         imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-     }, [imageLoading, handleClearImage]);
-
-     const handleDeleteImageHistoryEntry = useCallback((id: string) => {
-         setImageHistory(prev => {
-             const updatedHistory = prev.filter(item => item.id !== id);
-             saveImageHistoryToLocalStorage(updatedHistory);
-             return updatedHistory;
-         });
-     }, [saveImageHistoryToLocalStorage]);
-
-     const handleClearImageHistory = useCallback(() => {
-         setImageHistory([]);
-         saveImageHistoryToLocalStorage([]);
-     }, [saveImageHistoryToLocalStorage]);
+    const renderImageHistoryItem = useCallback((entry: ImageHistoryEntry) => (
+        <ImageHistoryItem key={entry.id} entry={entry} onLoad={handleLoadImageHistoryEntry} onDelete={handleDeleteImageHistoryEntry} />
+    ), [handleLoadImageHistoryEntry, handleDeleteImageHistoryEntry]);
 
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4 z-20 pt-[1px]">
                     <div className="flex flex-col space-y-2 rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-lg">
-                         <TooltipWrapper tipContent="Tag Extractor">
-                             <motion.button
-                                 whileTap={{ scale: 0.9 }}
-                                 whileHover={{ scale: 1.1, backgroundColor: activeView !== 'extractor' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }}
-                                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                                 onClick={() => setActiveView('extractor')}
-                                 className={sidebarButtonClass('extractor')}
-                                 aria-label="Tag Extractor View"
-                                 aria-current={activeView === 'extractor' ? 'page' : undefined}
-                             >
-                                <TagIcon/>
-                              </motion.button>
-                         </TooltipWrapper>
-                         <TooltipWrapper tipContent="Image Metadata">
-                              <motion.button
-                                  whileTap={{ scale: 0.9 }}
-                                  whileHover={{ scale: 1.1, backgroundColor: activeView !== 'image' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }}
-                                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                                  onClick={() => setActiveView('image')}
-                                  className={sidebarButtonClass('image')}
-                                  aria-label="Image Metadata View"
-                                  aria-current={activeView === 'image' ? 'page' : undefined}
-                              >
-                                 <PhotoIcon className="h-6 w-6"/>
-                               </motion.button>
-                          </TooltipWrapper>
+                         <TooltipWrapper tipContent="Tag Extractor"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: activeView !== 'extractor' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={() => setActiveView('extractor')} className={sidebarButtonClass('extractor')} aria-label="Tag Extractor" aria-current={activeView === 'extractor' ? 'page' : undefined}><TagIcon/></motion.button></TooltipWrapper>
+                         <TooltipWrapper tipContent="Image Metadata"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: activeView !== 'image' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={() => setActiveView('image')} className={sidebarButtonClass('image')} aria-label="Image Metadata" aria-current={activeView === 'image' ? 'page' : undefined}><PhotoIcon className="h-6 w-6"/></motion.button></TooltipWrapper>
                          <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
-                         <TooltipWrapper tipContent="Settings">
-                             <motion.button
-                                 whileTap={{ scale: 0.9 }}
-                                 whileHover={{ rotate: 15, scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}
-                                 transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                                 onClick={handleOpenSettings}
-                                 className={settingsButtonClass}
-                                 aria-label="Open Settings"
-                             >
-                                <CogIcon/>
-                              </motion.button>
-                         </TooltipWrapper>
+                         <TooltipWrapper tipContent="Settings"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 15, scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={handleOpenSettings} className={settingsButtonClass} aria-label="Settings"><CogIcon/></motion.button></TooltipWrapper>
                      </div>
                  </div>
-
-                 <div
-                    className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]"
-                    onDragOver={activeView === 'extractor' ? handleDragOver : activeView === 'image' ? handleImageDragOver : undefined}
-                    onDragLeave={activeView === 'extractor' ? handleDragLeave : activeView === 'image' ? handleImageDragLeave : undefined}
-                    onDrop={activeView === 'extractor' ? handleDrop : activeView === 'image' ? handleImageDrop : undefined}
-                 >
+                 <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
                     <AnimatePresence>
-                        {isDraggingOver && activeView === 'extractor' && (
-                            <motion.div
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
-                            >
-                                <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
-                                    <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
-                                    <p className="font-semibold">Drop URL Here</p>
-                                </div>
-                            </motion.div>
-                        )}
-                         {isDraggingOverImage && activeView === 'image' && (
-                            <motion.div
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                                className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"
-                            >
-                                <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
-                                    <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/>
-                                    <p className="font-semibold">Drop PNG Image Here</p>
-                                </div>
-                            </motion.div>
-                        )}
+                        {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
+                        {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
                     </AnimatePresence>
-
                     <AnimatePresence mode="wait">
-                        {activeView === 'extractor' && (
-                            <motion.div
-                                key="extractor-view-content"
-                                className="flex flex-col flex-1 overflow-hidden"
-                                initial={{ opacity: 0, x: -30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -30 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
-                            >
-                                <div className="sticky top-0 z-10 flex shrink-0 items-start justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                    <div className="grow pr-4">
-                                        <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Booru Tag Extractor</h1>
-                                        <div className="mt-2">
-                                            <span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>
-                                            {BOORU_SITES.map((site) => (
-                                                <span key={site.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === site.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                                    {site.name}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
+                        {activeView === 'extractor' ? (
+                            <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                                <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
+                                    <h1 className="text-xl font-semibold sm:text-2xl">Booru Tag Extractor</h1>
+                                    <div className="mt-2"><span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>{BOORU_SITES.map(s => <span key={s.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === s.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{s.name}</span>)}</div>
                                 </div>
-
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                                    <div>
-                                        <label htmlFor="url" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Booru Post URL</label>
-                                        <input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL here or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/>
-                                    </div>
+                                    <div><label htmlFor="url" className="mb-1.5 block text-sm font-medium">Booru Post URL</label><input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/></div>
                                     <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags Manually">
-                                            {loading ? <LoadingSpinner /> : 'Extract Manually'}
-                                        </motion.button>
-                                        <TooltipWrapper tipContent="Clear input, results, and filters">
-                                            <motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-on-surface-rgb))] transition duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset Form">
-                                                <motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"> <ArrowPathIcon/> </motion.span>
-                                                Reset
-                                            </motion.button>
-                                        </TooltipWrapper>
+                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags">{loading ? <LoadingSpinner /> : 'Extract Manually'}</motion.button>
+                                        <TooltipWrapper tipContent="Clear"><motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold transition hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset"><motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"><ArrowPathIcon/></motion.span>Reset</motion.button></TooltipWrapper>
                                     </div>
-
                                     <AnimatePresence mode='wait'>
-                                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Showing result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                                        {error && error.toLowerCase().includes('warning') && <StatusMessage type="warning">{error}</StatusMessage>}
-                                        {error && !error.toLowerCase().includes('warning') && <StatusMessage type="error">{error}</StatusMessage>}
+                                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
+                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
-
-                                    {shouldShowPreviewSection && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3>
-                                            <ImagePreview
-                                                originalUrl={imageUrl}
-                                                title={imageTitle}
-                                                isLoading={loading && !imageUrl && !error}
-                                                enableImagePreviews={settings.enableImagePreviews}
-                                            />
-                                        </div>
-                                    )}
-
+                                    {shouldShowPreviewSection && <div className="space-y-2"><h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3><ImagePreview originalUrl={imageUrl} title={imageTitle} isLoading={loading && !imageUrl && !error} enableImagePreviews={settings.enableImagePreviews}/></div>}
                                     <AnimatePresence>
                                         {!loading && hasResults && (
                                             <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
-                                                {totalExtractedTagCount > 0 && (
+                                                {totalExtractedTagCount > 0 && ( <>
                                                     <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
-                                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                                                            <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Filter Categories</h3>
-                                                            <div className="flex shrink-0 space-x-2">
-                                                                {!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="Select All Categories">All</motion.button>)}
-                                                                {!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="Clear All Tag Categories">None</motion.button>)}
-                                                            </div>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-                                                            {DEFAULT_TAG_CATEGORIES.map((categoryDef) => {
-                                                                const categoryOption = tagCategories.find(c => c.id === categoryDef.id) ?? categoryDef;
-                                                                const count = tagCounts[categoryOption.id] || 0;
-                                                                if (count > 0 || DEFAULT_TAG_CATEGORIES.some(def => def.id === categoryOption.id)) {
-                                                                    return (<CategoryToggle key={categoryOption.id} category={categoryOption} count={count} onToggle={() => toggleTagCategory(categoryOption.id)} />);
-                                                                }
-                                                                return null;
-                                                            })}
-                                                        </div>
+                                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
+                                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
                                                     </div>
-                                                )}
-                                                {totalExtractedTagCount > 0 && (
                                                     <div className="space-y-3">
-                                                        <div>
-                                                            <label htmlFor="tags" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t => t.trim()).length : 0})</label>
-                                                            <textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match selected categories."} aria-label="Extracted and filtered tags" />
-                                                        </div>
-                                                        <motion.button
-                                                            whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess}
-                                                            className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
-                                                            aria-label={copySuccess ? "Tags Copied" : "Copy Filtered Tags"}
-                                                        >
-                                                            <motion.div className="inline-flex items-center justify-center overflow-hidden" style={{ width: '1.25rem', height: '1.25rem' }}>
-                                                                <AnimatePresence mode="popLayout" initial={false}>
-                                                                    {copySuccess ? (
-                                                                        <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <CheckCircleIcon/> </motion.span>
-                                                                    ) : (
-                                                                        <motion.span key="clipboard" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center" > <ClipboardIcon/> </motion.span>
-                                                                    )}
-                                                                </AnimatePresence>
-                                                            </motion.div>
+                                                        <div><label htmlFor="tags" className="mb-1.5 block text-sm font-medium">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t=>t.trim()).length : 0})</label><textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match."} aria-label="Filtered tags"/></div>
+                                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`} aria-label={copySuccess ? "Copied" : "Copy Tags"}>
+                                                            <motion.div className="inline-flex items-center justify-center overflow-hidden w-5 h-5"><AnimatePresence mode="popLayout" initial={false}>{copySuccess ? (<motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><CheckCircleIcon/></motion.span>) : (<motion.span key="clip" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><ClipboardIcon/></motion.span>)}</AnimatePresence></motion.div>
                                                             <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
                                                         </motion.button>
                                                     </div>
-                                                )}
+                                                </>)}
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-
-                                    {settings.saveHistory && (
-                                         <HistoryPanel
-                                             history={history}
-                                             onLoadEntry={handleLoadHistoryEntry}
-                                             onDeleteEntry={handleDeleteHistoryEntry}
-                                             onClearHistory={handleClearHistory}
-                                             enableImagePreviews={settings.enableImagePreviews}
-                                         />
-                                     )}
+                                    {settings.saveHistory && history.length > 0 && (<HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />)}
                                 </div>
-
                                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
-                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
-                                        {settings.fetchMode === 'server'
-                                            ? 'Using Server Proxy. Respect source site ToS.'
-                                            : `Using Client Proxy (${getSelectedProxyLabel()}). Respect source site ToS & proxy usage policy.`
-                                        }
-                                        {' '}Tag History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.
-                                    </p>
+                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} Tag History {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
                                 </div>
                             </motion.div>
-                        )}
-
-                        {activeView === 'image' && (
-                             <motion.div
-                                key="image-view-content"
-                                className="flex flex-col flex-1 overflow-hidden"
-                                initial={{ opacity: 0, x: 30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 30 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
-                            >
+                        ) : (
+                            <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                    <div className="flex items-center justify-between">
-                                         <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] sm:text-2xl">Image Metadata</h1>
-                                         {imageFile && !imageLoading && (
-                                             <TooltipWrapper tipContent="Clear Image & Data">
-                                                 <motion.button
-                                                    onClick={handleClearImage}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }}
-                                                    className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]"
-                                                    aria-label="Clear Image"
-                                                >
-                                                    <XMarkIcon/>
-                                                </motion.button>
-                                             </TooltipWrapper>
-                                         )}
-                                    </div>
+                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">Image Metadata</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent="Clear"><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label="Clear"><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
                                 </div>
                                 <div ref={imageCardBodyRef} className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode="wait">
-                                        {imageLoading ? (
-                                            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
-                                                <LoadingSpinner/>
-                                                <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing image...</p>
-                                            </motion.div>
-                                        ) : !imageFile ? (
-                                            <motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
-                                                <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
-                                                     <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon>
-                                                     <p className="mb-2 font-semibold text-[rgb(var(--color-on-surface-rgb))]">Drag & Drop PNG Image Here</p>
-                                                     <p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click button to upload</p>
-                                                     <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" />
-                                                     <motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" >
-                                                        Select PNG File
-                                                     </motion.button>
-                                                 </div>
-                                                  <AnimatePresence>
-                                                    {imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}
-                                                </AnimatePresence>
-                                                 {settings.saveHistory && (
-                                                    <ImageHistoryPanel
-                                                        history={imageHistory}
-                                                        onLoadEntry={handleLoadImageHistoryEntry}
-                                                        onDeleteEntry={handleDeleteImageHistoryEntry}
-                                                        onClearHistory={handleClearImageHistory}
-                                                     />
-                                                )}
-                                            </motion.div>
-                                        ) : (
-                                            <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
-                                                <AnimatePresence>
-                                                     {imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}
-                                                 </AnimatePresence>
-
-                                                {imagePreviewUrl && (
-                                                    <MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]">
-                                                         <div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center">
-                                                             <Image src={imagePreviewUrl} alt="Image Preview" layout="fill" objectFit="contain" unoptimized />
-                                                         </div>
-                                                         <div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">
-                                                             {imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)
-                                                         </div>
-                                                    </MotionCard>
-                                                )}
-
-                                                {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? (
-                                                    <>
-                                                        {imageData.positivePrompt && (
-                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                                                                <div className="mb-2 flex items-center justify-between">
-                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Positive Prompt</h3>
-                                                                    <TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy Prompt'}>
-                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
-                                                                            <AnimatedIcon animation="gentle"> {copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
-                                                                         </motion.button>
-                                                                     </TooltipWrapper>
-                                                                </div>
-                                                                <textarea
-                                                                    readOnly
-                                                                    value={imageData.positivePrompt}
-                                                                    rows={4}
-                                                                    className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs text-[rgb(var(--color-on-surface-rgb))] focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
-                                                                    aria-label="Positive Prompt Text"
-                                                                />
-                                                            </MotionCard>
-                                                        )}
-                                                        {imageData.negativePrompt && (
-                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                                                                <div className="mb-2 flex items-center justify-between">
-                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Negative Prompt</h3>
-                                                                     <TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy Negative Prompt'}>
-                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
-                                                                            <AnimatedIcon animation="gentle"> {copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
-                                                                         </motion.button>
-                                                                     </TooltipWrapper>
-                                                                </div>
-                                                                <textarea
-                                                                    readOnly
-                                                                    value={imageData.negativePrompt}
-                                                                    rows={3}
-                                                                    className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs text-[rgb(var(--color-on-surface-rgb))] focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
-                                                                    aria-label="Negative Prompt Text"
-                                                                />
-                                                            </MotionCard>
-                                                        )}
-                                                         {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (
-                                                            <MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                                                                <div className="mb-3 flex items-center justify-between">
-                                                                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))]">Parameters</h3>
-                                                                    <TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All Parameters'}>
-                                                                         <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}>
-                                                                             <AnimatedIcon animation="gentle"> {copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />} </AnimatedIcon>
-                                                                         </motion.button>
-                                                                     </TooltipWrapper>
-                                                                </div>
-                                                                <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">
-                                                                     {Object.entries(imageData.parameters).map(([key, value]) => (
-                                                                         <ParameterItem key={key} label={key} value={value} />
-                                                                     ))}
-                                                                 </div>
-                                                            </MotionCard>
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    !imageError && <StatusMessage type="info">No generation metadata found in this image.</StatusMessage>
-                                                )}
-
-                                                {settings.saveHistory && (
-                                                    <ImageHistoryPanel
-                                                        history={imageHistory}
-                                                        onLoadEntry={handleLoadImageHistoryEntry}
-                                                        onDeleteEntry={handleDeleteImageHistoryEntry}
-                                                        onClearHistory={handleClearImageHistory}
-                                                     />
-                                                )}
-                                            </motion.div>
-                                        )}
+                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing...</p></motion.div>)
+                                        : !imageFile ? (<motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
+                                            <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
+                                                 <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">Drag & Drop PNG Here</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click to upload</p>
+                                                 <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Select PNG</motion.button>
+                                             </div>
+                                             <AnimatePresence>{imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}</AnimatePresence>
+                                             {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                        </motion.div>)
+                                        : (<motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                                            <AnimatePresence>{imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}</AnimatePresence>
+                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
+                                            {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? ( <>
+                                                {imageData.positivePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Positive Prompt</h3><TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Positive Prompt"/>
+                                                </MotionCard>)}
+                                                {imageData.negativePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Negative Prompt</h3><TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Negative Prompt"/>
+                                                </MotionCard>)}
+                                                {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">Parameters</h3><TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">{Object.entries(imageData.parameters).map(([k, v]) => (<ParameterItem key={k} label={k} value={v} />))}</div>
+                                                </MotionCard>)}
+                                            </>) : (!imageError && <StatusMessage type="info">No generation metadata found.</StatusMessage>)}
+                                            {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                        </motion.div>)}
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>Image metadata extraction for PNG files with embedded &#39;parameters&#39; text chunk.</p>
-                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Image History saving is {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
+                                     <p>PNG metadata extraction for &#39;parameters&#39; text chunk.</p>
+                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Image History {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
                                  </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                  </div>
             </div>
-
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
         </div>
     );
 };
-
 export default BooruTagExtractor;
