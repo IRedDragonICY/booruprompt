@@ -17,6 +17,13 @@ const D_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright',
 const H_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright', 'source:': 'copyright', 'character': 'character', 'characters:': 'character', 'general': 'general', 'tags:': 'general', 'meta': 'meta', 'metadata': 'meta', 'artist': 'other', 'artists': 'other' };
 const K_NAMES = new Set<string>(['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists', 'tag list', '?', 'tagme (character)']);
 
+interface PixivTagInfo {
+    tag: string;
+    translation?: {
+        en?: string;
+    };
+}
+
 const u = {
     cls: (e: Element | null): TagCategory => {
         if (!e) return 'general';
@@ -59,10 +66,10 @@ const u = {
         return Array.from(tgs.values());
     },
     img: (d: Document, s: string, a: string = 'src'): string | undefined => {
-        const e = d.querySelector(s); if (!e) return;
-        let url = e.getAttribute(a) ?? e.getAttribute('src');
+        const e = d.querySelector(s); if (!e) return undefined;
+        let url: string | null | undefined = e.getAttribute(a) ?? e.getAttribute('src');
         if (e.tagName === 'VIDEO' && !url) url = e.querySelector('source')?.src ?? null;
-        if (!url) return; if (url.startsWith('//')) url = `https:${url}`;
+        if (!url) return undefined; if (url.startsWith('//')) url = `https:${url}`;
         try { return new URL(url, d.baseURI).href; } catch { return url.startsWith('http') ? url : undefined; }
     },
     tit: (d: Document, cs?: string): string | undefined => {
@@ -73,20 +80,20 @@ const u = {
             else { const e = d.querySelector(s); t = (e as HTMLImageElement)?.alt ?? e?.textContent; }
             if (t) break;
         }
-        t = t?.trim() ?? d.title?.trim(); if (!t) return;
+        t = t?.trim() ?? d.title?.trim(); if (!t) return undefined;
         const rgx: [RegExp, string][] = [
-            [/^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)\s*[-|»]?\s*/i, ''],
-            [/\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru)$/i, ''],
-            [/\s*[-|»]?\s*(?:Post|Image)\s+#\d+$/i, ''], [/ \| Anime-Pictures\.net$/i, ''], [/ on e621$/i, ''],
-            [/\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i, ''], [/^Post #\d+\s*[-|»]?\s*/i, ''], [/^Image #\d+\s*[-|»]?\s*/i, ''], [/\s+/g, ' ']
+            [/^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv)\s*[-|»]?\s*/i, ''],
+            [/\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv)$/i, ''],
+            [/\s*[-|»]?\s*(?:Post|Image|Artwork)\s+#?\d+$/i, ''], [/ \| Anime-Pictures\.net$/i, ''], [/ on e621$/i, ''], [/ - pixiv$/i, ''],
+            [/\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i, ''], [/^Post #\d+\s*[-|»]?\s*/i, ''], [/^Image #\d+\s*[-|»]?\s*/i, ''], [/^\d+\s*[-|»]?\s*/i, ''], [/\s+/g, ' ']
         ];
         let cl = rgx.reduce((str, [re, rp]) => str.replace(re, rp), t).trim();
-        if (/^(image|post)$/i.test(cl) || /^\d+$/.test(cl)) cl = '';
+        if (/^(image|post|artwork)$/i.test(cl) || /^\d+$/.test(cl)) cl = '';
         const zTit = d.querySelector('#large > a.preview > img.jpg')?.getAttribute('title');
         if (zTit && (!cl || cl.toLowerCase().includes('zerochan'))) {
             const p = zTit.split(' (')[0].trim(); if (p && p.length > cl.length) cl = p;
         }
-        if (/^(?:[\w:]+\s+){5,}/.test(cl) && cl.split(' ').length > 10) return;
+        if (/^(?:[\w:]+\s+){5,}/.test(cl) && cl.split(' ').length > 10) return undefined;
         return cl.length >= 3 ? cl : undefined;
     }
 };
@@ -101,10 +108,11 @@ export const extractionStrategies = {
     yandere: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '#tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="/post?tags="]', cat: u.cls })), imageUrl: u.img(d, '#image, img.fit-width'), title: u.tit(d) }),
     konachan: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul#tag-sidebar li.tag-link', ts: 'a:nth-of-type(2)', cat: e => u.map(D_MAP, e.getAttribute('data-type'), 'other') })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
     animePictures: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul.tags li a.svelte-1a4tkgo', ts: 'self', ns: 'self', cat: u.cls })), imageUrl: u.img(d, 'img#big_preview'), title: u.tit(d, 'img#big_preview') ?? u.tit(d) }),
-    zerochan: (d: Document): ExtractionResult => ({ tags: grp((d.querySelector('#large > p')?.textContent?.trim().split(',') ?? []).map(u.cln).filter(Boolean).map(name => ({ name, category: 'general' }))), imageUrl: u.img(d, '#large > a.preview', 'href') ?? u.img(d, '#large > a.preview > img.jpg'), title: u.tit(d) }),
+    zerochan: (d: Document): ExtractionResult => ({ tags: grp((d.querySelector('#large > p')?.textContent?.trim().split(',') ?? []).map(u.cln).filter(Boolean).map(name => ({ name, category: 'general' as TagCategory }))), imageUrl: u.img(d, '#large > a.preview', 'href') ?? u.img(d, '#large > a.preview > img.jpg'), title: u.tit(d) }),
     eShuushuu: (d: Document): ExtractionResult => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
     tbib: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
-    scatbooru: (d: Document): ExtractionResult => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; }
+    scatbooru: (d: Document): ExtractionResult => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
+   pixiv: (d: Document): ExtractionResult => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; }
 };
 
 export const BOORU_SITES = [
@@ -122,7 +130,8 @@ export const BOORU_SITES = [
     { name: 'Konachan', urlPattern: /konachan\.(?:com|net)\/post\/show\/\d+/i, extractTags: extractionStrategies.konachan },
     { name: 'Anime-Pictures', urlPattern: /anime-pictures\.net\/posts\/\d+/i, extractTags: extractionStrategies.animePictures },
     { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan },
-    { name: 'E-Shuushuu', urlPattern: /e-shuushuu\.net\/image\/\d+/i, extractTags: extractionStrategies.eShuushuu }
+    { name: 'E-Shuushuu', urlPattern: /e-shuushuu\.net\/image\/\d+/i, extractTags: extractionStrategies.eShuushuu },
+    { name: 'Pixiv', urlPattern: /pixiv\.net(?:\/(?:en|ja))?\/artworks\/\d+/i, extractTags: extractionStrategies.pixiv }
 ];
 
 export const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
