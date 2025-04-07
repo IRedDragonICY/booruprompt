@@ -76,8 +76,8 @@ const u = {
         let t: string | null | undefined;
         const sels = [cs, 'meta[property="og:title"]', 'h1', 'img[alt]', 'title'].filter(Boolean) as string[];
         for (const s of sels) {
-            if (s.startsWith('attr:')) t = d.querySelector(`[${s.substring(5)}]`)?.getAttribute(s.substring(5));
-            else { const e = d.querySelector(s); t = (e as HTMLImageElement)?.alt ?? e?.textContent; }
+            if (s && s.startsWith('attr:')) t = d.querySelector(`[${s.substring(5)}]`)?.getAttribute(s.substring(5));
+            else if (s) { const e = d.querySelector(s); t = (e as HTMLImageElement)?.alt ?? e?.textContent; }
             if (t) break;
         }
         t = t?.trim() ?? d.title?.trim(); if (!t) return undefined;
@@ -112,7 +112,30 @@ export const extractionStrategies = {
     eShuushuu: (d: Document): ExtractionResult => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
     tbib: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
     scatbooru: (d: Document): ExtractionResult => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
-   pixiv: (d: Document): ExtractionResult => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; }
+    pixiv: (d: Document): ExtractionResult => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; },
+    furaffinity: (d: Document): ExtractionResult => {
+        const generalTags: ExtractedTag[] = Array.from(d.querySelectorAll('section.tags-row span.tags a'))
+            .map(a => ({ name: u.cln(a.textContent?.trim() ?? ''), category: 'general' as TagCategory }))
+            .filter(t => t.name);
+
+        const artistElement = d.querySelector('div.submission-id-sub-container .c-usernameBlockSimple a .c-usernameBlockSimple__displayName');
+        const copyrightTags: ExtractedTag[] = [];
+        if (artistElement) {
+            const artistName = u.cln(artistElement.textContent?.trim() ?? '');
+            if (artistName) {
+                copyrightTags.push({ name: artistName, category: 'copyright' as TagCategory });
+            }
+        }
+
+        const allTags = [...generalTags, ...copyrightTags];
+        const tags = grp(allTags);
+
+        const imageUrl = u.img(d, 'img#submissionImg', 'data-fullview-src');
+
+        const title = u.tit(d, 'div.submission-title h2 p');
+
+        return { tags, imageUrl, title };
+    }
 };
 
 export const BOORU_SITES = [
@@ -131,7 +154,8 @@ export const BOORU_SITES = [
     { name: 'Anime-Pictures', urlPattern: /anime-pictures\.net\/posts\/\d+/i, extractTags: extractionStrategies.animePictures },
     { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan },
     { name: 'E-Shuushuu', urlPattern: /e-shuushuu\.net\/image\/\d+/i, extractTags: extractionStrategies.eShuushuu },
-    { name: 'Pixiv', urlPattern: /pixiv\.net(?:\/(?:en|ja))?\/artworks\/\d+/i, extractTags: extractionStrategies.pixiv }
+    { name: 'Pixiv', urlPattern: /pixiv\.net(?:\/(?:en|ja))?\/artworks\/\d+/i, extractTags: extractionStrategies.pixiv },
+    { name: 'Fur Affinity', urlPattern: /furaffinity\.net\/(?:view|full)\/\d+/i, extractTags: extractionStrategies.furaffinity }
 ];
 
 export const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
