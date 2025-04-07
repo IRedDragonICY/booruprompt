@@ -98,43 +98,60 @@ const u = {
     }
 };
 
-export const extractionStrategies = {
-    danbooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '#tag-list li[class*="tag-type-"], div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
-    safebooru: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]:last-of-type')), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
-    gelbooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="page=post"]', cat: u.cls })), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
-    rule34: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source, video#videoelement source'), title: u.tit(d) }),
-    e621: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'section#tag-list > ul > li.tag-list-item', ts: 'a.tag-list-search > span:not(.tag-list-count)', cat: e => u.map(D_MAP, e.getAttribute('data-category'), 'other') })), imageUrl: u.img(d, '#image, #image-container img, #image-container video source'), title: u.tit(d, 'attr:data-title') ?? u.tit(d, '#image-container h5') ?? u.tit(d) }),
-    aibooru: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
-    yandere: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: '#tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="/post?tags="]', cat: u.cls })), imageUrl: u.img(d, '#image, img.fit-width'), title: u.tit(d) }),
-    konachan: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul#tag-sidebar li.tag-link', ts: 'a:nth-of-type(2)', cat: e => u.map(D_MAP, e.getAttribute('data-type'), 'other') })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
-    animePictures: (d: Document): ExtractionResult => ({ tags: grp(u.tags(d, { s: 'ul.tags li a.svelte-1a4tkgo', ts: 'self', ns: 'self', cat: u.cls })), imageUrl: u.img(d, 'img#big_preview'), title: u.tit(d, 'img#big_preview') ?? u.tit(d) }),
-    zerochan: (d: Document): ExtractionResult => ({ tags: grp((d.querySelector('#large > p')?.textContent?.trim().split(',') ?? []).map(u.cln).filter(Boolean).map(name => ({ name, category: 'general' as TagCategory }))), imageUrl: u.img(d, '#large > a.preview', 'href') ?? u.img(d, '#large > a.preview > img.jpg'), title: u.tit(d) }),
-    eShuushuu: (d: Document): ExtractionResult => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
-    tbib: (d: Document): ExtractionResult => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
-    scatbooru: (d: Document): ExtractionResult => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
-    pixiv: (d: Document): ExtractionResult => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; },
-    furaffinity: (d: Document): ExtractionResult => ({tags:grp([...Array.from(d.querySelectorAll('section.tags-row span.tags a')).map(a=>({name:u.cln(a.textContent?.trim()??''),category:'general'as TagCategory})).filter(t=>t.name),...((an=>(an?[{name:an,category:'copyright'as TagCategory}]:[]))(u.cln(d.querySelector('div.submission-id-sub-container .c-usernameBlockSimple a .c-usernameBlockSimple__displayName')?.textContent?.trim()??'')))]),imageUrl:u.img(d,'img#submissionImg','data-fullview-src'),title:u.tit(d,'div.submission-title h2 p')})
+type ExtractionStrategyFunction = (d: Document) => ExtractionResult;
+type StrategyKey = keyof typeof extractionStrategies;
+
+export const extractionStrategies: Record<string, ExtractionStrategyFunction> = {
+    danbooru: (d) => ({ tags: grp(u.tags(d, { s: '#tag-list li[class*="tag-type-"], div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    safebooru: (d) => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]:last-of-type')), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    gelbooru: (d) => ({ tags: grp(u.tags(d, { s: '.tag-list li[class*="tag-type-"], #tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="page=post"]', cat: u.cls })), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
+    rule34: (d) => ({ tags: grp(u.sect(d, '#tag-sidebar, .sidebar > div:last-of-type', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source, video#videoelement source'), title: u.tit(d) }),
+    e621: (d) => ({ tags: grp(u.tags(d, { s: 'section#tag-list > ul > li.tag-list-item', ts: 'a.tag-list-search > span:not(.tag-list-count)', cat: e => u.map(D_MAP, e.getAttribute('data-category'), 'other') })), imageUrl: u.img(d, '#image, #image-container img, #image-container video source'), title: u.tit(d, 'attr:data-title') ?? u.tit(d, '#image-container h5') ?? u.tit(d) }),
+    aibooru: (d) => ({ tags: grp(u.tags(d, { s: 'div.categorized-tag-list li[class*="tag-type-"]', ts: 'a.search-tag', cat: u.cls })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    yandere: (d) => ({ tags: grp(u.tags(d, { s: '#tag-sidebar li[class*="tag-type-"]', ts: 'a[href*="/post?tags="]', cat: u.cls })), imageUrl: u.img(d, '#image, img.fit-width'), title: u.tit(d) }),
+    konachan: (d) => ({ tags: grp(u.tags(d, { s: 'ul#tag-sidebar li.tag-link', ts: 'a:nth-of-type(2)', cat: e => u.map(D_MAP, e.getAttribute('data-type'), 'other') })), imageUrl: u.img(d, '#image'), title: u.tit(d) }),
+    animePictures: (d) => ({ tags: grp(u.tags(d, { s: 'ul.tags li a.svelte-1a4tkgo', ts: 'self', ns: 'self', cat: u.cls })), imageUrl: u.img(d, 'img#big_preview'), title: u.tit(d, 'img#big_preview') ?? u.tit(d) }),
+    zerochan: (d) => ({ tags: grp((d.querySelector('#large > p')?.textContent?.trim().split(',') ?? []).map(u.cln).filter(Boolean).map(name => ({ name, category: 'general' as TagCategory }))), imageUrl: u.img(d, '#large > a.preview', 'href') ?? u.img(d, '#large > a.preview > img.jpg'), title: u.tit(d) }),
+    eShuushuu: (d) => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
+    tbib: (d) => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
+    scatbooru: (d) => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
+    pixiv: (d) => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; },
+    furaffinity: (d) => ({tags:grp([...Array.from(d.querySelectorAll('section.tags-row span.tags a')).map(a=>({name:u.cln(a.textContent?.trim()??''),category:'general'as TagCategory})).filter(t=>t.name),...((an=>(an?[{name:an,category:'copyright'as TagCategory}]:[]))(u.cln(d.querySelector('div.submission-id-sub-container .c-usernameBlockSimple a .c-usernameBlockSimple__displayName')?.textContent?.trim()??'')))]),imageUrl:u.img(d,'img#submissionImg','data-fullview-src'),title:u.tit(d,'div.submission-title h2 p')})
 };
 
-export const BOORU_SITES = [
-    { name: 'Danbooru', urlPattern: /danbooru\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
-    { name: 'Safebooru (Donmai)', urlPattern: /safebooru\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
-    { name: 'Hijiribe', urlPattern: /hijiribe\.donmai\.us\/posts\/\d+/i, extractTags: extractionStrategies.danbooru },
-    { name: 'Safebooru (Org)', urlPattern: /safebooru\.org\/(index\.php\?page=post&s=view&id=\d+|post\/view\/\d+)/i, extractTags: extractionStrategies.safebooru },
-    { name: 'Gelbooru', urlPattern: /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.gelbooru },
-    { name: 'Rule34', urlPattern: /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.rule34 },
-    { name: 'TBIB', urlPattern: /tbib\.org\/index\.php\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.tbib },
-    { name: 'Scatbooru', urlPattern: /scatbooru\.co\.uk\/\?page=post&s=view&id=\d+/i, extractTags: extractionStrategies.scatbooru },
-    { name: 'e621', urlPattern: /e621\.net\/posts\/\d+/i, extractTags: extractionStrategies.e621 },
-    { name: 'AIBooru', urlPattern: /aibooru\.online\/posts\/\d+/i, extractTags: extractionStrategies.aibooru },
-    { name: 'Yande.re', urlPattern: /yande\.re\/post\/show\/\d+/i, extractTags: extractionStrategies.yandere },
-    { name: 'Konachan', urlPattern: /konachan\.(?:com|net)\/post\/show\/\d+/i, extractTags: extractionStrategies.konachan },
-    { name: 'Anime-Pictures', urlPattern: /anime-pictures\.net\/posts\/\d+/i, extractTags: extractionStrategies.animePictures },
-    { name: 'Zerochan', urlPattern: /zerochan\.net\/\d+/i, extractTags: extractionStrategies.zerochan },
-    { name: 'E-Shuushuu', urlPattern: /e-shuushuu\.net\/image\/\d+/i, extractTags: extractionStrategies.eShuushuu },
-    { name: 'Pixiv', urlPattern: /pixiv\.net(?:\/(?:en|ja))?\/artworks\/\d+/i, extractTags: extractionStrategies.pixiv },
-    { name: 'Fur Affinity', urlPattern: /furaffinity\.net\/(?:view|full)\/\d+/i, extractTags: extractionStrategies.furaffinity }
+type SiteDefinitionTuple = [StrategyKey, string, RegExp];
+
+const siteDefinitions: SiteDefinitionTuple[] = [
+    ['danbooru',      'Danbooru',            /danbooru\.donmai\.us\/posts\/\d+/i],
+    ['danbooru',      'Safebooru (Donmai)',  /safebooru\.donmai\.us\/posts\/\d+/i],
+    ['danbooru',      'Hijiribe',            /hijiribe\.donmai\.us\/posts\/\d+/i],
+    ['safebooru',     'Safebooru (Org)',     /safebooru\.org\/(index\.php\?page=post&s=view&id=\d+|post\/view\/\d+)/i],
+    ['gelbooru',      'Gelbooru',            /gelbooru\.com\/index\.php\?page=post&s=view&id=\d+/i],
+    ['rule34',        'Rule34',              /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i],
+    ['tbib',          'TBIB',                /tbib\.org\/index\.php\?page=post&s=view&id=\d+/i],
+    ['scatbooru',     'Scatbooru',           /scatbooru\.co\.uk\/\?page=post&s=view&id=\d+/i],
+    ['e621',          'e621',                /e621\.net\/posts\/\d+/i],
+    ['aibooru',       'AIBooru',             /aibooru\.online\/posts\/\d+/i],
+    ['yandere',       'Yande.re',            /yande\.re\/post\/show\/\d+/i],
+    ['konachan',      'Konachan',            /konachan\.(?:com|net)\/post\/show\/\d+/i],
+    ['animePictures', 'Anime-Pictures',      /anime-pictures\.net\/posts\/\d+/i],
+    ['zerochan',      'Zerochan',            /zerochan\.net\/\d+/i],
+    ['eShuushuu',     'E-Shuushuu',          /e-shuushuu\.net\/image\/\d+/i],
+    ['pixiv',         'Pixiv',               /pixiv\.net(?:\/(?:en|ja))?\/artworks\/\d+/i],
+    ['furaffinity',   'Fur Affinity',        /furaffinity\.net\/(?:view|full)\/\d+/i]
 ];
+
+interface BooruSite {
+    name: string;
+    urlPattern: RegExp;
+    extractTags: ExtractionStrategyFunction;
+}
+
+export const BOORU_SITES: BooruSite[] = siteDefinitions.map(([key, name, pattern]) => ({
+    name: name,
+    urlPattern: pattern,
+    extractTags: extractionStrategies[key]
+}));
 
 export const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'copyright', label: 'Copyright', enabled: true, variable: '--cat-color-copyright-rgb' },
