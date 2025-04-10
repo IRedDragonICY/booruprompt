@@ -4,7 +4,14 @@ export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
 
 const grp = (t: ExtractedTag[]): Partial<Record<TagCategory, string[]>> =>
-    t.reduce((a, i) => { (a[i.category] ??= []).push(i.name); return a; }, {} as Partial<Record<TagCategory, string[]>>);
+    t.reduce((a, i) => {
+        if (!a[i.category]) a[i.category] = [];
+        if (!a[i.category]!.some(existing => existing.toLowerCase() === i.name.toLowerCase())) {
+             (a[i.category]!).push(i.name);
+        }
+        return a;
+     }, {} as Partial<Record<TagCategory, string[]>>);
+
 
 const C_MAP: Readonly<Record<string, TagCategory>> = {
     'tag-type-copyright': 'copyright', 'tag-type-3': 'copyright', 'copyright': 'copyright',
@@ -15,7 +22,7 @@ const C_MAP: Readonly<Record<string, TagCategory>> = {
 };
 const D_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright', 'character': 'character', 'artist': 'other', 'style': 'meta', 'general': 'general', 'meta': 'meta', 'species': 'general' };
 const H_MAP: Readonly<Record<string, TagCategory>> = { 'copyright': 'copyright', 'source:': 'copyright', 'character': 'character', 'characters:': 'character', 'general': 'general', 'tags:': 'general', 'meta': 'meta', 'metadata': 'meta', 'artist': 'other', 'artists': 'other' };
-const K_NAMES = new Set<string>(['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists', 'tag list', '?', 'tagme (character)']);
+const K_NAMES = new Set<string>(['copyrights', 'characters', 'general', 'meta', 'metadata', 'artists', 'tag list', '?', 'tagme (character)', 'tagme']);
 
 interface PixivTagInfo {
     tag: string;
@@ -82,8 +89,8 @@ const u = {
         }
         t = t?.trim() ?? d.title?.trim(); if (!t) return undefined;
         const rgx: [RegExp, string][] = [
-            [/^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv)\s*[-|»]?\s*/i, ''],
-            [/\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv)$/i, ''],
+            [/^(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv|Garycbooru)\s*[-|»]?\s*/i, ''],
+            [/\s*[-|»]?\s*(Danbooru|Safebooru|Gelbooru|Rule 34|Yande\.re|Konachan\.com - Anime Wallpapers|Zerochan Anime Image Board|E-Shuushuu|AIBooru|e621|TBIB|Hijiribe|Scatbooru|pixiv|Garycbooru)$/i, ''],
             [/\s*[-|»]?\s*(?:Post|Image|Artwork)\s+#?\d+$/i, ''], [/ \| Anime-Pictures\.net$/i, ''], [/ on e621$/i, ''], [/ - pixiv$/i, ''],
             [/\s+\(?\d+[x✕]\d+(\s+\d+(\.\d+)?\s*k?B)?\)?$/i, ''], [/^Post #\d+\s*[-|»]?\s*/i, ''], [/^Image #\d+\s*[-|»]?\s*/i, ''], [/^\d+\s*[-|»]?\s*/i, ''], [/\s+/g, ' ']
         ];
@@ -116,7 +123,58 @@ export const extractionStrategies: Record<string, ExtractionStrategyFunction> = 
     tbib: (d) => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
     scatbooru: (d) => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
     pixiv: (d) => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; },
-    furaffinity: (d) => ({tags:grp([...Array.from(d.querySelectorAll('section.tags-row span.tags a')).map(a=>({name:u.cln(a.textContent?.trim()??''),category:'general'as TagCategory})).filter(t=>t.name),...((an=>(an?[{name:an,category:'copyright'as TagCategory}]:[]))(u.cln(d.querySelector('div.submission-id-sub-container .c-usernameBlockSimple a .c-usernameBlockSimple__displayName')?.textContent?.trim()??'')))]),imageUrl:u.img(d,'img#submissionImg','data-fullview-src'),title:u.tit(d,'div.submission-title h2 p')})
+    furaffinity: (d) => ({tags:grp([...Array.from(d.querySelectorAll('section.tags-row span.tags a')).map(a=>({name:u.cln(a.textContent?.trim()??''),category:'general'as TagCategory})).filter(t=>t.name),...((an=>(an?[{name:an,category:'other' as TagCategory}]:[]))(u.cln(d.querySelector('div.submission-id-sub-container a.artist-name')?.textContent?.trim()??d.querySelector('.submission-sidebar a[href*="/user/"] strong')?.textContent?.trim()??'')))]),imageUrl:u.img(d,'img#submissionImg','data-fullview-src')??u.img(d,'img#submissionImg'),title:u.tit(d,'div.submission-title p')}),
+    garycbooru: (d) => {
+        const PREFIX_MAP: Readonly<Record<string, TagCategory>> = {
+            'artist:': 'other',
+            'character:': 'character',
+            'copyright:': 'copyright',
+            'meta:': 'meta',
+        };
+        const tags: ExtractedTag[] = [];
+        d.querySelectorAll('div#tag_list > ul > li a[href*="page=post&s=list&tags="]').forEach(a => {
+            const rawText = a.textContent?.trim();
+            if (!rawText) return;
+
+            let name = rawText;
+            let category: TagCategory = 'general';
+
+            for (const prefix in PREFIX_MAP) {
+                if (name.toLowerCase().startsWith(prefix)) {
+                    category = PREFIX_MAP[prefix];
+                    name = name.substring(prefix.length);
+                    break;
+                }
+            }
+
+            const cleanedName = u.cln(name);
+            const low = cleanedName.toLowerCase();
+
+            if (cleanedName && !K_NAMES.has(low) && low !== category) {
+                 tags.push({ name: cleanedName, category });
+            }
+        });
+
+        const ulElement = d.querySelector('div#tag_list > ul');
+        if (ulElement) {
+             const ulHTML = ulElement.innerHTML;
+             const match = ulHTML.match(/By:\s*([^<\n\r]+)/i);
+             if (match && match[1]) {
+                 const artistNameRaw = match[1].trim();
+                 const cleanedArtistName = u.cln(artistNameRaw);
+                 const lowArtist = cleanedArtistName.toLowerCase();
+                 if (cleanedArtistName && !K_NAMES.has(lowArtist)) {
+                      tags.push({ name: cleanedArtistName, category: 'copyright' });
+                 }
+             }
+        }
+
+        return {
+            tags: grp(tags),
+            imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'),
+            title: u.tit(d)
+        };
+    }
 };
 
 type SiteDefinitionTuple = [StrategyKey, string, RegExp];
@@ -130,6 +188,7 @@ const siteDefinitions: SiteDefinitionTuple[] = [
     ['rule34',        'Rule34',              /rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/i],
     ['tbib',          'TBIB',                /tbib\.org\/index\.php\?page=post&s=view&id=\d+/i],
     ['scatbooru',     'Scatbooru',           /scatbooru\.co\.uk\/\?page=post&s=view&id=\d+/i],
+    ['garycbooru',    'Garycbooru',          /garycbooru\.booru\.org\/index\.php\?page=post&s=view&id=\d+/i],
     ['e621',          'e621',                /e621\.net\/posts\/\d+/i],
     ['aibooru',       'AIBooru',             /aibooru\.online\/posts\/\d+/i],
     ['yandere',       'Yande.re',            /yande\.re\/post\/show\/\d+/i],
