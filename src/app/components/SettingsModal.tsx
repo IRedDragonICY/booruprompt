@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon } from './icons/icons';
+import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, HistoryIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import { AnimatedIcon } from './AnimatedIcon';
 
@@ -23,15 +23,25 @@ interface Settings {
     fetchMode: FetchMode;
     clientProxyUrl: string;
     saveHistory: boolean;
+    maxHistorySize: number;
 }
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
+const DEFAULT_MAX_HISTORY_SIZE = 30;
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
     { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
     { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
+];
+
+const HISTORY_SIZE_OPTIONS = [
+    { label: '10 Entries', value: 10 },
+    { label: '30 Entries', value: 30 },
+    { label: '50 Entries', value: 50 },
+    { label: '100 Entries', value: 100 },
+    { label: 'Unlimited', value: -1 },
 ];
 
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
@@ -78,6 +88,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
     const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
     const handleSaveHistoryChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ saveHistory: event.target.checked }), [onSettingsChange]);
+    const handleMaxHistoryChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = parseInt(event.target.value, 10);
+        onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value });
+    }, [onSettingsChange]);
+
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: "gentle" as const },
@@ -303,6 +318,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </label>
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Store successful extractions locally in your browser.</p>
                             </div>
+
+                            <AnimatePresence>
+                                {settings.saveHistory && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <label htmlFor="maxHistorySizeSelect" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Maximum History Size</label>
+                                        <div className="relative">
+                                            <select
+                                                id="maxHistorySizeSelect"
+                                                value={settings.maxHistorySize}
+                                                onChange={handleMaxHistoryChange}
+                                                className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                                aria-label="Maximum History Size"
+                                            >
+                                                {HISTORY_SIZE_OPTIONS.map(option => (
+                                                    <option key={option.value} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                                            </div>
+                                        </div>
+                                        <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Set the max number of entries for both extraction and image history.</p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         <div className="mt-6 space-y-3 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4">

@@ -19,13 +19,13 @@ type FetchMode = 'server' | 'clientProxy';
 type ActiveView = 'extractor' | 'image';
 
 interface ClientProxyOption { id: string; label: string; value: string; }
-interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; }
+interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; maxHistorySize: number; }
 interface ImageMetadata { positivePrompt?: string; negativePrompt?: string; parameters?: Record<string, string>; error?: string; }
 interface CopyStatus { positive?: boolean; negative?: boolean; parameters?: boolean; }
 interface HistoryEntry { id: string; url: string; tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
-interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMetadata; timestamp: number; previewUrl?: string; } // previewUrl holds Base64
+interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMetadata; timestamp: number; previewUrl?: string; }
 interface StoredHistoryItem { id: string; url: string; tags?: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
-interface StoredImageHistoryItem { id: string; fileName: string; imageData?: ImageMetadata; timestamp: number; previewUrl?: string; } // previewUrl holds Base64
+interface StoredImageHistoryItem { id: string; fileName: string; imageData?: ImageMetadata; timestamp: number; previewUrl?: string; }
 interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> { siteName: string; tags?: Partial<Record<TagCategory, string[]>>; error?: string; status?: number; html?: string; }
 interface ImagePreviewProps { originalUrl?: string; title?: string; isLoading: boolean; enableImagePreviews: boolean; }
 interface HistoryItemProps { entry: HistoryEntry; onLoad: (entry: HistoryEntry) => void; onDelete: (id: string) => void; enableImagePreviews: boolean; }
@@ -48,13 +48,13 @@ const IMAGE_PREVIEWS_STORAGE_KEY = 'booruExtractorImagePreviewsPref';
 const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const SAVE_HISTORY_STORAGE_KEY = 'booruExtractorSaveHistoryPref';
+const MAX_HISTORY_SIZE_STORAGE_KEY = 'booruExtractorMaxHistorySizePref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const IMAGE_HISTORY_STORAGE_KEY = 'booruExtractorImageHistory';
-const MAX_HISTORY_SIZE = 30;
-const MAX_IMAGE_HISTORY_SIZE = 30;
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
+const DEFAULT_MAX_HISTORY_SIZE = 30;
 const FETCH_TIMEOUT_MS = 25000;
 const API_ROUTE_URL = '/api/fetch-booru';
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
@@ -293,7 +293,6 @@ async function extractImageMetadata(file: File): Promise<ImageMetadata> {
     });
 }
 
-// Helper to create a Base64 thumbnail from an image File
 const createThumbnail = (file: File, size: number): Promise<string | null> => {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -307,8 +306,8 @@ const createThumbnail = (file: File, size: number): Promise<string | null> => {
                 canvas.width = size;
                 canvas.height = size;
                 ctx.drawImage(img, 0, 0, size, size);
-                resolve(canvas.toDataURL('image/png')); // Or image/jpeg for smaller size
-                URL.revokeObjectURL(img.src); // Clean up object URL
+                resolve(canvas.toDataURL('image/png'));
+                URL.revokeObjectURL(img.src);
             };
             img.onerror = () => {
                 resolve(null);
@@ -317,7 +316,7 @@ const createThumbnail = (file: File, size: number): Promise<string | null> => {
             img.src = e.target.result;
         };
         reader.onerror = () => resolve(null);
-        reader.readAsDataURL(file); // Read as Data URL to load into Image element
+        reader.readAsDataURL(file);
     });
 };
 
@@ -337,7 +336,7 @@ const BooruTagExtractor = () => {
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false });
+    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -362,20 +361,28 @@ const BooruTagExtractor = () => {
     useEffect(() => {
         const isValidHistory = (i: unknown): i is StoredHistoryItem[] => Array.isArray(i) && i.every(it => typeof it === 'object' && it !== null && 'id' in it && 'url' in it && 'timestamp' in it);
         const isValidImageHistory = (i: unknown): i is StoredImageHistoryItem[] => Array.isArray(i) && i.every(it => typeof it === 'object' && it !== null && 'id' in it && 'fileName' in it && 'timestamp' in it);
+        const isValidMaxHistorySize = (i: unknown): i is number => typeof i === 'number' && (i === -1 || (Number.isInteger(i) && i >= 0));
+
         setSettings({
-            theme: loadStoredItem<ThemePreference>(THEME_STORAGE_KEY, 'system'), colorTheme: loadStoredItem<ColorTheme>(COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME), customColorHex: loadStoredItem<string | undefined>(CUSTOM_COLOR_HEX_STORAGE_KEY, DEFAULT_CUSTOM_COLOR_HEX),
-            autoExtract: loadStoredItem<boolean>(AUTO_EXTRACT_STORAGE_KEY, true), enableImagePreviews: loadStoredItem<boolean>(IMAGE_PREVIEWS_STORAGE_KEY, true), fetchMode: loadStoredItem<FetchMode>(FETCH_MODE_STORAGE_KEY, DEFAULT_FETCH_MODE),
-            clientProxyUrl: loadStoredItem<string>(CLIENT_PROXY_URL_STORAGE_KEY, DEFAULT_CLIENT_PROXY_URL), saveHistory: loadStoredItem<boolean>(SAVE_HISTORY_STORAGE_KEY, false),
+            theme: loadStoredItem<ThemePreference>(THEME_STORAGE_KEY, 'system'),
+            colorTheme: loadStoredItem<ColorTheme>(COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME),
+            customColorHex: loadStoredItem<string | undefined>(CUSTOM_COLOR_HEX_STORAGE_KEY, DEFAULT_CUSTOM_COLOR_HEX),
+            autoExtract: loadStoredItem<boolean>(AUTO_EXTRACT_STORAGE_KEY, true),
+            enableImagePreviews: loadStoredItem<boolean>(IMAGE_PREVIEWS_STORAGE_KEY, true),
+            fetchMode: loadStoredItem<FetchMode>(FETCH_MODE_STORAGE_KEY, DEFAULT_FETCH_MODE),
+            clientProxyUrl: loadStoredItem<string>(CLIENT_PROXY_URL_STORAGE_KEY, DEFAULT_CLIENT_PROXY_URL),
+            saveHistory: loadStoredItem<boolean>(SAVE_HISTORY_STORAGE_KEY, false),
+            maxHistorySize: loadStoredItem<number>(MAX_HISTORY_SIZE_STORAGE_KEY, DEFAULT_MAX_HISTORY_SIZE, isValidMaxHistorySize),
         });
         setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
-        setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp)); // previewUrl is loaded as base64 string
+        setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
         if (typeof window !== 'undefined') setIsMobile(window.innerWidth < 768);
     }, []);
 
     useEffect(() => {
         if (typeof window === 'undefined') return; const root = window.document.documentElement; const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches); root.classList.toggle('dark', isDark); root.dataset.colorTheme = settings.colorTheme;
         if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const p = `${rgb.r} ${rgb.g} ${rgb.b}`; const f = isDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-rgb', p); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); } } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); }
-        Object.entries(settings).forEach(([key, value]) => { const storageKey = `booruExtractor${key.charAt(0).toUpperCase() + key.slice(1)}Pref`; if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); });
+        Object.entries(settings).forEach(([key, value]) => { const storageKeyMap: Record<string, string> = { theme: THEME_STORAGE_KEY, colorTheme: COLOR_THEME_STORAGE_KEY, customColorHex: CUSTOM_COLOR_HEX_STORAGE_KEY, autoExtract: AUTO_EXTRACT_STORAGE_KEY, enableImagePreviews: IMAGE_PREVIEWS_STORAGE_KEY, fetchMode: FETCH_MODE_STORAGE_KEY, clientProxyUrl: CLIENT_PROXY_URL_STORAGE_KEY, saveHistory: SAVE_HISTORY_STORAGE_KEY, maxHistorySize: MAX_HISTORY_SIZE_STORAGE_KEY }; const storageKey = storageKeyMap[key]; if (storageKey) { if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); } });
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)'); const handleChange = (e: MediaQueryListEvent) => { if (settings.theme === 'system') { const sysDark = e.matches; root.classList.toggle('dark', sysDark); if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const f = sysDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } } } };
         if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange); return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
@@ -383,7 +390,7 @@ const BooruTagExtractor = () => {
     useEffect(() => { if (typeof window === 'undefined') return; const checkMobile = () => setIsMobile(window.innerWidth < 768); checkMobile(); window.addEventListener('resize', checkMobile); return () => window.removeEventListener('resize', checkMobile); }, []);
     useEffect(() => { const enabled = new Set(tagCategories.filter(c => c.enabled).map(c => c.id)); const filtered: string[] = []; DEFAULT_TAG_CATEGORIES.forEach(c => { if (enabled.has(c.id) && allExtractedTags[c.id]) filtered.push(...allExtractedTags[c.id]!.map(t => t.replace(/_/g, ' '))); }); setDisplayedTags(filtered.join(', ')); }, [allExtractedTags, tagCategories]);
     const saveHistoryToLocalStorage = useCallback((data: HistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(HISTORY_STORAGE_KEY); } catch (e) { console.error("Save tag history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) setError("History storage limit."); } }, []);
-    const saveImageHistoryToLocalStorage = useCallback((data: ImageHistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY); } catch (e) { console.error("Save image history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) { setImageError("Image history storage limit."); setTimeout(() => setImageError(null), 3000); } } }, []); // Keep previewUrl (Base64)
+    const saveImageHistoryToLocalStorage = useCallback((data: ImageHistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY); } catch (e) { console.error("Save image history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) { setImageError("Image history storage limit."); setTimeout(() => setImageError(null), 3000); } } }, []);
     const tagCounts = useMemo(() => Object.entries(allExtractedTags).reduce((acc, [cat, tags]) => { if (tags) acc[cat as TagCategory] = tags.length; return acc; }, {} as Record<TagCategory, number>), [allExtractedTags]);
     const totalExtractedTagCount = useMemo(() => calculateTotalTags(allExtractedTags), [allExtractedTags]);
     const extractTags = useCallback(async (targetUrl: string) => {
@@ -402,10 +409,10 @@ const BooruTagExtractor = () => {
                 else { try { const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); try { doc.querySelector('base')?.remove(); const head = doc.head || doc.documentElement.appendChild(doc.createElement('head')); const base = doc.createElement('base'); base.href = new URL('./', trimmedUrl).href; head.insertBefore(base, head.firstChild); } catch (e) { console.warn(`Base tag set failed:`, e); } const detectPageError = (d: Document) => { let detected = false; let msg = "Check URL/site."; if (d.title.toLowerCase().match(/error|access denied|cloudflare/)) { detected = true; msg = `Site error in title: ${d.title.substring(0, 100)}`; } const errEl = d.querySelector('.error,#error-page,.dtext-error,[class*="error"],[id*="error"],#challenge-running'); if (errEl?.textContent?.trim()) { detected = true; const errTxt = errEl.textContent.trim().toLowerCase(); if (errTxt.includes("rate limit")) msg = "Rate limit exceeded."; else if (errTxt.includes("login") || errTxt.includes("authenticate")) msg = "Login required."; else if (errTxt.includes("not found")) msg = "Post not found (404)."; else if (errTxt.includes("cloudflare")) msg = "Blocked by Cloudflare."; else msg = `Site Error: ${errEl.textContent.trim().substring(0, 150)}`; } if (!detected && d.body) { const bodyTxt = d.body.textContent?.toLowerCase() || ''; if (bodyTxt.includes('you must be logged in')) { detected = true; msg = `Login required.`; } else if (bodyTxt.includes('access denied')) { detected = true; msg = `Access denied.`; } else if (bodyTxt.includes('cloudflare')) { detected = true; msg = `Blocked by Cloudflare.`; } else if (bodyTxt.includes('enable javascript')) { detected = true; msg = `Site requires JS/Cookies.`; } } return { detected, msg }; }; const { detected: pageErr, msg: specificErr } = detectPageError(doc); if (pageErr) { errorMsg = `Extraction stopped: ${specificErr}`; siteName = ''; } else { result = site.extractTags(doc); imgUrl = result.imageUrl; imgTitle = result.title; const tagCount = calculateTotalTags(result.tags || {}); if (tagCount === 0) errorMsg = result.imageUrl ? 'Warning: Image found, no tags (Client).' : 'Warning: No tags/image (Client).'; } } catch (parseErr) { errorMsg = `Parse/extract failed via ${proxyUsed}: ${(parseErr as Error).message}`; siteName = ''; } }
             }
             if (errorMsg) { setError(errorMsg); console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed); setActiveSite(siteName || null); if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) { setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; } else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName); } }
-            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)].slice(0, MAX_HISTORY_SIZE); saveHistoryToLocalStorage(updated); return updated; }); } }
+            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; }); } }
         } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
         finally { setLoading(false); }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, saveHistoryToLocalStorage]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, saveHistoryToLocalStorage]);
 
     const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
     useEffect(() => {
@@ -449,13 +456,13 @@ const BooruTagExtractor = () => {
             else {
                 setImageData(metadata); setImageError(null);
                 if (settings.saveHistory && (metadata.positivePrompt || metadata.negativePrompt || metadata.parameters || thumbnailDataUrl)) {
-                     const newImageEntry: ImageHistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, fileName: file.name, imageData: metadata, timestamp: Date.now(), previewUrl: thumbnailDataUrl ?? undefined }; // Store Base64
-                     setImageHistory(prev => { const updated = [newImageEntry, ...prev.filter(h => h.fileName !== file.name || h.timestamp !== newImageEntry.timestamp)].slice(0, MAX_IMAGE_HISTORY_SIZE); saveImageHistoryToLocalStorage(updated); return updated; });
+                     const newImageEntry: ImageHistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, fileName: file.name, imageData: metadata, timestamp: Date.now(), previewUrl: thumbnailDataUrl ?? undefined };
+                     setImageHistory(prev => { const updated = [newImageEntry, ...prev.filter(h => h.fileName !== file.name || h.timestamp !== newImageEntry.timestamp)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveImageHistoryToLocalStorage(finalHistory); return finalHistory; });
                  }
             }
         } catch (err) { setImageError(`Processing failed: ${(err as Error).message}`); setImageData(null); console.error("Image error:", err); }
         finally { setImageLoading(false); imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }
-    }, [imageLoading, handleClearImage, settings.saveHistory, saveImageHistoryToLocalStorage]);
+    }, [imageLoading, handleClearImage, settings.saveHistory, settings.maxHistorySize, saveImageHistoryToLocalStorage]);
     useEffect(() => () => { if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl); }, [imagePreviewUrl]);
     const handleImageDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOverImage(false); if (imageLoading) return; const file = e.dataTransfer.files?.[0]; if (file?.type.startsWith('image/')) { if (file.type === 'image/png') void processImageFile(file); else { setImageError('Drop PNG only.'); const url = URL.createObjectURL(file); setImagePreviewUrl(url); setImageFile(file); setImageData(null); setImageLoading(false); } } else if (file) setImageError('Drop valid image (PNG).'); }, [processImageFile, imageLoading]);
     const handleImageDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); if (imageLoading) return; const isPng = e.dataTransfer.items?.[0]?.kind === 'file' && e.dataTransfer.items[0].type === 'image/png'; e.dataTransfer.dropEffect = isPng ? 'copy' : 'none'; setIsDraggingOverImage(isPng); }, [imageLoading]);
@@ -464,7 +471,7 @@ const BooruTagExtractor = () => {
     const triggerFileInput = useCallback(() => fileInputRef.current?.click(), []);
     const handleMetadataCopy = useCallback(async (type: keyof CopyStatus, text: string | undefined | null) => { if (!text || copyStatus[type]) return; try { await navigator.clipboard.writeText(text); setCopyStatus(p => ({ ...p, [type]: true })); setTimeout(() => setCopyStatus(p => ({ ...p, [type]: false })), 2000); } catch (err) { console.error(`Copy ${type} failed:`, err); setImageError(`Failed to copy ${type}.`); setTimeout(() => setImageError(null), 3000); } }, [copyStatus]);
     const formatParametersForCopy = useCallback((p?: Record<string, string>): string => !p ? '' : Object.entries(p).map(([k, v]) => `${k}: ${v}`).join('\n'), []);
-    const handleLoadImageHistoryEntry = useCallback((entry: ImageHistoryEntry) => { if (imageLoading) return; handleClearImage(); setImageData(entry.imageData); setImageFile({ name: entry.fileName, type: 'image/png' } as File); setImageError(null); setImagePreviewUrl(entry.previewUrl ?? null); // Use stored Base64 if available for large preview
+    const handleLoadImageHistoryEntry = useCallback((entry: ImageHistoryEntry) => { if (imageLoading) return; handleClearImage(); setImageData(entry.imageData); setImageFile({ name: entry.fileName, type: 'image/png' } as File); setImageError(null); setImagePreviewUrl(entry.previewUrl ?? null);
         setCopyStatus({}); imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imageLoading, handleClearImage]);
     const handleDeleteImageHistoryEntry = useCallback((id: string) => { setImageHistory(prev => { const updated = prev.filter(i => i.id !== id); saveImageHistoryToLocalStorage(updated); return updated; }); }, [saveImageHistoryToLocalStorage]);
     const handleClearImageHistory = useCallback(() => { setImageHistory([]); saveImageHistoryToLocalStorage([]); }, [saveImageHistoryToLocalStorage]);
@@ -490,6 +497,11 @@ const BooruTagExtractor = () => {
     const renderImageHistoryItem = useCallback((entry: ImageHistoryEntry) => (
         <ImageHistoryItem key={entry.id} entry={entry} onLoad={handleLoadImageHistoryEntry} onDelete={handleDeleteImageHistoryEntry} />
     ), [handleLoadImageHistoryEntry, handleDeleteImageHistoryEntry]);
+
+    const historySizeDisplay = useMemo(() => {
+        if (settings.maxHistorySize === -1) return 'Unlimited';
+        return `${settings.maxHistorySize} Entries`;
+    }, [settings.maxHistorySize]);
 
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
@@ -548,7 +560,7 @@ const BooruTagExtractor = () => {
                                 </div>
                                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
-                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} Tag History {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
+                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                 </div>
                             </motion.div>
                         ) : (
@@ -590,7 +602,7 @@ const BooruTagExtractor = () => {
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                      <p>PNG metadata extraction for &#39;parameters&#39; text chunk.</p>
-                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">Image History {settings.saveHistory ? 'enabled' : 'disabled'}.</p>
+                                      <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
                         )}
