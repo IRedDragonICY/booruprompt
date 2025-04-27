@@ -1,3 +1,4 @@
+// page.tsx
 'use client';
 
 import { hexToRgb, getContrastColor, adjustRgb } from './utils/colors';
@@ -320,7 +321,6 @@ const createThumbnail = (file: File, size: number): Promise<string | null> => {
     });
 };
 
-
 const BooruTagExtractor = () => {
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<Partial<Record<TagCategory, string[]>>>({});
@@ -415,6 +415,7 @@ const BooruTagExtractor = () => {
     }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, saveHistoryToLocalStorage]);
 
     const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
@@ -422,6 +423,21 @@ const BooruTagExtractor = () => {
         else if (!trimmedUrl && currentExtractionUrl.current) handleReset(); else if (trimmedUrl && !trimmedUrl.startsWith('http')) { if (trimmedUrl !== currentExtractionUrl.current) setError('URL must start with http:// or https://'); }
         else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) setError(''); return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
     }, [url, extractTags, settings.autoExtract, handleReset, activeView]);
+
+    useEffect(() => {
+         const handlePaste = (event: ClipboardEvent) => {
+             if (activeView !== 'extractor') return;
+             const pastedText = event.clipboardData?.getData('text')?.trim();
+             if (pastedText && pastedText.startsWith('http')) {
+                 if (document.activeElement?.id !== 'url') {
+                     setUrl(pastedText);
+                 }
+             }
+         };
+         window.addEventListener('paste', handlePaste);
+         return () => window.removeEventListener('paste', handlePaste);
+     }, [activeView, setUrl]);
+
 
     const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
@@ -522,16 +538,16 @@ const BooruTagExtractor = () => {
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
                             <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
-                                <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
+                                <div className="shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
                                     <h1 className="text-xl font-semibold sm:text-2xl">Booru Tag Extractor</h1>
                                     <div className="mt-2"><span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>{BOORU_SITES.map(s => <span key={s.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === s.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{s.name}</span>)}</div>
-                                </div>
-                                <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                                    <div><label htmlFor="url" className="mb-1.5 block text-sm font-medium">Booru Post URL</label><input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/></div>
-                                    <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                                    <div className="mt-4"><label htmlFor="url" className="mb-1.5 block text-sm font-medium">Booru Post URL</label><input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/></div>
+                                    <div className="mt-4 flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
                                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags">{loading ? <LoadingSpinner /> : 'Extract Manually'}</motion.button>
                                         <TooltipWrapper tipContent="Clear"><motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold transition hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset"><motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"><ArrowPathIcon/></motion.span>Reset</motion.button></TooltipWrapper>
                                     </div>
+                                </div>
+                                <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
                                         {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
@@ -601,7 +617,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for &#39;parameters&#39; text chunk.</p>
+                                     <p>PNG metadata extraction for &rsquo;parameters&rsquo; text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
