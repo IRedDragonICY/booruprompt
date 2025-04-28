@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon } from './icons/icons';
+import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import { AnimatedIcon } from './AnimatedIcon';
 
@@ -24,6 +24,7 @@ interface Settings {
     clientProxyUrl: string;
     saveHistory: boolean;
     maxHistorySize: number;
+    enableUnsupportedSites: boolean;
 }
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
@@ -88,6 +89,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
     const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
     const handleSaveHistoryChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ saveHistory: event.target.checked }), [onSettingsChange]);
+    const handleUnsupportedSitesChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableUnsupportedSites: event.target.checked }), [onSettingsChange]);
     const handleMaxHistoryChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(event.target.value, 10);
         onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value });
@@ -131,7 +133,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                         </div>
                         <div className="space-y-6">
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Appearance</label>
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+                                    </svg>
+                                    <span className="ml-2">Appearance</span>
+                                </label>
                                 <div className="flex items-center space-x-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
                                         <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
@@ -145,7 +152,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Color Theme</label>
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
+                                    <PaletteIcon />
+                                    <span className="ml-2">Color Theme</span>
+                                </label>
                                 <div className="grid grid-cols-3 gap-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
@@ -207,7 +217,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             </div>
 
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Data Fetching Method</label>
+                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                                    </svg>
+                                    <span className="ml-2">Data Fetching Method</span>
+                                </label>
                                 <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
                                         <div key={value}>
@@ -264,7 +279,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                              <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Automatic Extraction</span>
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                            <AutomaticIcon />
+                                            <span className="ml-2">Automatic Extraction</span>
+                                        </span>
                                     </TooltipWrapper>
                                     <div className="relative">
                                         <input type="checkbox" id="autoExtractToggle" className="peer sr-only" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
@@ -283,7 +301,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable image/video previews to save bandwidth or avoid potential issues">
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Enable Previews</span>
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                            <PreviewIcon />
+                                            <span className="ml-2">Enable Previews</span>
+                                        </span>
                                     </TooltipWrapper>
                                     <div className="relative">
                                         <input type="checkbox" id="imagePreviewsToggle" className="peer sr-only" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
@@ -302,7 +323,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             <div>
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable saving extraction history to your browser's local storage">
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Save History</span>
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                            <HistorySaveIcon />
+                                            <span className="ml-2">Save History</span>
+                                        </span>
                                     </TooltipWrapper>
                                     <div className="relative">
                                         <input type="checkbox" id="saveHistoryToggle" className="peer sr-only" checked={settings.saveHistory} onChange={handleSaveHistoryChange} />
@@ -319,6 +343,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Store successful extractions locally in your browser.</p>
                             </div>
 
+                            <div>
+                                <label className="flex cursor-pointer select-none items-center justify-between">
+                                    <TooltipWrapper tipContent="Enable extraction for unsupported websites by using similar site patterns">
+                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                            <UnsupportedSitesIcon />
+                                            <span className="ml-2">Enable for Unsupported Sites</span>
+                                        </span>
+                                    </TooltipWrapper>
+                                    <div className="relative">
+                                        <input type="checkbox" id="unsupportedSitesToggle" className="peer sr-only" checked={settings.enableUnsupportedSites} onChange={handleUnsupportedSitesChange} />
+                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
+                                        <motion.div
+                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
+                                            layout
+                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                                            initial={false}
+                                            animate={{ x: settings.enableUnsupportedSites ? 20 : 0 }}
+                                        ></motion.div>
+                                    </div>
+                                </label>
+                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Try to extract from unsupported sites using similar site patterns. May not work for all sites.</p>
+                            </div>
+
                             <AnimatePresence>
                                 {settings.saveHistory && (
                                     <motion.div
@@ -327,7 +374,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                         exit={{ opacity: 0, height: 0 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <label htmlFor="maxHistorySizeSelect" className="mb-1.5 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">Maximum History Size</label>
+                                        <label htmlFor="maxHistorySizeSelect" className="mb-1.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                            <HistorySizeIcon />
+                                            <span className="ml-2">Maximum History Size</span>
+                                        </label>
                                         <div className="relative">
                                             <select
                                                 id="maxHistorySizeSelect"

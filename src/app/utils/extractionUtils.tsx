@@ -68,7 +68,7 @@ const siteDefinitions: SiteDefinitionTuple[] = [
     ['furaffinity',   'Fur Affinity',        /furaffinity\.net\/(?:view|full)\/\d+/i]
 ];
 
-interface BooruSite {
+export interface BooruSite {
     name: string;
     urlPattern: RegExp;
     extractTags: ExtractionStrategyFunction;

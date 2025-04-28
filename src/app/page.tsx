@@ -2,7 +2,7 @@
 'use client';
 
 import { hexToRgb, getContrastColor, adjustRgb } from './utils/colors';
-import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type ExtractionResult, type TagCategory } from './utils/extractionUtils';
+import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type ExtractionResult, type TagCategory, type BooruSite } from './utils/extractionUtils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
@@ -20,7 +20,7 @@ type FetchMode = 'server' | 'clientProxy';
 type ActiveView = 'extractor' | 'image';
 
 interface ClientProxyOption { id: string; label: string; value: string; }
-interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; maxHistorySize: number; }
+interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; maxHistorySize: number; enableUnsupportedSites: boolean; }
 interface ImageMetadata { positivePrompt?: string; negativePrompt?: string; parameters?: Record<string, string>; error?: string; }
 interface CopyStatus { positive?: boolean; negative?: boolean; parameters?: boolean; }
 interface HistoryEntry { id: string; url: string; tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
@@ -50,6 +50,7 @@ const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const SAVE_HISTORY_STORAGE_KEY = 'booruExtractorSaveHistoryPref';
 const MAX_HISTORY_SIZE_STORAGE_KEY = 'booruExtractorMaxHistorySizePref';
+const UNSUPPORTED_SITES_STORAGE_KEY = 'booruExtractorUnsupportedSitesPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const IMAGE_HISTORY_STORAGE_KEY = 'booruExtractorImageHistory';
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
@@ -336,7 +337,7 @@ const BooruTagExtractor = () => {
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE });
+    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -373,6 +374,7 @@ const BooruTagExtractor = () => {
             clientProxyUrl: loadStoredItem<string>(CLIENT_PROXY_URL_STORAGE_KEY, DEFAULT_CLIENT_PROXY_URL),
             saveHistory: loadStoredItem<boolean>(SAVE_HISTORY_STORAGE_KEY, false),
             maxHistorySize: loadStoredItem<number>(MAX_HISTORY_SIZE_STORAGE_KEY, DEFAULT_MAX_HISTORY_SIZE, isValidMaxHistorySize),
+            enableUnsupportedSites: loadStoredItem<boolean>(UNSUPPORTED_SITES_STORAGE_KEY, false),
         });
         setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
         setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
@@ -382,7 +384,7 @@ const BooruTagExtractor = () => {
     useEffect(() => {
         if (typeof window === 'undefined') return; const root = window.document.documentElement; const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches); root.classList.toggle('dark', isDark); root.dataset.colorTheme = settings.colorTheme;
         if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const p = `${rgb.r} ${rgb.g} ${rgb.b}`; const f = isDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-rgb', p); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); } } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); }
-        Object.entries(settings).forEach(([key, value]) => { const storageKeyMap: Record<string, string> = { theme: THEME_STORAGE_KEY, colorTheme: COLOR_THEME_STORAGE_KEY, customColorHex: CUSTOM_COLOR_HEX_STORAGE_KEY, autoExtract: AUTO_EXTRACT_STORAGE_KEY, enableImagePreviews: IMAGE_PREVIEWS_STORAGE_KEY, fetchMode: FETCH_MODE_STORAGE_KEY, clientProxyUrl: CLIENT_PROXY_URL_STORAGE_KEY, saveHistory: SAVE_HISTORY_STORAGE_KEY, maxHistorySize: MAX_HISTORY_SIZE_STORAGE_KEY }; const storageKey = storageKeyMap[key]; if (storageKey) { if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); } });
+        Object.entries(settings).forEach(([key, value]) => { const storageKeyMap: Record<string, string> = { theme: THEME_STORAGE_KEY, colorTheme: COLOR_THEME_STORAGE_KEY, customColorHex: CUSTOM_COLOR_HEX_STORAGE_KEY, autoExtract: AUTO_EXTRACT_STORAGE_KEY, enableImagePreviews: IMAGE_PREVIEWS_STORAGE_KEY, fetchMode: FETCH_MODE_STORAGE_KEY, clientProxyUrl: CLIENT_PROXY_URL_STORAGE_KEY, saveHistory: SAVE_HISTORY_STORAGE_KEY, maxHistorySize: MAX_HISTORY_SIZE_STORAGE_KEY, enableUnsupportedSites: UNSUPPORTED_SITES_STORAGE_KEY }; const storageKey = storageKeyMap[key]; if (storageKey) { if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); } });
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)'); const handleChange = (e: MediaQueryListEvent) => { if (settings.theme === 'system') { const sysDark = e.matches; root.classList.toggle('dark', sysDark); if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const f = sysDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } } } };
         if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange); return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
@@ -393,8 +395,50 @@ const BooruTagExtractor = () => {
     const saveImageHistoryToLocalStorage = useCallback((data: ImageHistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY); } catch (e) { console.error("Save image history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) { setImageError("Image history storage limit."); setTimeout(() => setImageError(null), 3000); } } }, []);
     const tagCounts = useMemo(() => Object.entries(allExtractedTags).reduce((acc, [cat, tags]) => { if (tags) acc[cat as TagCategory] = tags.length; return acc; }, {} as Record<TagCategory, number>), [allExtractedTags]);
     const totalExtractedTagCount = useMemo(() => calculateTotalTags(allExtractedTags), [allExtractedTags]);
+    const findSimilarSite = useCallback((url: string): BooruSite | null => {
+        try {
+            const urlObj = new URL(url);
+            const hostname = urlObj.hostname;
+
+            if (hostname.endsWith('donmai.us')) {
+                const danbooruSite = BOORU_SITES.find(s => s.name === 'Danbooru');
+                if (danbooruSite) {
+                    console.log(`Using Danbooru strategy for unsupported donmai.us subdomain: ${hostname}`);
+                    return danbooruSite;
+                }
+            }
+
+
+            return null;
+        } catch (e) {
+            console.error("Error parsing URL for similar site detection:", e);
+            return null;
+        }
+    }, []);
+
     const extractTags = useCallback(async (targetUrl: string) => {
-        const trimmedUrl = targetUrl.trim(); if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return; const site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl)); if (!site) { setError('URL not supported.'); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setActiveSite(null); currentExtractionUrl.current = null; return; }
+        const trimmedUrl = targetUrl.trim(); 
+        if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return; 
+
+        let site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl)); 
+
+        if (!site && settings.enableUnsupportedSites) {
+            const similarSite = findSimilarSite(trimmedUrl);
+            if (similarSite) {
+                site = similarSite;
+                console.log(`Using ${site!.name} extraction strategy for unsupported site: ${trimmedUrl}`);
+            }
+        }
+
+        if (!site) { 
+            setError('URL not supported.'); 
+            setAllExtractedTags({}); 
+            setImageUrl(undefined); 
+            setImageTitle(undefined); 
+            setActiveSite(null); 
+            currentExtractionUrl.current = null; 
+            return; 
+        }
         setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false); currentExtractionUrl.current = trimmedUrl; const controller = new AbortController(); const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0); const timeoutId = setTimeout(() => controller.abort(), fetchTimeout); let proxyUsed = ''; let selectedProxy: ClientProxyOption | undefined;
         try {
             let result: ExtractionResult = { tags: {} }; let errorMsg: string | null = null; let siteName = site.name; let imgUrl: string | undefined = undefined; let imgTitle: string | undefined = undefined;
@@ -412,17 +456,35 @@ const BooruTagExtractor = () => {
             else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; }); } }
         } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
         finally { setLoading(false); }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, saveHistoryToLocalStorage]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
 
     const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
-        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) { const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl)); if (isSupported) { if (trimmedUrl !== currentExtractionUrl.current) { debounceTimeoutRef.current = setTimeout(() => { const currentInputVal = (document.getElementById('url') as HTMLInputElement | null)?.value.trim(); if (currentInputVal !== undefined && trimmedUrl === currentInputVal && trimmedUrl !== currentExtractionUrl.current) void extractTags(trimmedUrl); }, 750); } } else if (trimmedUrl !== currentExtractionUrl.current) setError('URL not supported.'); }
+        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) { 
+            // Check if the URL is directly supported
+            const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl)); 
+
+            // Check if we can use a similar site for unsupported URLs
+            const canUseSimilarSite = settings.enableUnsupportedSites && !isSupported && findSimilarSite(trimmedUrl) !== null;
+
+            if (isSupported || canUseSimilarSite) { 
+                if (trimmedUrl !== currentExtractionUrl.current) { 
+                    debounceTimeoutRef.current = setTimeout(() => { 
+                        const currentInputVal = (document.getElementById('url') as HTMLInputElement | null)?.value.trim(); 
+                        if (currentInputVal !== undefined && trimmedUrl === currentInputVal && trimmedUrl !== currentExtractionUrl.current) 
+                            void extractTags(trimmedUrl); 
+                    }, 750); 
+                } 
+            } else if (trimmedUrl !== currentExtractionUrl.current) {
+                setError('URL not supported.');
+            }
+        }
         else if (!trimmedUrl && currentExtractionUrl.current) handleReset(); else if (trimmedUrl && !trimmedUrl.startsWith('http')) { if (trimmedUrl !== currentExtractionUrl.current) setError('URL must start with http:// or https://'); }
         else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) setError(''); return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
-    }, [url, extractTags, settings.autoExtract, handleReset, activeView]);
+    }, [url, extractTags, settings.autoExtract, settings.enableUnsupportedSites, findSimilarSite, handleReset, activeView]);
 
     useEffect(() => {
          const handlePaste = (event: ClipboardEvent) => {
