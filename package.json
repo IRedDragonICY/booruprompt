@@ -22,7 +22,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "framer-motion": "^12.9.2",
+    "framer-motion": "^12.9.4",
     "jsdom": "^26.1.0",
     "postcss": "^8",
     "tailwind-scrollbar": "^4.0.2",
