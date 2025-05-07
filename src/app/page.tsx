@@ -464,20 +464,16 @@ const BooruTagExtractor = () => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
         if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) { 
-            // Check if the URL is directly supported
-            const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl)); 
-
-            // Check if we can use a similar site for unsupported URLs
+            const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
             const canUseSimilarSite = settings.enableUnsupportedSites && !isSupported && findSimilarSite(trimmedUrl) !== null;
-
-            if (isSupported || canUseSimilarSite) { 
-                if (trimmedUrl !== currentExtractionUrl.current) { 
-                    debounceTimeoutRef.current = setTimeout(() => { 
-                        const currentInputVal = (document.getElementById('url') as HTMLInputElement | null)?.value.trim(); 
-                        if (currentInputVal !== undefined && trimmedUrl === currentInputVal && trimmedUrl !== currentExtractionUrl.current) 
-                            void extractTags(trimmedUrl); 
-                    }, 750); 
-                } 
+            if (isSupported || canUseSimilarSite) {
+                if (trimmedUrl !== currentExtractionUrl.current) {
+                    debounceTimeoutRef.current = setTimeout(() => {
+                        const currentInputVal = (document.getElementById('url') as HTMLInputElement | null)?.value.trim();
+                        if (currentInputVal !== undefined && trimmedUrl === currentInputVal && trimmedUrl !== currentExtractionUrl.current)
+                            void extractTags(trimmedUrl);
+                    }, 750);
+                }
             } else if (trimmedUrl !== currentExtractionUrl.current) {
                 setError('URL not supported.');
             }
@@ -500,13 +496,40 @@ const BooruTagExtractor = () => {
          return () => window.removeEventListener('paste', handlePaste);
      }, [activeView, setUrl]);
 
+    const handleCopy = useCallback(async () => { if (!displayedTags) return; try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); } catch (err) { console.error('Copy failed:', err); setError("Failed to copy."); } }, [displayedTags]);
+
+    useEffect(() => {
+        const handleGlobalCopyKeyboard = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
+                const activeEl = document.activeElement;
+                if (activeEl && (
+                    activeEl.tagName === 'INPUT' ||
+                    activeEl.tagName === 'TEXTAREA' ||
+                    (activeEl instanceof HTMLElement && activeEl.isContentEditable)
+                )) {
+                    return;
+                }
+
+                if (activeView !== 'extractor' || !displayedTags.trim()) {
+                    return;
+                }
+
+                handleCopy().catch(err => console.error("Global copy shortcut failed:", err));
+                event.preventDefault();
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalCopyKeyboard);
+        return () => {
+            window.removeEventListener('keydown', handleGlobalCopyKeyboard);
+        };
+    }, [activeView, displayedTags, handleCopy]);
 
     const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
     const handleManualExtract = useCallback(() => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); currentExtractionUrl.current = null; void extractTags(url.trim()); }, [extractTags, url]);
     const toggleTagCategory = useCallback((id: TagCategory) => setTagCategories(prev => prev.map(c => c.id === id ? { ...c, enabled: !c.enabled } : c)), []);
     const toggleAllCategories = useCallback((enabled: boolean) => setTagCategories(prev => prev.map(c => ({ ...c, enabled }))), []);
-    const handleCopy = useCallback(async () => { if (!displayedTags) return; try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); } catch (err) { console.error('Copy failed:', err); setError("Failed to copy."); } }, [displayedTags]);
     const areAllCategoriesEnabled = useMemo(() => tagCategories.every(c => c.enabled), [tagCategories]);
     const areAllCategoriesDisabled = useMemo(() => !tagCategories.some(c => c.enabled), [tagCategories]);
     const handleLoadHistoryEntry = useCallback((entry: HistoryEntry) => { if (loading) return; setActiveView('extractor'); handleReset(); setUrl(entry.url); setAllExtractedTags(entry.tags ?? {}); setImageUrl(entry.imageUrl); setImageTitle(entry.title); setActiveSite(entry.siteName || null); currentExtractionUrl.current = entry.url; setError(''); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [loading, handleReset]);
@@ -679,7 +702,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for &rsquo;parameters&rsquo; text chunk.</p>
+                                     <p>PNG metadata extraction for ’parameters’ text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
