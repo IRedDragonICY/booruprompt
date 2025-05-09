@@ -3,6 +3,8 @@ export type TagCategoryOption = { id: TagCategory; label: string; enabled: boole
 export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
 
+export const API_ROUTE_URL = '/api/fetch-booru';
+
 const grp = (t: ExtractedTag[]): Partial<Record<TagCategory, string[]>> => t.reduce((a, i) => { if (!a[i.category]) a[i.category] = []; if (!a[i.category]!.some(existing => existing.toLowerCase() === i.name.toLowerCase())) { (a[i.category]!).push(i.name); } return a; }, {} as Partial<Record<TagCategory, string[]>>);
 
 const C_MAP: Readonly<Record<string, TagCategory>> = { 'tag-type-copyright': 'copyright', 'tag-type-3': 'copyright', 'copyright': 'copyright', 'tag-type-character': 'character', 'tag-type-4': 'character', 'character': 'character', 'tag-type-artist': 'other', 'tag-type-1': 'other', 'artist': 'other', 'tag-type-metadata': 'meta', 'tag-type-5': 'meta', 'tag-type-meta': 'meta', 'tag-type-style': 'meta', 'style': 'meta', 'tag-type-general': 'general', 'tag-type-0': 'general', 'reference': 'general', 'object': 'general', 'general': 'general' };

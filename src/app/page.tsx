@@ -2,7 +2,7 @@
 'use client';
 
 import { hexToRgb, getContrastColor, adjustRgb } from './utils/colors';
-import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type ExtractionResult, type TagCategory, type BooruSite } from './utils/extractionUtils';
+import { BOORU_SITES, DEFAULT_TAG_CATEGORIES, type TagCategoryOption, type ExtractionResult, type TagCategory, type BooruSite, API_ROUTE_URL } from './utils/extractionUtils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
@@ -13,6 +13,8 @@ import {
   CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, ChevronDownIcon, HistoryIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, TagIcon
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
+import { ImagePreview } from './components/ImagePreview'; // Added import for ImagePreview
+import CategoryToggle from './components/CategoryToggle'; // Added import for CategoryToggle
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
@@ -28,7 +30,6 @@ interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMeta
 interface StoredHistoryItem { id: string; url: string; tags?: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
 interface StoredImageHistoryItem { id: string; fileName: string; imageData?: ImageMetadata; timestamp: number; previewUrl?: string; }
 interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> { siteName: string; tags?: Partial<Record<TagCategory, string[]>>; error?: string; status?: number; html?: string; }
-interface ImagePreviewProps { originalUrl?: string; title?: string; isLoading: boolean; enableImagePreviews: boolean; }
 interface HistoryItemProps { entry: HistoryEntry; onLoad: (entry: HistoryEntry) => void; onDelete: (id: string) => void; enableImagePreviews: boolean; }
 interface ImageHistoryItemProps { entry: ImageHistoryEntry; onLoad: (entry: ImageHistoryEntry) => void; onDelete: (id: string) => void; }
 
@@ -58,7 +59,6 @@ const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
 const DEFAULT_MAX_HISTORY_SIZE = 30;
 const FETCH_TIMEOUT_MS = 25000;
-const API_ROUTE_URL = '/api/fetch-booru';
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 const THUMBNAIL_SIZE = 40;
 
@@ -73,27 +73,6 @@ const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): numbe
 
 const MotionCard = motion.div;
 
-const CategoryToggle = React.memo(({ category, count, onToggle }: { category: TagCategoryOption; count: number; onToggle: () => void }) => (
-    <MotionCard className="flex items-center justify-between rounded-2xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-4 transition-all hover:shadow-md hover:shadow-[rgba(var(--color-primary-rgb),0.12)]" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} whileTap={{ scale: 0.98 }} whileHover={{ y: -2, backgroundColor: "rgba(var(--color-surface-alt-2-rgb), 0.8)" }}>
-        <div className="flex items-center space-x-3 overflow-hidden">
-            <motion.span className={`inline-flex h-4 w-4 shrink-0 rounded-full items-center justify-center`} style={{ backgroundColor: `rgb(var(${category.variable}))` }} animate={{ scale: category.enabled ? 1 : 0.8, boxShadow: category.enabled ? '0 2px 4px rgba(0,0,0,0.2)' : 'none' }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}/>
-            <div className="flex flex-col min-w-0">
-                <span className="truncate text-base font-medium text-[rgb(var(--color-on-surface-rgb))]" title={category.label}>{category.label}</span>
-                {count > 0 && <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{count} {count === 1 ? 'tag' : 'tags'}</span>}
-            </div>
-        </div>
-        <div className="relative">
-            <label className="relative inline-flex shrink-0 cursor-pointer items-center">
-                <input type="checkbox" className="peer sr-only" checked={category.enabled} onChange={onToggle} aria-labelledby={`category-label-${category.id}`}/>
-                <div className={`relative h-8 w-14 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-300 ease-out peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))] peer-checked:bg-[rgb(var(${category.variable}))] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-7 after:w-7 after:rounded-full after:bg-white peer-checked:after:translate-x-6 after:shadow-sm after:transition-all after:duration-300 dark:after:bg-gray-200`}/>
-            </label>
-            <span id={`category-label-${category.id}`} className="sr-only">{category.label} Toggle</span>
-            <motion.div className="absolute inset-0 rounded-full pointer-events-none opacity-0" animate={{ opacity: category.enabled ? 0.12 : 0, backgroundColor: `rgb(var(${category.variable}))` }} initial={false} transition={{ duration: 0.3 }}/>
-        </div>
-    </MotionCard>
-));
-CategoryToggle.displayName = 'CategoryToggle';
-
 const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' | 'warning', children: React.ReactNode }) => {
     const typeClasses = useMemo(() => ({
         info: 'border-[rgb(var(--color-info-rgb))] bg-[rgb(var(--color-info-bg-rgb))] text-[rgb(var(--color-info-content-rgb))]',
@@ -107,38 +86,6 @@ const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' |
     );
 });
 StatusMessage.displayName = 'StatusMessage';
-
-const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableImagePreviews }: ImagePreviewProps) => {
-    const [imgLoading, setImgLoading] = useState(true);
-    const [imgError, setImgError] = useState(false);
-    const isVideo = useMemo(() => originalUrl?.match(/\.(mp4|webm|ogg)$/i), [originalUrl]);
-    const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
-    const proxiedUrl = useMemo(() => originalUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}` : undefined, [originalUrl, enableImagePreviews]);
-
-    useEffect(() => { setImgLoading(enableImagePreviews && (!!originalUrl || isLoading)); setImgError(false); }, [originalUrl, isLoading, enableImagePreviews]);
-    const handleLoad = useCallback(() => setImgLoading(false), []);
-    const handleError = useCallback(() => { setImgLoading(false); setImgError(true); }, []);
-
-    if (!enableImagePreviews) return null;
-    if (isLoading) return <div className={`${placeholderBaseClasses} animate-pulse bg-[rgb(var(--color-surface-alt-2-rgb))]`}>Loading preview...</div>;
-    if (!originalUrl) return null;
-    if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]"><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">(Server proxy error or invalid image)</p></div></div>;
-
-    return (
-        <motion.div className="relative h-64 w-full overflow-hidden rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            {imgLoading && !isVideo && <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))]">Loading...</div>}
-            {isVideo ? (
-                <video key={proxiedUrl} controls muted className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
-                    <source src={proxiedUrl} /> Your browser does not support video.
-                </video>
-            ) : (
-                <Image key={proxiedUrl!} src={proxiedUrl!} alt={title || "Booru preview"} fill unoptimized onLoad={handleLoad} onError={handleError} className={`object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}/>
-            )}
-            {title && !imgLoading && !imgError && <motion.div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent p-3 text-sm text-white" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><p className="truncate">{title}</p></motion.div>}
-        </motion.div>
-    );
-});
-ImagePreview.displayName = 'ImagePreview';
 
 const HistoryItem = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }: HistoryItemProps) => {
     const [showPlaceholder, setShowPlaceholder] = useState(!enableImagePreviews);
@@ -352,6 +299,44 @@ const BooruTagExtractor = () => {
     const [isDraggingOverImage, setIsDraggingOverImage] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleLocationChange = useCallback(() => {
+        const currentPath = window.location.pathname;
+        if (currentPath === '/image-metadata') {
+            setActiveView('image');
+        } else { // For /booru-tag, /, or any other path, set to extractor
+            setActiveView('extractor');
+            // Canonicalize to /booru-tag if not already there.
+            if (currentPath !== '/booru-tag') {
+                window.history.replaceState(null, '', '/booru-tag');
+            }
+        }
+    }, [setActiveView]);
+
+    useEffect(() => {
+        // Handles initial load and browser back/forward navigation
+        handleLocationChange();
+        window.addEventListener('popstate', handleLocationChange);
+        return () => {
+            window.removeEventListener('popstate', handleLocationChange);
+        };
+    }, [handleLocationChange]);
+
+    useEffect(() => {
+        // Updates URL when activeView is changed by user click
+        const currentPath = window.location.pathname;
+        let targetPath: string;
+
+        if (activeView === 'extractor') {
+            targetPath = '/booru-tag';
+        } else { // activeView === 'image'
+            targetPath = '/image-metadata';
+        }
+
+        if (currentPath !== targetPath) {
+            window.history.pushState(null, '', targetPath);
+        }
+    }, [activeView]);
 
     const loadStoredItem = <T,>(key: string, defaultValue: T, validator?: (item: unknown) => boolean): T => {
         if (typeof window === 'undefined') return defaultValue;
@@ -702,7 +687,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for ’parameters’ text chunk.</p>
+                                     <p>PNG metadata extraction for &rsquo;parameters&rsquo; text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
