@@ -13,8 +13,8 @@ import {
   CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, ChevronDownIcon, HistoryIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, TagIcon
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
-import { ImagePreview } from './components/ImagePreview'; // Added import for ImagePreview
-import CategoryToggle from './components/CategoryToggle'; // Added import for CategoryToggle
+import { ImagePreview } from './components/ImagePreview';
+import CategoryToggle from './components/CategoryToggle';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
@@ -304,9 +304,8 @@ const BooruTagExtractor = () => {
         const currentPath = window.location.pathname;
         if (currentPath === '/image-metadata') {
             setActiveView('image');
-        } else { // For /booru-tag, /, or any other path, set to extractor
+        } else {
             setActiveView('extractor');
-            // Canonicalize to /booru-tag if not already there.
             if (currentPath !== '/booru-tag') {
                 window.history.replaceState(null, '', '/booru-tag');
             }
@@ -314,7 +313,6 @@ const BooruTagExtractor = () => {
     }, [setActiveView]);
 
     useEffect(() => {
-        // Handles initial load and browser back/forward navigation
         handleLocationChange();
         window.addEventListener('popstate', handleLocationChange);
         return () => {
@@ -323,13 +321,12 @@ const BooruTagExtractor = () => {
     }, [handleLocationChange]);
 
     useEffect(() => {
-        // Updates URL when activeView is changed by user click
         const currentPath = window.location.pathname;
         let targetPath: string;
 
         if (activeView === 'extractor') {
             targetPath = '/booru-tag';
-        } else { // activeView === 'image'
+        } else {
             targetPath = '/image-metadata';
         }
 
@@ -392,8 +389,6 @@ const BooruTagExtractor = () => {
                     return danbooruSite;
                 }
             }
-
-
             return null;
         } catch (e) {
             console.error("Error parsing URL for similar site detection:", e);
@@ -402,10 +397,10 @@ const BooruTagExtractor = () => {
     }, []);
 
     const extractTags = useCallback(async (targetUrl: string) => {
-        const trimmedUrl = targetUrl.trim(); 
-        if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return; 
+        const trimmedUrl = targetUrl.trim();
+        if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
 
-        let site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl)); 
+        let site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
 
         if (!site && settings.enableUnsupportedSites) {
             const similarSite = findSimilarSite(trimmedUrl);
@@ -415,14 +410,14 @@ const BooruTagExtractor = () => {
             }
         }
 
-        if (!site) { 
-            setError('URL not supported.'); 
-            setAllExtractedTags({}); 
-            setImageUrl(undefined); 
-            setImageTitle(undefined); 
-            setActiveSite(null); 
-            currentExtractionUrl.current = null; 
-            return; 
+        if (!site) {
+            setError('URL not supported.');
+            setAllExtractedTags({});
+            setImageUrl(undefined);
+            setImageTitle(undefined);
+            setActiveSite(null);
+            currentExtractionUrl.current = null;
+            return;
         }
         setLoading(true); setError(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setActiveSite(site.name); setCopySuccess(false); currentExtractionUrl.current = trimmedUrl; const controller = new AbortController(); const fetchTimeout = FETCH_TIMEOUT_MS + (settings.fetchMode === 'server' ? 2000 : 0); const timeoutId = setTimeout(() => controller.abort(), fetchTimeout); let proxyUsed = ''; let selectedProxy: ClientProxyOption | undefined;
         try {
@@ -448,7 +443,7 @@ const BooruTagExtractor = () => {
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
-        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) { 
+        if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) {
             const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
             const canUseSimilarSite = settings.enableUnsupportedSites && !isSupported && findSimilarSite(trimmedUrl) !== null;
             if (isSupported || canUseSimilarSite) {
@@ -623,27 +618,68 @@ const BooruTagExtractor = () => {
                                         {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
                                     {shouldShowPreviewSection && <div className="space-y-2"><h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3><ImagePreview originalUrl={imageUrl} title={imageTitle} isLoading={loading && !imageUrl && !error} enableImagePreviews={settings.enableImagePreviews}/></div>}
+
                                     <AnimatePresence>
-                                        {!loading && hasResults && (
-                                            <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
-                                                {totalExtractedTagCount > 0 && ( <>
-                                                    <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
-                                                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
-                                                        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <div><label htmlFor="tags" className="mb-1.5 block text-sm font-medium">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t=>t.trim()).length : 0})</label><textarea id="tags" rows={isMobile ? 5 : 4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" readOnly value={displayedTags || "No tags match."} aria-label="Filtered tags"/></div>
-                                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`} aria-label={copySuccess ? "Copied" : "Copy Tags"}>
-                                                            <motion.div className="inline-flex items-center justify-center overflow-hidden w-5 h-5"><AnimatePresence mode="popLayout" initial={false}>{copySuccess ? (<motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><CheckCircleIcon/></motion.span>) : (<motion.span key="clip" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><ClipboardIcon/></motion.span>)}</AnimatePresence></motion.div>
-                                                            <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
-                                                        </motion.button>
-                                                    </div>
-                                                </>)}
+                                        {!loading && hasResults && totalExtractedTagCount > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: 0.1, duration: 0.4 }}
+                                            >
+                                                <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
+                                                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
+                                                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
+                                                </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                     {settings.saveHistory && history.length > 0 && (<HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />)}
                                 </div>
+
+                                <AnimatePresence>
+                                    {!loading && hasResults && totalExtractedTagCount > 0 && (
+                                        <motion.div
+                                            className="shrink-0 bg-[rgb(var(--color-surface-alt-rgb))] border-t border-[rgb(var(--color-surface-border-rgb))] p-4 shadow-top-md z-10"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 20 }}
+                                            transition={{ duration: 0.2, ease: "easeOut" }}
+                                        >
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label htmlFor="tags" className="mb-1.5 block text-sm font-medium">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t=>t.trim()).length : 0})</label>
+                                                    <textarea
+                                                        id="tags"
+                                                        rows={isMobile ? 3 : 2}
+                                                        className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
+                                                        readOnly
+                                                        value={displayedTags || "No tags to display."}
+                                                        aria-label="Filtered tags"
+                                                    />
+                                                </div>
+                                                <motion.button
+                                                    whileTap={{ scale: 0.97 }}
+                                                    onClick={handleCopy}
+                                                    disabled={!displayedTags || copySuccess}
+                                                    className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
+                                                    aria-label={copySuccess ? "Copied" : "Copy Tags"}
+                                                >
+                                                    <motion.div className="inline-flex items-center justify-center overflow-hidden w-5 h-5">
+                                                        <AnimatePresence mode="popLayout" initial={false}>
+                                                            {copySuccess ? (
+                                                                <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><CheckCircleIcon/></motion.span>
+                                                            ) : (
+                                                                <motion.span key="clip" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><ClipboardIcon/></motion.span>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </motion.div>
+                                                    <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
+                                                </motion.button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
                                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
@@ -687,7 +723,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for &rsquo;parameters&rsquo; text chunk.</p>
+                                     <p>PNG metadata extraction for ’parameters’ text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
