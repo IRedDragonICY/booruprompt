@@ -15,6 +15,7 @@ import {
 import { TooltipWrapper } from './components/TooltipWrapper';
 import { ImagePreview } from './components/ImagePreview';
 import CategoryToggle from './components/CategoryToggle';
+import ClipboardNotification from './components/ClipboardNotification';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
@@ -299,6 +300,17 @@ const BooruTagExtractor = () => {
     const [isDraggingOverImage, setIsDraggingOverImage] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [notificationMessage, setNotificationMessage] = useState<string>('');
+    const [showNotification, setShowNotification] = useState<boolean>(false);
+
+    const triggerNotification = useCallback((msg: string) => {
+      setNotificationMessage(msg);
+      setShowNotification(true);
+    }, []);
+
+    const handleNotificationHide = useCallback(() => {
+      setShowNotification(false);
+    }, []);
 
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
@@ -469,33 +481,47 @@ const BooruTagExtractor = () => {
              if (pastedText && pastedText.startsWith('http')) {
                  if (document.activeElement?.id !== 'url') {
                      setUrl(pastedText);
+                     triggerNotification("Pasted from clipboard!"); // Added this line
                  }
              }
          };
          window.addEventListener('paste', handlePaste);
          return () => window.removeEventListener('paste', handlePaste);
-     }, [activeView, setUrl]);
+     }, [activeView, setUrl, triggerNotification]); // Added triggerNotification to dependencies
 
-    const handleCopy = useCallback(async () => { if (!displayedTags) return; try { await navigator.clipboard.writeText(displayedTags); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); } catch (err) { console.error('Copy failed:', err); setError("Failed to copy."); } }, [displayedTags]);
+    const handleCopy = useCallback(async () => {
+        if (!displayedTags) return;
+        try {
+            await navigator.clipboard.writeText(displayedTags);
+            setCopySuccess(true); // This state is for the button's visual feedback
+            triggerNotification("Copied to clipboard!"); // New notification
+            setTimeout(() => setCopySuccess(false), 2000);
+        } catch (err) {
+            console.error('Copy failed:', err);
+            setError("Failed to copy.");
+            triggerNotification("Failed to copy tags."); // Optional: notify on failure too
+        }
+    }, [displayedTags, triggerNotification, setError]); // Added triggerNotification and setError
 
     useEffect(() => {
-        const handleGlobalCopyKeyboard = (event: KeyboardEvent) => {
+        const handleGlobalCopyKeyboard = async (event: KeyboardEvent) => { // make it async
             if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
                 const activeEl = document.activeElement;
-                if (activeEl && (
-                    activeEl.tagName === 'INPUT' ||
-                    activeEl.tagName === 'TEXTAREA' ||
-                    (activeEl instanceof HTMLElement && activeEl.isContentEditable)
-                )) {
+                if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl instanceof HTMLElement && activeEl.isContentEditable))) {
+                    // Standard browser copy from input will fire 'copy' event, which we'll handle below
                     return;
                 }
 
-                if (activeView !== 'extractor' || !displayedTags.trim()) {
-                    return;
+                if (activeView === 'extractor' && displayedTags.trim()) {
+                    try {
+                        await navigator.clipboard.writeText(displayedTags);
+                        triggerNotification("Tags copied to clipboard!");
+                    } catch (err) {
+                        console.error("Global copy shortcut failed:", err);
+                        triggerNotification("Failed to copy tags.");
+                    }
+                    event.preventDefault(); // Prevent default copy action if we handled it
                 }
-
-                handleCopy().catch(err => console.error("Global copy shortcut failed:", err));
-                event.preventDefault();
             }
         };
 
@@ -503,7 +529,51 @@ const BooruTagExtractor = () => {
         return () => {
             window.removeEventListener('keydown', handleGlobalCopyKeyboard);
         };
-    }, [activeView, displayedTags, handleCopy]);
+    }, [activeView, displayedTags, triggerNotification]); // Added triggerNotification
+
+    useEffect(() => {
+        const handleGenericCopy = (event: ClipboardEvent) => {
+            // Check if the event is already handled or if it's from an input field
+            if (event.defaultPrevented) return;
+            const activeEl = document.activeElement;
+             // Let specific handlers (like the one for tags) or input fields manage their own copy notifications if needed
+            if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl instanceof HTMLElement && activeEl.isContentEditable))) {
+                 // Only show notification if text was actually copied from the input/textarea
+                const selection = window.getSelection();
+                if (selection && selection.toString().length > 0) {
+                    // Check if clipboardData is available and if it contains data
+                    // This is a bit indirect, as clipboardData might not be populated yet by the browser's default action
+                    // A timeout might be needed, or rely on the fact that the user initiated a copy
+                    setTimeout(() => {
+                        navigator.clipboard.readText().then(text => {
+                            if (text.length > 0) {
+                                triggerNotification("Copied to clipboard!");
+                            }
+                        }).catch(err => {
+                            // Could be that permission was not granted or document not focused
+                            console.warn("Could not read clipboard for generic copy confirmation:", err);
+                            // Fallback: if there was a selection, assume copy was successful
+                            if (selection && selection.toString().length > 0) {
+                                triggerNotification("Copied to clipboard!");
+                            }
+                        });
+                    }, 0);
+                }
+                return;
+            }
+
+            // For other copy events (e.g., selecting text on the page)
+            const selection = window.getSelection();
+            if (selection && selection.toString().length > 0) {
+                triggerNotification("Copied to clipboard!");
+            }
+        };
+
+        document.addEventListener('copy', handleGenericCopy);
+        return () => {
+            document.removeEventListener('copy', handleGenericCopy);
+        };
+    }, [triggerNotification]);
 
     const handleSettingsChange = useCallback((newSettings: Partial<Settings>) => setSettings(prev => ({ ...prev, ...newSettings })), []);
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value), []);
@@ -732,6 +802,7 @@ const BooruTagExtractor = () => {
                  </div>
             </div>
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
+            <ClipboardNotification message={notificationMessage} show={showNotification} onHide={handleNotificationHide} />
         </div>
     );
 };
