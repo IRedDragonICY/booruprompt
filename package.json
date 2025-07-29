@@ -21,7 +21,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.3.1",
+    "eslint-config-next": "15.4.5",
     "framer-motion": "^12.10.0",
     "jsdom": "^26.1.0",
     "postcss": "^8",
