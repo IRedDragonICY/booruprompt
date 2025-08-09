@@ -11,7 +11,7 @@ export const StatusMessage = React.memo(({ type, children }: { type: StatusType;
   }), []);
   return (
     <motion.div
-      className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`}
+      className={`md:rounded-md border-l-4 p-4 ${typeClasses[type]}`}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}

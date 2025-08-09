@@ -102,8 +102,8 @@ const HistoryItem = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }
     const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
 
     return (
-        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
+        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 md:rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors md:hover:bg-[rgb(var(--color-surface-border-rgb))]">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden md:rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
                 {proxiedImageUrl && !showPlaceholder ? (<Image src={proxiedImageUrl} alt="preview" width={40} height={40} unoptimized className="h-full w-full object-cover" onError={handleError} onLoad={handleLoadSuccess}/>) : (<AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>)}
             </div>
             <div className="min-w-0 flex-1">
@@ -124,8 +124,8 @@ const ImageHistoryItem = React.memo(({ entry, onLoad, onDelete }: ImageHistoryIt
     const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
 
     return (
-        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
+        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 md:rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors md:hover:bg-[rgb(var(--color-surface-border-rgb))]">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden md:rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
                 {entry.previewUrl ? (
                     <Image src={entry.previewUrl} alt="thumbnail" width={THUMBNAIL_SIZE} height={THUMBNAIL_SIZE} className="h-full w-full object-cover" />
                 ) : (
@@ -568,7 +568,7 @@ const BooruTagExtractor = () => {
     }, [settings.maxHistorySize]);
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
+        <div className="flex min-h-screen items-stretch justify-start md:items-center md:justify-center p-0 sm:p-0 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             <div className="flex items-start md:flex-row flex-col mx-auto relative">
                 <div className="hidden md:block flex-shrink-0 md:mr-4 md:mb-0 z-20 md:self-start">
                     <div className="flex md:flex-col flex-row md:space-y-2 space-y-0 space-x-2 md:space-x-0 rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-xl">
@@ -593,10 +593,10 @@ const BooruTagExtractor = () => {
                          </TooltipWrapper>
                      </div>
                  </div>
-                 <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
+                 <div className="relative z-10 flex w-full max-w-none md:max-w-xl flex-col overflow-hidden md:rounded-xl md:border md:border-[rgb(var(--color-surface-border-rgb))] md:bg-[rgb(var(--color-surface-alt-rgb))] md:shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
                     <AnimatePresence>
-                        {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
-                        {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
+                        {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center md:rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
+                        {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center md:rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
                     </AnimatePresence>
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
@@ -733,52 +733,14 @@ const BooruTagExtractor = () => {
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                      <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
-                                 </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                 </div>
-            </div>
-            {/* Mobile bottom navigation */}
-            {isMobile && (
-                <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-                    <div className="mx-auto max-w-xl">
-                        <div className="grid grid-cols-3 gap-1 p-1">
-                            <button
-                                onClick={() => setActiveView('extractor')}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'extractor' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Tag Extractor"
-                                aria-current={activeView === 'extractor' ? 'page' : undefined}
-                            >
-                                <TagIcon />
-                                <span className="ml-2 text-xs font-medium">Tags</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                            <button
-                                onClick={() => setActiveView('image')}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'image' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Image Metadata"
-                                aria-current={activeView === 'image' ? 'page' : undefined}
-                            >
-                                <PhotoIcon className="h-5 w-5" />
-                                <span className="ml-2 text-xs font-medium">Image</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                            <button
-                                onClick={handleOpenSettings}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${showSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Settings"
-                            >
-                                <CogIcon />
-                                <span className="ml-2 text-xs font-medium">Settings</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                        </div>
-                    </div>
-                </nav>
-            )}
-            <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
-        </div>
-    );
-};
-export default BooruTagExtractor;
+                                  </div>
+                              </motion.div>
+                          )}
+                      </AnimatePresence>
+                  </div>
+              </div>
+              <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
+          </div>
+      );
+  };
+  export default BooruTagExtractor;

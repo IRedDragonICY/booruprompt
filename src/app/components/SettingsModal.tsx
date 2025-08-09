@@ -163,7 +163,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                     </svg>
                                     <span>Appearance</span>
                                 </label>
-                                <div className="flex items-center space-x-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
+                                <div className="flex items-center space-x-2 md:rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
                                         <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
@@ -180,7 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                     <span className="mr-2"><PaletteIcon /></span>
                                     <span>Color Theme</span>
                                 </label>
-                                <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
+                                <div className="grid grid-cols-3 gap-2 md:rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
                                             <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
@@ -247,7 +247,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                     </svg>
                                     <span>Data Fetching Method</span>
                                 </label>
-                                <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
+                                <div className="space-y-2 md:rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
                                         <div key={value}>
                                             <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>

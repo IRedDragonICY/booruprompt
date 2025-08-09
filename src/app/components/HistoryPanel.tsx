@@ -31,7 +31,7 @@ export function HistoryPanelBase<T extends { id: string; timestamp: number }>({ 
   }, [history, searchQuery, filterPredicate]);
 
   return (
-    <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
+    <div className="mt-6 overflow-hidden md:rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
       <motion.button whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }} transition={{ duration: 0.05 }} onClick={handleToggleOpen} className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]" aria-expanded={isOpen} aria-controls={`${title.toLowerCase().replace(/\s+/g, '-')}-content`}>
         <div className="flex items-center space-x-2"><AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon><span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">{title}</span><span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span></div>
         <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}><ChevronDownIcon /></motion.span>

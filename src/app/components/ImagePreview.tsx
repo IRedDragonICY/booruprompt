@@ -16,7 +16,7 @@ export const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableI
     const [imgLoading, setImgLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
     const isVideo = useMemo(() => originalUrl?.match(/\.(mp4|webm|ogg)$/i), [originalUrl]);
-    const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
+    const placeholderBaseClasses = "flex h-64 w-full items-center justify-center md:rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
     // Adjusted API_ROUTE_URL to be potentially passed or defined. If it's a constant from page.tsx, it should be imported or passed.
     // For now, assuming it might come from a shared utils or constants file.
     const proxiedUrl = useMemo(() => originalUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}` : undefined, [originalUrl, enableImagePreviews]);
@@ -31,7 +31,7 @@ export const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableI
     if (imgError) return <div className={`${placeholderBaseClasses} border border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]`}><div className="px-4 text-center text-sm text-[rgb(var(--color-error-rgb))]" ><p>Could not load preview.</p><p className="text-xs text-[rgb(var(--color-on-surface-faint-rgb))]" > (Server proxy error or invalid image)</p></div></div>;
 
     return (
-        <motion.div className="relative h-64 w-full overflow-hidden rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div className="relative h-64 w-full overflow-hidden md:rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] shadow-xs group" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
             {imgLoading && !isVideo && <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))]" > Loading...</div>}
             {isVideo ? (
                 <video key={proxiedUrl} controls muted className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`} onLoadedData={handleLoad} onError={handleError}>
