@@ -595,9 +595,8 @@ const BooruTagExtractor = () => {
                                </motion.button>
                            </TooltipWrapper>
                        </div>
-                   )}
-                   rightPanel={(
-                       <div className="relative z-10 flex w-full max-w-none md:max-w-xl flex-col overflow-hidden md:rounded-xl md:border md:border-[rgb(var(--color-surface-border-rgb))] md:bg-[rgb(var(--color-surface-alt-rgb))] md:shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
+                                       >
+<div className="relative z-10 flex w-full max-w-none md:max-w-xl flex-col overflow-hidden md:rounded-xl md:border md:border-[rgb(var(--color-surface-border-rgb))] md:bg-[rgb(var(--color-surface-alt-rgb))] md:shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
                        <AnimatePresence>
                            {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center md:rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
                            {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center md:rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
@@ -733,11 +732,12 @@ const BooruTagExtractor = () => {
                           )}
                       </AnimatePresence>
                   </div>
-              </DesktopUI>
-          </div>
-
-          {/* Mobile shell */}
-          <div className="md:hidden">
+                             </DesktopUI>
+           </div>
+ 
+           {/* Mobile shell */}
+           <div className="md:hidden">
+               {/* end DesktopUI */}
               <MobileUI
                   active={activeView}
                   onSelectExtractor={() => setActiveView('extractor')}
