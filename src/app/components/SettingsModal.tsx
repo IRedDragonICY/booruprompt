@@ -6,7 +6,7 @@ import { AnimatedIcon } from './AnimatedIcon';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
-type FetchMode = 'server' | 'clientProxy';
+ type FetchMode = 'server' | 'clientProxy';
 
 interface ClientProxyOption {
     id: string;
@@ -14,7 +14,7 @@ interface ClientProxyOption {
     value: string;
 }
 
-interface Settings {
+ interface Settings {
     theme: ThemePreference;
     autoExtract: boolean;
     colorTheme: ColorTheme;
@@ -24,12 +24,15 @@ interface Settings {
     clientProxyUrl: string;
     saveHistory: boolean;
     maxHistorySize: number;
-    enableUnsupportedSites: boolean;
+     enableUnsupportedSites: boolean;
+     enableBlacklist: boolean;
+     blacklistKeywords: string;
 }
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 const DEFAULT_MAX_HISTORY_SIZE = 30;
+ const DEFAULT_BLACKLIST_KEYWORDS = 'english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters, text';
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
@@ -48,10 +51,27 @@ const HISTORY_SIZE_OPTIONS = [
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
+     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
 
     useEffect(() => {
         setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     }, [settings.customColorHex]);
+
+    // Lock background scroll when modal is open
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (isOpen) {
+            const prevHtmlOverflow = document.documentElement.style.overflow;
+            const prevBodyOverflow = document.body.style.overflow;
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.documentElement.style.overflow = prevHtmlOverflow;
+                document.body.style.overflow = prevBodyOverflow;
+            };
+        }
+        return;
+    }, [isOpen]);
 
     const handleThemeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference }), [onSettingsChange]);
 
@@ -90,6 +110,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
     const handleSaveHistoryChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ saveHistory: event.target.checked }), [onSettingsChange]);
     const handleUnsupportedSitesChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableUnsupportedSites: event.target.checked }), [onSettingsChange]);
+     const handleBlacklistToggle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableBlacklist: event.target.checked }), [onSettingsChange]);
+     const handleBlacklistChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => { setLocalBlacklist(event.target.value); onSettingsChange({ blacklistKeywords: event.target.value }); }, [onSettingsChange]);
+     const handleBlacklistReset = useCallback(() => { setLocalBlacklist(DEFAULT_BLACKLIST_KEYWORDS); onSettingsChange({ blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS }); }, [onSettingsChange]);
     const handleMaxHistoryChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(event.target.value, 10);
         onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value });
@@ -121,9 +144,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-                    <motion.div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-6 shadow-xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", damping: 15, stiffness: 150 }} onClick={(e) => e.stopPropagation()}>
-                        <div className="mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] pb-4">
+                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                    <motion.div className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden" initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.98, opacity: 0 }} transition={{ type: "spring", damping: 18, stiffness: 200 }} onClick={(e) => e.stopPropagation()}>
+                      <div className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" style={{ WebkitOverflowScrolling: 'touch' as any }}>
+                        <div className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
                             <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">Settings</h2>
                             <TooltipWrapper tipContent="Close Settings">
                                 <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Close Settings">
@@ -131,17 +155,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </motion.button>
                             </TooltipWrapper>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-6 px-4 md:px-0 pb-4 md:pb-0">
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
                                     </svg>
-                                    <span className="ml-2">Appearance</span>
+                                    <span>Appearance</span>
                                 </label>
-                                <div className="flex items-center space-x-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
+                                <div className="flex items-center space-x-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
-                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={`Theme ${label}`} />
                                             <AnimatedIcon isActive={settings.theme === value} animation={animation}>
                                                 {icon}
@@ -152,14 +176,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </div>
                             </div>
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
-                                    <PaletteIcon />
-                                    <span className="ml-2">Color Theme</span>
+                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                                    <span className="mr-2"><PaletteIcon /></span>
+                                    <span>Color Theme</span>
                                 </label>
-                                <div className="grid grid-cols-3 gap-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
+                                <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
-                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                                 <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
                                                 <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
                                                 <AnimatePresence>
@@ -217,16 +241,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             </div>
 
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
                                     </svg>
-                                    <span className="ml-2">Data Fetching Method</span>
+                                    <span>Data Fetching Method</span>
                                 </label>
-                                <div className="space-y-2 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
+                                <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
                                         <div key={value}>
-                                            <label className={`flex cursor-pointer items-start rounded-md p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                                 <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
                                                 <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
                                                     {icon}
@@ -276,7 +300,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </div>
                             </div>
 
-                             <div>
+                             <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable automatic tag extraction upon pasting/typing a valid URL">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
@@ -296,9 +320,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                         ></motion.div>
                                     </div>
                                 </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Extract tags automatically after pasting/typing a valid URL.</p>
+                                <p id="autoExtractHelp" className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Extract tags automatically after pasting/typing a valid URL.</p>
                             </div>
-                            <div>
+                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable image/video previews to save bandwidth or avoid potential issues">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
@@ -320,7 +344,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </label>
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Show image/video previews during extraction and in history. Images are always fetched via the Server Proxy.</p>
                             </div>
-                            <div>
+                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable or disable saving extraction history to your browser's local storage">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
@@ -343,7 +367,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Store successful extractions locally in your browser.</p>
                             </div>
 
-                            <div>
+                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
                                 <label className="flex cursor-pointer select-none items-center justify-between">
                                     <TooltipWrapper tipContent="Enable extraction for unsupported websites by using similar site patterns">
                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
@@ -365,6 +389,46 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 </label>
                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Try to extract from unsupported sites using similar site patterns. May not work for all sites.</p>
                             </div>
+
+                             <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
+                                 <label className="flex cursor-pointer select-none items-center justify-between">
+                                     <TooltipWrapper tipContent="Block specific keywords so they are excluded from the prompt/tags (e.g., text, copyright, character name)">
+                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
+                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M12 22.5a10.5 10.5 0 1 0 0-21 10.5 10.5 0 0 0 0 21ZM7.06 6l10.88 10.88A8.999 8.999 0 0 1 7.06 6Zm9.88 12L6.06 7.12A8.999 8.999 0 0 1 16.94 18Z"/></svg>
+                                             <span className="ml-2">Enable Keyword Blacklist</span>
+                                         </span>
+                                     </TooltipWrapper>
+                                     <div className="relative">
+                                         <input type="checkbox" id="blacklistToggle" className="peer sr-only" checked={settings.enableBlacklist} onChange={handleBlacklistToggle} />
+                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
+                                         <motion.div
+                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
+                                             layout
+                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                                             initial={false}
+                                             animate={{ x: settings.enableBlacklist ? 20 : 0 }}
+                                         ></motion.div>
+                                     </div>
+                                 </label>
+                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Enter keywords to block, separated by commas, semicolons, or new lines. Example: "english text, copyright name, character name".</p>
+                                  <motion.div
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: settings.enableBlacklist ? 1 : 0, height: settings.enableBlacklist ? 'auto' : 0 }}
+                                      className={`mt-2 space-y-2 overflow-hidden ${settings.enableBlacklist ? '' : 'pointer-events-none'}`}
+                                  >
+                                     <textarea
+                                         value={localBlacklist}
+                                         onChange={handleBlacklistChange}
+                                         rows={3}
+                                          className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                         placeholder={DEFAULT_BLACKLIST_KEYWORDS}
+                                         aria-label="Blacklist Keywords"
+                                     />
+                                     <div className="text-right">
+                                         <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500">Reset to Default</motion.button>
+                                     </div>
+                                 </motion.div>
+                             </div>
 
                             <AnimatePresence>
                                 {settings.saveHistory && (
@@ -416,9 +480,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             <p className="text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">Found a bug or have a suggestion? Let us know!</p>
                         </div>
 
-                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right">
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] transition-colors duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</motion.button>
+                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0">
+                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-colors duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</motion.button>
                         </div>
+                      </div>
                     </motion.div>
                 </motion.div>
             )}

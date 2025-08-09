@@ -10,20 +10,21 @@ import { AnimatedIcon } from './components/AnimatedIcon';
 import { SettingsModal } from './components/SettingsModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import {
-  CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, ChevronDownIcon, HistoryIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, TagIcon
+  CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, ArrowDownTrayIcon, TagIcon
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
 import { ImagePreview } from './components/ImagePreview';
 import CategoryToggle from './components/CategoryToggle';
-
-type ThemePreference = 'system' | 'light' | 'dark';
-type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
-type FetchMode = 'server' | 'clientProxy';
-type ActiveView = 'extractor' | 'image';
+import { StatusMessage } from './components/StatusMessage';
+import { HistoryPanelBase } from './components/HistoryPanel';
+import { ParameterItem } from './components/ParameterItem';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
+import type { ImageMetadata } from './utils/imageMetadata';
+import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
 
 interface ClientProxyOption { id: string; label: string; value: string; }
-interface Settings { theme: ThemePreference; autoExtract: boolean; colorTheme: ColorTheme; customColorHex?: string; enableImagePreviews: boolean; fetchMode: FetchMode; clientProxyUrl: string; saveHistory: boolean; maxHistorySize: number; enableUnsupportedSites: boolean; }
-interface ImageMetadata { positivePrompt?: string; negativePrompt?: string; parameters?: Record<string, string>; error?: string; }
+ 
 interface CopyStatus { positive?: boolean; negative?: boolean; parameters?: boolean; }
 interface HistoryEntry { id: string; url: string; tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
 interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMetadata; timestamp: number; previewUrl?: string; }
@@ -33,14 +34,7 @@ interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> { siteNam
 interface HistoryItemProps { entry: HistoryEntry; onLoad: (entry: HistoryEntry) => void; onDelete: (id: string) => void; enableImagePreviews: boolean; }
 interface ImageHistoryItemProps { entry: ImageHistoryEntry; onLoad: (entry: ImageHistoryEntry) => void; onDelete: (id: string) => void; }
 
-interface BaseHistoryPanelProps<T extends { id: string; timestamp: number }> {
-    title: string;
-    history: T[];
-    renderItem: (entry: T) => React.ReactNode;
-    filterPredicate: (entry: T, query: string) => boolean;
-    searchPlaceholder: string;
-    onClearHistory: () => void;
-}
+// HistoryPanel types moved to components/HistoryPanel
 
 const THEME_STORAGE_KEY = 'booruExtractorThemePref';
 const COLOR_THEME_STORAGE_KEY = 'booruExtractorColorThemePref';
@@ -51,15 +45,37 @@ const FETCH_MODE_STORAGE_KEY = 'booruExtractorFetchModePref';
 const CLIENT_PROXY_URL_STORAGE_KEY = 'booruExtractorClientProxyUrlPref';
 const SAVE_HISTORY_STORAGE_KEY = 'booruExtractorSaveHistoryPref';
 const MAX_HISTORY_SIZE_STORAGE_KEY = 'booruExtractorMaxHistorySizePref';
-const UNSUPPORTED_SITES_STORAGE_KEY = 'booruExtractorUnsupportedSitesPref';
+ const UNSUPPORTED_SITES_STORAGE_KEY = 'booruExtractorUnsupportedSitesPref';
+ const BLACKLIST_ENABLED_STORAGE_KEY = 'booruExtractorBlacklistEnabledPref';
+ const BLACKLIST_KEYWORDS_STORAGE_KEY = 'booruExtractorBlacklistKeywordsPref';
 const HISTORY_STORAGE_KEY = 'booruExtractorHistory';
 const IMAGE_HISTORY_STORAGE_KEY = 'booruExtractorImageHistory';
 const DEFAULT_COLOR_THEME: ColorTheme = 'blue';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
-const DEFAULT_MAX_HISTORY_SIZE = 30;
+ const DEFAULT_MAX_HISTORY_SIZE = 30;
+ const DEFAULT_BLACKLIST_ENABLED = true;
+ const DEFAULT_BLACKLIST_KEYWORDS = [
+   'text',
+   'english text',
+   'japanese text',
+   'chinese text',
+   'korean text',
+   'copyright',
+   'copyright name',
+   'character name',
+   'signature',
+   'watermark',
+   'logo',
+   'subtitle',
+   'subtitles',
+   'caption',
+   'captions',
+   'speech bubble',
+   'words',
+   'letters'
+ ].join(', ');
 const FETCH_TIMEOUT_MS = 25000;
-const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 const THUMBNAIL_SIZE = 40;
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
@@ -72,20 +88,6 @@ const DEFAULT_CLIENT_PROXY_URL = CLIENT_PROXY_OPTIONS[0].value;
 const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => Object.values(tags || {}).reduce((sum, arr) => sum + (arr?.length ?? 0), 0);
 
 const MotionCard = motion.div;
-
-const StatusMessage = React.memo(({ type, children }: { type: 'info' | 'error' | 'warning', children: React.ReactNode }) => {
-    const typeClasses = useMemo(() => ({
-        info: 'border-[rgb(var(--color-info-rgb))] bg-[rgb(var(--color-info-bg-rgb))] text-[rgb(var(--color-info-content-rgb))]',
-        error: 'border-[rgb(var(--color-error-rgb))] bg-[rgb(var(--color-error-bg-rgb))] text-[rgb(var(--color-error-rgb))]',
-        warning: 'border-yellow-400 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-300'
-    }), []);
-    return (
-        <motion.div className={`rounded-md border-l-4 p-4 ${typeClasses[type]}`} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
-            <p className={`text-sm font-medium`}>{children}</p>
-        </motion.div>
-    );
-});
-StatusMessage.displayName = 'StatusMessage';
 
 const HistoryItem = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }: HistoryItemProps) => {
     const [showPlaceholder, setShowPlaceholder] = useState(!enableImagePreviews);
@@ -138,64 +140,9 @@ const ImageHistoryItem = React.memo(({ entry, onLoad, onDelete }: ImageHistoryIt
 });
 ImageHistoryItem.displayName = 'ImageHistoryItem';
 
-const HistoryPanelBase = <T extends { id: string; timestamp: number }>({ title, history, renderItem, filterPredicate, searchPlaceholder, onClearHistory }: BaseHistoryPanelProps<T>) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [showClearConfirm, setShowClearConfirm] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const handleClearClick = useCallback(() => { onClearHistory(); setShowClearConfirm(false); setSearchQuery(''); }, [onClearHistory]);
-    const handleToggleOpen = useCallback(() => setIsOpen(prev => !prev), []);
-    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), []);
-    const handleClearSearch = useCallback(() => setSearchQuery(''), []);
-    const handleShowConfirm = useCallback(() => setShowClearConfirm(true), []);
-    const handleHideConfirm = useCallback(() => setShowClearConfirm(false), []);
+// HistoryPanelBase moved to components/HistoryPanel
 
-    const filteredHistory = useMemo(() => {
-        if (!searchQuery.trim()) return history;
-        const lowerCaseQuery = searchQuery.toLowerCase();
-        return history.filter(entry => filterPredicate(entry, lowerCaseQuery));
-    }, [history, searchQuery, filterPredicate]);
-
-    return (
-        <div className="mt-6 overflow-hidden rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))]">
-            <motion.button whileTap={{ backgroundColor: 'rgba(var(--color-surface-border-rgb), 0.5)' }} transition={{ duration: 0.05 }} onClick={handleToggleOpen} className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgb(var(--color-primary-rgb))]" aria-expanded={isOpen} aria-controls={`${title.toLowerCase().replace(/\s+/g, '-')}-content`}>
-                <div className="flex items-center space-x-2"><AnimatedIcon animation="gentle"><HistoryIcon /></AnimatedIcon><span className="font-semibold text-[rgb(var(--color-on-surface-rgb))]">{title}</span><span className="rounded-full bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{history.length}</span></div>
-                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}><ChevronDownIcon /></motion.span>
-            </motion.button>
-            <AnimatePresence initial={false}>
-                {isOpen && (
-                    <motion.div id={`${title.toLowerCase().replace(/\s+/g, '-')}-content`} key="content" initial="collapsed" animate="open" exit="collapsed" variants={{ open: { opacity: 1, height: "auto" }, collapsed: { opacity: 0, height: 0 } }} transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }} className="overflow-hidden">
-                        <div className="border-t border-[rgb(var(--color-surface-border-rgb))] p-4">
-                            <div className="relative">
-                                <input type="text" placeholder={searchPlaceholder} value={searchQuery} onChange={handleSearchChange} className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-10 pr-10 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]" aria-label={`Search ${title}`}/>
-                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-[rgb(var(--color-on-surface-faint-rgb))]"><MagnifyingGlassIcon/></span>
-                                {searchQuery && (<TooltipWrapper tipContent="Clear Search"><motion.button whileTap={{ scale: 0.9 }} onClick={handleClearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-full p-1 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]" aria-label="Clear search" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }}><XMarkIcon className="h-4 w-4"/></motion.button></TooltipWrapper>)}
-                            </div>
-                        </div>
-                        <div className="max-h-80 space-y-2 overflow-y-auto px-4 pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                            <AnimatePresence mode="popLayout">
-                                {filteredHistory.map(entry => renderItem(entry))}
-                            </AnimatePresence>
-                            {filteredHistory.length === 0 && <p className="py-4 text-center text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No entries match your search.</p>}
-                        </div>
-                        <div className="relative border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 text-right">
-                            <AnimatePresence>{showClearConfirm && (<motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute right-3 bottom-full z-10 mb-2 flex items-center gap-2 rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2 shadow-lg"><p className="text-xs text-[rgb(var(--color-on-surface-rgb))]">Really clear?</p><motion.button whileTap={{ scale: 0.95 }} onClick={handleClearClick} className="rounded-sm bg-red-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-red-600">Yes, Clear</motion.button><motion.button whileTap={{ scale: 0.95 }} onClick={handleHideConfirm} className="rounded-sm bg-[rgb(var(--color-surface-border-rgb))] px-2 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500">Cancel</motion.button></motion.div>)}</AnimatePresence>
-                            <TooltipWrapper tipContent="Clear All History"><motion.button whileTap={{ scale: 0.95 }} onClick={handleShowConfirm} className="inline-flex items-center space-x-1 rounded-md bg-[rgb(var(--color-error-bg-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-error-rgb))] transition hover:bg-red-100 dark:hover:bg-red-900/50" aria-label={`Clear ${title}`}><AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon><span>Clear History</span></motion.button></TooltipWrapper>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-HistoryPanelBase.displayName = 'HistoryPanelBase';
-
-const ParameterItem = React.memo(({ label, value }: { label: string; value: string }) => (
-    <div className="flex flex-col sm:flex-row sm:justify-between border-b border-[rgb(var(--color-surface-border-rgb))] py-2 text-sm last:border-b-0">
-        <span className="font-medium text-[rgb(var(--color-on-surface-muted-rgb))] mr-2 shrink-0">{label}:</span>
-        <span className="text-left sm:text-right text-[rgb(var(--color-on-surface-rgb))] break-words">{value}</span>
-    </div>
-));
-ParameterItem.displayName = 'ParameterItem';
+// ParameterItem moved to components/ParameterItem
 
 async function extractImageMetadata(file: File): Promise<ImageMetadata> {
     if (!file.type.startsWith('image/')) return { error: "Invalid file type." };
@@ -284,7 +231,7 @@ const BooruTagExtractor = () => {
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false });
+ const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -346,7 +293,7 @@ const BooruTagExtractor = () => {
         const isValidImageHistory = (i: unknown): i is StoredImageHistoryItem[] => Array.isArray(i) && i.every(it => typeof it === 'object' && it !== null && 'id' in it && 'fileName' in it && 'timestamp' in it);
         const isValidMaxHistorySize = (i: unknown): i is number => typeof i === 'number' && (i === -1 || (Number.isInteger(i) && i >= 0));
 
-        setSettings({
+         setSettings({
             theme: loadStoredItem<ThemePreference>(THEME_STORAGE_KEY, 'system'),
             colorTheme: loadStoredItem<ColorTheme>(COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME),
             customColorHex: loadStoredItem<string | undefined>(CUSTOM_COLOR_HEX_STORAGE_KEY, DEFAULT_CUSTOM_COLOR_HEX),
@@ -356,7 +303,9 @@ const BooruTagExtractor = () => {
             clientProxyUrl: loadStoredItem<string>(CLIENT_PROXY_URL_STORAGE_KEY, DEFAULT_CLIENT_PROXY_URL),
             saveHistory: loadStoredItem<boolean>(SAVE_HISTORY_STORAGE_KEY, false),
             maxHistorySize: loadStoredItem<number>(MAX_HISTORY_SIZE_STORAGE_KEY, DEFAULT_MAX_HISTORY_SIZE, isValidMaxHistorySize),
-            enableUnsupportedSites: loadStoredItem<boolean>(UNSUPPORTED_SITES_STORAGE_KEY, false),
+             enableUnsupportedSites: loadStoredItem<boolean>(UNSUPPORTED_SITES_STORAGE_KEY, false),
+             enableBlacklist: loadStoredItem<boolean>(BLACKLIST_ENABLED_STORAGE_KEY, DEFAULT_BLACKLIST_ENABLED),
+             blacklistKeywords: loadStoredItem<string>(BLACKLIST_KEYWORDS_STORAGE_KEY, DEFAULT_BLACKLIST_KEYWORDS),
         });
         setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
         setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
@@ -365,14 +314,49 @@ const BooruTagExtractor = () => {
 
     useEffect(() => {
         if (typeof window === 'undefined') return; const root = window.document.documentElement; const isDark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches); root.classList.toggle('dark', isDark); root.dataset.colorTheme = settings.colorTheme;
-        if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const p = `${rgb.r} ${rgb.g} ${rgb.b}`; const f = isDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-rgb', p); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); } } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); }
-        Object.entries(settings).forEach(([key, value]) => { const storageKeyMap: Record<string, string> = { theme: THEME_STORAGE_KEY, colorTheme: COLOR_THEME_STORAGE_KEY, customColorHex: CUSTOM_COLOR_HEX_STORAGE_KEY, autoExtract: AUTO_EXTRACT_STORAGE_KEY, enableImagePreviews: IMAGE_PREVIEWS_STORAGE_KEY, fetchMode: FETCH_MODE_STORAGE_KEY, clientProxyUrl: CLIENT_PROXY_URL_STORAGE_KEY, saveHistory: SAVE_HISTORY_STORAGE_KEY, maxHistorySize: MAX_HISTORY_SIZE_STORAGE_KEY, enableUnsupportedSites: UNSUPPORTED_SITES_STORAGE_KEY }; const storageKey = storageKeyMap[key]; if (storageKey) { if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); } });
+         if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const p = `${rgb.r} ${rgb.g} ${rgb.b}`; const f = isDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-rgb', p); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); } } else { ['--custom-primary-rgb', '--custom-primary-focus-rgb', '--custom-primary-content-rgb'].forEach(p => root.style.removeProperty(p)); }
+         Object.entries(settings).forEach(([key, value]) => { const storageKeyMap: Record<string, string> = { theme: THEME_STORAGE_KEY, colorTheme: COLOR_THEME_STORAGE_KEY, customColorHex: CUSTOM_COLOR_HEX_STORAGE_KEY, autoExtract: AUTO_EXTRACT_STORAGE_KEY, enableImagePreviews: IMAGE_PREVIEWS_STORAGE_KEY, fetchMode: FETCH_MODE_STORAGE_KEY, clientProxyUrl: CLIENT_PROXY_URL_STORAGE_KEY, saveHistory: SAVE_HISTORY_STORAGE_KEY, maxHistorySize: MAX_HISTORY_SIZE_STORAGE_KEY, enableUnsupportedSites: UNSUPPORTED_SITES_STORAGE_KEY, enableBlacklist: BLACKLIST_ENABLED_STORAGE_KEY, blacklistKeywords: BLACKLIST_KEYWORDS_STORAGE_KEY }; const storageKey = storageKeyMap[key]; if (storageKey) { if (key === 'customColorHex' && !value) localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, JSON.stringify(value)); } });
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)'); const handleChange = (e: MediaQueryListEvent) => { if (settings.theme === 'system') { const sysDark = e.matches; root.classList.toggle('dark', sysDark); if (settings.colorTheme === 'custom' && settings.customColorHex) { const rgb = hexToRgb(settings.customColorHex); if (rgb) { const f = sysDark ? 1.2 : 0.85; const focus = adjustRgb(rgb.r, rgb.g, rgb.b, f); const content = getContrastColor(rgb.r, rgb.g, rgb.b); root.style.setProperty('--custom-primary-focus-rgb', focus); root.style.setProperty('--custom-primary-content-rgb', content); } } } };
         if (settings.theme === 'system') mediaQuery.addEventListener('change', handleChange); return () => mediaQuery.removeEventListener('change', handleChange);
     }, [settings]);
 
     useEffect(() => { if (typeof window === 'undefined') return; const checkMobile = () => setIsMobile(window.innerWidth < 768); checkMobile(); window.addEventListener('resize', checkMobile); return () => window.removeEventListener('resize', checkMobile); }, []);
-    useEffect(() => { const enabled = new Set(tagCategories.filter(c => c.enabled).map(c => c.id)); const filtered: string[] = []; DEFAULT_TAG_CATEGORIES.forEach(c => { if (enabled.has(c.id) && allExtractedTags[c.id]) filtered.push(...allExtractedTags[c.id]!.map(t => t.replace(/_/g, ' '))); }); setDisplayedTags(filtered.join(', ')); }, [allExtractedTags, tagCategories]);
+     useEffect(() => {
+         const enabled = new Set(tagCategories.filter(c => c.enabled).map(c => c.id));
+         const filteredTags: string[] = [];
+
+         const parseKeywords = (input: string): string[] => input
+             .split(/[\n,;]+/)
+             .map(k => k.trim().toLowerCase())
+             .filter(Boolean);
+
+         const keywords = settings.enableBlacklist ? parseKeywords(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS) : [];
+
+         const isBlacklisted = (tag: string): boolean => {
+             if (!keywords.length) return false;
+             const normalized = tag.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+             const tokens = new Set(normalized.split(' '));
+             for (const kw of keywords) {
+                 if (kw.includes(' ')) {
+                     if (normalized.includes(kw)) return true;
+                 } else if (tokens.has(kw)) {
+                     return true;
+                 }
+             }
+             return false;
+         };
+
+         DEFAULT_TAG_CATEGORIES.forEach(c => {
+             const arr = allExtractedTags[c.id];
+             if (enabled.has(c.id) && arr && arr.length) {
+                 filteredTags.push(
+                     ...arr.filter(t => !isBlacklisted(t)).map(t => t.replace(/_/g, ' '))
+                 );
+             }
+         });
+
+         setDisplayedTags(filteredTags.join(', '));
+     }, [allExtractedTags, tagCategories, settings.enableBlacklist, settings.blacklistKeywords]);
     const saveHistoryToLocalStorage = useCallback((data: HistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(HISTORY_STORAGE_KEY); } catch (e) { console.error("Save tag history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) setError("History storage limit."); } }, []);
     const saveImageHistoryToLocalStorage = useCallback((data: ImageHistoryEntry[]) => { try { if (data.length > 0) localStorage.setItem(IMAGE_HISTORY_STORAGE_KEY, JSON.stringify(data)); else localStorage.removeItem(IMAGE_HISTORY_STORAGE_KEY); } catch (e) { console.error("Save image history failed:", e); if (e instanceof Error && e.message.toLowerCase().includes('quota')) { setImageError("Image history storage limit."); setTimeout(() => setImageError(null), 3000); } } }, []);
     const tagCounts = useMemo(() => Object.entries(allExtractedTags).reduce((acc, [cat, tags]) => { if (tags) acc[cat as TagCategory] = tags.length; return acc; }, {} as Record<TagCategory, number>), [allExtractedTags]);
@@ -523,8 +507,7 @@ const BooruTagExtractor = () => {
     const shouldShowPreviewSection = useMemo(() => activeView === 'extractor' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)), [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
     const getSelectedProxyLabel = useCallback(() => CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown', [settings.clientProxyUrl]);
-    const sidebarButtonClass = (view: ActiveView) => `flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${activeView === view ? 'bg-[rgba(var(--color-primary-rgb),0.15)] text-[rgb(var(--color-primary-rgb))]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
-    const settingsButtonClass = `flex items-center justify-center rounded-lg p-3 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))]`;
+    const navButtonClass = (isActive: boolean) => `group relative overflow-hidden rounded-2xl h-12 md:h-12 w-full md:w-12 flex-1 md:flex-none flex items-center justify-center transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${isActive ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40 shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
     const handleClearImage = useCallback(() => { setImageFile(null); setImageData(null); setImageError(null); if (imagePreviewUrl) { URL.revokeObjectURL(imagePreviewUrl); setImagePreviewUrl(null); } setCopyStatus({}); if (fileInputRef.current) fileInputRef.current.value = ''; imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imagePreviewUrl]);
     const processImageFile = useCallback(async (file: File | null | undefined) => {
         if (!file || imageLoading) return; handleClearImage(); setImageLoading(true); setImageFile(file);
@@ -586,16 +569,31 @@ const BooruTagExtractor = () => {
 
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
-            <div className="flex items-start">
-                <div className="flex-shrink-0 mr-4 z-20 pt-[1px]">
-                    <div className="flex flex-col space-y-2 rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-lg">
-                         <TooltipWrapper tipContent="Tag Extractor"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: activeView !== 'extractor' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={() => setActiveView('extractor')} className={sidebarButtonClass('extractor')} aria-label="Tag Extractor" aria-current={activeView === 'extractor' ? 'page' : undefined}><TagIcon/></motion.button></TooltipWrapper>
-                         <TooltipWrapper tipContent="Image Metadata"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: activeView !== 'image' ? 'rgba(var(--color-primary-rgb), 0.1)' : undefined }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={() => setActiveView('image')} className={sidebarButtonClass('image')} aria-label="Image Metadata" aria-current={activeView === 'image' ? 'page' : undefined}><PhotoIcon className="h-6 w-6"/></motion.button></TooltipWrapper>
-                         <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
-                         <TooltipWrapper tipContent="Settings"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 15, scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 15 }} onClick={handleOpenSettings} className={settingsButtonClass} aria-label="Settings"><CogIcon/></motion.button></TooltipWrapper>
+            <div className="flex items-start md:flex-row flex-col mx-auto relative">
+                <div className="hidden md:block flex-shrink-0 md:mr-4 md:mb-0 z-20 md:self-start">
+                    <div className="flex md:flex-col flex-row md:space-y-2 space-y-0 space-x-2 md:space-x-0 rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-xl">
+                         <TooltipWrapper tipContent="Tag Extractor">
+                             <motion.button whileTap={{ scale: 0.96 }} onClick={() => setActiveView('extractor')} className={navButtonClass(activeView === 'extractor')} aria-label="Tag Extractor" aria-current={activeView === 'extractor' ? 'page' : undefined}>
+                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                                 <TagIcon/>
+                             </motion.button>
+                         </TooltipWrapper>
+                         <TooltipWrapper tipContent="Image Metadata">
+                             <motion.button whileTap={{ scale: 0.96 }} onClick={() => setActiveView('image')} className={navButtonClass(activeView === 'image')} aria-label="Image Metadata" aria-current={activeView === 'image' ? 'page' : undefined}>
+                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                                 <PhotoIcon className="h-6 w-6"/>
+                             </motion.button>
+                         </TooltipWrapper>
+                         <div className="hidden md:block my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
+                         <TooltipWrapper tipContent="Settings">
+                             <motion.button whileTap={{ scale: 0.96 }} onClick={handleOpenSettings} className={navButtonClass(showSettings)} aria-label="Settings">
+                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                                 <CogIcon/>
+                             </motion.button>
+                         </TooltipWrapper>
                      </div>
                  </div>
-                 <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)]" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
+                 <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
                     <AnimatePresence>
                         {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
                         {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
@@ -610,8 +608,18 @@ const BooruTagExtractor = () => {
                                     <div className="mt-4 flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
                                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags">{loading ? <LoadingSpinner /> : 'Extract Manually'}</motion.button>
                                         <TooltipWrapper tipContent="Clear"><motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold transition hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset"><motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"><ArrowPathIcon/></motion.span>Reset</motion.button></TooltipWrapper>
-                                    </div>
-                                </div>
+                  </div>
+                  {/* Mobile bottom navigation */}
+                  {isMobile && (
+                    <MobileBottomNav
+                      active={activeView}
+                      onSelectExtractor={() => setActiveView('extractor')}
+                      onSelectImage={() => setActiveView('image')}
+                      onOpenSettings={handleOpenSettings}
+                      highlightSettings={showSettings}
+                    />
+                  )}
+            </div>
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
@@ -731,6 +739,44 @@ const BooruTagExtractor = () => {
                     </AnimatePresence>
                  </div>
             </div>
+            {/* Mobile bottom navigation */}
+            {isMobile && (
+                <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+                    <div className="mx-auto max-w-xl">
+                        <div className="grid grid-cols-3 gap-1 p-1">
+                            <button
+                                onClick={() => setActiveView('extractor')}
+                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'extractor' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
+                                aria-label="Tag Extractor"
+                                aria-current={activeView === 'extractor' ? 'page' : undefined}
+                            >
+                                <TagIcon />
+                                <span className="ml-2 text-xs font-medium">Tags</span>
+                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
+                            </button>
+                            <button
+                                onClick={() => setActiveView('image')}
+                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'image' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
+                                aria-label="Image Metadata"
+                                aria-current={activeView === 'image' ? 'page' : undefined}
+                            >
+                                <PhotoIcon className="h-5 w-5" />
+                                <span className="ml-2 text-xs font-medium">Image</span>
+                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
+                            </button>
+                            <button
+                                onClick={handleOpenSettings}
+                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${showSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
+                                aria-label="Settings"
+                            >
+                                <CogIcon />
+                                <span className="ml-2 text-xs font-medium">Settings</span>
+                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+            )}
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
         </div>
     );
