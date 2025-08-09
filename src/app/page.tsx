@@ -609,17 +609,7 @@ const BooruTagExtractor = () => {
                                         <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags">{loading ? <LoadingSpinner /> : 'Extract Manually'}</motion.button>
                                         <TooltipWrapper tipContent="Clear"><motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold transition hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset"><motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"><ArrowPathIcon/></motion.span>Reset</motion.button></TooltipWrapper>
                   </div>
-                  {/* Mobile bottom navigation */}
-                  {isMobile && (
-                    <MobileBottomNav
-                      active={activeView}
-                      onSelectExtractor={() => setActiveView('extractor')}
-                      onSelectImage={() => setActiveView('image')}
-                      onOpenSettings={handleOpenSettings}
-                      highlightSettings={showSettings}
-                    />
-                  )}
-            </div>
+                               </div>
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
@@ -634,7 +624,7 @@ const BooruTagExtractor = () => {
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.1, duration: 0.4 }}
                                             >
-                                                <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
+                                                <div className="md:rounded-lg md:border md:border-[rgb(var(--color-surface-border-rgb))] md:bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
                                                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
                                                     <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
                                                 </div>
@@ -711,7 +701,7 @@ const BooruTagExtractor = () => {
                                         </motion.div>)
                                         : (<motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                                             <AnimatePresence>{imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}</AnimatePresence>
-                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
+                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden md:rounded-xl md:border md:border-[rgb(var(--color-surface-border-rgb))] md:bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
                                             {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? ( <>
                                                 {imageData.positivePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                                                     <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Positive Prompt</h3><TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
@@ -740,6 +730,15 @@ const BooruTagExtractor = () => {
                   </div>
               </div>
               <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
+              {isMobile && (
+                  <MobileBottomNav
+                      active={activeView}
+                      onSelectExtractor={() => setActiveView('extractor')}
+                      onSelectImage={() => setActiveView('image')}
+                      onOpenSettings={handleOpenSettings}
+                      highlightSettings={showSettings}
+                  />
+              )}
           </div>
       );
   };
