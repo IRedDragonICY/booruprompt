@@ -743,7 +743,7 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                 </div>
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for ’parameters' text chunk.</p>
+                                     <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
                             </motion.div>
