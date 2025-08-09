@@ -22,7 +22,6 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
 import type { ImageMetadata } from './utils/imageMetadata';
 import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
-import { invoke } from '@tauri-apps/api/core';
 
 interface ClientProxyOption { id: string; label: string; value: string; }
  
@@ -247,8 +246,6 @@ const BooruTagExtractor = () => {
     const [isDraggingOverImage, setIsDraggingOverImage] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [tauriMessage, setTauriMessage] = useState<string>('');
-    const [tauriName, setTauriName] = useState<string>('Next.js User');
 
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
@@ -570,15 +567,6 @@ const BooruTagExtractor = () => {
         return `${settings.maxHistorySize} Entries`;
     }, [settings.maxHistorySize]);
 
-    const handleTauriGreet = useCallback(async () => {
-        try {
-            const msg = await invoke<string>('greet', { name: tauriName });
-            setTauriMessage(msg);
-        } catch (e) {
-            setTauriMessage(String(e));
-        }
-    }, [tauriName]);
-
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             <div className="flex items-start md:flex-row flex-col mx-auto relative">
@@ -790,12 +778,6 @@ const BooruTagExtractor = () => {
                 </nav>
             )}
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
-            <div style={{ position: 'fixed', bottom: 12, right: 12, background: '#111827', color: 'white', padding: 12, borderRadius: 8, display: 'grid', gap: 6, zIndex: 1000 }}>
-                <div style={{ fontWeight: 600 }}>Tauri Demo</div>
-                <input value={tauriName} onChange={(e) => setTauriName(e.target.value)} placeholder="Nama" style={{ color: 'black', padding: 6, borderRadius: 6 }} />
-                <button onClick={handleTauriGreet} style={{ background: '#2563eb', padding: 8, borderRadius: 6 }}>Greet (Rust)</button>
-                {tauriMessage && <div style={{ whiteSpace: 'pre-wrap' }}>{tauriMessage}</div>}
-            </div>
         </div>
     );
 };
