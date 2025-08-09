@@ -1,3 +1,6 @@
+export const dynamic = 'force-static';
+export const revalidate = 3600;
+
 import { type NextRequest, NextResponse } from 'next/server';
 import { JSDOM } from 'jsdom';
 import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/utils/extractionUtils';
