@@ -14,6 +14,7 @@ export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onOp
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="mx-auto max-w-xl">
         <div className="grid grid-cols-3 gap-1 p-1">
+
           <button onClick={onSelectExtractor} className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${active === 'extractor' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label="Tag Extractor" aria-current={active === 'extractor' ? 'page' : undefined}>
             <TagIcon />
             <span className="ml-2 text-xs font-medium">Tags</span>
