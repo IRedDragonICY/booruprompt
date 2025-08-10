@@ -118,6 +118,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Generate Tauri icons from SVG
+        shell: pwsh
+        run: |
+          if (Test-Path out/icon.svg) { $src = 'out/icon.svg' } else { $src = 'public/icon.svg' }
+          if (-not (Test-Path $src)) { throw "icon.svg not found at $src" }
+          npx tauri icon $src -o src-tauri/icons | cat
+
       - name: Build static web (export)
         run: npm run tauri:export
 
@@ -167,6 +174,14 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Generate Tauri icons from SVG
+        run: |
+          set -e
+          SRC="out/icon.svg"
+          if [ ! -f "$SRC" ]; then SRC="public/icon.svg"; fi
+          if [ ! -f "$SRC" ]; then echo "icon.svg not found" && exit 1; fi
+          npx tauri icon "$SRC" -o src-tauri/icons | cat
+
       - name: Build static web (export)
         run: npm run tauri:export
 
@@ -213,7 +228,8 @@ jobs:
 
       - name: Install Android packages
         run: |
-          sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2" "cmake;3.22.1" "ndk;25.1.8937393"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -225,11 +241,23 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Generate Tauri icons from SVG
+        run: |
+          set -e
+          SRC="out/icon.svg"
+          if [ ! -f "$SRC" ]; then SRC="public/icon.svg"; fi
+          if [ ! -f "$SRC" ]; then echo "icon.svg not found" && exit 1; fi
+          npx tauri icon "$SRC" -o src-tauri/icons | cat
+
       - name: Build static web (export)
         run: npm run tauri:export
 
       - name: Init Android project
         run: npx tauri android init --ci
+
+      - name: Verify Android project exists
+        run: |
+          test -d src-tauri/gen/android || (ls -la src-tauri/gen || true; echo "Android project missing"; exit 1)
 
       - name: Build Android (debug)
         run: npx tauri android build --debug
