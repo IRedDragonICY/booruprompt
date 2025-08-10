@@ -187,3 +187,16 @@
     box-shadow: 0 -10px 15px -3px rgb(0 0 0 / 0.1), 0 -4px 6px -4px rgb(0 0 0 / 0.1);
   }
 }
+
+/* Mobile-only: remove all rounded corners to match requested Android-like flat edges */
+@media (max-width: 767px) {
+  :root {
+    /* hook if needed by components relying on CSS variables for shape */
+    --app-shape-corner-radius: 0px;
+  }
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+}
