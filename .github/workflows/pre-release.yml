@@ -43,14 +43,17 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: '1'
 
-      - name: Package build artifacts
-        run: |
-          mkdir -p dist-package
-          cp -r public dist-package/public || true
-          cp -r .next dist-package/.next || true
-          cp package.json package-lock.json next.config.ts tsconfig.json dist-package/ || true
-          cd dist-package
-          zip -r ../web-build.zip . > /dev/null
+      - name: Upload web build folder (.next)
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: |
+            .next/**
+            public/**
+            package.json
+            package-lock.json
+            next.config.ts
+            tsconfig.json
 
       - name: Generate changelog
         shell: bash
@@ -95,15 +98,13 @@ jobs:
             echo "" >> release_notes.md
           fi
 
-      - name: Create/Update Pre-Release
+      - name: Create/Update Pre-Release (no web zip)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: Pre-Release ${{ github.run_number }} (${{ github.sha }})
           body_path: release_notes.md
           prerelease: true
-          files: |
-            web-build.zip
           make_latest: true
 
   tauri-windows:
@@ -141,22 +142,16 @@ jobs:
       - name: Build static web (export)
         run: npm run tauri:export
 
-      - name: Build Tauri (portable app)
+      - name: Build Tauri (portable + MSI installer)
         run: npm run tauri:build
 
-      - name: Package Windows portable
-        shell: pwsh
-        run: |
-          $exe = Get-ChildItem -Recurse -Path src-tauri/target/release -Filter *.exe | Select-Object -First 1
-          if (-not $exe) { throw "No Windows executable found" }
-          Compress-Archive -Path $exe.FullName -DestinationPath win-portable.zip -Force
-
-      - name: Upload to Pre-Release
+      - name: Upload Windows artifacts (exe/msi)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            win-portable.zip
+            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
 
   tauri-linux:
     name: Tauri Linux Portable
@@ -198,23 +193,17 @@ jobs:
       - name: Build static web (export)
         run: npm run tauri:export
 
-      - name: Build Tauri (portable app)
+      - name: Build Tauri (portable + AppImage + deb)
         run: npm run tauri:build
 
-      - name: Package Linux portable
-        run: |
-          set -e
-          BIN=$(ls -1 src-tauri/target/release/app 2>/dev/null || true)
-          if [ -z "$BIN" ]; then BIN=$(ls -1 src-tauri/target/release/* | head -n 1); fi
-          if [ -z "$BIN" ]; then echo "No Linux binary found" && exit 1; fi
-          zip -j linux-portable.zip "$BIN" > /dev/null
-
-      - name: Upload to Pre-Release
+      - name: Upload Linux artifacts (bin/AppImage/deb)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            linux-portable.zip
+            src-tauri/target/release/app
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
 
   tauri-android:
     name: Tauri Android (Debug APK)
@@ -302,19 +291,12 @@ jobs:
       - name: Build Android (debug)
         run: npx tauri android build --debug
 
-      - name: Package Android APK(s)
-        run: |
-          set -e
-          mkdir -p android-dist
-          find src-tauri/target -type f -name "*.apk" -print -exec cp {} android-dist/ \;
-          if [ -z "$(ls -A android-dist)" ]; then echo "No APKs found" && exit 1; fi
-          zip -r android-apk.zip android-dist > /dev/null
-
-      - name: Upload to Pre-Release
+      - name: Upload Android artifacts (APK/AAB)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            android-apk.zip
+            src-tauri/gen/android/app/build/outputs/apk/**/app-*-debug.apk
+            src-tauri/gen/android/app/build/outputs/bundle/**/app-*-debug.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
