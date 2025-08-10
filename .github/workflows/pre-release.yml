@@ -332,8 +332,9 @@ jobs:
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+          TAURI_CLI_NO_SERVER: '1'
         run: |
-          npx tauri android build --debug --ci --no-devserver
+          npx tauri android build --debug --ci -- --warning-mode all
 
       - name: Discover version
         run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
