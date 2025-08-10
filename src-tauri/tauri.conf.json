@@ -6,8 +6,7 @@
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "set \"NEXT_OUTPUT=export\" && npm run build"
+    "beforeDevCommand": "npm run dev"
   },
   "app": {
     "windows": [
