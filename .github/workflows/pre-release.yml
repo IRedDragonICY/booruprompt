@@ -108,9 +108,12 @@ jobs:
           make_latest: true
 
   tauri-windows:
-    name: Tauri Windows Portable
+    name: Tauri Windows (x64/x86)
     needs: prerelease
     runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -142,16 +145,41 @@ jobs:
       - name: Build static web (export)
         run: npm run tauri:export
 
+      - name: Discover version
+        shell: pwsh
+        run: |
+          $json = Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json
+          echo "APP_VERSION=$($json.version)" >> $Env:GITHUB_ENV
+          echo "PRODUCT_NAME=$($json.productName)" >> $Env:GITHUB_ENV
+
+      - name: Add 32-bit Rust target (if needed)
+        if: matrix.arch == 'x86'
+        run: rustup target add i686-pc-windows-msvc
+
       - name: Build Tauri (portable + MSI installer)
-        run: npm run tauri:build
+        run: |
+          if [ "${{ matrix.arch }}" = "x86" ]; then npx tauri build --target i686-pc-windows-msvc; else npm run tauri:build; fi
+        shell: bash
+
+      - name: Rename Windows artifacts
+        shell: pwsh
+        run: |
+          $arch = if ('${{ matrix.arch }}' -eq 'x86') { 'x86' } else { 'x64' }
+          $ver = "$Env:APP_VERSION"
+          $outDir = if ($arch -eq 'x86') { 'src-tauri/target/i686-pc-windows-msvc/release' } else { 'src-tauri/target/release' }
+          $exe = Get-ChildItem -Path $outDir -Filter *.exe | Select-Object -First 1
+          if ($exe) { Copy-Item $exe.FullName "booruprompt-$ver-win-$arch.exe" }
+          $msiDir = if ($arch -eq 'x86') { 'src-tauri/target/i686-pc-windows-msvc/release/bundle/msi' } else { 'src-tauri/target/release/bundle/msi' }
+          $msi = Get-ChildItem -Path $msiDir -Filter *.msi | Select-Object -First 1
+          if ($msi) { Copy-Item $msi.FullName "booruprompt-$ver-win-$arch.msi" }
 
       - name: Upload Windows artifacts (exe/msi)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            src-tauri/target/release/*.exe
-            src-tauri/target/release/bundle/msi/*.msi
+            booruprompt-${{ env.APP_VERSION }}-win-${{ matrix.arch }}.exe
+            booruprompt-${{ env.APP_VERSION }}-win-${{ matrix.arch }}.msi
 
   tauri-linux:
     name: Tauri Linux Portable
@@ -196,14 +224,25 @@ jobs:
       - name: Build Tauri (portable + AppImage + deb)
         run: npm run tauri:build
 
+      - name: Discover version
+        run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
+
+      - name: Rename Linux artifacts
+        run: |
+          set -e
+          VER="$APP_VERSION"
+          cp src-tauri/target/release/app booruprompt-$VER-linux-x64
+          for f in src-tauri/target/release/bundle/appimage/*.AppImage; do cp "$f" booruprompt-$VER-linux-x64.AppImage; done
+          for f in src-tauri/target/release/bundle/deb/*.deb; do cp "$f" booruprompt-$VER-linux-amd64.deb; done
+
       - name: Upload Linux artifacts (bin/AppImage/deb)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            src-tauri/target/release/app
-            src-tauri/target/release/bundle/appimage/*.AppImage
-            src-tauri/target/release/bundle/deb/*.deb
+            booruprompt-${{ env.APP_VERSION }}-linux-x64
+            booruprompt-${{ env.APP_VERSION }}-linux-x64.AppImage
+            booruprompt-${{ env.APP_VERSION }}-linux-amd64.deb
 
   tauri-android:
     name: Tauri Android (Debug APK)
@@ -284,9 +323,40 @@ jobs:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
           npx tauri android build --debug --ci
-          mkdir -p android-dist
-          find src-tauri/gen/android -type f -name "*.apk" -print -exec cp {} android-dist/ \;
-          zip -r android-apk.zip android-dist > /dev/null
+
+      - name: Enable ABI splits and assemble per-ABI APKs
+        run: |
+          set -e
+          APP_DIR=src-tauri/gen/android/app
+          if [ -f "$APP_DIR/build.gradle" ]; then
+            cat >> "$APP_DIR/build.gradle" <<'GRAD'
+afterEvaluate {
+  android.splits.abi.enable true
+  android.splits.abi.reset()
+  android.splits.abi.include 'armeabi-v7a','arm64-v8a','x86','x86_64'
+  android.splits.abi.universalApk true
+}
+GRAD
+          fi
+          cd src-tauri/gen/android
+          ./gradlew --no-daemon assembleDebug bundleUniversalDebug
+          cd -
+
+      - name: Discover version
+        run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
+
+      - name: Rename Android artifacts
+        run: |
+          set -e
+          VER="$APP_VERSION"
+          # Universal
+          cp src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk booruprompt-$VER-android-universal.apk || true
+          cp src-tauri/gen/android/app/build/outputs/bundle/universalDebug/app-universal-debug.aab booruprompt-$VER-android-universal.aab || true
+          # Per-ABI
+          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
+            f="src-tauri/gen/android/app/build/outputs/apk/$abi/debug/app-$abi-debug.apk"
+            if [ -f "$f" ]; then cp "$f" booruprompt-$VER-android-$abi.apk; fi
+          done
 
       - name: Build Android (debug)
         run: npx tauri android build --debug
@@ -296,7 +366,11 @@ jobs:
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/app-*-debug.apk
-            src-tauri/gen/android/app/build/outputs/bundle/**/app-*-debug.aab
+            booruprompt-${{ env.APP_VERSION }}-android-universal.apk
+            booruprompt-${{ env.APP_VERSION }}-android-universal.aab
+            booruprompt-${{ env.APP_VERSION }}-android-armeabi-v7a.apk
+            booruprompt-${{ env.APP_VERSION }}-android-arm64-v8a.apk
+            booruprompt-${{ env.APP_VERSION }}-android-x86.apk
+            booruprompt-${{ env.APP_VERSION }}-android-x86_64.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
