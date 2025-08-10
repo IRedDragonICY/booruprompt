@@ -315,6 +315,14 @@ jobs:
         run: |
           test -d src-tauri/gen/android || (ls -la src-tauri/gen || true; echo "Android project missing"; exit 1)
 
+      - name: Enable ABI splits in Gradle (per-ABI APKs)
+        run: |
+          set -e
+          APP_DIR=src-tauri/gen/android/app
+          if [ -f "$APP_DIR/build.gradle" ]; then
+            echo "afterEvaluate { android.splits.abi.enable true; android.splits.abi.reset(); android.splits.abi.include 'armeabi-v7a','arm64-v8a','x86','x86_64'; android.splits.abi.universalApk true }" >> "$APP_DIR/build.gradle"
+          fi
+      
       - name: Build Android (debug)
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
@@ -322,18 +330,7 @@ jobs:
           NDK_HOME: ${{ env.NDK_HOME }}
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
-          npx tauri android build --debug --ci
-
-      - name: Enable ABI splits and assemble per-ABI APKs
-        run: |
-          set -e
-          APP_DIR=src-tauri/gen/android/app
-          if [ -f "$APP_DIR/build.gradle" ]; then
-            echo "afterEvaluate { android.splits.abi.enable true; android.splits.abi.reset(); android.splits.abi.include 'armeabi-v7a','arm64-v8a','x86','x86_64'; android.splits.abi.universalApk true }" >> "$APP_DIR/build.gradle"
-          fi
-          cd src-tauri/gen/android
-          ./gradlew --no-daemon assembleDebug bundleUniversalDebug
-          cd -
+          npx tauri android build --debug --ci --no-devserver
 
       - name: Discover version
         run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
