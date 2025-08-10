@@ -3,7 +3,8 @@ export type TagCategoryOption = { id: TagCategory; label: string; enabled: boole
 export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
 
-export const API_ROUTE_URL = '/api/fetch-booru';
+// Always use hosted API for reliability across environments
+export const API_ROUTE_URL = 'https://booruprompt.vercel.app/api/fetch-booru';
 
 const grp = (t: ExtractedTag[]): Partial<Record<TagCategory, string[]>> => t.reduce((a, i) => { if (!a[i.category]) a[i.category] = []; if (!a[i.category]!.some(existing => existing.toLowerCase() === i.name.toLowerCase())) { (a[i.category]!).push(i.name); } return a; }, {} as Partial<Record<TagCategory, string[]>>);
 

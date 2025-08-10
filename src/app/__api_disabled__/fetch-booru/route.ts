@@ -48,13 +48,13 @@ export async function POST(req: NextRequest) {
 
             if (!response.ok) {
                 let errorText = `Failed to fetch page from target site. Status: ${response.status}`;
-                try {
-                    const siteError = await response.text();
-                    if (siteError && siteError.length < 500) {
-                        errorText += ` - ${siteError.substring(0, 100)}${siteError.length > 100 ? '...' : ''}`;
-                    }
-                } catch { }
-                return NextResponse.json({ error: errorText, status: response.status }, { status: 502 });
+                 try {
+                     const siteError = await response.text();
+                     if (siteError && siteError.length < 500) {
+                         errorText += ` - ${siteError.substring(0, 100)}${siteError.length > 100 ? '...' : ''}`;
+                     }
+                 } catch { }
+                 return NextResponse.json({ error: errorText, status: response.status }, { status: 502 });
             }
 
             html = await response.text();
@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
                     errorMessage = `Request to target site for page data timed out (${FETCH_TIMEOUT / 1000}s).`;
                     status = 504;
                 } else if (fetchError.message.toLowerCase().includes('failed to fetch')) {
-                    errorMessage = `Network error fetching page: ${fetchError.message}. Check site or network.`;
-                    status = 502;
+                     errorMessage = `Network error fetching page: ${fetchError.message}. Check site or network.`;
+                     status = 502;
                 }
             }
             return NextResponse.json({ error: errorMessage, status }, { status });
@@ -91,23 +91,23 @@ export async function POST(req: NextRequest) {
             if (errorElement?.textContent && errorElement.textContent.trim().length > 10) {
                 pageErrorDetected = true;
                 const pageErrorText = errorElement.textContent.trim();
-                if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded on target site.";
-                else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) specificError = "Content may require login.";
-                else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
-                else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) specificError = "Blocked by Cloudflare or similar security check.";
-                else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
+                 if (pageErrorText.toLowerCase().includes("rate limit")) specificError = "Rate limit likely exceeded on target site.";
+                 else if (pageErrorText.toLowerCase().includes("login") || pageErrorText.toLowerCase().includes("authenticate")) specificError = "Content may require login.";
+                 else if (pageErrorText.toLowerCase().includes("not found") || pageErrorText.toLowerCase().includes("doesn't exist")) specificError = "Post not found (404).";
+                 else if (pageErrorText.toLowerCase().includes("cloudflare") || pageErrorText.toLowerCase().includes("checking your browser")) specificError = "Blocked by Cloudflare or similar security check.";
+                 else specificError = `Site Error Detected: ${pageErrorText.substring(0, 150)}`;
             }
-            if (!pageErrorDetected && doc.body) {
-                const bodyText = doc.body.textContent?.toLowerCase() || '';
-                if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) { pageErrorDetected = true; specificError = `Content may require login.`; }
-                else if (bodyText.includes('access denied')) { pageErrorDetected = true; specificError = `Access denied by target site.`; }
-                else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) { pageErrorDetected = true; specificError = `Blocked by Cloudflare or similar security check.`; }
-                else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) { pageErrorDetected = true; specificError = `Target site requires JS/Cookies, may be incompatible with extraction.`; }
-            }
+             if (!pageErrorDetected && doc.body) {
+                 const bodyText = doc.body.textContent?.toLowerCase() || '';
+                 if (bodyText.includes('you must be logged in') || bodyText.includes('requires an account') || bodyText.includes('please login')) { pageErrorDetected = true; specificError = `Content may require login.`; }
+                 else if (bodyText.includes('access denied')) { pageErrorDetected = true; specificError = `Access denied by target site.`; }
+                 else if (bodyText.includes('cloudflare') && bodyText.includes('checking your browser')) { pageErrorDetected = true; specificError = `Blocked by Cloudflare or similar security check.`; }
+                 else if (bodyText.includes('enable javascript') && bodyText.includes('enable cookies')) { pageErrorDetected = true; specificError = `Target site requires JS/Cookies, may be incompatible with extraction.`; }
+             }
 
-            if (pageErrorDetected) {
-                return NextResponse.json({ error: `Extraction failed: ${specificError}`, status: 422 }, { status: 422 });
-            }
+             if (pageErrorDetected) {
+                 return NextResponse.json({ error: `Extraction failed: ${specificError}`, status: 422 }, { status: 422 });
+             }
 
             const result: ExtractionResult = site.extractTags(doc);
             const totalTagCount = calculateTotalTags(result.tags || {});
@@ -118,13 +118,13 @@ export async function POST(req: NextRequest) {
             }
 
             if (totalTagCount === 0 && imageUrl) {
-                console.warn(`API Route POST: Image found, but no tags extracted for ${targetUrl} on ${site.name}`);
+                 console.warn(`API Route POST: Image found, but no tags extracted for ${targetUrl} on ${site.name}`);
             }
 
             return NextResponse.json({ siteName: site.name, ...result });
 
         } catch (parseError: unknown) {
-            return NextResponse.json({ error: `Failed to parse or extract data from the page. Error: ${(parseError as Error).message}`, status: 500 }, { status: 500 });
+             return NextResponse.json({ error: `Failed to parse or extract data from the page. Error: ${(parseError as Error).message}`, status: 500 }, { status: 500 });
         }
 
     } catch (error: unknown) {
@@ -201,5 +201,3 @@ export async function GET(req: NextRequest) {
         return new NextResponse(errorMessage, { status: status });
     }
 }
-
-

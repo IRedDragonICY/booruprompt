@@ -19,7 +19,12 @@ export const ImagePreview = React.memo(({ originalUrl, title, isLoading, enableI
     const placeholderBaseClasses = "flex h-64 w-full items-center justify-center rounded-lg text-[rgb(var(--color-on-surface-faint-rgb))]";
     // Adjusted API_ROUTE_URL to be potentially passed or defined. If it's a constant from page.tsx, it should be imported or passed.
     // For now, assuming it might come from a shared utils or constants file.
-    const proxiedUrl = useMemo(() => originalUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}` : undefined, [originalUrl, enableImagePreviews]);
+    const isTauri = typeof window !== 'undefined' && '__TAURI__' in window;
+    const proxiedUrl = useMemo(() => {
+        if (!originalUrl || !enableImagePreviews) return undefined;
+        // In Tauri/static export we cannot hit Next API route; use original URL
+        return isTauri ? originalUrl : `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(originalUrl)}`;
+    }, [originalUrl, enableImagePreviews, isTauri]);
 
     useEffect(() => { setImgLoading(enableImagePreviews && (!!originalUrl || isLoading)); setImgError(false); }, [originalUrl, isLoading, enableImagePreviews]);
     const handleLoad = useCallback(() => setImgLoading(false), []);

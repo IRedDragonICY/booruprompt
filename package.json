@@ -9,6 +9,7 @@
     "lint": "next lint",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+    "tauri:export": "node scripts/tauri-export.mjs",
     "android:init": "tauri android init",
     "android:dev": "tauri android dev",
     "android:build": "tauri android build"
