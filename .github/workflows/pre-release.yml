@@ -229,7 +229,7 @@ jobs:
       - name: Install Android packages
         run: |
           yes | sdkmanager --licenses > /dev/null
-          sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2" "cmake;3.22.1" "ndk;25.1.8937393"
+          sdkmanager --install "platform-tools" "platforms;android-33" "platforms;android-34" "build-tools;34.0.0" "build-tools;33.0.2" "cmake;3.22.1" "ndk;25.1.8937393"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -253,11 +253,20 @@ jobs:
         run: npm run tauri:export
 
       - name: Init Android project
-        run: npx tauri android init --ci
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+        run: npx tauri android init --ci --skip-targets-install
 
       - name: Verify Android project exists
         run: |
           test -d src-tauri/gen/android || (ls -la src-tauri/gen || true; echo "Android project missing"; exit 1)
+
+      - name: Build Android (debug)
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+        run: npx tauri android build --debug --ci
 
       - name: Build Android (debug)
         run: npx tauri android build --debug
