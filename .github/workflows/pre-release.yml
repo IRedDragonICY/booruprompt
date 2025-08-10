@@ -231,7 +231,10 @@ jobs:
         run: |
           set -e
           VER="$APP_VERSION"
-          cp src-tauri/target/release/app booruprompt-$VER-linux-x64
+          BIN="src-tauri/target/release/booruprompt"
+          if [ ! -f "$BIN" ]; then BIN=$(ls -1 src-tauri/target/release/* | head -n 1); fi
+          if [ ! -f "$BIN" ]; then echo "Linux binary not found" && ls -la src-tauri/target/release || true && exit 1; fi
+          cp "$BIN" booruprompt-$VER-linux-x64
           for f in src-tauri/target/release/bundle/appimage/*.AppImage; do cp "$f" booruprompt-$VER-linux-x64.AppImage; done
           for f in src-tauri/target/release/bundle/deb/*.deb; do cp "$f" booruprompt-$VER-linux-amd64.deb; done
 
