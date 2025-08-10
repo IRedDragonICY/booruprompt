@@ -278,10 +278,10 @@ jobs:
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
-          cd src-tauri/gen/android
-          ./gradlew assembleDebug
-          cd -
+          npx tauri android build --debug --ci
           mkdir -p android-dist
           find src-tauri/gen/android -type f -name "*.apk" -print -exec cp {} android-dist/ \;
           zip -r android-apk.zip android-dist > /dev/null
