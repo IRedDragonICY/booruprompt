@@ -301,6 +301,9 @@ jobs:
       - name: Build static web (export)
         run: npm run tauri:export
 
+      - name: Clean previous Android project (if any)
+        run: rm -rf src-tauri/gen/android || true
+
       - name: Init Android project
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
