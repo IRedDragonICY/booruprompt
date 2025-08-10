@@ -407,9 +407,49 @@ const BooruTagExtractor = () => {
         try {
             let result: ExtractionResult = { tags: {} }; let errorMsg: string | null = null; let siteName = site.name; let imgUrl: string | undefined = undefined; let imgTitle: string | undefined = undefined;
             if (settings.fetchMode === 'server') {
-                proxyUsed = 'Server'; const response = await fetch(API_ROUTE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetUrl: trimmedUrl }), signal: controller.signal }); clearTimeout(timeoutId); const data: ApiExtractionResponse = await response.json(); const tags = data.tags || {}; const tagCount = calculateTotalTags(tags);
-                if (!response.ok || data.error) { let apiError = data.error || `API Error: ${response.status}`; if (response.status === 504) apiError = 'Server timed out.'; else if (response.status === 502) apiError = `Server bad gateway. ${data.error || ''}`.trim(); else if (response.status === 400) apiError = `Invalid request: ${data.error || ''}`.trim(); else if (response.status === 422) apiError = `${data.error || 'Extraction failed.'}`; else if (response.status === 500) apiError = `Internal Server Error: ${data.error || ''}`.trim(); if (!(data.error?.toLowerCase().includes('warning') && tagCount > 0)) { errorMsg = apiError; siteName = ''; } else { result = { tags, imageUrl: data.imageUrl, title: data.title }; errorMsg = apiError; siteName = data.siteName; imgUrl = data.imageUrl; imgTitle = data.title; }
-                } else { result = { tags, imageUrl: data.imageUrl, title: data.title }; siteName = data.siteName; imgUrl = data.imageUrl; imgTitle = data.title; if (data.error?.toLowerCase().includes('warning')) errorMsg = data.error; else if (tagCount === 0 && data.imageUrl) errorMsg = `Warning: Image found, no tags extracted.`; }
+                proxyUsed = 'Server';
+                const response = await fetch(API_ROUTE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUrl: trimmedUrl }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                let data: ApiExtractionResponse = {} as ApiExtractionResponse;
+                let rawBody = '';
+                try {
+                    rawBody = await response.text();
+                    data = rawBody ? (JSON.parse(rawBody) as ApiExtractionResponse) : ({} as ApiExtractionResponse);
+                } catch {
+                    data = { error: rawBody?.slice(0, 200) || undefined } as ApiExtractionResponse;
+                }
+                const tags = data.tags || {};
+                const tagCount = calculateTotalTags(tags);
+                if (!response.ok || data.error) {
+                    let apiError = data.error || `API Error: ${response.status}`;
+                    if (response.status === 504) apiError = 'Server timed out.';
+                    else if (response.status === 502) apiError = `Server bad gateway. ${data.error || ''}`.trim();
+                    else if (response.status === 400) apiError = `Invalid request: ${data.error || ''}`.trim();
+                    else if (response.status === 422) apiError = `${data.error || 'Extraction failed.'}`;
+                    else if (response.status === 500) apiError = `Internal Server Error: ${data.error || ''}`.trim();
+                    if (!(data.error?.toLowerCase().includes('warning') && tagCount > 0)) {
+                        errorMsg = apiError;
+                        siteName = '';
+                    } else {
+                        result = { tags, imageUrl: data.imageUrl, title: data.title };
+                        errorMsg = apiError;
+                        siteName = data.siteName;
+                        imgUrl = data.imageUrl;
+                        imgTitle = data.title;
+                    }
+                } else {
+                    result = { tags, imageUrl: data.imageUrl, title: data.title };
+                    siteName = data.siteName;
+                    imgUrl = data.imageUrl;
+                    imgTitle = data.title;
+                    if (data.error?.toLowerCase().includes('warning')) errorMsg = data.error;
+                    else if (tagCount === 0 && data.imageUrl) errorMsg = `Warning: Image found, no tags extracted.`;
+                }
             } else {
                 selectedProxy = CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl) || CLIENT_PROXY_OPTIONS[0]; proxyUsed = `Client (${selectedProxy.label})`; const proxyUrl = `${selectedProxy.value}${encodeURIComponent(trimmedUrl)}`; let html = ''; let clientErr = '';
                 try { const resp = await fetch(proxyUrl, { signal: controller.signal }); clearTimeout(timeoutId); if (!resp.ok) clientErr = `Proxy (${selectedProxy.label}) failed: ${resp.status}.`; else { html = await resp.text(); if (!html) clientErr = `Proxy (${selectedProxy.label}) empty content.`; else if (selectedProxy.id === 'allorigins') { try { const json = JSON.parse(html); if (json?.contents) html = json.contents; else { clientErr = `Proxy JSON missing 'contents'.`; html = ''; } } catch { if (html.toLowerCase().match(/error|cloudflare/) || html.length < 100) clientErr = `Proxy non-JSON error/block.`; } } if (!html && !clientErr) clientErr = `Proxy empty HTML.`; } } catch (err) { clearTimeout(timeoutId); if ((err as Error).name === 'AbortError') clientErr = `Request via ${proxyUsed} timed out.`; else if (err instanceof TypeError && err.message.toLowerCase().includes('failed to fetch')) clientErr = `Failed to connect via ${proxyUsed}.`; else clientErr = `Client fetch error: ${(err as Error).message}`; }

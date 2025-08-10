@@ -1,0 +1,82 @@
+name: Pre-Release on Push
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  prerelease:
+    name: Build and Pre-Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Package build artifacts
+        run: |
+          mkdir -p dist-package
+          cp -r public dist-package/public || true
+          cp -r .next dist-package/.next || true
+          cp package.json package-lock.json next.config.ts tsconfig.json dist-package/ || true
+          cd dist-package
+          zip -r ../web-build.zip . > /dev/null
+
+      - name: Generate changelog
+        shell: bash
+        run: |
+          set -euo pipefail
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "## Changes" > release_notes.md
+          if [ -z "$LAST_TAG" ]; then
+            echo "_Initial pre-release; showing last 50 commits._" >> release_notes.md
+            LOG=$(git log --pretty=format:'%h|%s|%an' -n 50)
+          else
+            echo "_Changes since $LAST_TAG._" >> release_notes.md
+            LOG=$(git log "$LAST_TAG"..HEAD --pretty=format:'%h|%s|%an')
+          fi
+          echo "" >> release_notes.md
+          echo "### Features" >> release_notes.md
+          echo "$LOG" | awk -F'|' '/\|feat(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Fixes" >> release_notes.md
+          echo "$LOG" | awk -F'|' '/\|fix(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Performance" >> release_notes.md
+          echo "$LOG" | awk -F'|' '/\|perf(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Docs" >> release_notes.md
+          echo "$LOG" | awk -F'|' '/\|docs(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Chores" >> release_notes.md
+          echo "$LOG" | awk -F'|' '/\|chore(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### Others" >> release_notes.md
+          echo "$LOG" | awk -F'|' '!/\|(feat|fix|perf|docs|chore)(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+
+      - name: Create Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pre-${{ github.run_number }}-${{ github.sha }}
+          name: Pre-Release ${{ github.run_number }} (${{ github.sha }})
+          body_path: release_notes.md
+          prerelease: true
+          files: |
+            web-build.zip
+
