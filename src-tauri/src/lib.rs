@@ -1,4 +1,4 @@
-use tauri::Manager;
+// use tauri::Manager; // not used currently
 
 #[tauri::command]
 fn greet(name: String) -> String {
