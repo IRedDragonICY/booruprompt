@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
 
+env:
+  RELEASE_TAG: pre-${{ github.run_number }}-${{ github.sha }}
+
 permissions:
   contents: write
 
@@ -83,10 +86,165 @@ jobs:
       - name: Create Pre-Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: pre-${{ github.run_number }}-${{ github.sha }}
+          tag_name: ${{ env.RELEASE_TAG }}
           name: Pre-Release ${{ github.run_number }} (${{ github.sha }})
           body_path: release_notes.md
           prerelease: true
           files: |
             web-build.zip
 
+  tauri-windows:
+    name: Tauri Windows Portable
+    needs: prerelease
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build static web (export)
+        run: npm run tauri:export
+
+      - name: Build Tauri (portable app)
+        run: npm run tauri:build
+
+      - name: Package Windows portable
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Recurse -Path src-tauri/target/release -Filter *.exe | Select-Object -First 1
+          if (-not $exe) { throw "No Windows executable found" }
+          Compress-Archive -Path $exe.FullName -DestinationPath win-portable.zip -Force
+
+      - name: Upload to Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            win-portable.zip
+
+  tauri-linux:
+    name: Tauri Linux Portable
+    needs: prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev || sudo apt-get install -y libwebkit2gtk-4.0-dev
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build static web (export)
+        run: npm run tauri:export
+
+      - name: Build Tauri (portable app)
+        run: npm run tauri:build
+
+      - name: Package Linux portable
+        run: |
+          set -e
+          BIN=$(ls -1 src-tauri/target/release/app 2>/dev/null || true)
+          if [ -z "$BIN" ]; then BIN=$(ls -1 src-tauri/target/release/* | head -n 1); fi
+          if [ -z "$BIN" ]; then echo "No Linux binary found" && exit 1; fi
+          zip -j linux-portable.zip "$BIN" > /dev/null
+
+      - name: Upload to Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            linux-portable.zip
+
+  tauri-android:
+    name: Tauri Android (Debug APK)
+    needs: prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add Android Rust targets
+        run: |
+          rustup target add aarch64-linux-android
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build static web (export)
+        run: npm run tauri:export
+
+      - name: Init Android project
+        run: npx tauri android init --ci --force
+
+      - name: Build Android (debug)
+        run: npx tauri android build --debug
+
+      - name: Package Android APK(s)
+        run: |
+          set -e
+          mkdir -p android-dist
+          find src-tauri/target -type f -name "*.apk" -print -exec cp {} android-dist/ \;
+          if [ -z "$(ls -A android-dist)" ]; then echo "No APKs found" && exit 1; fi
+          zip -r android-apk.zip android-dist > /dev/null
+
+      - name: Upload to Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            android-apk.zip
