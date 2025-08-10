@@ -256,7 +256,9 @@ jobs:
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
-        run: npx tauri android init --ci --skip-targets-install
+        run: |
+          npx tauri android init --ci || true
+          test -d src-tauri/gen/android || (echo "Init did not generate project" && exit 1)
 
       - name: Verify Android project exists
         run: |
@@ -266,7 +268,13 @@ jobs:
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
-        run: npx tauri android build --debug --ci
+        run: |
+          cd src-tauri/gen/android
+          ./gradlew assembleDebug
+          cd -
+          mkdir -p android-dist
+          find src-tauri/gen/android -type f -name "*.apk" -print -exec cp {} android-dist/ \;
+          zip -r android-apk.zip android-dist > /dev/null
 
       - name: Build Android (debug)
         run: npx tauri android build --debug
