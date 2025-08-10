@@ -9,6 +9,16 @@ import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/util
 const FETCH_TIMEOUT = 25000;
 const USER_AGENT = 'BooruTagExtractor/1.1 (Server-Side Processor; +http://localhost/)';
 
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+};
+
+export async function OPTIONS() {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS as unknown as HeadersInit });
+}
+
 const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): number => {
     return Object.values(tags || {}).reduce((sum, arr) => sum + arr.length, 0);
 };
@@ -54,13 +64,13 @@ export async function POST(req: NextRequest) {
                         errorText += ` - ${siteError.substring(0, 100)}${siteError.length > 100 ? '...' : ''}`;
                     }
                 } catch { }
-                return NextResponse.json({ error: errorText, status: response.status }, { status: 502 });
+                return NextResponse.json({ error: errorText, status: response.status }, { status: 502, headers: CORS_HEADERS });
             }
 
             html = await response.text();
 
             if (!html) {
-                return NextResponse.json({ error: 'Received empty page response from target site.', status: 502 }, { status: 502 });
+                return NextResponse.json({ error: 'Received empty page response from target site.', status: 502 }, { status: 502, headers: CORS_HEADERS });
             }
 
         } catch (fetchError: unknown) {
@@ -77,7 +87,7 @@ export async function POST(req: NextRequest) {
                     status = 502;
                 }
             }
-            return NextResponse.json({ error: errorMessage, status }, { status });
+            return NextResponse.json({ error: errorMessage, status }, { status, headers: CORS_HEADERS });
         }
 
         try {
@@ -106,7 +116,7 @@ export async function POST(req: NextRequest) {
             }
 
             if (pageErrorDetected) {
-                return NextResponse.json({ error: `Extraction failed: ${specificError}`, status: 422 }, { status: 422 });
+                return NextResponse.json({ error: `Extraction failed: ${specificError}`, status: 422 }, { status: 422, headers: CORS_HEADERS });
             }
 
             const result: ExtractionResult = site.extractTags(doc);
@@ -114,17 +124,17 @@ export async function POST(req: NextRequest) {
             const imageUrl = result.imageUrl;
 
             if (totalTagCount === 0 && !imageUrl) {
-                return NextResponse.json({ error: `Warning: No tags or image found on ${site.name}. Page structure might have changed, post is unavailable, or requires login.`, siteName: site.name, tags: {}, imageUrl: undefined, title: undefined, status: 200 }, { status: 200 });
+                return NextResponse.json({ error: `Warning: No tags or image found on ${site.name}. Page structure might have changed, post is unavailable, or requires login.`, siteName: site.name, tags: {}, imageUrl: undefined, title: undefined, status: 200 }, { status: 200, headers: CORS_HEADERS });
             }
 
             if (totalTagCount === 0 && imageUrl) {
                 console.warn(`API Route POST: Image found, but no tags extracted for ${targetUrl} on ${site.name}`);
             }
 
-            return NextResponse.json({ siteName: site.name, ...result });
+            return NextResponse.json({ siteName: site.name, ...result }, { headers: CORS_HEADERS });
 
         } catch (parseError: unknown) {
-            return NextResponse.json({ error: `Failed to parse or extract data from the page. Error: ${(parseError as Error).message}`, status: 500 }, { status: 500 });
+            return NextResponse.json({ error: `Failed to parse or extract data from the page. Error: ${(parseError as Error).message}`, status: 500 }, { status: 500, headers: CORS_HEADERS });
         }
 
     } catch (error: unknown) {
@@ -133,7 +143,7 @@ export async function POST(req: NextRequest) {
         if (error instanceof Error) {
             errorMessage = error.message;
         }
-        return NextResponse.json({ error: errorMessage, status }, { status: status });
+        return NextResponse.json({ error: errorMessage, status }, { status: status, headers: CORS_HEADERS });
     }
 }
 
@@ -142,7 +152,7 @@ export async function GET(req: NextRequest) {
     const imageUrl = searchParams.get('imageUrl');
 
     if (!imageUrl || !imageUrl.startsWith('http')) {
-        return new NextResponse('Invalid image URL parameter.', { status: 400 });
+        return new NextResponse('Invalid image URL parameter.', { status: 400, headers: CORS_HEADERS as unknown as HeadersInit });
     }
 
     try {
@@ -162,7 +172,7 @@ export async function GET(req: NextRequest) {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            return new NextResponse(`Failed to fetch image from upstream. Status: ${response.status}`, { status: response.status });
+            return new NextResponse(`Failed to fetch image from upstream. Status: ${response.status}`, { status: response.status, headers: CORS_HEADERS as unknown as HeadersInit });
         }
 
         const contentType = response.headers.get('Content-Type');
@@ -179,11 +189,8 @@ export async function GET(req: NextRequest) {
         }
         headers.set('Cache-Control', upstreamCacheControl || 'public, max-age=86400');
 
-        return new NextResponse(body, {
-            status: 200,
-            statusText: 'OK',
-            headers: headers,
-        });
+        for (const [k, v] of Object.entries(CORS_HEADERS)) headers.set(k, v);
+        return new NextResponse(body, { status: 200, statusText: 'OK', headers });
 
     } catch (error: unknown) {
         let errorMessage = 'An unexpected error occurred fetching image data.';
@@ -198,7 +205,7 @@ export async function GET(req: NextRequest) {
                 status = 502;
             }
         }
-        return new NextResponse(errorMessage, { status: status });
+        return new NextResponse(errorMessage, { status: status, headers: CORS_HEADERS as unknown as HeadersInit });
     }
 }
 

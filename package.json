@@ -10,9 +10,9 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:export": "node scripts/tauri-export.mjs",
-    "android:init": "tauri android init",
+    "android:init": "tauri android init --ci",
     "android:dev": "tauri android dev",
-    "android:build": "tauri android build"
+    "android:build": "tauri android build --debug"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.7.0",

@@ -229,7 +229,7 @@ jobs:
         run: npm run tauri:export
 
       - name: Init Android project
-        run: npx tauri android init --ci --force
+        run: npx tauri android init --ci
 
       - name: Build Android (debug)
         run: npx tauri android build --debug
