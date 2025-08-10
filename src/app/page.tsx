@@ -824,7 +824,7 @@ const BooruTagExtractor = () => {
     );
 };
 export default BooruTagExtractor;
-                clearTimeout(timeoutId);
+/*
                 let data: ApiExtractionResponse = {} as ApiExtractionResponse;
                 let rawBody = '';
                 try {
@@ -872,9 +872,40 @@ export default BooruTagExtractor;
 
             }
 
-            if (errorMsg) { setError(errorMsg); console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed); setActiveSite(siteName || null); if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) { setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; } else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName); } }
-
-            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; }); } }
+            if (errorMsg) {
+                setError(errorMsg);
+                console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
+                setActiveSite(siteName || null);
+                if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) {
+                    setAllExtractedTags({});
+                    setImageUrl(undefined);
+                    setImageTitle(undefined);
+                    currentExtractionUrl.current = null;
+                } else {
+                    setAllExtractedTags(result.tags || {});
+                    setImageUrl(imgUrl);
+                    setImageTitle(imgTitle);
+                    console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName);
+                }
+            } else {
+                setAllExtractedTags(result.tags || {});
+                setImageUrl(imgUrl);
+                setImageTitle(imgTitle);
+                setActiveSite(siteName);
+                setError('');
+                const tagCount = calculateTotalTags(result.tags || {});
+                if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`);
+                if (settings.saveHistory) {
+                    const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() };
+                    setHistory(prev => {
+                        const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)];
+                        const maxSize = settings.maxHistorySize;
+                        const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize);
+                        saveHistoryToLocalStorage(finalHistory);
+                        return finalHistory;
+                    });
+                }
+            }
 
         } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
 
