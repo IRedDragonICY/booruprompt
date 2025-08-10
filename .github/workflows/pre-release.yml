@@ -55,6 +55,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
+          REPO="${GITHUB_REPOSITORY}"
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           echo "## Changes" > release_notes.md
           if [ -z "$LAST_TAG" ]; then
@@ -65,23 +67,32 @@ jobs:
             LOG=$(git log "$LAST_TAG"..HEAD --pretty=format:'%h|%s|%an')
           fi
           echo "" >> release_notes.md
-          echo "### Features" >> release_notes.md
-          echo "$LOG" | awk -F'|' '/\|feat(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Fixes" >> release_notes.md
-          echo "$LOG" | awk -F'|' '/\|fix(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Performance" >> release_notes.md
-          echo "$LOG" | awk -F'|' '/\|perf(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Docs" >> release_notes.md
-          echo "$LOG" | awk -F'|' '/\|docs(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Chores" >> release_notes.md
-          echo "$LOG" | awk -F'|' '/\|chore(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
-          echo "" >> release_notes.md
-          echo "### Others" >> release_notes.md
-          echo "$LOG" | awk -F'|' '!/\|(feat|fix|perf|docs|chore)(\(|:|!)/{print "- **"$1"** "$2" ("$3")"}' >> release_notes.md
+
+          gen_section() { # title pattern
+            local TITLE="$1"
+            local PATTERN="$2"
+            local BODY
+            BODY=$(echo "$LOG" | grep -E "\|$PATTERN" || true)
+            if [ -n "$BODY" ]; then
+              echo "### $TITLE" >> release_notes.md
+              echo "$BODY" | while IFS='|' read -r h s a; do echo "- [**$h**](${SERVER_URL}/${REPO}/commit/$h) $s ($a)"; done >> release_notes.md
+              echo "" >> release_notes.md
+            fi
+          }
+
+          gen_section "Features" 'feat(\(|:|!)'
+          gen_section "Fixes" 'fix(\(|:|!)'
+          gen_section "Performance" 'perf(\(|:|!)'
+          gen_section "Docs" 'docs(\(|:|!)'
+          gen_section "Chores" 'chore(\(|:|!)'
+
+          # Others = everything not matched above
+          OTHER=$(echo "$LOG" | grep -Ev "\|(feat|fix|perf|docs|chore)(\(|:|!)" || true)
+          if [ -n "$OTHER" ]; then
+            echo "### Others" >> release_notes.md
+            echo "$OTHER" | while IFS='|' read -r h s a; do echo "- [**$h**](${SERVER_URL}/${REPO}/commit/$h) $s ($a)"; done >> release_notes.md
+            echo "" >> release_notes.md
+          fi
 
       - name: Create Pre-Release
         uses: softprops/action-gh-release@v2
