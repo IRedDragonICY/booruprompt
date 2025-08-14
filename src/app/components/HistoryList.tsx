@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AnimatedIcon } from './AnimatedIcon';
 import { PhotoIcon, ArrowUpOnSquareIcon, TrashIcon } from './icons/icons';
 import type { TagCategory } from '../utils/extractionUtils';
