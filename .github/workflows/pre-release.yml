@@ -180,6 +180,7 @@ jobs:
           files: |
             booruprompt-${{ env.APP_VERSION }}-win-${{ matrix.arch }}.exe
             booruprompt-${{ env.APP_VERSION }}-win-${{ matrix.arch }}.msi
+          fail_on_unmatched_files: false
 
   tauri-linux:
     name: Tauri Linux Portable
@@ -225,7 +226,8 @@ jobs:
         run: npm run tauri:build
 
       - name: Discover version
-        run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
+        run: |
+          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));console.log('APP_VERSION='+j.version)" >> $GITHUB_ENV
 
       - name: Rename Linux artifacts
         run: |
@@ -246,9 +248,10 @@ jobs:
             booruprompt-${{ env.APP_VERSION }}-linux-x64
             booruprompt-${{ env.APP_VERSION }}-linux-x64.AppImage
             booruprompt-${{ env.APP_VERSION }}-linux-amd64.deb
+          fail_on_unmatched_files: false
 
   tauri-android:
-    name: Tauri Android (Debug APK)
+    name: Tauri Android (per-ABI APKs + AAB)
     needs: prerelease
     runs-on: ubuntu-latest
     steps:
@@ -288,7 +291,7 @@ jobs:
 
       - name: Add Android Rust targets
         run: |
-          rustup target add aarch64-linux-android
+          rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -321,15 +324,7 @@ jobs:
         run: |
           test -d src-tauri/gen/android || (ls -la src-tauri/gen || true; echo "Android project missing"; exit 1)
 
-      - name: Enable ABI splits in Gradle (per-ABI APKs)
-        run: |
-          set -e
-          APP_DIR=src-tauri/gen/android/app
-          if [ -f "$APP_DIR/build.gradle" ]; then
-            echo "afterEvaluate { android.splits.abi.enable true; android.splits.abi.reset(); android.splits.abi.include 'armeabi-v7a','arm64-v8a','x86','x86_64'; android.splits.abi.universalApk true }" >> "$APP_DIR/build.gradle"
-          fi
-      
-      - name: Build Android (debug)
+      - name: Warm-up Tauri (generate gradle settings)
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
@@ -337,23 +332,71 @@ jobs:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
           TAURI_CLI_NO_SERVER: '1'
         run: |
-          npx tauri android build --debug --ci
+          npx tauri android init --ci | cat || true
+
+      - name: Build Android (release) — per-ABI APKs + AAB
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          NDK_HOME: ${{ env.NDK_HOME }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+          TAURI_CLI_NO_SERVER: '1'
+          RUSTFLAGS: '-C strip=symbols'
+        run: |
+          npx tauri android build --ci --apk --aab --split-per-abi --target aarch64 --target armv7 --target i686 --target x86_64 | cat
 
       - name: Discover version
-        run: echo "APP_VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_ENV
+        run: |
+          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));console.log('APP_VERSION='+j.version)" >> $GITHUB_ENV
 
-      - name: Rename Android artifacts
+      - name: Rename Android artifacts (release)
         run: |
           set -e
           VER="$APP_VERSION"
-          # Universal
-          cp src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk booruprompt-$VER-android-universal.apk || true
-          cp src-tauri/gen/android/app/build/outputs/bundle/universalDebug/app-universal-debug.aab booruprompt-$VER-android-universal.aab || true
-          # Per-ABI
-          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
-            f="src-tauri/gen/android/app/build/outputs/apk/$abi/debug/app-$abi-debug.apk"
-            if [ -f "$f" ]; then cp "$f" booruprompt-$VER-android-$abi.apk; fi
+          OUT=src-tauri/gen/android/app/build/outputs
+          # Map arch names from Gradle/Tauri to Android ABI naming
+          map_arch() {
+            case "$1" in
+              arm) echo "armeabi-v7a" ;;
+              arm64) echo "arm64-v8a" ;;
+              x86) echo "x86" ;;
+              x86_64) echo "x86_64" ;;
+              *) echo "$1" ;;
+            esac
+          }
+
+          # Per-ABI APKs (release), handle -unsigned suffix
+          for dir in "$OUT"/apk/*/release; do
+            [ -d "$dir" ] || continue
+            arch_dir=$(basename "$(dirname "$dir")")
+            abi=$(map_arch "$arch_dir")
+            apk_path=""
+            if ls "$dir"/app-*-release-unsigned.apk >/dev/null 2>&1; then
+              apk_path=$(ls -1 "$dir"/app-*-release-unsigned.apk | head -n 1)
+            elif ls "$dir"/app-*-release.apk >/dev/null 2>&1; then
+              apk_path=$(ls -1 "$dir"/app-*-release.apk | head -n 1)
+            fi
+            if [ -n "$apk_path" ]; then
+              cp "$apk_path" "booruprompt-$VER-android-$abi.apk"
+            fi
           done
+
+          # Per-ABI AABs (release)
+          for dir in "$OUT"/bundle/*Release; do
+            [ -d "$dir" ] || continue
+            name=$(basename "$dir") # e.g., armRelease, arm64Release, x86Release, x86_64Release
+            arch=${name%Release}
+            abi=$(map_arch "$arch")
+            if ls "$dir"/app-*-release.aab >/dev/null 2>&1; then
+              aab_path=$(ls -1 "$dir"/app-*-release.aab | head -n 1)
+              cp "$aab_path" "booruprompt-$VER-android-$abi.aab"
+            fi
+          done
+
+          # Universal AAB (release) if present
+          if ls "$OUT"/bundle/universalRelease/app-*-release.aab >/dev/null 2>&1; then
+            cp "$OUT"/bundle/universalRelease/app-*-release.aab "booruprompt-$VER-android-universal.aab"
+          fi
 
       
 
@@ -362,11 +405,15 @@ jobs:
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
-            booruprompt-${{ env.APP_VERSION }}-android-universal.apk
-            booruprompt-${{ env.APP_VERSION }}-android-universal.aab
             booruprompt-${{ env.APP_VERSION }}-android-armeabi-v7a.apk
             booruprompt-${{ env.APP_VERSION }}-android-arm64-v8a.apk
             booruprompt-${{ env.APP_VERSION }}-android-x86.apk
             booruprompt-${{ env.APP_VERSION }}-android-x86_64.apk
+            booruprompt-${{ env.APP_VERSION }}-android-armeabi-v7a.aab
+            booruprompt-${{ env.APP_VERSION }}-android-arm64-v8a.aab
+            booruprompt-${{ env.APP_VERSION }}-android-x86.aab
+            booruprompt-${{ env.APP_VERSION }}-android-x86_64.aab
+            booruprompt-${{ env.APP_VERSION }}-android-universal.aab
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
