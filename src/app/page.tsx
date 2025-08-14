@@ -10,10 +10,9 @@ import { AnimatedIcon } from './components/AnimatedIcon';
 import { SettingsModal } from './components/SettingsModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import {
-  CogIcon, ClipboardIcon, CheckCircleIcon, ArrowPathIcon, XMarkIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon, ArrowDownTrayIcon, TagIcon
+  ClipboardIcon, CheckCircleIcon, XMarkIcon, TrashIcon, ArrowUpOnSquareIcon, PhotoIcon
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
-import { ImagePreview } from './components/ImagePreview';
 import ExtractorHeader from './components/ExtractorHeader';
 import FilteredTagsPanel from './components/FilteredTagsPanel';
 import PreviewSection from './components/PreviewSection';
@@ -21,8 +20,9 @@ import CategoryToggle from './components/CategoryToggle';
 import { StatusMessage } from './components/StatusMessage';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
-import { MobileBottomNav } from './components/MobileBottomNav';
-import { DesktopSideNav } from './components/DesktopSideNav';
+import DesktopAppShell from './layouts/DesktopAppShell';
+import MobileAppShell from './layouts/MobileAppShell';
+import SettingsPanel from './components/SettingsPanel';
 import { HistoryItem as HistoryItemComponent } from './components/HistoryList';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
 import type { ImageMetadata } from './utils/imageMetadata';
@@ -36,7 +36,6 @@ interface ImageHistoryEntry { id: string; fileName: string; imageData: ImageMeta
 interface StoredHistoryItem { id: string; url: string; tags?: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string; siteName?: string; timestamp: number; }
 interface StoredImageHistoryItem { id: string; fileName: string; imageData?: ImageMetadata; timestamp: number; previewUrl?: string; }
 interface ApiExtractionResponse extends Omit<ExtractionResult, 'tags'> { siteName: string; tags?: Partial<Record<TagCategory, string[]>>; error?: string; status?: number; html?: string; }
-interface HistoryItemProps { entry: HistoryEntry; onLoad: (entry: HistoryEntry) => void; onDelete: (id: string) => void; enableImagePreviews: boolean; }
 interface ImageHistoryItemProps { entry: ImageHistoryEntry; onLoad: (entry: ImageHistoryEntry) => void; onDelete: (id: string) => void; }
 
 // HistoryPanel types moved to components/HistoryPanel
@@ -206,7 +205,7 @@ const BooruTagExtractor = () => {
     const [error, setError] = useState('');
     const [activeSite, setActiveSite] = useState<string | null>(null);
     const [tagCategories, setTagCategories] = useState<TagCategoryOption[]>(DEFAULT_TAG_CATEGORIES);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
     const [copySuccess, setCopySuccess] = useState(false);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
@@ -226,40 +225,33 @@ const BooruTagExtractor = () => {
     const [isDraggingOverImage, setIsDraggingOverImage] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showHistoryMobile, setShowHistoryMobile] = useState<boolean>(false);
 
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
-        if (currentPath === '/image-metadata') {
-            setActiveView('image');
-        } else {
+        if (currentPath === '/image-metadata') setActiveView('image');
+        else if (currentPath === '/settings') setActiveView('settings');
+        else {
             setActiveView('extractor');
-            if (currentPath !== '/booru-tag') {
-                window.history.replaceState(null, '', '/booru-tag');
-            }
+            if (currentPath !== '/booru-tag') window.history.replaceState(null, '', '/booru-tag');
         }
     }, [setActiveView]);
 
     useEffect(() => {
         handleLocationChange();
         window.addEventListener('popstate', handleLocationChange);
-        return () => {
-            window.removeEventListener('popstate', handleLocationChange);
-        };
+        return () => { window.removeEventListener('popstate', handleLocationChange); };
     }, [handleLocationChange]);
 
     useEffect(() => {
         const currentPath = window.location.pathname;
         let targetPath: string;
 
-        if (activeView === 'extractor') {
-            targetPath = '/booru-tag';
-        } else {
-            targetPath = '/image-metadata';
-        }
+        if (activeView === 'extractor') targetPath = '/booru-tag';
+        else if (activeView === 'image') targetPath = '/image-metadata';
+        else targetPath = '/settings';
 
-        if (currentPath !== targetPath) {
-            window.history.pushState(null, '', targetPath);
-        }
+        if (currentPath !== targetPath) window.history.replaceState(null, '', targetPath);
     }, [activeView]);
 
     const loadStoredItem = <T,>(key: string, defaultValue: T, validator?: (item: unknown) => boolean): T => {
@@ -395,7 +387,7 @@ const BooruTagExtractor = () => {
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
-                let data: ApiExtractionResponse = {} as ApiExtractionResponse;
+                let data: ApiExtractionResponse;
                 let rawBody = '';
                 try {
                     rawBody = await response.text();
@@ -524,10 +516,9 @@ const BooruTagExtractor = () => {
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); if (activeView !== 'extractor') return; setIsDraggingOver(false); const dropped = (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain')).trim(); if (dropped?.startsWith('http')) { handleReset(); currentExtractionUrl.current = null; setUrl(dropped); setError(''); if (settings.autoExtract) void extractTags(dropped); } else setError("Invalid URL dropped."); }, [handleReset, settings.autoExtract, extractTags, activeView]);
     const handleOpenSettings = useCallback(() => setShowSettings(true), []);
     const handleCloseSettings = useCallback(() => setShowSettings(false), []);
-    const shouldShowPreviewSection = useMemo(() => activeView === 'extractor' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)), [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
+    const shouldShowPreviewSection = useMemo(() => activeView !== 'image' && activeView !== 'settings' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)), [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
     const getSelectedProxyLabel = useCallback(() => CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown', [settings.clientProxyUrl]);
-    const navButtonClass = (isActive: boolean) => `group relative overflow-hidden rounded-2xl h-12 md:h-12 w-full md:w-12 flex-1 md:flex-none flex items-center justify-center transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${isActive ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40 shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
     const handleClearImage = useCallback(() => { setImageFile(null); setImageData(null); setImageError(null); if (imagePreviewUrl) { URL.revokeObjectURL(imagePreviewUrl); setImagePreviewUrl(null); } setCopyStatus({}); if (fileInputRef.current) fileInputRef.current.value = ''; imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imagePreviewUrl]);
     const processImageFile = useCallback(async (file: File | null | undefined) => {
         if (!file || imageLoading) return; handleClearImage(); setImageLoading(true); setImageFile(file);
@@ -588,43 +579,189 @@ const BooruTagExtractor = () => {
     }, [settings.maxHistorySize]);
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
-            <div className="flex items-start md:flex-row flex-col mx-auto relative">
-                <DesktopSideNav active={activeView} highlightSettings={showSettings} onSelectExtractor={() => setActiveView('extractor')} onSelectImage={() => setActiveView('image')} onOpenSettings={handleOpenSettings} />
-                 <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
+        <div className="flex min-h-screen items-start md:items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
+            {isMobile ? (
+                <MobileAppShell
+                    active={activeView}
+                    selectExtractor={() => setActiveView('extractor')}
+                    selectImage={() => setActiveView('image')}
+                    openSettings={() => setActiveView('settings')}
+                    highlightSettings={showSettings}
+                    isDraggingOverExtractor={isDraggingOver}
+                    isDraggingOverImage={isDraggingOverImage}
+                    onExtractorDragOver={handleDragOver}
+                    onExtractorDragLeave={handleDragLeave}
+                    onExtractorDrop={handleDrop}
+                    onImageDragOver={handleImageDragOver}
+                    onImageDragLeave={handleImageDragLeave}
+                    onImageDrop={handleImageDrop}
+                >
+                    <AnimatePresence mode="wait">
+                        {activeView === 'extractor' ? (
+                            <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
+                                <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <AnimatePresence mode='wait'>
+                                        {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
+                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                    </AnimatePresence>
+                                    <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
+                                    {!isMobile && (
                     <AnimatePresence>
-                        {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
-                        {isDraggingOverImage && activeView === 'image' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop PNG</p></div></motion.div>)}
+                                          {!loading && hasResults && totalExtractedTagCount > 0 && (
+                                              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
+                                                  <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
+                                                      <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
+                                                      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
+                                                  </div>
+                                              </motion.div>
+                                          )}
+                                      </AnimatePresence>
+                                    )}
+                                    {!isMobile && settings.saveHistory && history.length > 0 && (
+                                      <HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />
+                                    )}
+                                </div>
+                                {isMobile && (
+                                  <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'calc(var(--mobile-nav-height, 56px))' }}>
+                                      <div className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-md">
+                                        <div className="mb-2 grid grid-cols-5 gap-2">
+                                          {DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; return (
+                                            <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${catOpt.label}${count ? ` • ${count}` : ''}`}>
+                                              <span className="mb-1 grid h-6 w-6 place-items-center rounded-sm" style={{ backgroundColor: active ? `rgba(var(--color-primary-rgb),0.2)` : 'transparent' }}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`h-5 w-5 ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
+                                                  {catOpt.id === 'copyright' && (
+                                                    <g>
+                                                      <rect x="4" y="9" width="10" height="8" rx="2"/>
+                                                      <rect x="10" y="5" width="10" height="8" rx="2" opacity="0.65"/>
+                                                    </g>
+                                                  )}
+                                                  {catOpt.id === 'character' && <path d="M12 2.25c-2.9 0-5.25 2.35-5.25 5.25S9.1 12.75 12 12.75 17.25 10.4 17.25 7.5 14.9 2.25 12 2.25zm0 12c-3.45 0-6.75 1.77-6.75 4.5V21h13.5v-2.25c0-2.73-3.3-4.5-6.75-4.5z"/>}
+                                                  {catOpt.id === 'general' && <path d="M4.5 5.25h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5z"/>}
+                                                  {catOpt.id === 'meta' && <path d="M4.5 6.75A2.25 2.25 0 016.75 4.5h10.5A2.25 2.25 0 0119.5 6.75v10.5A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V6.75zm3 1.5a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zM7.5 12a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zm0 3.75a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z"/>}
+                                                  {catOpt.id === 'other' && (
+                                                    <g>
+                                                      <rect x="4" y="4" width="6" height="6" rx="1.5"/>
+                                                      <rect x="14" y="4" width="6" height="6" rx="1.5"/>
+                                                      <rect x="4" y="14" width="6" height="6" rx="1.5"/>
+                                                      <rect x="14" y="14" width="6" height="6" rx="1.5"/>
+                                                    </g>
+                                                  )}
+                                                </svg>
+                                              </span>
+                                              <span className={`truncate text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{catOpt.label}</span>
+                                            </button>
+                                          ); })}
+                                        </div>
+                                        {/* Compact Filtered Tags for mobile */}
+                                        {(!loading && hasResults && displayedTags) && (
+                                          <div className="mb-2 flex items-start gap-2">
+                                            <div className="min-h-[34px] max-h-[60px] flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-2 py-1.5 text-[11px] leading-snug scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Filtered tags preview">
+                                              {displayedTags}
+                                            </div>
+                                            <button onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition ${copySuccess ? 'bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))]' : 'bg-[rgb(var(--color-primary-rgb))] text-[rgb(var(--color-primary-content-rgb))] hover:bg-[rgb(var(--color-primary-focus-rgb))]'}`}>{copySuccess ? 'Copied' : 'Copy'}</button>
+                                          </div>
+                                        )}
+                                      <label htmlFor="url" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Booru Post URL</label>
+                                      <input id="url" type="url" value={url} onChange={handleUrlChange} placeholder="Paste URL or Drag & Drop..." className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" />
+                                      <div className="mt-2 grid grid-cols-[auto_1fr_auto] gap-2 items-stretch">
+                                        <button onClick={() => setShowHistoryMobile(true)} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]" aria-label="Open Extraction History">
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M12 8.25a.75.75 0 01.75.75v3.75h3a.75.75 0 010 1.5h-3.75A.75.75 0 0111.25 13V9a.75.75 0 01.75-.75z"/><path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 1.5a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" clipRule="evenodd"/></svg>
+                                        </button>
+                                        <button onClick={handleManualExtract} disabled={loading || !url.trim()} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow transition hover:bg-[rgb(var(--color-primary-focus-rgb))] disabled:opacity-60 disabled:cursor-not-allowed">{loading ? 'Processing…' : 'Extract Manually'}</button>
+                                        <button onClick={handleReset} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]">Reset</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                    
+                                {!isMobile && (
+                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
+                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
+                                  </div>
+                                )}
+                            </motion.div>
+                        ) : activeView === 'image' ? (
+                            <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                                 <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
+                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">Image Metadata</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent="Clear"><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label="Clear"><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
+                                </div>
+                                 <div ref={imageCardBodyRef} className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <AnimatePresence mode="wait">
+                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing...</p></motion.div>)
+                                        : !imageFile ? (<motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
+                                            <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
+                                                 <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">Drag & Drop PNG Here</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click to upload</p>
+                                                 <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Select PNG</motion.button>
+                                             </div>
+                                             <AnimatePresence>{imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}</AnimatePresence>
+                                             {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                        </motion.div>)
+                                        : (<motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                                            <AnimatePresence>{imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}</AnimatePresence>
+                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
+                                            {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? ( <>
+                                                {imageData.positivePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Positive Prompt</h3><TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Positive Prompt"/>
+                                                </MotionCard>)}
+                                                {imageData.negativePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Negative Prompt</h3><TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Negative Prompt"/>
+                                                </MotionCard>)}
+                                                {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">Parameters</h3><TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">{Object.entries(imageData.parameters).map(([k, v]) => (<ParameterItem key={k} label={k} value={v} />))}</div>
+                                                </MotionCard>)}
+                                            </>) : (!imageError && <StatusMessage type="info">No generation metadata found.</StatusMessage>)}
+                                            {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                        </motion.div>)}
+                                    </AnimatePresence>
+                                </div>
+                                {!isMobile && (
+                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                     <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
+                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
+                                  </div>
+                                )}
+                            </motion.div>
+                        ) : (
+                            <motion.div key="settings-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+                                <SettingsPanel settings={settings} onSettingsChange={handleSettingsChange} />
+                            </motion.div>
+                        )}
                     </AnimatePresence>
+                </MobileAppShell>
+            ) : (
+                <DesktopAppShell
+                    active={activeView}
+                    highlightSettings={showSettings}
+                    selectExtractor={() => setActiveView('extractor')}
+                    selectImage={() => setActiveView('image')}
+                    openSettings={handleOpenSettings}
+                    isDraggingOverExtractor={isDraggingOver}
+                    isDraggingOverImage={isDraggingOverImage}
+                    onExtractorDragOver={handleDragOver}
+                    onExtractorDragLeave={handleDragLeave}
+                    onExtractorDrop={handleDrop}
+                    onImageDragOver={handleImageDragOver}
+                    onImageDragLeave={handleImageDragLeave}
+                    onImageDrop={handleImageDrop}
+                >
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
                             <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
-                  {/* Mobile bottom navigation */}
-                  {isMobile && (
-                    <MobileBottomNav
-                      active={activeView}
-                      onSelectExtractor={() => setActiveView('extractor')}
-                      onSelectImage={() => setActiveView('image')}
-                      onOpenSettings={handleOpenSettings}
-                      highlightSettings={showSettings}
-                    />
-                  )}
-            
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
                                         {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
-                                    <PreviewSection title="Preview" show={!!shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
-
+                                    <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                     <AnimatePresence>
                                         {!loading && hasResults && totalExtractedTagCount > 0 && (
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: 0.1, duration: 0.4 }}
-                                            >
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                                 <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
                                                     <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
                                                     <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
@@ -634,17 +771,13 @@ const BooruTagExtractor = () => {
                                     </AnimatePresence>
                                     {settings.saveHistory && history.length > 0 && (<HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />)}
                                 </div>
-
-                                <AnimatePresence>
-                                    {!loading && hasResults && totalExtractedTagCount > 0 && (
-                                        <FilteredTagsPanel displayedTags={displayedTags} isMobile={isMobile} onCopy={handleCopy} copySuccess={copySuccess} />
-                                    )}
-                                </AnimatePresence>
-
+                                {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
+                                {!isMobile && (
                                 <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                     <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                 </div>
+                                )}
                             </motion.div>
                         ) : (
                             <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
@@ -683,52 +816,29 @@ const BooruTagExtractor = () => {
                                         </motion.div>)}
                                     </AnimatePresence>
                                 </div>
+                                {!isMobile && (
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                      <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
                                       <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
                                  </div>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>
+                </DesktopAppShell>
+            )}
+            {isMobile && showHistoryMobile && (
+              <div className="fixed inset-0 z-[9997]" onClick={() => setShowHistoryMobile(false)}>
+                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute bottom-[calc(var(--mobile-nav-height,56px))] left-0 right-0 px-3" onClick={(e) => e.stopPropagation()}>
+                  <motion.div drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={0.2} onDragEnd={(e, info) => { if (info.offset.y > 80) setShowHistoryMobile(false); }} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-2xl">
+                    <div className="mb-2 flex items-center justify-center">
+                      <div className="h-1.5 w-12 rounded-full bg-[rgb(var(--color-on-surface-faint-rgb))]" />
+                    </div>
+                    <HistoryPanelBase noToggle className="rounded-t-2xl" title="" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />
+                  </motion.div>
                  </div>
             </div>
-            {/* Mobile bottom navigation */}
-            {isMobile && (
-                <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-                    <div className="mx-auto max-w-xl">
-                        <div className="grid grid-cols-3 gap-1 p-1">
-                            <button
-                                onClick={() => setActiveView('extractor')}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'extractor' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Tag Extractor"
-                                aria-current={activeView === 'extractor' ? 'page' : undefined}
-                            >
-                                <TagIcon />
-                                <span className="ml-2 text-xs font-medium">Tags</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                            <button
-                                onClick={() => setActiveView('image')}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${activeView === 'image' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Image Metadata"
-                                aria-current={activeView === 'image' ? 'page' : undefined}
-                            >
-                                <PhotoIcon className="h-5 w-5" />
-                                <span className="ml-2 text-xs font-medium">Image</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                            <button
-                                onClick={handleOpenSettings}
-                                className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${showSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}
-                                aria-label="Settings"
-                            >
-                                <CogIcon />
-                                <span className="ml-2 text-xs font-medium">Settings</span>
-                                <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
-                            </button>
-                        </div>
-                    </div>
-                </nav>
             )}
             <SettingsModal isOpen={showSettings} onClose={handleCloseSettings} settings={settings} onSettingsChange={handleSettingsChange} />
         </div>

@@ -480,7 +480,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                             <p className="text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">Found a bug or have a suggestion? Let us know!</p>
                         </div>
 
-                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0">
+                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0 hidden md:block">
                             <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-colors duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</motion.button>
                         </div>
                       </div>

@@ -17,5 +17,5 @@ export interface Settings {
   blacklistKeywords: string;
 }
 
-export type ActiveView = 'extractor' | 'image';
+export type ActiveView = 'extractor' | 'image' | 'settings';
 

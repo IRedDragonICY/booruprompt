@@ -2,7 +2,7 @@ import React from 'react';
 import { TagIcon, PhotoIcon, CogIcon } from './icons/icons';
 
 interface MobileBottomNavProps {
-  active: 'extractor' | 'image';
+  active: 'extractor' | 'image' | 'settings';
   onSelectExtractor: () => void;
   onSelectImage: () => void;
   onOpenSettings: () => void;
@@ -10,8 +10,23 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onOpenSettings, highlightSettings = false }: MobileBottomNavProps) {
+  const navRef = React.useRef<HTMLElement>(null);
+  React.useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--mobile-nav-height', `${h}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, []);
+
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav ref={navRef} className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="mx-auto max-w-xl">
         <div className="grid grid-cols-3 gap-1 p-1">
 
@@ -25,7 +40,7 @@ export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onOp
             <span className="ml-2 text-xs font-medium">Image</span>
             <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
           </button>
-          <button onClick={onOpenSettings} className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${highlightSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label="Settings">
+          <button onClick={onOpenSettings} className={`group relative flex items-center justify-center rounded-xl px-3 py-2 transition-all ${active === 'settings' || highlightSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label="Settings" aria-current={active === 'settings' ? 'page' : undefined}>
             <CogIcon />
             <span className="ml-2 text-xs font-medium">Settings</span>
             <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
