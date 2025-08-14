@@ -11,7 +11,7 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onOpenSettings, highlightSettings = false }: MobileBottomNavProps) {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] backdrop-blur-md" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="mx-auto max-w-xl">
         <div className="grid grid-cols-3 gap-1 p-1">
 

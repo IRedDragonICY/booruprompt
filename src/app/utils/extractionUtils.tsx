@@ -3,8 +3,8 @@ export type TagCategoryOption = { id: TagCategory; label: string; enabled: boole
 export interface ExtractedTag { name: string; category: TagCategory }
 export interface ExtractionResult { tags: Partial<Record<TagCategory, string[]>>; imageUrl?: string; title?: string }
 
-// Always use hosted API for reliability across environments
-export const API_ROUTE_URL = 'https://booruprompt.vercel.app/api/fetch-booru';
+// Use local API route; deployment should serve same path. Keep relative to support dev/prod.
+export const API_ROUTE_URL = '/api/fetch-booru';
 
 const grp = (t: ExtractedTag[]): Partial<Record<TagCategory, string[]>> => t.reduce((a, i) => { if (!a[i.category]) a[i.category] = []; if (!a[i.category]!.some(existing => existing.toLowerCase() === i.name.toLowerCase())) { (a[i.category]!).push(i.name); } return a; }, {} as Partial<Record<TagCategory, string[]>>);
 
@@ -43,7 +43,48 @@ export const extractionStrategies: Record<string, ExtractionStrategyFunction> = 
     eShuushuu: (d) => ({ tags: grp(Array.from(d.querySelectorAll('div.meta dl dt')).flatMap(dt => { const cat = u.map(H_MAP, dt.textContent, 'general'); const dd = dt.nextElementSibling; return dd?.matches('dd.quicktag') ? Array.from(dd.querySelectorAll<HTMLAnchorElement>('span.tag a')).map(a => u.cln(a.textContent?.trim() ?? '')).filter(Boolean).map(name => ({ name, category: cat })) : []; })), imageUrl: u.img(d, 'a.thumb_image', 'href'), title: u.tit(d, 'div.title h2 a') ?? u.tit(d) }),
     tbib: (d) => ({ tags: grp(u.sect(d, '#tag-sidebar', 'a[href*="page=post"]')), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }),
     scatbooru: (d) => { const t = [...u.tags(d, { s: '#artist_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'copyright' as TagCategory }), ...u.tags(d, { s: '#tag_list li', ts: 'a[href*="?page=post&s=list&tags="]', cat: () => 'general' as TagCategory })]; return { tags: grp(Array.from(new Map(t.map(i => [`${i.category}-${i.name}`, i])).values())), imageUrl: u.img(d, '#image'), title: u.tit(d) }; },
-    pixiv: (d) => { const p = (() => { try { return JSON.parse(d.getElementById('meta-preload-data')?.getAttribute('content') || 'null'); } catch { return null; } })(); const iid = d.location.pathname.match(/\/(\d+)$/)?.[1]; const il = (p && iid) ? p.illust?.[iid] : null; const us = (p && il) ? p.user?.[il.userId] : null; const pt = il?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? []; const t = grp(pt.length ? pt : Array.from(d.querySelectorAll('figcaption div[role="presentation"] a[href*="/tags/"]')).map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name)); const rimg = il?.urls?.original ?? d.querySelector('main div[role="presentation"] a > img')?.getAttribute('src'); const aimg = (rimg && !rimg.startsWith('http')) ? (() => { try { return new URL(rimg, d.baseURI).href } catch { return rimg }})() : rimg; const img = aimg?.includes('i.pximg.net/img-master') ? aimg.replace('/img-master/', '/img-original/').replace('_master1200', '').replace(/\.(jpg|png|gif)$/, '.png').replace(/(?<!\.png)$/, '.png') : aimg; const tr = il?.illustTitle ?? u.tit(d, 'meta[property="og:title"]'); const ta = us?.name; const te = (tr && ta) ? `${tr} by ${ta}` : tr; const tit = (te ?? u.tit(d))?.replace(/ - pixiv$/, '').trim(); return { tags: t, imageUrl: img, title: tit }; },
+    pixiv: (d) => {
+        // Try Pixiv's preload JSON first
+        const preload = (() => {
+            try {
+                const meta = d.getElementById('meta-preload-data') || d.querySelector('meta#meta-preload-data, meta[name="preload-data"]');
+                const content = meta?.getAttribute('content');
+                return content ? JSON.parse(content) : null;
+            } catch { return null; }
+        })();
+        const illustId = d.location.pathname.match(/\/(\d+)$/)?.[1];
+        const illust = (preload && illustId) ? preload.illust?.[illustId] : null;
+        const user = (preload && illust) ? preload.user?.[illust.userId] : null;
+
+        // Collect tags from JSON, anchors, then alt text as fallback
+        const tagsFromJson = illust?.tags?.tags?.map((t: PixivTagInfo) => ({ name: u.cln(t.translation?.en ?? t.tag), category: 'general' as TagCategory })) ?? [];
+        const tagAnchors = Array.from(d.querySelectorAll('figcaption a[href^="/tags/"], figcaption a[href^="/en/tags/"], figcaption a[href^="/ja/tags/"], a.gtm-new-work-tag-event-click[href*="/tags/"]'));
+        const tagsFromAnchors = tagAnchors.map(el => ({ name: u.cln(el.textContent?.trim() ?? ''), category: 'general' as TagCategory })).filter(tg => tg.name);
+        const altText = d.querySelector('figure img[alt]')?.getAttribute('alt') ?? d.querySelector('img[alt]')?.getAttribute('alt') ?? '';
+        const altTagsPart = altText.split(' / ')[0];
+        const tagsFromAlt = altTagsPart && altTagsPart.includes(',') ? altTagsPart.split(',').map(s => u.cln(s)).filter(Boolean).map(name => ({ name, category: 'general' as TagCategory })) : [];
+        const tags = grp(tagsFromJson.length ? tagsFromJson : (tagsFromAnchors.length ? tagsFromAnchors : tagsFromAlt));
+
+        // Image: prefer JSON original, else figure image (pximg), lastly og:image
+        const ogImage = d.querySelector('meta[property="og:image"]')?.getAttribute('content');
+        const figureImg = d.querySelector('figure img')?.getAttribute('src') ?? d.querySelector('img[src*="i.pximg.net"]')?.getAttribute('src');
+        const candidates = [illust?.urls?.original, figureImg, ogImage].filter(Boolean) as string[];
+        const chosen = candidates.find(u => { try { return /(^|\.)i\.pximg\.net$/i.test(new URL(u, d.baseURI).hostname); } catch { return false; } }) || candidates[0];
+        let absoluteImg = chosen && !chosen.startsWith('http') ? (() => { try { return new URL(chosen, d.baseURI).href; } catch { return chosen; } })() : chosen;
+
+        // If JSON original exists and figure provided master, rewrite to original with correct extension
+        if (absoluteImg && absoluteImg.includes('/img-master/') && illust?.urls?.original) {
+            const extFromJson = illust.urls.original.match(/\.(jpg|jpeg|png|gif)$/i)?.[0] ?? '';
+            absoluteImg = absoluteImg.replace('/img-master/', '/img-original/').replace(/_(?:master1200|custom1200|square1200|480mw)/i, '').replace(/\.(jpg|jpeg|png|gif)$/i, extFromJson || '$&');
+        }
+
+        const titleRaw = illust?.illustTitle ?? u.tit(d, 'meta[property="og:title"]');
+        const author = user?.name;
+        const titleComposed = (titleRaw && author) ? `${titleRaw} by ${author}` : titleRaw;
+        const title = (titleComposed ?? u.tit(d))?.replace(/ - pixiv$/, '').trim();
+
+        return { tags, imageUrl: absoluteImg, title };
+    },
     furaffinity: (d) => ({tags:grp([...Array.from(d.querySelectorAll('section.tags-row span.tags a')).map(a=>({name:u.cln(a.textContent?.trim()??''),category:'general'as TagCategory})).filter(t=>t.name),...((an=>(an?[{name:an,category:'other' as TagCategory}]:[]))(u.cln(d.querySelector('div.submission-id-sub-container a.artist-name')?.textContent?.trim()??d.querySelector('.submission-sidebar a[href*="/user/"] strong')?.textContent?.trim()??'')))]),imageUrl:u.img(d,'img#submissionImg','data-fullview-src')??u.img(d,'img#submissionImg'),title:u.tit(d,'div.submission-title p')}),
     garycbooru: (d) => { const pm: Readonly<Record<string, TagCategory>> = {'artist:':'other','character:':'character','copyright:':'copyright','meta:':'meta'}; return ({ tags: grp([...[...d.querySelectorAll('div#tag_list > ul > li a[href*="page=post&s=list&tags="]')].flatMap(a => { const rt = a.textContent?.trim(); if (!rt) return []; const [pf, pc] = Object.entries(pm).find(([p]) => rt.toLowerCase().startsWith(p)) ?? [null, null]; const cat = pc ?? 'general'; const name = pf ? rt.substring(pf.length) : rt; const cn = u.cln(name); const low = cn.toLowerCase(); return (cn && !K_NAMES.has(low) && low !== cat) ? [{ name: cn, category: cat }] : [] }), ...( (an => an && !K_NAMES.has(an.toLowerCase()) ? [{ name: an, category: 'copyright' as TagCategory }] : [])(u.cln(d.querySelector('div#tag_list > ul')?.innerHTML?.match(/By:\s*([^<\n\r]+)/i)?.[1]?.trim() ?? '')) )]), imageUrl: u.img(d, '#image, #gelcomVideoPlayer source'), title: u.tit(d) }) }
 };

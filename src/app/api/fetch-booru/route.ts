@@ -7,7 +7,8 @@ import { JSDOM } from 'jsdom';
 import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/utils/extractionUtils';
 
 const FETCH_TIMEOUT = 25000;
-const USER_AGENT = 'BooruTagExtractor/1.1 (Server-Side Processor; +http://localhost/)';
+// Use a mainstream browser UA to avoid simple blocks
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -119,9 +120,69 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: `Extraction failed: ${specificError}`, status: 422 }, { status: 422, headers: CORS_HEADERS });
             }
 
-            const result: ExtractionResult = site.extractTags(doc);
-            const totalTagCount = calculateTotalTags(result.tags || {});
-            const imageUrl = result.imageUrl;
+            let result: ExtractionResult = site.extractTags(doc);
+            let totalTagCount = calculateTotalTags(result.tags || {});
+            let imageUrl = result.imageUrl;
+
+            // Pixiv fallback: use JSON API if HTML didn't yield data
+            const needsBetterPixivImage = (() => {
+                if (site.name !== 'Pixiv') return false;
+                if (!imageUrl) return true;
+                try {
+                    const u = new URL(imageUrl);
+                    const isPximg = /(^|\.)i\.pximg\.net$/i.test(u.hostname);
+                    const isEmbed = /(^|\.)embed\.pixiv\.net$/i.test(u.hostname) || /artwork\.php$/i.test(u.pathname);
+                    const isOgp = /\/ogp\//i.test(u.pathname) || /decorate\.php$/i.test(u.pathname);
+                    const hasImageExt = /\.(jpg|jpeg|png|gif|webp)$/i.test(u.pathname);
+                    return !isPximg || isEmbed || isOgp || !hasImageExt;
+                } catch { return true; }
+            })();
+
+            if (site.name === 'Pixiv' && (totalTagCount === 0 || needsBetterPixivImage)) {
+                const illustId = new URL(targetUrl).pathname.match(/\/(\d+)$/)?.[1];
+                if (illustId) {
+                    try {
+                        const controllerJson = new AbortController();
+                        const timeoutJson = setTimeout(() => controllerJson.abort(), 10000);
+                        const jsonResp = await fetch(`https://www.pixiv.net/ajax/illust/${illustId}?lang=en`, {
+                            headers: {
+                                'User-Agent': USER_AGENT,
+                                'Accept': 'application/json,text/plain,*/*',
+                                'Referer': 'https://www.pixiv.net/',
+                            },
+                            cache: 'no-store',
+                            signal: controllerJson.signal
+                        });
+                        clearTimeout(timeoutJson);
+                        if (jsonResp.ok) {
+                            type PixivAjaxTag = { tag: string; translation?: { en?: string } };
+                            type PixivAjaxBody = { illustTitle?: string; userName?: string; urls?: { original?: string; regular?: string; small?: string }; tags?: { tags?: PixivAjaxTag[] } };
+                            type PixivAjaxResponse = { body?: PixivAjaxBody };
+                            const j: PixivAjaxResponse | null = await jsonResp.json().catch(() => null);
+                            const body = j?.body;
+                            if (body) {
+                                const tags = (body.tags?.tags ?? []).map((t: PixivAjaxTag) => ({ name: (t?.translation?.en ?? t?.tag ?? '').toString().trim(), category: 'general' as TagCategory })).filter(t => t.name);
+                                const urls = body.urls || {};
+                                const originalUrl: string | undefined = urls.original ?? urls.regular ?? urls.small ?? undefined;
+                                const title = body.illustTitle as string | undefined;
+                                const userName = body.userName as string | undefined;
+                                const composedTitle = (title && userName) ? `${title} by ${userName}` : title;
+                                const grouped = Object.keys(result.tags || {}).length > 0 ? result.tags : (tags.length ? { general: tags.map(t => t.name) } : {});
+                                const preferPximg = (u?: string) => {
+                                    if (!u) return false;
+                                    try { return /(^|\.)i\.pximg\.net$/i.test(new URL(u).hostname); } catch { return false; }
+                                };
+                                const finalImage = preferPximg(originalUrl) ? originalUrl : (imageUrl || originalUrl);
+                                if (finalImage || calculateTotalTags(grouped) > 0) {
+                                    result = { tags: grouped, imageUrl: finalImage, title: composedTitle || result.title };
+                                    totalTagCount = calculateTotalTags(result.tags || {});
+                                    imageUrl = result.imageUrl;
+                                }
+                            }
+                        }
+                    } catch { /* ignore JSON fallback errors */ }
+                }
+            }
 
             if (totalTagCount === 0 && !imageUrl) {
                 return NextResponse.json({ error: `Warning: No tags or image found on ${site.name}. Page structure might have changed, post is unavailable, or requires login.`, siteName: site.name, tags: {}, imageUrl: undefined, title: undefined, status: 200 }, { status: 200, headers: CORS_HEADERS });
@@ -163,7 +224,8 @@ export async function GET(req: NextRequest) {
             headers: {
                 'User-Agent': USER_AGENT,
                 'Accept': 'image/*,video/*',
-                'Referer': new URL(imageUrl).origin + '/',
+                // Pixiv images (i.pximg.net) require a pixiv.net referer
+                'Referer': (() => { try { const u = new URL(imageUrl); return /(^|\.)i\.pximg\.net$/i.test(u.hostname) ? 'https://www.pixiv.net/' : (u.origin + '/'); } catch { return 'https://www.pixiv.net/'; } })(),
             },
             cache: 'force-cache',
             signal: controller.signal

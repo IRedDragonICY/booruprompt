@@ -17,8 +17,8 @@ const siteConfig = {
     name: "Booru Tag Extractor",
     description:
         "Easily extract and manage tags from popular booru image board posts (Danbooru, Gelbooru, Safebooru, Rule34, e621). Copy tags, filter by category, and view image previews.",
-    url: "https://booru-tag-extractor.vercel.app",
-    ogImage: "https://booru-tag-extractor.vercel.app/og-image.png",
+    url: "https://booruprompt.vercel.app",
+    ogImage: "https://booruprompt.vercel.app/og-image.png",
     author: "IRedDragonICY",
     keywords: [
         "booru",
@@ -76,13 +76,14 @@ export const metadata: Metadata = {
         creator: `@${siteConfig.author}`,
     },
 
-icons: {
+ icons: {
     icon: [
         { url: "/icon.svg", type: "image/svg+xml" },
     ],
     shortcut: "/icon.svg",
     apple: "/icon.svg",
 },
+    manifest: '/manifest.webmanifest',
 
     robots: {
         index: true,
@@ -98,6 +99,10 @@ icons: {
 
     applicationName: siteConfig.name,
     referrer: "origin-when-cross-origin",
+    alternates: { canonical: '/' },
+    other: {
+        'google-site-verification': 'SeU7j1p_RghwijQK39HcGyU9L5su7-xhodHrPXhE2Xs'
+    }
 };
 
 export const viewport: Viewport = {

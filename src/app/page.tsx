@@ -14,11 +14,16 @@ import {
 } from './components/icons/icons';
 import { TooltipWrapper } from './components/TooltipWrapper';
 import { ImagePreview } from './components/ImagePreview';
+import ExtractorHeader from './components/ExtractorHeader';
+import FilteredTagsPanel from './components/FilteredTagsPanel';
+import PreviewSection from './components/PreviewSection';
 import CategoryToggle from './components/CategoryToggle';
 import { StatusMessage } from './components/StatusMessage';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { DesktopSideNav } from './components/DesktopSideNav';
+import { HistoryItem as HistoryItemComponent } from './components/HistoryList';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
 import type { ImageMetadata } from './utils/imageMetadata';
 import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
@@ -89,32 +94,7 @@ const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>>): numbe
 
 const MotionCard = motion.div;
 
-const HistoryItem = React.memo(({ entry, onLoad, onDelete, enableImagePreviews }: HistoryItemProps) => {
-    const [showPlaceholder, setShowPlaceholder] = useState(!enableImagePreviews);
-    const formattedDate = useMemo(() => new Date(entry.timestamp).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }), [entry.timestamp]);
-    const totalTags = useMemo(() => calculateTotalTags(entry.tags), [entry.tags]);
-    const proxiedImageUrl = useMemo(() => entry.imageUrl && enableImagePreviews ? `${API_ROUTE_URL}?imageUrl=${encodeURIComponent(entry.imageUrl)}` : undefined, [entry.imageUrl, enableImagePreviews]);
-
-    useEffect(() => { setShowPlaceholder(!proxiedImageUrl); }, [proxiedImageUrl]);
-    const handleError = useCallback(() => setShowPlaceholder(true), []);
-    const handleLoadSuccess = useCallback(() => setShowPlaceholder(false), []);
-    const handleLoadClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onLoad(entry); }, [onLoad, entry]);
-    const handleDeleteClick = useCallback((e: React.MouseEvent) => { e.stopPropagation(); onDelete(entry.id); }, [onDelete, entry.id]);
-
-    return (
-        <motion.div layout initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }} className="flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 transition-colors hover:bg-[rgb(var(--color-surface-border-rgb))]">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center">
-                {proxiedImageUrl && !showPlaceholder ? (<Image src={proxiedImageUrl} alt="preview" width={40} height={40} unoptimized className="h-full w-full object-cover" onError={handleError} onLoad={handleLoadSuccess}/>) : (<AnimatedIcon animation="gentle"><PhotoIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" /></AnimatedIcon>)}
-            </div>
-            <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]" title={entry.title || entry.url}>{entry.title || new URL(entry.url).pathname.split('/').pop() || entry.url}</p>
-                <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{entry.siteName ? `${entry.siteName} • ` : ''}{formattedDate} • {totalTags} {totalTags === 1 ? 'tag' : 'tags'}</p>
-            </div>
-            <TooltipWrapper tipContent="Load Entry"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleLoadClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-primary-rgb))]" aria-label="Load this history entry"><AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon /></AnimatedIcon></motion.button></TooltipWrapper>
-            <TooltipWrapper tipContent="Delete Entry"><motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)', transition: { duration: 0.1 } }} onClick={handleDeleteClick} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition-colors hover:text-[rgb(var(--color-error-rgb))]" aria-label="Delete this history entry"><AnimatedIcon animation="gentle"><TrashIcon /></AnimatedIcon></motion.button></TooltipWrapper>
-        </motion.div>
-    );
-});
+const HistoryItem = React.memo(HistoryItemComponent);
 HistoryItem.displayName = 'HistoryItem';
 
 const ImageHistoryItem = React.memo(({ entry, onLoad, onDelete }: ImageHistoryItemProps) => {
@@ -610,29 +590,7 @@ const BooruTagExtractor = () => {
     return (
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             <div className="flex items-start md:flex-row flex-col mx-auto relative">
-                <div className="hidden md:block flex-shrink-0 md:mr-4 md:mb-0 z-20 md:self-start">
-                    <div className="flex md:flex-col flex-row md:space-y-2 space-y-0 space-x-2 md:space-x-0 rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 shadow-xl">
-                         <TooltipWrapper tipContent="Tag Extractor">
-                             <motion.button whileTap={{ scale: 0.96 }} onClick={() => setActiveView('extractor')} className={navButtonClass(activeView === 'extractor')} aria-label="Tag Extractor" aria-current={activeView === 'extractor' ? 'page' : undefined}>
-                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                                 <TagIcon/>
-                             </motion.button>
-                         </TooltipWrapper>
-                         <TooltipWrapper tipContent="Image Metadata">
-                             <motion.button whileTap={{ scale: 0.96 }} onClick={() => setActiveView('image')} className={navButtonClass(activeView === 'image')} aria-label="Image Metadata" aria-current={activeView === 'image' ? 'page' : undefined}>
-                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                                 <PhotoIcon className="h-6 w-6"/>
-                             </motion.button>
-                         </TooltipWrapper>
-                         <div className="hidden md:block my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
-                         <TooltipWrapper tipContent="Settings">
-                             <motion.button whileTap={{ scale: 0.96 }} onClick={handleOpenSettings} className={navButtonClass(showSettings)} aria-label="Settings">
-                                 <span className="pointer-events-none absolute inset-0 rounded-2xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                                 <CogIcon/>
-                             </motion.button>
-                         </TooltipWrapper>
-                     </div>
-                 </div>
+                <DesktopSideNav active={activeView} highlightSettings={showSettings} onSelectExtractor={() => setActiveView('extractor')} onSelectImage={() => setActiveView('image')} onOpenSettings={handleOpenSettings} />
                  <div className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] pb-20 md:pb-0" onDragOver={activeView === 'extractor' ? handleDragOver : handleImageDragOver} onDragLeave={activeView === 'extractor' ? handleDragLeave : handleImageDragLeave} onDrop={activeView === 'extractor' ? handleDrop : handleImageDrop}>
                     <AnimatePresence>
                         {isDraggingOver && activeView === 'extractor' && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed border-[rgb(var(--color-primary-rgb))] bg-[rgb(var(--color-primary-rgb))]/20 backdrop-blur-xs"><div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm"><ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8"/><p className="font-semibold">Drop URL</p></div></motion.div>)}
@@ -641,14 +599,7 @@ const BooruTagExtractor = () => {
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
                             <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
-                                <div className="shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                    <h1 className="text-xl font-semibold sm:text-2xl">Booru Tag Extractor</h1>
-                                    <div className="mt-2"><span className="mr-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Supports:</span>{BOORU_SITES.map(s => <span key={s.name} className={`mb-1.5 mr-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 ${ activeSite === s.name ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] dark:bg-[rgb(var(--color-primary-rgb))]/20' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{s.name}</span>)}</div>
-                                    <div className="mt-4"><label htmlFor="url" className="mb-1.5 block text-sm font-medium">Booru Post URL</label><input id="url" type="url" className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="Paste URL or Drag & Drop..." value={url} onChange={handleUrlChange} aria-label="Booru Post URL"/></div>
-                                    <div className="mt-4 flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleManualExtract} disabled={loading || !url.trim()} className="flex-1 inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Extract Tags">{loading ? <LoadingSpinner /> : 'Extract Manually'}</motion.button>
-                                        <TooltipWrapper tipContent="Clear"><motion.button whileTap={{ scale: 0.97 }} onClick={handleReset} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 font-semibold transition hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Reset"><motion.span whileTap={{ rotate: -90 }} whileHover={{ rotate: -15 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="mr-2 inline-block"><ArrowPathIcon/></motion.span>Reset</motion.button></TooltipWrapper>
-                  </div>
+                                <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
                   {/* Mobile bottom navigation */}
                   {isMobile && (
                     <MobileBottomNav
@@ -659,13 +610,13 @@ const BooruTagExtractor = () => {
                       highlightSettings={showSettings}
                     />
                   )}
-            </div>
+            
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
                                         {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
-                                    {shouldShowPreviewSection && <div className="space-y-2"><h3 className="text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Preview</h3><ImagePreview originalUrl={imageUrl} title={imageTitle} isLoading={loading && !imageUrl && !error} enableImagePreviews={settings.enableImagePreviews}/></div>}
+                                    <PreviewSection title="Preview" show={!!shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
 
                                     <AnimatePresence>
                                         {!loading && hasResults && totalExtractedTagCount > 0 && (
@@ -686,45 +637,7 @@ const BooruTagExtractor = () => {
 
                                 <AnimatePresence>
                                     {!loading && hasResults && totalExtractedTagCount > 0 && (
-                                        <motion.div
-                                            className="shrink-0 bg-[rgb(var(--color-surface-alt-rgb))] border-t border-[rgb(var(--color-surface-border-rgb))] p-4 shadow-top-md z-10"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 20 }}
-                                            transition={{ duration: 0.2, ease: "easeOut" }}
-                                        >
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <label htmlFor="tags" className="mb-1.5 block text-sm font-medium">Filtered Tags ({displayedTags ? displayedTags.split(',').filter(t=>t.trim()).length : 0})</label>
-                                                    <textarea
-                                                        id="tags"
-                                                        rows={isMobile ? 3 : 2}
-                                                        className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
-                                                        readOnly
-                                                        value={displayedTags || "No tags to display."}
-                                                        aria-label="Filtered tags"
-                                                    />
-                                                </div>
-                                                <motion.button
-                                                    whileTap={{ scale: 0.97 }}
-                                                    onClick={handleCopy}
-                                                    disabled={!displayedTags || copySuccess}
-                                                    className={`w-full inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold shadow-xs transition-all duration-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:shadow-none focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${copySuccess ? 'cursor-default bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))] focus-visible:ring-[rgb(var(--color-success-rgb))] disabled:opacity-100' : 'bg-[rgb(var(--color-on-surface-rgb))] text-[rgb(var(--color-surface-rgb))] hover:opacity-90 focus-visible:ring-[rgb(var(--color-on-surface-muted-rgb))] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[rgb(var(--color-surface-alt-rgb))]'}`}
-                                                    aria-label={copySuccess ? "Copied" : "Copy Tags"}
-                                                >
-                                                    <motion.div className="inline-flex items-center justify-center overflow-hidden w-5 h-5">
-                                                        <AnimatePresence mode="popLayout" initial={false}>
-                                                            {copySuccess ? (
-                                                                <motion.span key="check" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><CheckCircleIcon/></motion.span>
-                                                            ) : (
-                                                                <motion.span key="clip" initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }} transition={{ duration: 0.2 }} className="flex items-center"><ClipboardIcon/></motion.span>
-                                                            )}
-                                                        </AnimatePresence>
-                                                    </motion.div>
-                                                    <span className="ml-2">{copySuccess ? 'Copied!' : 'Copy Tags'}</span>
-                                                </motion.button>
-                                            </div>
-                                        </motion.div>
+                                        <FilteredTagsPanel displayedTags={displayedTags} isMobile={isMobile} onCopy={handleCopy} copySuccess={copySuccess} />
                                     )}
                                 </AnimatePresence>
 

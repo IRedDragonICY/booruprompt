@@ -144,7 +144,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                <motion.div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
                     <motion.div className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden" initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.98, opacity: 0 }} transition={{ type: "spring", damping: 18, stiffness: 200 }} onClick={(e) => e.stopPropagation()}>
                       <div className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <div className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3" style={{ paddingTop: 'env(safe-area-inset-top)' }}>

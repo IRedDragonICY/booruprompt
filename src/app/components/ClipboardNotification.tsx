@@ -32,7 +32,7 @@ const ClipboardNotification: React.FC<ClipboardNotificationProps> = ({ message, 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 rounded-md bg-gray-800 bg-opacity-80 px-4 py-2 text-sm text-white shadow-lg dark:bg-black dark:bg-opacity-70"
+        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-30 rounded-md bg-gray-800 bg-opacity-80 px-4 py-2 text-sm text-white shadow-lg dark:bg-black dark:bg-opacity-70"
           // Ensure it's above other elements, adjust z-index as needed
         >
           {message}
