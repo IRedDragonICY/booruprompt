@@ -142,12 +142,12 @@ The extractor currently supports these sites and post formats:
 ## Architecture at a Glance
 
 ```mermaid
-flowchart LR
-  A[Browser UI] -->|POST /api/fetch-booru| B[Next.js API (Node)]
-  B -->|fetch target HTML with UA + referer| C[Target Booru Site]
-  B -->|extract tags + image + title| D[JSON Response]
-  A -->|GET /api/fetch-booru?imageUrl=...| B
-  B -->|stream image/video with cache headers| A
+graph LR;
+  A[Browser UI] -->|POST extract| B[Next API];
+  B -->|Fetch HTML with UA and Referer| C[Target Site];
+  B -->|Extract tags, image, title| D[JSON Response];
+  A -->|GET image proxy| B;
+  B -->|Stream media with cache| A;
 ```
 
 ## API
