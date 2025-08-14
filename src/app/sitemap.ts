@@ -1,5 +1,9 @@
 import type { MetadataRoute } from 'next';
 
+// Ensure static generation for Next.js `output: export`
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 24h
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://booruprompt.vercel.app';
   const now = new Date().toISOString();
