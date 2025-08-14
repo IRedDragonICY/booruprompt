@@ -2,9 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TagIcon, PhotoIcon, CogIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
+import type { ActiveView } from '../types/settings';
 
 interface DesktopSideNavProps {
-    active: 'extractor' | 'image';
+    active: ActiveView;
     highlightSettings?: boolean;
     onSelectExtractor: () => void;
     onSelectImage: () => void;
