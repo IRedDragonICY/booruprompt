@@ -1,264 +1,290 @@
 
 <div align="center">
-  <img src="./public/icon.svg" alt="Booru Tag Extractor" width="120" height="120">
-  
-  <h1>Booru Tag Extractor</h1>
-  
+  <img src="./public/icon.svg" alt="BooruPrompt App Icon" width="120" height="120">
+
+  <h1>BooruPrompt — Booru Tag Extractor & Image Metadata Toolkit</h1>
+
   <p>
-    <b>Effortlessly extract, categorize, and copy tags from your favorite booru sites</b>
+    <b>Extract, categorize, filter, and copy tags from popular booru sites — fast, accurate, and delightful.</b>
   </p>
-  
-  <div>
-    <a href="https://github.com/IRedDragonICY/booruprompt/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
-    <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-14+-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js"></a>
-    <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React"></a>
-    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
-    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
-    <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white" alt="Framer Motion"></a>
-  </div>
-  
-  <br/>
-  
-  <div>
-    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20Status-Active-brightgreen?style=for-the-badge" alt="Status">
-  </div>
+
+  <p>
+    <a href="https://booruprompt.vercel.app"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-Visit-1f6feb?style=for-the-badge&logo=vercel&logoColor=white"></a>
+    <a href="https://github.com/IRedDragonICY/booruprompt"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repository-24292e?style=for-the-badge&logo=github&logoColor=white"></a>
+    <a href="https://github.com/IRedDragonICY/booruprompt/issues"><img alt="Issues" src="https://img.shields.io/badge/Issues-Track-238636?style=for-the-badge&logo=github&logoColor=white"></a>
+  </p>
+
+  <p>
+    <a href="https://github.com/IRedDragonICY/booruprompt/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square"></a>
+    <img alt="Status" src="https://img.shields.io/badge/Status-Active-success.svg?style=flat-square">
+    <img alt="Platforms" src="https://img.shields.io/badge/Platforms-Web%20·%20Desktop%20(Tauri)%20·%20Android-0ea5e9.svg?style=flat-square">
+  </p>
+
+  <p>
+    <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js&logoColor=white">
+    <img alt="React" src="https://img.shields.io/badge/React-19-149eca?style=flat-square&logo=react&logoColor=white">
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white">
+    <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white">
+    <img alt="Framer Motion" src="https://img.shields.io/badge/Framer%20Motion-12-0055ff?style=flat-square&logo=framer&logoColor=white">
+    <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-fb923c?style=flat-square&logo=tauri&logoColor=white">
+  </p>
 </div>
 
 <p align="center">
-  <a href="https://booruprompt.vercel.app"><strong>🚀 Live Demo</strong></a> ·
-  <a href="https://github.com/IRedDragonICY/booruprompt"><strong>📦 GitHub Repo</strong></a> ·
-  <a href="https://github.com/IRedDragonICY/booruprompt/issues">Report Bug</a> ·
-  <a href="https://github.com/IRedDragonICY/booruprompt/issues">Request Feature</a>
+  <img src="https://github.com/user-attachments/assets/f7680d50-595e-4e4e-9375-21b4f7eced81" alt="BooruPrompt Screenshot" width="78%">
+</p>
+
+<p align="center">
+  <a href="#features"><strong>Features</strong></a> ·
+  <a href="#supported-sites"><strong>Supported Sites</strong></a> ·
+  <a href="#api"><strong>API</strong></a> ·
+  <a href="#getting-started"><strong>Getting Started</strong></a> ·
+  <a href="#desktop--android"><strong>Desktop & Android</strong></a> ·
+  <a href="#faq"><strong>FAQ</strong></a>
 </p>
 
 ---
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/f7680d50-595e-4e4e-9375-21b4f7eced81" alt="Booru Tag Extractor Screenshot" width="70%">
-</p>
+## Why BooruPrompt?
 
-Tired of manually selecting and copying tags for your AI prompts or image organization? Booru Tag Extractor streamlines the process. Just paste a post URL, and let the tool handle the rest!
+Designed for creators, curators, and prompt engineers who need reliable tags quickly. Paste a post URL, get clean, categorized tags and a preview — ready to copy into your workflow.
 
-## ✨ Core Features
+## Features
 
-*   **🤖 Automatic Extraction:** Paste a URL, and tags appear automatically (configurable).
-*   **🏷️ Smart Categorization:** Tags are automatically sorted into:
-  *   `Copyright` `Character` `General` `Meta` `Other (Artist, etc.)`
-*   **🎨 Sleek & Modern UI:** Clean interface built with Tailwind CSS and Framer Motion.
-*   **🌓 Dark Mode:** Comfortable viewing in any lighting condition.
-*   **🔍 Intuitive Filtering:** Easily toggle categories to customize your tag list.
-*   **📋 Effortless Copy-Paste:** Copy the filtered, comma-separated tags with a single click.
-*   **📱 Responsive Design:** Looks and works great on desktop, tablet, and mobile.
-*   **🌐 Reliable Fetching:** Uses a CORS proxy (`AllOrigins`) to bypass browser restrictions.
+<table>
+  <tr>
+    <td valign="top" width="25%">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/auto-fix.svg" width="22" height="22" alt="Auto" />
+      <b>Automatic Extraction</b>
+      <br/>
+      Paste a post URL and let the app extract tags instantly (auto/manual modes).
+    </td>
+    <td valign="top" width="25%">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/tag-multiple-outline.svg" width="22" height="22" alt="Tags" />
+      <b>Smart Categorization</b>
+      <br/>
+      Organized into Copyright, Character, General, Meta, and Other.
+    </td>
+    <td valign="top" width="25%">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/filter-variant.svg" width="22" height="22" alt="Filter" />
+      <b>Intuitive Filtering</b>
+      <br/>
+      Toggle categories and blacklist unwanted keywords.
+    </td>
+    <td valign="top" width="25%">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/content-copy.svg" width="22" height="22" alt="Copy" />
+      <b>One‑Click Copy</b>
+      <br/>
+      Copy clean, comma‑separated tags in one click or via keyboard.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/monitor-cellphone.svg" width="22" height="22" alt="Responsive" />
+      <b>Responsive UI</b>
+      <br/>
+      Optimized for desktop, tablet, and mobile — fluid and fast.
+    </td>
+    <td valign="top">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/theme-light-dark.svg" width="22" height="22" alt="Theme" />
+      <b>Dark Mode & Themes</b>
+      <br/>
+      System/dark mode plus color theme customization.
+    </td>
+    <td valign="top">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/file-document-outline.svg" width="22" height="22" alt="Metadata" />
+      <b>PNG Metadata</b>
+      <br/>
+      Extract Positive/Negative prompts and parameters from PNG files.
+    </td>
+    <td valign="top">
+      <img src="https://cdn.jsdelivr.net/npm/@mdi/svg/svg/cloud-download-outline.svg" width="22" height="22" alt="Proxy" />
+      <b>Flexible Fetching</b>
+      <br/>
+      Server proxy by default; optional client proxies (AllOrigins, etc.).
+    </td>
+  </tr>
+</table>
+
+### Highlights
+
+- <b>Real‑world resilient</b>: Handles site quirks, timeouts, referers (Pixiv), and fallback flows.
+- <b>History</b>: Optional local history for extractions and image metadata.
+- <b>Privacy‑aware</b>: No analytics; data stays on your device (server proxy only fetches, doesn’t store).
 
 ## Supported Sites
 
-The extractor currently supports fetching data from the following booru-style sites:
+The extractor currently supports these sites and post formats:
 
-| Site Name          | Status    |
-|:-------------------|:----------|
-| Danbooru           | Supported |
+| Site | Status |
+|:--|:--|
+| Danbooru | Supported |
 | Safebooru (Donmai) | Supported |
-| Safebooru (Org)    | Supported |
-| Gelbooru           | Supported |
-| Rule34             | Supported |
-| e621               | Supported |
-| AIBooru            | Supported |
-| Yande.re           | Supported |
-| Konachan           | Supported |
-| Anime-Pictures.net | Supported |
-| Zerochan           | Supported |
-| E-Shuushuu         | Supported |
+| Hijiribe (Donmai) | Supported |
+| Safebooru (Org) | Supported |
+| Gelbooru | Supported |
+| Rule34 | Supported |
+| TBIB | Supported |
+| Scatbooru | Supported |
+| Garycbooru | Supported |
+| e621 | Supported |
+| AIBooru | Supported |
+| Yande.re | Supported |
+| Konachan | Supported |
+| Anime‑Pictures | Supported |
+| Zerochan | Supported |
+| E‑Shuushuu | Supported |
+| Pixiv | Supported (JSON/pximg fallbacks) |
+| Fur Affinity | Supported |
 
-## 🌐 API Usage
+> Tip: You can enable a similarity fallback for some unsupported `donmai.us` subdomains in settings.
 
-This project also exposes server-side API endpoints that act as a proxy to fetch data from booru sites, primarily to overcome CORS limitations in the browser. You can use these endpoints for your own integrations.
+## Architecture at a Glance
 
-**Base URL:** `https://booruprompt.vercel.app/api/fetch-booru`
+```mermaid
+flowchart LR
+  A[Browser UI] -->|POST /api/fetch-booru| B[Next.js API (Node)]
+  B -->|fetch target HTML with UA + referer| C[Target Booru Site]
+  B -->|extract tags + image + title| D[JSON Response]
+  A -->|GET /api/fetch-booru?imageUrl=...| B
+  B -->|stream image/video with cache headers| A
+```
 
-### 1. Fetch Page HTML (POST)
+## API
 
-Fetches the raw HTML content of a given booru post page URL.
+Base URL: `https://booruprompt.vercel.app/api/fetch-booru`
 
-*   **Endpoint:** `/api/fetch-booru`
-*   **Method:** `POST`
-*   **Headers:**
-    *   `Content-Type: application/json`
-*   **Body (JSON):**
-    ```json
-    {
-      "targetUrl": "YOUR_BOORU_POST_URL"
-    }
-    ```
-    *   Replace `YOUR_BOORU_POST_URL` with the actual URL of the booru post (e.g., `https://safebooru.org/index.php?page=post&s=view&id=12345`).
-*   **Success Response (200 OK):**
-    *   `Content-Type: application/json`
-    *   Body:
-        ```json
-        {
-          "html": "<!DOCTYPE html>..." // Raw HTML content of the target page
-        }
-        ```
-*   **Error Response:**
-    *   JSON object with an `error` field and an appropriate HTTP status code (e.g., 400, 502, 504).
-    *   Example (400 Bad Request):
-        ```json
-        { "error": "Invalid target URL provided." }
-        ```
-    *   Example (502 Bad Gateway):
-        ```json
-        { "error": "Failed to fetch page from target site. Status: 404 - Not Found", "status": 404 }
-        ```
-*   **Example (`curl` in PowerShell/Bash):**
-    ```bash
-    # PowerShell requires backticks (`) for line continuation
-    # Bash uses backslashes (\)
-    
-    # PowerShell Example:
-    curl -X POST "https://booruprompt.vercel.app/api/fetch-booru" `
-         -H "Content-Type: application/json" `
-         -d '{"targetUrl": "https://safebooru.org/index.php?page=post&s=list"}'
-    
-    # Bash Example:
-    curl -X POST "https://booruprompt.vercel.app/api/fetch-booru" \
-         -H "Content-Type: application/json" \
-         -d '{"targetUrl": "https://safebooru.org/index.php?page=post&s=list"}'
-    ```
+### 1) Extract From Page (POST)
 
-### 2. Fetch Image (GET)
+- Endpoint: `/api/fetch-booru`
+- Method: `POST`
+- Headers: `Content-Type: application/json`
+- Body:
 
-Fetches and proxies an image from a given URL. This is mainly used by the frontend for previews but can be used as a simple image proxy.
+```json
+{ "targetUrl": "https://safebooru.org/index.php?page=post&s=view&id=12345" }
+```
 
-*   **Endpoint:** `/api/fetch-booru`
-*   **Method:** `GET`
-*   **Query Parameter:**
-    *   `imageUrl`: The URL of the image to fetch. **Important:** Ensure this URL is properly URL-encoded if it contains special characters like `&`, `?`, etc.
-*   **Success Response (200 OK):**
-    *   Headers: Includes `Content-Type` (e.g., `image/jpeg`) and `Cache-Control` from the upstream source (or a default).
-    *   Body: The raw image data.
-*   **Error Response:**
-    *   Plain text error message with an appropriate HTTP status code (e.g., 400, 502, 504).
-*   **Example (`curl`):**
-    ```bash
-    # Fetches the image and saves it as output.jpg
-    # Replace YOUR_IMAGE_URL with the actual, URL-encoded image URL
-    curl "https://booruprompt.vercel.app/api/fetch-booru?imageUrl=YOUR_IMAGE_URL" -o output.jpg
-    
-    # Example with a (simplified) URL - real URLs might need encoding
-    curl "https://booruprompt.vercel.app/api/fetch-booru?imageUrl=https%3A%2F%2Fsafebooru.org%2Fimages%2F4699%2Ff7b8d9...sample.jpg" -o sample_image.jpg
-    ```
+- Success 200:
 
-**Notes:**
+```json
+{ "siteName": "Gelbooru", "tags": { "general": ["1girl", "smile"], "character": ["..." ] }, "imageUrl": "https://...jpg", "title": "..." }
+```
 
-*   The API uses a specific `User-Agent`: `BooruTagExtractor/1.1 (Server-Side Proxy; +http://localhost/)`.
-*   Requests have a timeout of 25 seconds.
-*   Please use this API responsibly. It relies on the Vercel Hobby plan infrastructure.
+- Errors: `400 | 422 | 502 | 504` with `{ error, status }` message.
 
-## 🚀 Getting Started
+### 2) Proxy Image (GET)
 
-Get the project up and running on your local machine.
+- Endpoint: `/api/fetch-booru?imageUrl=...` (URL‑encode the value)
+- Returns raw image/video with `Content-Type` and `Cache-Control` preserved.
 
-### Prerequisites
+Notes:
+- Uses a mainstream browser User‑Agent and sets `Referer` for `i.pximg.net` (Pixiv).
+- Request timeout: 25s.
 
-*   [Node.js](https://nodejs.org/) (v18.x or newer recommended)
-*   [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
+#### Curl Examples
 
-### Installation
+```bash
+# POST: extract page
+curl -X POST "https://booruprompt.vercel.app/api/fetch-booru" \
+  -H "Content-Type: application/json" \
+  -d '{"targetUrl":"https://gelbooru.com/index.php?page=post&s=view&id=123"}'
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/IRedDragonICY/booruprompt.git
-    cd booruprompt
-    ```
+# GET: proxy image
+curl "https://booruprompt.vercel.app/api/fetch-booru?imageUrl=https%3A%2F%2Fe621.net%2Fdata%2F...jpg" -o out.jpg
+```
 
-2.  **Install dependencies:**
-    ```bash
-    # Using npm
-    npm install
+## Getting Started
 
-    # Using yarn
-    # yarn install
+Prerequisites: Node.js ≥ 18
 
-    # Using pnpm
-    # pnpm install
-    ```
+```bash
+git clone https://github.com/IRedDragonICY/booruprompt.git
+cd booruprompt
+npm install
+npm run dev
+```
 
-3.  **Run the development server:**
-    ```bash
-    # Using npm
-    npm run dev
+Open `http://localhost:3000`.
 
-    # Using yarn
-    # yarn dev
+### Usage
 
-    # Using pnpm
-    # pnpm dev
-    ```
+1. Paste a booru post URL (e.g. `https://danbooru.donmai.us/posts/123456`).
+2. Auto‑extract will run (or click Extract Manually).
+3. Toggle categories and optional blacklist.
+4. Copy tags.
 
-4.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+Keyboard: `Ctrl/Cmd + C` copies filtered tags when the extractor view is active.
 
-## 🕹️ How to Use
+## Desktop & Android
 
-1.  **Paste URL:** Copy a direct link to a post page from a supported booru site (e.g., `https://danbooru.donmai.us/posts/123456`) and paste it into the input field.
-2.  **Wait (or Click):**
-  *   If *Automatic Extraction* is enabled (default), tags and a preview should load shortly after pasting.
-  *   Otherwise, click the **"Extract Manually"** button.
-3.  **Filter (Optional):** Use the category toggles below the preview to show/hide specific tag types. The tag count updates dynamically.
-4.  **Copy:** Click the **"Copy Tags"** button to copy the currently displayed, comma-separated tags to your clipboard.
+This project ships with a Tauri app configuration and Android tooling.
 
-## 💻 Tech Stack
+### Desktop (Tauri)
 
-*   **[Next.js](https://nextjs.org/)**: React framework for production.
-*   **[React](https://react.dev/)**: Library for building user interfaces.
-*   **[TypeScript](https://www.typescriptlang.org/)**: Typed superset of JavaScript.
-*   **[Tailwind CSS](https://tailwindcss.com/)**: Utility-first CSS framework.
-*   **[Framer Motion](https://www.framer.com/motion/)**: Animation library for React.
-*   **DOMParser API**: Native browser API for parsing HTML fetched via proxy.
+```bash
+# Dev (opens a desktop window pointing to localhost)
+npm run tauri:dev
 
-## 🛠️ Development
+# Production build (bundles app installers)
+npm run tauri:build
+```
 
-This project uses the standard Next.js App Router structure.
+Static export helper used by Tauri:
 
-### Available Scripts
+```bash
+npm run tauri:export
+```
 
-*   `dev`: Starts the development server (usually on `localhost:3000`).
-*   `build`: Creates a production-ready build.
-*   `start`: Runs the production build.
-*   `lint`: Lints the codebase using ESLint.
+### Android (Experimental)
 
-## 🤝 Contributing
+```bash
+# One‑time setup
+npm run android:init
 
-Contributions make the open-source community amazing! Any contributions you make are **greatly appreciated**.
+# Run on device / emulator
+npm run android:dev
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+# Build APK/AAB (debug)
+npm run android:build
+```
 
-Please ensure your code adheres to the project's linting rules and includes updates to documentation if necessary.
+## Tech Stack
 
-## 📄 License
+- Next.js 15 (App Router), React 19, TypeScript 5
+- Tailwind CSS 4, Framer Motion 12
+- Tauri 2 for desktop bundling
 
-Distributed under the MIT License. See `LICENSE` file for more information.
+## SEO — Keywords
 
-## 📬 Contact
+booru tag extractor, danbooru tags, gelbooru tags, e621 tags, pixiv tags, rule34 tags, booru prompt generator, copy booru tags, booru tag parser, tag categorization, booru proxy api, anime tags extractor, ai prompt tags, image metadata prompt extractor
 
-IRedDragonICY - [@IRedDragonICY](https://x.com/ireddragonicy)
+## FAQ
 
-Project Link: [https://github.com/IRedDragonICY/booruprompt](https://github.com/IRedDragonICY/booruprompt)
+- <b>Why do some pages fail?</b> Some sites require login, use anti‑bot protections (e.g., Cloudflare), or return empty HTML via proxies.
+- <b>Is my data stored?</b> No server‑side storage. Optional local history is stored in your browser only.
+- <b>Pixiv images don’t load?</b> The proxy sets a Pixiv `Referer` and prefers `i.pximg.net`. See API image proxy notes.
 
-File bugs or suggest features via [GitHub Issues](https://github.com/IRedDragonICY/booruprompt/issues).
+## Contributing
 
-## 🙏 Acknowledgements
+Issues and PRs are welcome. Please follow the linting rules and update documentation where relevant.
 
-*   The teams behind the amazing **Booru websites**.
-*   **[AllOrigins](https://allorigins.win/)** for the reliable CORS proxy service.
-*   **[Vercel](https://vercel.com/)** for seamless hosting.
-*   All the **open-source libraries and tools** that made this project possible.
+1. Fork → 2. Feature branch → 3. Commit → 4. PR
+
+## License
+
+MIT — see `LICENSE`.
+
+## Star History
+
+<a href="https://star-history.com/#IRedDragonICY/booruprompt"><img src="https://api.star-history.com/svg?repos=IRedDragonICY/booruprompt&type=Date" alt="Star History Chart" width="600" /></a>
 
 ---
 
-<p align="center">
-  Made with <span style="color: #e25555;">♥</span> by <a href="https://github.com/IRedDragonICY">IRedDragonICY</a>
+<p align="center" style="opacity:.9">
+  Built by <a href="https://github.com/IRedDragonICY">IRedDragonICY</a>
+  •
+  Hosted on <a href="https://vercel.com">Vercel</a>
+  •
+  Desktop by <a href="https://tauri.app">Tauri</a>
 </p>
