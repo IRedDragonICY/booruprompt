@@ -49,7 +49,7 @@ export function DesktopAppShell({
         : { onDragOver: onImageDragOver, onDragLeave: onImageDragLeave, onDrop: onImageDrop };
 
     return (
-        <div className="flex items-start md:flex-row flex-col mx-auto relative">
+        <div className="flex items-start h-screen w-full mx-auto relative">
             <DesktopSideNav
                 active={active}
                 highlightSettings={highlightSettings}
@@ -59,7 +59,7 @@ export function DesktopAppShell({
             />
 
             <div
-                className="relative z-10 flex w-full max-w-xl flex-col overflow-hidden pb-0"
+                className="relative z-10 flex w-full flex-col overflow-hidden h-full"
                 {...dragHandlers}
             >
                 <AnimatePresence>

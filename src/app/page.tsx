@@ -579,7 +579,7 @@ const BooruTagExtractor = () => {
     }, [settings.maxHistorySize]);
 
     return (
-        <div className="flex min-h-screen items-start md:items-center justify-center p-4 sm:p-6 bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
+        <div className="flex h-screen items-start justify-center bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
             {isMobile ? (
                 <MobileAppShell
                     active={activeView}
@@ -598,7 +598,7 @@ const BooruTagExtractor = () => {
                 >
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
-                            <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                            <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
                                  <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
@@ -623,11 +623,22 @@ const BooruTagExtractor = () => {
                                     )}
                                 </div>
                                 {isMobile && (
-                                  <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'calc(var(--mobile-nav-height, 56px))' }}>
+                                  <motion.div 
+                                    className="fixed left-0 right-0 z-40 px-0" 
+                                    style={{ bottom: 'calc(var(--mobile-nav-height, 56px))' }}
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+                                  >
                                       <div className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-md">
                                         <div className="mb-2 grid grid-cols-5 gap-2">
                                           {DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; return (
                                             <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${catOpt.label}${count ? ` • ${count}` : ''}`}>
+                                              {count > 0 && (
+                                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[rgb(var(--color-primary-rgb))] text-[9px] font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
+                                                  {count > 99 ? '99+' : count}
+                                                </span>
+                                              )}
                                               <span className="mb-1 grid h-6 w-6 place-items-center rounded-sm" style={{ backgroundColor: active ? `rgba(var(--color-primary-rgb),0.2)` : 'transparent' }}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`h-5 w-5 ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
                                                   {catOpt.id === 'copyright' && (
@@ -672,7 +683,7 @@ const BooruTagExtractor = () => {
                                         <button onClick={handleReset} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]">Reset</button>
                                       </div>
                                     </div>
-                                  </div>
+                                  </motion.div>
                                 )}
                     
                                 {!isMobile && (
@@ -683,7 +694,7 @@ const BooruTagExtractor = () => {
                                 )}
                             </motion.div>
                         ) : activeView === 'image' ? (
-                            <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                            <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
                                  <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
                                     <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">Image Metadata</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent="Clear"><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label="Clear"><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
                                 </div>
@@ -751,31 +762,79 @@ const BooruTagExtractor = () => {
                 >
                     <AnimatePresence mode="wait">
                         {activeView === 'extractor' ? (
-                            <motion.div key="extractor-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                            <motion.div key="extractor-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
-                                <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                                    <AnimatePresence mode='wait'>
-                                        {activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
-                                    </AnimatePresence>
-                                    <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
-                                    <AnimatePresence>
-                                        {!loading && hasResults && totalExtractedTagCount > 0 && (
-                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
-                                                <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
-                                                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
-                                                    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    {settings.saveHistory && history.length > 0 && (<HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />)}
+                                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 overflow-hidden">
+                                    {/* Left Column - Preview and Categories */}
+                                    <div className="space-y-4 overflow-hidden">
+                                        <AnimatePresence mode='wait'>
+                                            {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                        </AnimatePresence>
+                                        <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
+                                        <AnimatePresence>
+                                            {!loading && hasResults && totalExtractedTagCount > 0 && (
+                                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
+                                                    <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3">
+                                                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
+                                                        <div className="grid grid-cols-5 gap-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; return (
+                                                            <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-lg px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40' : 'bg-[rgb(var(--color-surface-alt-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${catOpt.label}${count ? ` • ${count}` : ''}`}>
+                                                                <span className="mb-1 grid h-6 w-6 place-items-center rounded-md" style={{ backgroundColor: active ? `rgba(var(--color-primary-rgb),0.2)` : 'transparent' }}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`h-4 w-4 ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
+                                                                        {catOpt.id === 'copyright' && (
+                                                                            <g>
+                                                                                <rect x="4" y="9" width="10" height="8" rx="2"/>
+                                                                                <rect x="10" y="5" width="10" height="8" rx="2" opacity="0.65"/>
+                                                                            </g>
+                                                                        )}
+                                                                        {catOpt.id === 'character' && <path d="M12 2.25c-2.9 0-5.25 2.35-5.25 5.25S9.1 12.75 12 12.75 17.25 10.4 17.25 7.5 14.9 2.25 12 2.25zm0 12c-3.45 0-6.75 1.77-6.75 4.5V21h13.5v-2.25c0-2.73-3.3-4.5-6.75-4.5z"/>}
+                                                                        {catOpt.id === 'general' && <path d="M4.5 5.25h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5z"/>}
+                                                                        {catOpt.id === 'meta' && <path d="M4.5 6.75A2.25 2.25 0 016.75 4.5h10.5A2.25 2.25 0 0119.5 6.75v10.5A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V6.75zm3 1.5a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zM7.5 12a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zm0 3.75a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z"/>}
+                                                                        {catOpt.id === 'other' && (
+                                                                            <g>
+                                                                                <rect x="4" y="4" width="6" height="6" rx="1.5"/>
+                                                                                <rect x="14" y="4" width="6" height="6" rx="1.5"/>
+                                                                                <rect x="4" y="14" width="6" height="6" rx="1.5"/>
+                                                                                <rect x="14" y="14" width="6" height="6" rx="1.5"/>
+                                                                            </g>
+                                                                        )}
+                                                                    </svg>
+                                                                </span>
+                                                                <span className={`text-xs font-medium ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{catOpt.label}</span>
+                                                                {count > 0 && (
+                                                                    <span className={`text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]/70' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
+                                                                        {count}
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        ); })}</div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    
+                                    {/* Right Column - Filtered Tags */}
+                                    <div className="flex flex-col overflow-hidden">
+                                        <AnimatePresence>
+                                            {!loading && hasResults && displayedTags && (
+                                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.4 }} className="h-full">
+                                                    <div className="h-full">
+                                                        <FilteredTagsPanel 
+                                                            displayedTags={displayedTags}
+                                                            isMobile={false}
+                                                            onCopy={handleCopy}
+                                                            copySuccess={copySuccess}
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
                                 </div>
                                 {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
                                 {!isMobile && (
-                                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
-                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
+                                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a> • {settings.fetchMode === 'server' ? 'Server Proxy' : `Client Proxy (${getSelectedProxyLabel()})`} • History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}</p>
                                 </div>
                                 )}
                             </motion.div>
