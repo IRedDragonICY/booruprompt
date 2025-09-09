@@ -834,7 +834,6 @@ const BooruTagExtractor = () => {
                                                     <div className="h-full">
                                                         <FilteredTagsPanel 
                                                             displayedTags={displayedTags}
-                                                            isMobile={false}
                                                             onCopy={handleCopy}
                                                             copySuccess={copySuccess}
                                                         />

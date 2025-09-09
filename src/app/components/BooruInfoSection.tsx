@@ -161,9 +161,9 @@ export function BooruInfoSection() {
             </h3>
             <ol className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] space-y-1 list-decimal list-inside">
               <li>Paste a booru post URL in the field above</li>
-              <li>Click "Extract Manually" or enable auto-extraction in settings</li>
+              <li>Click &quot;Extract Manually&quot; or enable auto-extraction in settings</li>
               <li>Filter tags by category using the toggles below</li>
-              <li>Copy your filtered tags with the "Copy Tags" button</li>
+              <li>Copy your filtered tags with the &quot;Copy Tags&quot; button</li>
             </ol>
           </div>
         </div>

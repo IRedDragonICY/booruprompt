@@ -2,12 +2,11 @@ import React from 'react';
 
 interface FilteredTagsPanelProps {
   displayedTags: string;
-  isMobile: boolean;
   onCopy: () => void;
   copySuccess: boolean;
 }
 
-export const FilteredTagsPanel: React.FC<FilteredTagsPanelProps> = ({ displayedTags, isMobile, onCopy, copySuccess }) => {
+export const FilteredTagsPanel: React.FC<FilteredTagsPanelProps> = ({ displayedTags, onCopy, copySuccess }) => {
   return (
     <div className="flex flex-col h-full bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg p-3 shadow-sm">
       <div className="flex flex-col h-full space-y-2">
