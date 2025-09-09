@@ -17,6 +17,7 @@ import ExtractorHeader from './components/ExtractorHeader';
 import FilteredTagsPanel from './components/FilteredTagsPanel';
 import PreviewSection from './components/PreviewSection';
 import CategoryToggle from './components/CategoryToggle';
+import BooruInfoSection from './components/BooruInfoSection';
 import { StatusMessage } from './components/StatusMessage';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
@@ -605,6 +606,7 @@ const BooruTagExtractor = () => {
                                         {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
                                         {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
+                                    {isMobile && !loading && !hasResults && <BooruInfoSection />}
                                     <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                     {!isMobile && (
                     <AnimatePresence>
@@ -764,14 +766,25 @@ const BooruTagExtractor = () => {
                         {activeView === 'extractor' ? (
                             <motion.div key="extractor-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
-                                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 overflow-hidden">
-                                    {/* Left Column - Preview and Categories */}
-                                    <div className="space-y-4 overflow-hidden">
-                                        <AnimatePresence mode='wait'>
-                                            {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
-                                        </AnimatePresence>
-                                        <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
-                                        <AnimatePresence>
+                                <div className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
+                                    {/* Info Section - Full Width */}
+                                    {!loading && !hasResults && (
+                                        <div className="flex justify-center">
+                                            <div className="w-full max-w-4xl">
+                                                <BooruInfoSection />
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Two Column Layout */}
+                                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
+                                        {/* Left Column - Preview and Categories */}
+                                        <div className="space-y-4 overflow-hidden">
+                                            <AnimatePresence mode='wait'>
+                                                {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                            </AnimatePresence>
+                                            <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
+                                            <AnimatePresence>
                                             {!loading && hasResults && totalExtractedTagCount > 0 && (
                                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                                     <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3">
@@ -810,8 +823,8 @@ const BooruTagExtractor = () => {
                                                     </div>
                                                 </motion.div>
                                             )}
-                                        </AnimatePresence>
-                                    </div>
+                                            </AnimatePresence>
+                                        </div>
                                     
                                     {/* Right Column - Filtered Tags */}
                                     <div className="flex flex-col overflow-hidden">
@@ -830,6 +843,7 @@ const BooruTagExtractor = () => {
                                             )}
                                         </AnimatePresence>
                                     </div>
+                                </div>
                                 </div>
                                 {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
                                 {!isMobile && (
