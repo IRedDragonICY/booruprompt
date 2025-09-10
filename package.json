@@ -13,7 +13,8 @@
     "tauri:export": "node scripts/tauri-export.mjs",
     "android:init": "tauri android init --ci",
     "android:dev": "tauri android dev",
-    "android:build": "TAURI_CLI_NO_SERVER=1 tauri android build --debug"
+    "android:build": "TAURI_CLI_NO_SERVER=1 tauri android build --debug",
+    "test:fetch": "node scripts/test-fetch.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.7.0",
