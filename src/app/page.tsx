@@ -735,7 +735,7 @@ const BooruTagExtractor = () => {
                                         )}
                                         {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
-                                    {isMobile && !loading && !hasResults && <BooruInfoSection />}
+                                    {isMobile && !loading && !hasResults && !error && <BooruInfoSection />}
                                     <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                     {!isMobile && (
                     <AnimatePresence>
@@ -904,7 +904,7 @@ const BooruTagExtractor = () => {
                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
                                 <div className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
                                     {/* Info Section - Full Width */}
-                                    {!loading && !hasResults && (
+                                    {!loading && !hasResults && !error && (
                                         <div className="flex justify-center">
                                             <div className="w-full max-w-4xl">
                                                 <BooruInfoSection />
