@@ -441,7 +441,7 @@ const BooruTagExtractor = () => {
                 console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
                 setActiveSite(siteName || null);
 
-                // Check if this is a critical error that should show the full error page
+                // Check if this is a critical error that should show the error page
                 const isCriticalError = errorMsg.toLowerCase().includes('bad gateway') ||
                                        errorMsg.toLowerCase().includes('403') ||
                                        errorMsg.toLowerCase().includes('timed out') ||
@@ -525,6 +525,15 @@ const BooruTagExtractor = () => {
 
         window.open(`${githubIssuesUrl}?title=${issueTitle}&body=${issueBody}`, '_blank');
     }, [error, url, settings.fetchMode, retryCount]);
+
+    const handleRetryAgain = useCallback(async () => {
+        // Reset retry count and try again from the beginning
+        setRetryCount(0);
+        setIsRetrying(false);
+        setShowFullErrorPage(false);
+        setError('');
+        await extractTags(url);
+    }, [url, extractTags]);
 
     const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
@@ -703,6 +712,8 @@ const BooruTagExtractor = () => {
                                                 retryCount={retryCount}
                                                 isRetrying={isRetrying}
                                                 onReportBug={handleReportBug}
+                                                onRetryAgain={handleRetryAgain}
+                                                showFullInfo={retryCount >= 3}
                                             />
                                         )}
                                         {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
@@ -896,6 +907,8 @@ const BooruTagExtractor = () => {
                                                         retryCount={retryCount}
                                                         isRetrying={isRetrying}
                                                         onReportBug={handleReportBug}
+                                                        onRetryAgain={handleRetryAgain}
+                                                        showFullInfo={retryCount >= 3}
                                                     />
                                                 )}
                                                 {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
