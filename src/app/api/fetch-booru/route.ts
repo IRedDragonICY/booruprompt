@@ -4,7 +4,7 @@ export const revalidate = 3600;
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { JSDOM } from 'jsdom';
-import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/utils/extractionUtils';
+import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/[locale]/utils/extractionUtils';
 
 const FETCH_TIMEOUT = 25000;
 // Use a mainstream browser UA to avoid simple blocks

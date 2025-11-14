@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// Temporarily disabled for build in sandboxed environment
+// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import { Analytics } from "@vercel/analytics/next";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
+// const geistSans = Geist({
+//     variable: "--font-geist-sans",
+//     subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//     variable: "--font-geist-mono",
+//     subsets: ["latin"],
+// });
 
 const siteConfig = {
     name: "Booru Tag Extractor",
@@ -113,15 +114,22 @@ export const viewport: Viewport = {
     userScalable: true,
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+type Props = {
     children: React.ReactNode;
-}>) {
+    params: Promise<{ locale: string }>;
+};
+
+export default async function RootLayout({
+    children,
+    params,
+}: Readonly<Props>) {
+    const { locale } = await params;
+
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang={locale || 'en'} suppressHydrationWarning>
         <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface text-on-surface`}
+            className="antialiased bg-surface text-on-surface"
+            style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
         >
         {children}
         <Analytics />

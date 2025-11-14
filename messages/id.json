@@ -1,0 +1,254 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "loading": "Memuat...",
+    "processing": "Memproses…",
+    "copy": "Salin",
+    "copied": "Tersalin!",
+    "delete": "Hapus",
+    "cancel": "Batal",
+    "reset": "Reset",
+    "clear": "Bersihkan",
+    "search": "Cari",
+    "filter": "Filter",
+    "all": "Semua",
+    "none": "Tidak Ada",
+    "save": "Simpan",
+    "load": "Muat",
+    "open": "Buka",
+    "close": "Tutup",
+    "yes": "Ya",
+    "no": "Tidak",
+    "enabled": "Diaktifkan",
+    "disabled": "Dinonaktifkan"
+  },
+  "navigation": {
+    "tagExtractor": "Ekstraksi Tag",
+    "imageMetadata": "Metadata Gambar",
+    "booruList": "Daftar Booru",
+    "settings": "Pengaturan",
+    "tags": "Tag",
+    "image": "Gambar",
+    "boorus": "Booru"
+  },
+  "hero": {
+    "title": "Booru Tag Extractor",
+    "subtitle": "Ekstrak tag dari situs booru image boards",
+    "description": "Ekstrak, filter, dan salin tag dari situs booru dengan cepat",
+    "supportedPlatforms": "Mendukung Danbooru, Gelbooru, Safebooru, Rule34, e621, dan lainnya"
+  },
+  "features": {
+    "smart": {
+      "title": "Cerdas",
+      "subtitle": "Ekstrak otomatis"
+    },
+    "fast": {
+      "title": "Cepat",
+      "subtitle": "Hasil instan"
+    },
+    "private": {
+      "title": "Privat",
+      "subtitle": "Sisi klien"
+    },
+    "copy": {
+      "title": "Salin",
+      "subtitle": "Satu klik"
+    }
+  },
+  "workflow": {
+    "paste": "Tempel",
+    "extract": "Ekstrak",
+    "filter": "Filter",
+    "copy": "Salin"
+  },
+  "extractor": {
+    "urlPlaceholder": "Tempel URL post booru Anda di sini...",
+    "urlLabel": "URL Post Booru",
+    "dragDropPlaceholder": "Tempel URL atau Seret & Lepas...",
+    "extractManually": "Ekstrak Manual",
+    "reset": "Reset",
+    "filterCategories": "Kategori Filter",
+    "resultFor": "Hasil untuk: {siteName}",
+    "openHistory": "Buka Riwayat Ekstraksi",
+    "copyTags": "Salin Tag",
+    "tagCount": "{count} tag",
+    "tagCountPlural": "{count} tag"
+  },
+  "categories": {
+    "copyright": "Hak Cipta",
+    "character": "Karakter",
+    "general": "Umum",
+    "meta": "Meta",
+    "other": "Lainnya"
+  },
+  "imageMetadata": {
+    "title": "Metadata Gambar",
+    "description": "Ekstraksi metadata PNG untuk 'parameters' text chunk",
+    "dragDropTitle": "Seret & Lepas PNG Di Sini",
+    "dragDropSubtitle": "atau klik untuk mengunggah",
+    "selectPng": "Pilih PNG",
+    "processing": "Memproses...",
+    "noMetadata": "Tidak ada metadata generasi ditemukan.",
+    "positivePrompt": "Prompt Positif",
+    "negativePrompt": "Prompt Negatif",
+    "parameters": "Parameter",
+    "copyAll": "Salin Semua",
+    "metadataFound": "Metadata ditemukan",
+    "noMetadataShort": "Tidak ada metadata",
+    "loadMetadata": "Muat Metadata",
+    "fileSize": "{size} KB",
+    "dropPngOnly": "Lepas PNG saja.",
+    "dropValidImage": "Lepas gambar valid (PNG).",
+    "selectPngOnly": "Pilih PNG saja.",
+    "metadataOnlyPng": "Ekstraksi metadata hanya didukung untuk file PNG.",
+    "invalidFileType": "Jenis file tidak valid."
+  },
+  "history": {
+    "extraction": "Riwayat Ekstraksi",
+    "image": "Riwayat Gambar",
+    "searchPlaceholder": "Cari judul, url, tag...",
+    "searchImagePlaceholder": "Cari nama file, prompt, parameter...",
+    "noResults": "Tidak ada entri yang cocok dengan pencarian Anda.",
+    "clearSearch": "Bersihkan Pencarian",
+    "clearAll": "Bersihkan Semua Riwayat",
+    "clearHistory": "Bersihkan Riwayat",
+    "confirmClear": "Benar-benar bersihkan?",
+    "yesClear": "Ya, Bersihkan",
+    "cancel": "Batal",
+    "entryCount": "{count} entri",
+    "deleteEntry": "Hapus Entri"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "appearance": "Tampilan",
+    "colorTheme": "Tema Warna",
+    "themes": {
+      "system": "Sistem",
+      "light": "Terang",
+      "dark": "Gelap"
+    },
+    "colors": {
+      "blue": "Biru",
+      "orange": "Oranye",
+      "teal": "Hijau Toska",
+      "rose": "Merah Muda",
+      "purple": "Ungu",
+      "green": "Hijau",
+      "custom": "Warna Kustom"
+    },
+    "customColorPlaceholder": "Kode hex warna kustom",
+    "dataFetching": "Metode Pengambilan Data",
+    "fetchModes": {
+      "server": "Proxy Server",
+      "serverDesc": "Menggunakan server aplikasi ini untuk mengambil data. Direkomendasikan, lebih andal.",
+      "client": "Proxy Sisi Klien",
+      "clientDesc": "Menggunakan proxy CORS publik di browser Anda. Mungkin kurang andal atau terbatas rate."
+    },
+    "selectClientProxy": "Pilih Layanan Proxy Klien:",
+    "proxyNote": "Performa dan keandalan bervariasi antar proxy.",
+    "autoExtract": {
+      "title": "Ekstraksi Otomatis",
+      "desc": "Aktifkan atau nonaktifkan ekstraksi tag otomatis setelah menempel/mengetik URL valid",
+      "label": "Ekstrak tag otomatis setelah menempel/mengetik URL valid."
+    },
+    "imagePreviews": {
+      "title": "Aktifkan Pratinjau",
+      "desc": "Aktifkan atau nonaktifkan pratinjau gambar/video untuk menghemat bandwidth atau menghindari masalah potensial",
+      "label": "Tampilkan pratinjau gambar/video selama ekstraksi dan di riwayat."
+    },
+    "saveHistory": {
+      "title": "Simpan Riwayat",
+      "desc": "Aktifkan atau nonaktifkan penyimpanan riwayat ekstraksi ke penyimpanan lokal browser Anda",
+      "label": "Simpan ekstraksi yang berhasil secara lokal di browser Anda."
+    },
+    "unsupportedSites": {
+      "title": "Aktifkan untuk Situs yang Tidak Didukung",
+      "desc": "Aktifkan ekstraksi untuk situs web yang tidak didukung dengan menggunakan pola situs serupa",
+      "label": "Coba ekstrak dari situs yang tidak didukung menggunakan pola situs serupa. Mungkin tidak berfungsi untuk semua situs."
+    },
+    "blacklist": {
+      "enable": "Aktifkan Daftar Hitam Kata Kunci",
+      "placeholder": "Masukkan kata kunci untuk diblokir, dipisahkan dengan koma, titik koma, atau baris baru.",
+      "reset": "Reset ke Default"
+    },
+    "maxHistorySize": {
+      "title": "Ukuran Riwayat Maksimum",
+      "desc": "Atur jumlah maksimum entri untuk riwayat ekstraksi dan gambar.",
+      "options": {
+        "10": "10 Entri",
+        "30": "30 Entri",
+        "50": "50 Entri",
+        "100": "100 Entri",
+        "unlimited": "Tanpa Batas"
+      }
+    },
+    "support": {
+      "title": "Dukungan & Umpan Balik",
+      "reportIssue": "Laporkan Masalah di GitHub",
+      "reportDesc": "Menemukan bug atau punya saran? Beri tahu kami!"
+    },
+    "language": {
+      "title": "Bahasa",
+      "desc": "Pilih bahasa antarmuka aplikasi",
+      "options": {
+        "id": "Bahasa Indonesia",
+        "en": "English",
+        "ja": "日本語",
+        "zh": "简体中文"
+      }
+    }
+  },
+  "errors": {
+    "connectionFailed": "Koneksi Gagal",
+    "retrying": "Mencoba lagi...",
+    "tryingAgain": "Mencoba lagi... (Percobaan {count} dari 3)",
+    "maxRetryReached": "Maksimum percobaan ulang tercapai. Silakan coba lagi atau laporkan masalahnya.",
+    "retryAgain": "Coba Lagi",
+    "reportBug": "Laporkan Bug",
+    "urlNotSupported": "URL tidak didukung.",
+    "urlMustHttps": "URL harus dimulai dengan http:// atau https://",
+    "invalidUrlDropped": "URL tidak valid dilepas.",
+    "failedToCopy": "Gagal menyalin.",
+    "serverTimeout": "Server timeout.",
+    "serverBadGateway": "Server bad gateway.",
+    "invalidRequest": "Permintaan tidak valid:",
+    "extractionFailed": "Ekstraksi gagal.",
+    "internalServerError": "Internal Server Error:",
+    "warningNoTags": "Peringatan: Gambar ditemukan, tidak ada tag yang diekstrak.",
+    "warningNoTagsClient": "Peringatan: Gambar ditemukan, tidak ada tag (Klien).",
+    "warningNoTagsImage": "Peringatan: Tidak ada tag/gambar (Klien).",
+    "rateLimitExceeded": "Batas rate terlampaui.",
+    "loginRequired": "Login diperlukan.",
+    "postNotFound": "Post tidak ditemukan (404).",
+    "blockedByCloudflare": "Diblokir oleh Cloudflare.",
+    "accessDenied": "Akses ditolak.",
+    "siteRequiresJsCookies": "Situs memerlukan JS/Cookie."
+  },
+  "statusBar": {
+    "serverProxy": "Proxy Server.",
+    "clientProxy": "Proxy Klien ({proxy}).",
+    "historyEnabled": "Riwayat diaktifkan ({size})",
+    "historyDisabled": "Riwayat dinonaktifkan",
+    "madeWith": "Dibuat dengan ❤️ oleh IRedDragonICY"
+  },
+  "booruList": {
+    "title": "Daftar Booru",
+    "search": "Cari situs booru...",
+    "filterBySfw": "Filter berdasarkan SFW/NSFW",
+    "allSites": "Semua Situs",
+    "sfwOnly": "Hanya SFW",
+    "nsfwOnly": "Hanya NSFW",
+    "sortBy": "Urutkan berdasarkan",
+    "sortName": "Nama",
+    "sortPopularity": "Popularitas",
+    "noResults": "Tidak ada situs ditemukan.",
+    "visit": "Kunjungi",
+    "supported": "Didukung",
+    "experimental": "Eksperimental"
+  },
+  "clipboard": {
+    "copiedToClipboard": "Disalin ke clipboard!",
+    "copyFailed": "Gagal menyalin"
+  },
+  "defaultBlacklistKeywords": "text, english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters"
+}

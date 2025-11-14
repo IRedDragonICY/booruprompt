@@ -1,0 +1,254 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "loading": "Loading...",
+    "processing": "Processing…",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "clear": "Clear",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "save": "Save",
+    "load": "Load",
+    "open": "Open",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "navigation": {
+    "tagExtractor": "Tag Extractor",
+    "imageMetadata": "Image Metadata",
+    "booruList": "Booru List",
+    "settings": "Settings",
+    "tags": "Tags",
+    "image": "Image",
+    "boorus": "Boorus"
+  },
+  "hero": {
+    "title": "Booru Tag Extractor",
+    "subtitle": "Extract tags from booru image boards",
+    "description": "Extract, filter, and copy tags from booru sites instantly",
+    "supportedPlatforms": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+  },
+  "features": {
+    "smart": {
+      "title": "Smart",
+      "subtitle": "Auto-extract"
+    },
+    "fast": {
+      "title": "Fast",
+      "subtitle": "Instant results"
+    },
+    "private": {
+      "title": "Private",
+      "subtitle": "Client-side"
+    },
+    "copy": {
+      "title": "Copy",
+      "subtitle": "One-click"
+    }
+  },
+  "workflow": {
+    "paste": "Paste",
+    "extract": "Extract",
+    "filter": "Filter",
+    "copy": "Copy"
+  },
+  "extractor": {
+    "urlPlaceholder": "Paste your booru post URL here...",
+    "urlLabel": "Booru Post URL",
+    "dragDropPlaceholder": "Paste URL or Drag & Drop...",
+    "extractManually": "Extract Manually",
+    "reset": "Reset",
+    "filterCategories": "Filter Categories",
+    "resultFor": "Result for: {siteName}",
+    "openHistory": "Open Extraction History",
+    "copyTags": "Copy Tags",
+    "tagCount": "{count} tag",
+    "tagCountPlural": "{count} tags"
+  },
+  "categories": {
+    "copyright": "Copyright",
+    "character": "Character",
+    "general": "General",
+    "meta": "Meta",
+    "other": "Other"
+  },
+  "imageMetadata": {
+    "title": "Image Metadata",
+    "description": "PNG metadata extraction for 'parameters' text chunk",
+    "dragDropTitle": "Drag & Drop PNG Here",
+    "dragDropSubtitle": "or click to upload",
+    "selectPng": "Select PNG",
+    "processing": "Processing...",
+    "noMetadata": "No generation metadata found.",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copyAll": "Copy All",
+    "metadataFound": "Metadata found",
+    "noMetadataShort": "No metadata",
+    "loadMetadata": "Load Metadata",
+    "fileSize": "{size} KB",
+    "dropPngOnly": "Drop PNG only.",
+    "dropValidImage": "Drop valid image (PNG).",
+    "selectPngOnly": "Select PNG only.",
+    "metadataOnlyPng": "Metadata extraction only supported for PNG files.",
+    "invalidFileType": "Invalid file type."
+  },
+  "history": {
+    "extraction": "Extraction History",
+    "image": "Image History",
+    "searchPlaceholder": "Search title, url, tags...",
+    "searchImagePlaceholder": "Search filename, prompts, params...",
+    "noResults": "No entries match your search.",
+    "clearSearch": "Clear Search",
+    "clearAll": "Clear All History",
+    "clearHistory": "Clear History",
+    "confirmClear": "Really clear?",
+    "yesClear": "Yes, Clear",
+    "cancel": "Cancel",
+    "entryCount": "{count} entries",
+    "deleteEntry": "Delete Entry"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "colorTheme": "Color Theme",
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "colors": {
+      "blue": "Blue",
+      "orange": "Orange",
+      "teal": "Teal",
+      "rose": "Rose",
+      "purple": "Purple",
+      "green": "Green",
+      "custom": "Custom Color"
+    },
+    "customColorPlaceholder": "Custom color hex code",
+    "dataFetching": "Data Fetching Method",
+    "fetchModes": {
+      "server": "Server Proxy",
+      "serverDesc": "Uses this application's server to fetch data. Recommended, more reliable.",
+      "client": "Client-Side Proxy",
+      "clientDesc": "Uses a public CORS proxy in your browser. May be less reliable or rate-limited."
+    },
+    "selectClientProxy": "Select Client Proxy Service:",
+    "proxyNote": "Performance and reliability vary between proxies.",
+    "autoExtract": {
+      "title": "Automatic Extraction",
+      "desc": "Enable or disable automatic tag extraction upon pasting/typing a valid URL",
+      "label": "Extract tags automatically after pasting/typing a valid URL."
+    },
+    "imagePreviews": {
+      "title": "Enable Previews",
+      "desc": "Enable or disable image/video previews to save bandwidth or avoid potential issues",
+      "label": "Show image/video previews during extraction and in history."
+    },
+    "saveHistory": {
+      "title": "Save History",
+      "desc": "Enable or disable saving extraction history to your browser's local storage",
+      "label": "Store successful extractions locally in your browser."
+    },
+    "unsupportedSites": {
+      "title": "Enable for Unsupported Sites",
+      "desc": "Enable extraction for unsupported websites by using similar site patterns",
+      "label": "Try to extract from unsupported sites using similar site patterns. May not work for all sites."
+    },
+    "blacklist": {
+      "enable": "Enable Keyword Blacklist",
+      "placeholder": "Enter keywords to block, separated by commas, semicolons, or new lines.",
+      "reset": "Reset to Default"
+    },
+    "maxHistorySize": {
+      "title": "Maximum History Size",
+      "desc": "Set the max number of entries for both extraction and image history.",
+      "options": {
+        "10": "10 Entries",
+        "30": "30 Entries",
+        "50": "50 Entries",
+        "100": "100 Entries",
+        "unlimited": "Unlimited"
+      }
+    },
+    "support": {
+      "title": "Support & Feedback",
+      "reportIssue": "Report an Issue on GitHub",
+      "reportDesc": "Found a bug or have a suggestion? Let us know!"
+    },
+    "language": {
+      "title": "Language",
+      "desc": "Select the application interface language",
+      "options": {
+        "id": "Bahasa Indonesia",
+        "en": "English",
+        "ja": "日本語",
+        "zh": "简体中文"
+      }
+    }
+  },
+  "errors": {
+    "connectionFailed": "Connection Failed",
+    "retrying": "Retrying...",
+    "tryingAgain": "Trying again... (Attempt {count} of 3)",
+    "maxRetryReached": "Maximum retry attempts reached. Please try again or report the issue.",
+    "retryAgain": "Retry Again",
+    "reportBug": "Report Bug",
+    "urlNotSupported": "URL not supported.",
+    "urlMustHttps": "URL must start with http:// or https://",
+    "invalidUrlDropped": "Invalid URL dropped.",
+    "failedToCopy": "Failed to copy.",
+    "serverTimeout": "Server timed out.",
+    "serverBadGateway": "Server bad gateway.",
+    "invalidRequest": "Invalid request:",
+    "extractionFailed": "Extraction failed.",
+    "internalServerError": "Internal Server Error:",
+    "warningNoTags": "Warning: Image found, no tags extracted.",
+    "warningNoTagsClient": "Warning: Image found, no tags (Client).",
+    "warningNoTagsImage": "Warning: No tags/image (Client).",
+    "rateLimitExceeded": "Rate limit exceeded.",
+    "loginRequired": "Login required.",
+    "postNotFound": "Post not found (404).",
+    "blockedByCloudflare": "Blocked by Cloudflare.",
+    "accessDenied": "Access denied.",
+    "siteRequiresJsCookies": "Site requires JS/Cookies."
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({proxy}).",
+    "historyEnabled": "History enabled ({size})",
+    "historyDisabled": "History disabled",
+    "madeWith": "Made with ❤️ by IRedDragonICY"
+  },
+  "booruList": {
+    "title": "Booru List",
+    "search": "Search booru sites...",
+    "filterBySfw": "Filter by SFW/NSFW",
+    "allSites": "All Sites",
+    "sfwOnly": "SFW Only",
+    "nsfwOnly": "NSFW Only",
+    "sortBy": "Sort by",
+    "sortName": "Name",
+    "sortPopularity": "Popularity",
+    "noResults": "No sites found.",
+    "visit": "Visit",
+    "supported": "Supported",
+    "experimental": "Experimental"
+  },
+  "clipboard": {
+    "copiedToClipboard": "Copied to clipboard!",
+    "copyFailed": "Failed to copy"
+  },
+  "defaultBlacklistKeywords": "text, english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters"
+}

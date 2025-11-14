@@ -1,0 +1,254 @@
+{
+  "common": {
+    "appName": "Booruタグ抽出ツール",
+    "loading": "読み込み中...",
+    "processing": "処理中…",
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "delete": "削除",
+    "cancel": "キャンセル",
+    "reset": "リセット",
+    "clear": "クリア",
+    "search": "検索",
+    "filter": "フィルター",
+    "all": "すべて",
+    "none": "なし",
+    "save": "保存",
+    "load": "読み込み",
+    "open": "開く",
+    "close": "閉じる",
+    "yes": "はい",
+    "no": "いいえ",
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "navigation": {
+    "tagExtractor": "タグ抽出",
+    "imageMetadata": "画像メタデータ",
+    "booruList": "Booruリスト",
+    "settings": "設定",
+    "tags": "タグ",
+    "image": "画像",
+    "boorus": "Booru"
+  },
+  "hero": {
+    "title": "Booruタグ抽出ツール",
+    "subtitle": "Booru画像掲示板からタグを抽出",
+    "description": "Booruサイトからタグを即座に抽出、フィルタリング、コピー",
+    "supportedPlatforms": "Danbooru、Gelbooru、Safebooru、Rule34、e621などに対応"
+  },
+  "features": {
+    "smart": {
+      "title": "スマート",
+      "subtitle": "自動抽出"
+    },
+    "fast": {
+      "title": "高速",
+      "subtitle": "即座に結果"
+    },
+    "private": {
+      "title": "プライベート",
+      "subtitle": "クライアント側"
+    },
+    "copy": {
+      "title": "コピー",
+      "subtitle": "ワンクリック"
+    }
+  },
+  "workflow": {
+    "paste": "貼り付け",
+    "extract": "抽出",
+    "filter": "フィルター",
+    "copy": "コピー"
+  },
+  "extractor": {
+    "urlPlaceholder": "BooruポストのURLをここに貼り付けてください...",
+    "urlLabel": "BooruポストURL",
+    "dragDropPlaceholder": "URLを貼り付けまたはドラッグ&ドロップ...",
+    "extractManually": "手動で抽出",
+    "reset": "リセット",
+    "filterCategories": "カテゴリーフィルター",
+    "resultFor": "結果: {siteName}",
+    "openHistory": "抽出履歴を開く",
+    "copyTags": "タグをコピー",
+    "tagCount": "{count}個のタグ",
+    "tagCountPlural": "{count}個のタグ"
+  },
+  "categories": {
+    "copyright": "著作権",
+    "character": "キャラクター",
+    "general": "一般",
+    "meta": "メタ",
+    "other": "その他"
+  },
+  "imageMetadata": {
+    "title": "画像メタデータ",
+    "description": "'parameters'テキストチャンクのPNGメタデータ抽出",
+    "dragDropTitle": "PNGをここにドラッグ&ドロップ",
+    "dragDropSubtitle": "またはクリックしてアップロード",
+    "selectPng": "PNGを選択",
+    "processing": "処理中...",
+    "noMetadata": "生成メタデータが見つかりませんでした。",
+    "positivePrompt": "ポジティブプロンプト",
+    "negativePrompt": "ネガティブプロンプト",
+    "parameters": "パラメータ",
+    "copyAll": "すべてコピー",
+    "metadataFound": "メタデータが見つかりました",
+    "noMetadataShort": "メタデータなし",
+    "loadMetadata": "メタデータを読み込む",
+    "fileSize": "{size} KB",
+    "dropPngOnly": "PNGのみドロップしてください。",
+    "dropValidImage": "有効な画像（PNG）をドロップしてください。",
+    "selectPngOnly": "PNGのみ選択してください。",
+    "metadataOnlyPng": "メタデータ抽出はPNGファイルのみサポートしています。",
+    "invalidFileType": "無効なファイル形式です。"
+  },
+  "history": {
+    "extraction": "抽出履歴",
+    "image": "画像履歴",
+    "searchPlaceholder": "タイトル、URL、タグを検索...",
+    "searchImagePlaceholder": "ファイル名、プロンプト、パラメータを検索...",
+    "noResults": "検索に一致するエントリがありません。",
+    "clearSearch": "検索をクリア",
+    "clearAll": "すべての履歴をクリア",
+    "clearHistory": "履歴をクリア",
+    "confirmClear": "本当にクリアしますか？",
+    "yesClear": "はい、クリア",
+    "cancel": "キャンセル",
+    "entryCount": "{count}件",
+    "deleteEntry": "エントリを削除"
+  },
+  "settings": {
+    "title": "設定",
+    "appearance": "外観",
+    "colorTheme": "カラーテーマ",
+    "themes": {
+      "system": "システム",
+      "light": "ライト",
+      "dark": "ダーク"
+    },
+    "colors": {
+      "blue": "ブルー",
+      "orange": "オレンジ",
+      "teal": "ティール",
+      "rose": "ローズ",
+      "purple": "パープル",
+      "green": "グリーン",
+      "custom": "カスタムカラー"
+    },
+    "customColorPlaceholder": "カスタムカラーの16進数コード",
+    "dataFetching": "データ取得方法",
+    "fetchModes": {
+      "server": "サーバープロキシ",
+      "serverDesc": "このアプリケーションのサーバーを使用してデータを取得します。推奨、より信頼性が高い。",
+      "client": "クライアント側プロキシ",
+      "clientDesc": "ブラウザで公開CORSプロキシを使用します。信頼性が低いか、レート制限がある場合があります。"
+    },
+    "selectClientProxy": "クライアントプロキシサービスを選択：",
+    "proxyNote": "パフォーマンスと信頼性はプロキシによって異なります。",
+    "autoExtract": {
+      "title": "自動抽出",
+      "desc": "有効なURLを貼り付け/入力した際の自動タグ抽出を有効または無効にします",
+      "label": "有効なURLを貼り付け/入力した後、自動的にタグを抽出します。"
+    },
+    "imagePreviews": {
+      "title": "プレビューを有効化",
+      "desc": "帯域幅を節約したり、潜在的な問題を回避するために画像/動画プレビューを有効または無効にします",
+      "label": "抽出中および履歴で画像/動画プレビューを表示します。"
+    },
+    "saveHistory": {
+      "title": "履歴を保存",
+      "desc": "ブラウザのローカルストレージへの抽出履歴の保存を有効または無効にします",
+      "label": "成功した抽出をブラウザにローカルに保存します。"
+    },
+    "unsupportedSites": {
+      "title": "未対応サイトで有効化",
+      "desc": "類似サイトパターンを使用して未対応ウェブサイトの抽出を有効にします",
+      "label": "類似サイトパターンを使用して未対応サイトからの抽出を試みます。すべてのサイトで機能しない場合があります。"
+    },
+    "blacklist": {
+      "enable": "キーワードブラックリストを有効化",
+      "placeholder": "ブロックするキーワードをカンマ、セミコロン、または改行で区切って入力してください。",
+      "reset": "デフォルトにリセット"
+    },
+    "maxHistorySize": {
+      "title": "最大履歴サイズ",
+      "desc": "抽出および画像履歴の最大エントリ数を設定します。",
+      "options": {
+        "10": "10件",
+        "30": "30件",
+        "50": "50件",
+        "100": "100件",
+        "unlimited": "無制限"
+      }
+    },
+    "support": {
+      "title": "サポート＆フィードバック",
+      "reportIssue": "GitHubで問題を報告",
+      "reportDesc": "バグを見つけたり、提案がありますか？お知らせください！"
+    },
+    "language": {
+      "title": "言語",
+      "desc": "アプリケーションのインターフェース言語を選択",
+      "options": {
+        "id": "Bahasa Indonesia",
+        "en": "English",
+        "ja": "日本語",
+        "zh": "简体中文"
+      }
+    }
+  },
+  "errors": {
+    "connectionFailed": "接続に失敗しました",
+    "retrying": "再試行中...",
+    "tryingAgain": "再試行中...（{count}回目/3回）",
+    "maxRetryReached": "最大再試行回数に達しました。もう一度お試しいただくか、問題を報告してください。",
+    "retryAgain": "再試行",
+    "reportBug": "バグを報告",
+    "urlNotSupported": "URLがサポートされていません。",
+    "urlMustHttps": "URLはhttp://またはhttps://で始まる必要があります",
+    "invalidUrlDropped": "無効なURLがドロップされました。",
+    "failedToCopy": "コピーに失敗しました。",
+    "serverTimeout": "サーバーがタイムアウトしました。",
+    "serverBadGateway": "サーバーバッドゲートウェイ。",
+    "invalidRequest": "無効なリクエスト：",
+    "extractionFailed": "抽出に失敗しました。",
+    "internalServerError": "内部サーバーエラー：",
+    "warningNoTags": "警告：画像が見つかりましたが、タグは抽出されませんでした。",
+    "warningNoTagsClient": "警告：画像が見つかりましたが、タグなし（クライアント）。",
+    "warningNoTagsImage": "警告：タグ/画像なし（クライアント）。",
+    "rateLimitExceeded": "レート制限を超えました。",
+    "loginRequired": "ログインが必要です。",
+    "postNotFound": "ポストが見つかりません（404）。",
+    "blockedByCloudflare": "Cloudflareによってブロックされました。",
+    "accessDenied": "アクセスが拒否されました。",
+    "siteRequiresJsCookies": "サイトにはJS/Cookieが必要です。"
+  },
+  "statusBar": {
+    "serverProxy": "サーバープロキシ。",
+    "clientProxy": "クライアントプロキシ（{proxy}）。",
+    "historyEnabled": "履歴有効（{size}）",
+    "historyDisabled": "履歴無効",
+    "madeWith": "IRedDragonICYが❤️を込めて制作"
+  },
+  "booruList": {
+    "title": "Booruリスト",
+    "search": "Booruサイトを検索...",
+    "filterBySfw": "SFW/NSFWでフィルター",
+    "allSites": "すべてのサイト",
+    "sfwOnly": "SFWのみ",
+    "nsfwOnly": "NSFWのみ",
+    "sortBy": "並べ替え",
+    "sortName": "名前",
+    "sortPopularity": "人気",
+    "noResults": "サイトが見つかりません。",
+    "visit": "訪問",
+    "supported": "対応",
+    "experimental": "実験的"
+  },
+  "clipboard": {
+    "copiedToClipboard": "クリップボードにコピーしました！",
+    "copyFailed": "コピーに失敗しました"
+  },
+  "defaultBlacklistKeywords": "text, english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters"
+}
