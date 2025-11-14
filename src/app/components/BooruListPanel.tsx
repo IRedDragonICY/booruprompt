@@ -76,26 +76,84 @@ export const BooruListPanel: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Fetch data from JSON
+  // Fetch data with localStorage caching and stale-while-revalidate
   useEffect(() => {
-    const fetchData = async () => {
+    const CACHE_KEY = 'booru_list_cache';
+    const CACHE_TIMESTAMP_KEY = 'booru_list_cache_timestamp';
+    const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+    const STALE_DURATION = 604800000; // 7 days in milliseconds
+
+    const fetchData = async (useStaleCache = false) => {
       try {
-        setLoading(true);
-        const response = await fetch('/booru_top.json');
+        if (!useStaleCache) {
+          setLoading(true);
+        }
+
+        const response = await fetch('/api/booru-list', {
+          // Use default cache which respects Cache-Control headers
+          cache: 'default',
+        });
+
         if (!response.ok) {
           throw new Error('Failed to fetch booru data');
         }
+
         const data = await response.json();
+
+        // Store in localStorage with timestamp
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+        } catch (storageError) {
+          // Ignore localStorage errors (quota exceeded, etc.)
+          console.warn('Failed to cache data in localStorage:', storageError);
+        }
+
         setBooruData(data);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
-        setLoading(false);
+        if (!useStaleCache) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchData();
+    // Try to load from localStorage first
+    const initializeData = async () => {
+      try {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+        if (cachedData && cachedTimestamp) {
+          const age = Date.now() - parseInt(cachedTimestamp, 10);
+          const data = JSON.parse(cachedData);
+
+          if (age < CACHE_DURATION) {
+            // Cache is fresh, use it immediately
+            setBooruData(data);
+            setLoading(false);
+            return;
+          } else if (age < STALE_DURATION) {
+            // Cache is stale but not expired, use it while revalidating
+            setBooruData(data);
+            setLoading(false);
+            // Fetch fresh data in the background
+            fetchData(true);
+            return;
+          }
+        }
+      } catch (cacheError) {
+        // Ignore cache errors, proceed to fetch
+        console.warn('Failed to read from localStorage:', cacheError);
+      }
+
+      // No valid cache, fetch fresh data
+      fetchData();
+    };
+
+    initializeData();
   }, []);
 
   // Filter, search, and sort - using debounced search for better performance
@@ -196,8 +254,8 @@ export const BooruListPanel: React.FC = () => {
   const BooruCard = memo(({ booru, index }: { booru: BooruData; index: number }) => {
     const [faviconError, setFaviconError] = useState(false);
 
-    // Use Google's favicon service to avoid CORS issues
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${booru.domain}&sz=64`;
+    // Use our cached favicon API route for optimal CDN caching
+    const faviconUrl = `/api/favicon?domain=${encodeURIComponent(booru.domain)}&sz=64`;
 
     // Memoize favicon error handler
     const handleFaviconError = useCallback(() => {

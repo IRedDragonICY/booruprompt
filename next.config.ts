@@ -19,6 +19,30 @@ const nextConfig: NextConfig = {
             { source: '/booru-list', destination: '/' },
           ];
         },
+        async headers() {
+          return [
+            {
+              // Cache static files (images, fonts, etc.) for 1 year
+              source: '/(.*)\\.(ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|otf|eot)$',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'public, max-age=31536000, immutable',
+                },
+              ],
+            },
+            {
+              // Cache JSON files for 1 hour with stale-while-revalidate
+              source: '/(.*)\\.(json)$',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'public, max-age=3600, stale-while-revalidate=86400',
+                },
+              ],
+            },
+          ];
+        },
       }),
 };
 
