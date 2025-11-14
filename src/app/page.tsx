@@ -449,6 +449,24 @@ const BooruTagExtractor = () => {
 
                 if (isCriticalError && !errorMsg.toLowerCase().includes('warning')) {
                     setShowFullErrorPage(true);
+
+                    // Auto-retry if we haven't reached max retries yet
+                    if (retryCount < 3) {
+                        const newRetryCount = retryCount + 1;
+                        setRetryCount(newRetryCount);
+                        setIsRetrying(true);
+
+                        const backoffDelay = Math.pow(2, newRetryCount) * 1000; // 2s, 4s, 8s
+                        console.log(`Auto-retrying extraction (attempt ${newRetryCount}/3) after ${backoffDelay}ms...`);
+
+                        setTimeout(() => {
+                            setIsRetrying(false);
+                            void extractTags(trimmedUrl);
+                        }, backoffDelay);
+                    } else {
+                        // Max retries reached, just show error
+                        setIsRetrying(false);
+                    }
                 }
 
                 if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) {
@@ -705,7 +723,7 @@ const BooruTagExtractor = () => {
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                                        {error && showFullErrorPage && !loading && (
+                                        {error && showFullErrorPage && (
                                             <ErrorPage
                                                 error={error}
                                                 onRetry={handleRetry}
@@ -713,7 +731,6 @@ const BooruTagExtractor = () => {
                                                 isRetrying={isRetrying}
                                                 onReportBug={handleReportBug}
                                                 onRetryAgain={handleRetryAgain}
-                                                showFullInfo={retryCount >= 3}
                                             />
                                         )}
                                         {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
@@ -908,7 +925,6 @@ const BooruTagExtractor = () => {
                                                         isRetrying={isRetrying}
                                                         onReportBug={handleReportBug}
                                                         onRetryAgain={handleRetryAgain}
-                                                        showFullInfo={retryCount >= 3}
                                                     />
                                                 )}
                                                 {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
