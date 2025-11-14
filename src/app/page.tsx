@@ -232,6 +232,7 @@ const BooruTagExtractor = () => {
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
         if (currentPath === '/image-metadata') setActiveView('image');
+        else if (currentPath === '/booru-list') setActiveView('booru-list');
         else if (currentPath === '/settings') setActiveView('settings');
         else {
             setActiveView('extractor');
@@ -251,6 +252,7 @@ const BooruTagExtractor = () => {
 
         if (activeView === 'extractor') targetPath = '/booru-tag';
         else if (activeView === 'image') targetPath = '/image-metadata';
+        else if (activeView === 'booru-list') targetPath = '/booru-list';
         else targetPath = '/settings';
 
         if (currentPath !== targetPath) window.history.replaceState(null, '', targetPath);

@@ -38,6 +38,8 @@ export const BooruListPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSafe, setFilterSafe] = useState<'all' | 'sfw' | 'nsfw'>('all');
   const [isMobile, setIsMobile] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   // Detect mobile
   useEffect(() => {
@@ -87,6 +89,17 @@ export const BooruListPanel: React.FC = () => {
       return matchesSearch && matchesFilter;
     });
   }, [booruData, searchQuery, filterSafe]);
+
+  // Reset to page 1 when search/filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterSafe]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   // Format number with commas
   const formatNumber = (num: number) => {
@@ -144,10 +157,31 @@ export const BooruListPanel: React.FC = () => {
         </button>
       </div>
 
-      {/* Results Count */}
-      <div className="pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
-        <p className="text-xs md:text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-          Showing <span className="font-semibold text-[rgb(var(--color-primary-rgb))]">{filteredData.length}</span> of {booruData.length} booru sites
+      {/* Items per page selector */}
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+        <div className="flex items-center gap-2">
+          <label htmlFor="items-per-page" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+            Per page:
+          </label>
+          <select
+            id="items-per-page"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+
+        {/* Results Count */}
+        <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+          Showing <span className="font-semibold text-[rgb(var(--color-primary-rgb))]">{startIndex + 1}-{Math.min(endIndex, filteredData.length)}</span> of {filteredData.length}
         </p>
       </div>
     </div>
@@ -215,9 +249,10 @@ export const BooruListPanel: React.FC = () => {
         )}
 
         {/* Booru Grid */}
-        <div className={`flex-1 overflow-y-auto scrollbar-thin ${isMobile ? 'pb-40' : ''}`}>
-          <AnimatePresence mode="popLayout">
-            {filteredData.length === 0 ? (
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className={`flex-1 overflow-y-auto scrollbar-thin ${isMobile ? 'pb-40' : ''}`}>
+            <AnimatePresence mode="popLayout">
+              {filteredData.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -231,7 +266,7 @@ export const BooruListPanel: React.FC = () => {
               </motion.div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 pb-4">
-                {filteredData.map((booru, index) => (
+                {paginatedData.map((booru, index) => (
                   <motion.a
                     key={booru.rank}
                     href={booru.booru_url}
@@ -324,6 +359,87 @@ export const BooruListPanel: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 md:p-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Previous Button */}
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  currentPage === 1
+                    ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                    : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+                }`}
+              >
+                Previous
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-2">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        currentPage === pageNum
+                          ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
+                          : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <>
+                    <span className="text-[rgb(var(--color-on-surface-muted-rgb))]">...</span>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="w-8 h-8 rounded-lg text-sm font-medium bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-200"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  currentPage === totalPages
+                    ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                    : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+
+            {/* Page Info */}
+            <div className="mt-2 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+              Page {currentPage} of {totalPages}
+            </div>
+          </div>
+        )}
+      </div>
       </div>
 
       {/* Mobile Fixed Search Bar at Bottom */}
