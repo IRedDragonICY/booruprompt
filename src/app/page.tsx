@@ -216,6 +216,7 @@ const BooruTagExtractor = () => {
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
     const retryCountRef = useRef<number>(0);
+    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [showSettings, setShowSettings] = useState(false);
  const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -365,6 +366,12 @@ const BooruTagExtractor = () => {
         const trimmedUrl = targetUrl.trim();
         if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
 
+        // Guard: prevent extraction if max retry attempts have been reached
+        if (retryCountRef.current >= 3 && showFullErrorPage) {
+            console.log('Blocked extraction attempt: max retry limit (3) already reached.');
+            return;
+        }
+
         let site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
 
         if (!site && settings.enableUnsupportedSites) {
@@ -453,6 +460,12 @@ const BooruTagExtractor = () => {
 
                     // Auto-retry if we haven't reached max retries yet (using ref for reliable count)
                     if (retryCountRef.current < 3) {
+                        // Clear any pending retry timeout before scheduling a new one
+                        if (retryTimeoutRef.current) {
+                            clearTimeout(retryTimeoutRef.current);
+                            retryTimeoutRef.current = null;
+                        }
+
                         retryCountRef.current += 1;
                         const newRetryCount = retryCountRef.current;
                         setRetryCount(newRetryCount);
@@ -461,12 +474,18 @@ const BooruTagExtractor = () => {
                         const backoffDelay = Math.pow(2, newRetryCount) * 1000; // 2s, 4s, 8s
                         console.log(`Auto-retrying extraction (attempt ${newRetryCount}/3) after ${backoffDelay}ms...`);
 
-                        setTimeout(() => {
+                        // Store timeout ID so we can clear it if needed
+                        retryTimeoutRef.current = setTimeout(() => {
+                            retryTimeoutRef.current = null;
                             setIsRetrying(false);
                             void extractTags(trimmedUrl);
                         }, backoffDelay);
                     } else {
-                        // Max retries reached, just show error
+                        // Max retries reached, clear any pending timeouts and stop
+                        if (retryTimeoutRef.current) {
+                            clearTimeout(retryTimeoutRef.current);
+                            retryTimeoutRef.current = null;
+                        }
                         console.log('Max retry attempts (3) reached. Stopping auto-retry.');
                         setIsRetrying(false);
                     }
@@ -485,6 +504,12 @@ const BooruTagExtractor = () => {
                 }
             }
             else {
+                // Clear any pending retry timeout on success
+                if (retryTimeoutRef.current) {
+                    clearTimeout(retryTimeoutRef.current);
+                    retryTimeoutRef.current = null;
+                }
+
                 setAllExtractedTags(result.tags || {});
                 setImageUrl(imgUrl);
                 setImageTitle(imgTitle);
@@ -549,6 +574,12 @@ const BooruTagExtractor = () => {
     }, [error, url, settings.fetchMode, retryCount]);
 
     const handleRetryAgain = useCallback(async () => {
+        // Clear any pending retry timeout
+        if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+        }
+
         // Reset retry count and try again from the beginning
         setRetryCount(0);
         retryCountRef.current = 0; // Reset ref too
@@ -558,7 +589,7 @@ const BooruTagExtractor = () => {
         await extractTags(url);
     }, [url, extractTags]);
 
-    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); retryCountRef.current = 0; setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); retryCountRef.current = 0; setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); if (retryTimeoutRef.current) { clearTimeout(retryTimeoutRef.current); retryTimeoutRef.current = null; } cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
