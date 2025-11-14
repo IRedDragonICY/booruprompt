@@ -110,6 +110,9 @@ export const BooruListPanel: React.FC = () => {
   const BooruCard = ({ booru, index }: { booru: BooruData; index: number }) => {
     const [faviconError, setFaviconError] = useState(false);
 
+    // Use Google's favicon service to avoid CORS issues
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${booru.domain}&sz=64`;
+
     return (
       <motion.a
         key={booru.rank}
@@ -141,13 +144,13 @@ export const BooruListPanel: React.FC = () => {
           <div className="flex items-start gap-3 mb-3">
             {/* Favicon */}
             <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center overflow-hidden">
-              {booru.favicon_url && !faviconError ? (
+              {!faviconError ? (
                 <img
-                  src={booru.favicon_url}
+                  src={faviconUrl}
                   alt={booru.booru_title}
                   className="w-6 h-6 md:w-8 md:h-8 object-contain"
                   onError={() => setFaviconError(true)}
-                  crossOrigin="anonymous"
+                  loading="lazy"
                 />
               ) : (
                 <GlobeAltIcon className="h-5 w-5 md:h-6 md:w-6 text-[rgb(var(--color-on-surface-muted-rgb))]" />
