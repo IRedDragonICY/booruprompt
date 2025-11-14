@@ -592,7 +592,11 @@ const BooruTagExtractor = () => {
     const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); retryCountRef.current = 0; setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); if (retryTimeoutRef.current) { clearTimeout(retryTimeoutRef.current); retryTimeoutRef.current = null; } cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
     useEffect(() => {
-        if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
+        // Block auto-extract if not in extractor view, auto-extract disabled, or max retry reached
+        if (activeView !== 'extractor' || !settings.autoExtract || (showFullErrorPage && retryCountRef.current >= 3)) {
+            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+            return;
+        }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
         if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) {
             const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
@@ -611,7 +615,7 @@ const BooruTagExtractor = () => {
         }
         else if (!trimmedUrl && currentExtractionUrl.current) handleReset(); else if (trimmedUrl && !trimmedUrl.startsWith('http')) { if (trimmedUrl !== currentExtractionUrl.current) setError('URL must start with http:// or https://'); }
         else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) setError(''); return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
-    }, [url, extractTags, settings.autoExtract, settings.enableUnsupportedSites, findSimilarSite, handleReset, activeView]);
+    }, [url, extractTags, settings.autoExtract, settings.enableUnsupportedSites, findSimilarSite, handleReset, activeView, showFullErrorPage]);
 
     useEffect(() => {
          const handlePaste = (event: ClipboardEvent) => {
