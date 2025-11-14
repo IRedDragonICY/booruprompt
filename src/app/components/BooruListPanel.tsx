@@ -331,11 +331,11 @@ export const BooruListPanel: React.FC = () => {
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-          className="fixed left-0 right-0 z-40 px-3 md:hidden"
-          style={{ bottom: 'calc(var(--mobile-nav-height, 56px) + 0.75rem)' }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="fixed left-0 right-0 z-40 md:hidden"
+          style={{ bottom: 'var(--mobile-nav-height, 56px)' }}
         >
-          <div className="mx-auto max-w-xl rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-2xl backdrop-blur-md">
+          <div className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-md">
             {renderSearchControls()}
           </div>
         </motion.div>
