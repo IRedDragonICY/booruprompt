@@ -215,6 +215,7 @@ const BooruTagExtractor = () => {
     const [copySuccess, setCopySuccess] = useState(false);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
+    const retryCountRef = useRef<number>(0);
     const [showSettings, setShowSettings] = useState(false);
  const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -450,9 +451,10 @@ const BooruTagExtractor = () => {
                 if (isCriticalError && !errorMsg.toLowerCase().includes('warning')) {
                     setShowFullErrorPage(true);
 
-                    // Auto-retry if we haven't reached max retries yet
-                    if (retryCount < 3) {
-                        const newRetryCount = retryCount + 1;
+                    // Auto-retry if we haven't reached max retries yet (using ref for reliable count)
+                    if (retryCountRef.current < 3) {
+                        retryCountRef.current += 1;
+                        const newRetryCount = retryCountRef.current;
                         setRetryCount(newRetryCount);
                         setIsRetrying(true);
 
@@ -465,6 +467,7 @@ const BooruTagExtractor = () => {
                         }, backoffDelay);
                     } else {
                         // Max retries reached, just show error
+                        console.log('Max retry attempts (3) reached. Stopping auto-retry.');
                         setIsRetrying(false);
                     }
                 }
@@ -488,6 +491,7 @@ const BooruTagExtractor = () => {
                 setActiveSite(siteName);
                 setError('');
                 setRetryCount(0); // Reset retry count on success
+                retryCountRef.current = 0; // Reset ref too
                 setShowFullErrorPage(false);
                 const tagCount = calculateTotalTags(result.tags || {});
                 if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`);
@@ -547,13 +551,14 @@ const BooruTagExtractor = () => {
     const handleRetryAgain = useCallback(async () => {
         // Reset retry count and try again from the beginning
         setRetryCount(0);
+        retryCountRef.current = 0; // Reset ref too
         setIsRetrying(false);
         setShowFullErrorPage(false);
         setError('');
         await extractTags(url);
     }, [url, extractTags]);
 
-    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); retryCountRef.current = 0; setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
