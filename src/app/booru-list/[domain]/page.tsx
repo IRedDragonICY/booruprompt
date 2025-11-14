@@ -19,8 +19,9 @@ interface BooruData {
   page_index: number;
 }
 
-export async function generateMetadata({ params }: { params: { domain: string } }): Promise<Metadata> {
-  const domain = decodeURIComponent(params.domain);
+export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }): Promise<Metadata> {
+  const { domain: encodedDomain } = await params;
+  const domain = decodeURIComponent(encodedDomain);
 
   try {
     // Read booru data from JSON file (server-side)
@@ -68,6 +69,7 @@ export async function generateMetadata({ params }: { params: { domain: string } 
   }
 }
 
-export default function BooruDetailPage({ params }: { params: { domain: string } }) {
-  return <BooruDetailClient params={params} />;
+export default async function BooruDetailPage({ params }: { params: Promise<{ domain: string }> }) {
+  const resolvedParams = await params;
+  return <BooruDetailClient params={resolvedParams} />;
 }
