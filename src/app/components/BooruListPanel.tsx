@@ -285,45 +285,97 @@ export const BooruListPanel: React.FC = () => {
 
       {/* Mobile Pagination Controls */}
       {isMobile && totalPages > 1 && (
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
-          {/* Previous Button */}
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-              currentPage === 1
-                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
-                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
-            }`}
-          >
-            Prev
-          </button>
+        <div className="flex flex-col gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+          {/* Page Numbers Row */}
+          <div className="flex items-center justify-center gap-1">
+            {(() => {
+              const pages: (number | string)[] = [];
 
-          {/* Page Info */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-              Page
-            </span>
-            <span className="px-2 py-1 rounded-md bg-[rgb(var(--color-primary-rgb))]/10 text-xs font-semibold text-[rgb(var(--color-primary-rgb))]">
-              {currentPage}
-            </span>
-            <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-              of {totalPages}
-            </span>
+              if (totalPages <= 5) {
+                // Show all pages if total is 5 or less
+                for (let i = 1; i <= totalPages; i++) {
+                  pages.push(i);
+                }
+              } else {
+                // Always show first page
+                pages.push(1);
+
+                if (currentPage <= 3) {
+                  // Near the start: 1 2 3 4 ... last
+                  for (let i = 2; i <= 4; i++) {
+                    pages.push(i);
+                  }
+                  pages.push('...');
+                  pages.push(totalPages);
+                } else if (currentPage >= totalPages - 2) {
+                  // Near the end: 1 ... last-3 last-2 last-1 last
+                  pages.push('...');
+                  for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                  }
+                } else {
+                  // In the middle: 1 ... current-1 current current+1 ... last
+                  pages.push('...');
+                  pages.push(currentPage - 1);
+                  pages.push(currentPage);
+                  pages.push(currentPage + 1);
+                  pages.push('...');
+                  pages.push(totalPages);
+                }
+              }
+
+              return pages.map((page, idx) => {
+                if (page === '...') {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="text-[rgb(var(--color-on-surface-muted-rgb))] text-xs px-0.5">
+                      ...
+                    </span>
+                  );
+                }
+
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page as number)}
+                    className={`min-w-[28px] h-7 px-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                      currentPage === page
+                        ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
+                        : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              });
+            })()}
           </div>
 
-          {/* Next Button */}
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-              currentPage === totalPages
-                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
-                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
-            }`}
-          >
-            Next
-          </button>
+          {/* Prev/Next Buttons Row */}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`flex-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                currentPage === 1
+                  ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                  : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+              }`}
+            >
+              Previous
+            </button>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`flex-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                currentPage === totalPages
+                  ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                  : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>
