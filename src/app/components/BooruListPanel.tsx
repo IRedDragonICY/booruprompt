@@ -469,7 +469,7 @@ export const BooruListPanel: React.FC = () => {
 
         {/* Pagination Controls - Desktop Only */}
         {!isMobile && totalPages > 1 && (
-          <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 md:p-4 -mx-6 -mb-6">
+          <div className="shrink-0 mt-auto border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] py-4">
             <div className="flex items-center justify-center gap-4">
               {/* Previous Button */}
               <button
