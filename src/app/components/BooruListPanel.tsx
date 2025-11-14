@@ -263,11 +263,8 @@ export const BooruListPanel: React.FC = () => {
     }, []);
 
     return (
-      <motion.a
+      <motion.div
         key={booru.rank}
-        href={booru.booru_url}
-        target="_blank"
-        rel="noopener noreferrer"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -310,9 +307,15 @@ export const BooruListPanel: React.FC = () => {
 
             {/* Title and Domain */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-[rgb(var(--color-on-surface-rgb))] text-sm md:text-base mb-1 truncate group-hover:text-[rgb(var(--color-primary-rgb))] transition-colors">
-                {booru.booru_title}
-              </h3>
+              <a
+                href={`/booru-list/${encodeURIComponent(booru.domain)}`}
+                className="block"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="font-semibold text-[rgb(var(--color-on-surface-rgb))] text-sm md:text-base mb-1 truncate hover:text-[rgb(var(--color-primary-rgb))] transition-colors">
+                  {booru.booru_title}
+                </h3>
+              </a>
               <div className="flex items-center gap-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                 <GlobeAltIcon className="h-3 w-3" />
                 <span className="truncate">{booru.domain}</span>
@@ -320,7 +323,16 @@ export const BooruListPanel: React.FC = () => {
             </div>
 
             {/* External Link Icon */}
-            <ArrowUpRightIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-muted-rgb))] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+            <a
+              href={booru.booru_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0"
+              title={`Visit ${booru.booru_title}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ArrowUpRightIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))] transition-colors" />
+            </a>
           </div>
 
           {/* Stats */}
@@ -351,7 +363,7 @@ export const BooruListPanel: React.FC = () => {
             </div>
           )}
         </div>
-      </motion.a>
+      </motion.div>
     );
   });
 
