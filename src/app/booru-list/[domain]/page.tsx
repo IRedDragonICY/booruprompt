@@ -19,6 +19,24 @@ interface BooruData {
   page_index: number;
 }
 
+// Generate static params for all booru domains (required for static export/Tauri)
+export async function generateStaticParams() {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const filePath = path.join(process.cwd(), 'public', 'booru_top.json');
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    const booruData: BooruData[] = JSON.parse(fileContents);
+
+    return booruData.map((booru) => ({
+      domain: encodeURIComponent(booru.domain),
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }): Promise<Metadata> {
   const { domain: encodedDomain } = await params;
   const domain = decodeURIComponent(encodedDomain);
