@@ -106,6 +106,101 @@ export const BooruListPanel: React.FC = () => {
     return num.toLocaleString('en-US');
   };
 
+  // BooruCard component to handle individual favicon loading
+  const BooruCard = ({ booru, index }: { booru: BooruData; index: number }) => {
+    const [faviconError, setFaviconError] = useState(false);
+
+    return (
+      <motion.a
+        key={booru.rank}
+        href={booru.booru_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.3) }}
+        className="group relative rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 shadow-sm hover:shadow-md hover:border-[rgb(var(--color-primary-rgb))]/30 transition-all duration-200"
+      >
+        {/* Rank Badge */}
+        <div className="absolute -top-2 -left-2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-[rgb(var(--color-primary-rgb))] text-white font-bold text-xs md:text-sm flex items-center justify-center shadow-md">
+          #{booru.rank}
+        </div>
+
+        {/* Status Badge */}
+        <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+          booru.is_safe
+            ? 'bg-[rgb(var(--color-success-rgb))]/10 text-[rgb(var(--color-success-rgb))]'
+            : 'bg-[rgb(var(--color-error-rgb))]/10 text-[rgb(var(--color-error-rgb))]'
+        }`}>
+          {booru.status_label}
+        </div>
+
+        {/* Booru Info */}
+        <div className="mt-2">
+          <div className="flex items-start gap-3 mb-3">
+            {/* Favicon */}
+            <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center overflow-hidden">
+              {booru.favicon_url && !faviconError ? (
+                <img
+                  src={booru.favicon_url}
+                  alt={booru.booru_title}
+                  className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                  onError={() => setFaviconError(true)}
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <GlobeAltIcon className="h-5 w-5 md:h-6 md:w-6 text-[rgb(var(--color-on-surface-muted-rgb))]" />
+              )}
+            </div>
+
+            {/* Title and Domain */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-[rgb(var(--color-on-surface-rgb))] text-sm md:text-base mb-1 truncate group-hover:text-[rgb(var(--color-primary-rgb))] transition-colors">
+                {booru.booru_title}
+              </h3>
+              <div className="flex items-center gap-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                <GlobeAltIcon className="h-3 w-3" />
+                <span className="truncate">{booru.domain}</span>
+              </div>
+            </div>
+
+            {/* External Link Icon */}
+            <ArrowUpRightIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-muted-rgb))] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
+            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
+              <PhotoIcon className="h-4 w-4 text-[rgb(var(--color-primary-rgb))]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">Images</p>
+                <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.images)}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
+              <UserGroupIcon className="h-4 w-4 text-[rgb(var(--color-secondary-rgb))]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">Members</p>
+                <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.members)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Owner Info */}
+          {booru.owner_name && (
+            <div className="mt-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+              <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                Owner: <span className="font-medium text-[rgb(var(--color-on-surface-rgb))]">{booru.owner_name}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.a>
+    );
+  };
+
   // Render Search and Filter Controls component
   const renderSearchControls = () => (
     <div className="flex flex-col gap-3">
@@ -311,93 +406,7 @@ export const BooruListPanel: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 pb-4">
                 {paginatedData.map((booru, index) => (
-                  <motion.a
-                    key={booru.rank}
-                    href={booru.booru_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.3) }}
-                    className="group relative rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 shadow-sm hover:shadow-md hover:border-[rgb(var(--color-primary-rgb))]/30 transition-all duration-200"
-                  >
-                    {/* Rank Badge */}
-                    <div className="absolute -top-2 -left-2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-[rgb(var(--color-primary-rgb))] text-white font-bold text-xs md:text-sm flex items-center justify-center shadow-md">
-                      #{booru.rank}
-                    </div>
-
-                    {/* Status Badge */}
-                    <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                      booru.is_safe
-                        ? 'bg-[rgb(var(--color-success-rgb))]/10 text-[rgb(var(--color-success-rgb))]'
-                        : 'bg-[rgb(var(--color-error-rgb))]/10 text-[rgb(var(--color-error-rgb))]'
-                    }`}>
-                      {booru.status_label}
-                    </div>
-
-                    {/* Booru Info */}
-                    <div className="mt-2">
-                      <div className="flex items-start gap-3 mb-3">
-                        {/* Favicon */}
-                        {booru.favicon_url && (
-                          <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] flex items-center justify-center overflow-hidden">
-                            <img
-                              src={booru.favicon_url}
-                              alt={booru.booru_title}
-                              className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.parentElement!.innerHTML = '<div class="text-lg">🌐</div>';
-                              }}
-                            />
-                          </div>
-                        )}
-
-                        {/* Title and Domain */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-[rgb(var(--color-on-surface-rgb))] text-sm md:text-base mb-1 truncate group-hover:text-[rgb(var(--color-primary-rgb))] transition-colors">
-                            {booru.booru_title}
-                          </h3>
-                          <div className="flex items-center gap-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                            <GlobeAltIcon className="h-3 w-3" />
-                            <span className="truncate">{booru.domain}</span>
-                          </div>
-                        </div>
-
-                        {/* External Link Icon */}
-                        <ArrowUpRightIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-muted-rgb))] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                      </div>
-
-                      {/* Stats */}
-                      <div className="grid grid-cols-2 gap-2 md:gap-3">
-                        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
-                          <PhotoIcon className="h-4 w-4 text-[rgb(var(--color-primary-rgb))]" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">Images</p>
-                            <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.images)}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
-                          <UserGroupIcon className="h-4 w-4 text-[rgb(var(--color-secondary-rgb))]" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">Members</p>
-                            <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.members)}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Owner Info */}
-                      {booru.owner_name && (
-                        <div className="mt-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
-                          <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                            Owner: <span className="font-medium text-[rgb(var(--color-on-surface-rgb))]">{booru.owner_name}</span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </motion.a>
+                  <BooruCard key={booru.rank} booru={booru} index={index} />
                 ))}
               </div>
             )}
