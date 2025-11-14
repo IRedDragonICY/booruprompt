@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import { AnimatedIcon } from './AnimatedIcon';
@@ -48,14 +48,33 @@ const HISTORY_SIZE_OPTIONS = [
     { label: 'Unlimited', value: -1 },
 ];
 
+// Debounce hook for performance
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    return debouncedValue;
+}
+
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSettingsChange }) => {
+export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
      const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
 
     useEffect(() => {
         setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     }, [settings.customColorHex]);
+
+    // Debounce custom color to prevent excessive updates
+    const debouncedCustomHex = useDebounce(currentCustomHex, 300);
+
+    useEffect(() => {
+        if (/^#[0-9a-fA-F]{6}$/.test(debouncedCustomHex) && settings.colorTheme === 'custom') {
+            onSettingsChange({ customColorHex: debouncedCustomHex });
+        }
+    }, [debouncedCustomHex, onSettingsChange, settings.colorTheme]);
 
     // Lock background scroll when modal is open
     useEffect(() => {
@@ -89,20 +108,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     const handleCustomColorInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         setCurrentCustomHex(newHex);
-        onSettingsChange({ colorTheme: 'custom', customColorHex: newHex });
-    }, [onSettingsChange]);
+        if (settings.colorTheme !== 'custom') {
+            onSettingsChange({ colorTheme: 'custom' });
+        }
+    }, [onSettingsChange, settings.colorTheme]);
 
     const handleCustomColorTextChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
         setCurrentCustomHex(cleanHex);
-        if (/^#?[0-9a-fA-F]{6}$/.test(cleanHex)) {
-            const finalHex = cleanHex.startsWith('#') ? cleanHex : '#' + cleanHex;
-            if(finalHex.length === 7){
-                onSettingsChange({ colorTheme: 'custom', customColorHex: finalHex });
-            }
+        if (settings.colorTheme !== 'custom') {
+            onSettingsChange({ colorTheme: 'custom' });
         }
-    }, [onSettingsChange]);
+    }, [onSettingsChange, settings.colorTheme]);
 
     const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
@@ -150,9 +168,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                         <div className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
                             <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">Settings</h2>
                             <TooltipWrapper tipContent="Close Settings">
-                                <motion.button whileTap={{ scale: 0.9 }} whileHover={{ rotate: 90, scale: 1.1 }} onClick={onClose} className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-colors hover:text-[rgb(var(--color-on-surface-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Close Settings">
+                                <button onClick={onClose} className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-all hover:text-[rgb(var(--color-on-surface-rgb))] hover:rotate-90 active:scale-90 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label="Close Settings">
                                     <XMarkIcon className="h-6 w-6" />
-                                </motion.button>
+                                </button>
                             </TooltipWrapper>
                         </div>
                         <div className="space-y-6 px-4 md:px-0 pb-4 md:pb-0">
@@ -183,33 +201,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                 <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
-                                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <label className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                                 <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
                                                 <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
                                                 <AnimatePresence>
                                                     {settings.colorTheme === value && (
-                                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
+                                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }} >
                                                             <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
                                                 <span className="sr-only">{label}</span>
-                                            </motion.label>
+                                            </label>
                                         </TooltipWrapper>
                                     ))}
                                     <TooltipWrapper tipContent="Custom Color">
-                                        <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                        <label className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                             <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
                                             <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: isValidHex ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
                                                 {settings.colorTheme === 'custom' && (
-                                                    <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }} >
+                                                    <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }} >
                                                         <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
                                             <span className="sr-only">Custom</span>
-                                        </motion.label>
+                                        </label>
                                     </TooltipWrapper>
                                 </div>
                                 {settings.colorTheme === 'custom' && (
@@ -425,7 +443,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                                          aria-label="Blacklist Keywords"
                                      />
                                      <div className="text-right">
-                                         <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500">Reset to Default</motion.button>
+                                         <button type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500 active:scale-95">Reset to Default</button>
                                      </div>
                                  </motion.div>
                              </div>
@@ -481,7 +499,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                         </div>
 
                         <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0 hidden md:block">
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-colors duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</motion.button>
+                            <button onClick={onClose} className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-all duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Done</button>
                         </div>
                       </div>
                     </motion.div>
@@ -489,5 +507,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             )}
         </AnimatePresence>
     );
-};
-SettingsModal.displayName = 'SettingsModal';
+});

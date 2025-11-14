@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { AnimatedIcon } from './AnimatedIcon';
 import { TooltipWrapper } from './TooltipWrapper';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
@@ -25,13 +25,32 @@ const HISTORY_SIZE_OPTIONS = [
     { label: 'Unlimited', value: -1 },
 ];
 
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    return debouncedValue;
+}
+
 interface SettingsPanelProps { settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 
-export function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
+export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
 
     useEffect(() => { setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX); }, [settings.customColorHex]);
+
+    // Debounce custom color hex to prevent excessive updates
+    const debouncedCustomHex = useDebounce(currentCustomHex, 300);
+
+    useEffect(() => {
+        if (/^#[0-9a-fA-F]{6}$/.test(debouncedCustomHex) && settings.colorTheme === 'custom') {
+            onSettingsChange({ customColorHex: debouncedCustomHex });
+        }
+    }, [debouncedCustomHex, onSettingsChange, settings.colorTheme]);
 
     const handleThemeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: e.target.value as ThemePreference }), [onSettingsChange]);
     const handleColorThemeRadioChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,11 +63,21 @@ export function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps
             onSettingsChange({ colorTheme: value });
         }
     }, [onSettingsChange, currentCustomHex]);
-    const handleCustomColorInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => { const v = e.target.value; setCurrentCustomHex(v); onSettingsChange({ colorTheme: 'custom', customColorHex: v }); }, [onSettingsChange]);
+    const handleCustomColorInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const v = e.target.value;
+        setCurrentCustomHex(v);
+        if (settings.colorTheme !== 'custom') {
+            onSettingsChange({ colorTheme: 'custom' });
+        }
+    }, [onSettingsChange, settings.colorTheme]);
     const handleCustomColorTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const newHex = e.target.value; const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`; setCurrentCustomHex(cleanHex);
-        if (/^#?[0-9a-fA-F]{6}$/.test(cleanHex)) { const finalHex = cleanHex.startsWith('#') ? cleanHex : '#' + cleanHex; if (finalHex.length === 7) onSettingsChange({ colorTheme: 'custom', customColorHex: finalHex }); }
-    }, [onSettingsChange]);
+        const newHex = e.target.value;
+        const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
+        setCurrentCustomHex(cleanHex);
+        if (settings.colorTheme !== 'custom') {
+            onSettingsChange({ colorTheme: 'custom' });
+        }
+    }, [onSettingsChange, settings.colorTheme]);
 
     const handleAutoExtractChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: e.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: e.target.checked }), [onSettingsChange]);
@@ -104,33 +133,33 @@ export function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps
                     <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                         {colorThemeOptions.map(({ value, label, colorClass }) => (
                             <TooltipWrapper key={value} tipContent={label}>
-                                <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                <label className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                     <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={`Color Theme ${label}`} />
                                     <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
                                     <AnimatePresence>
                                         {settings.colorTheme === value && (
-                                            <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}>
+                                            <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }}>
                                                 <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                     <span className="sr-only">{label}</span>
-                                </motion.label>
+                                </label>
                             </TooltipWrapper>
                         ))}
                         <TooltipWrapper tipContent="Custom Color">
-                            <motion.label whileHover={{ scale: 1.05 }} className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                            <label className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
                                 <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label="Custom Color Theme" />
                                 <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: isValidHex ? currentCustomHex : '#ffffff' }}></span>
                                 <AnimatePresence>
                                     {settings.colorTheme === 'custom' && (
-                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}>
+                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }}>
                                             <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                                 <span className="sr-only">Custom</span>
-                            </motion.label>
+                            </label>
                         </TooltipWrapper>
                     </div>
                     {settings.colorTheme === 'custom' && (
@@ -208,7 +237,7 @@ export function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps
                     <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">Enter keywords to block, separated by commas, semicolons, or new lines.</p>
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: settings.enableBlacklist ? 1 : 0, height: settings.enableBlacklist ? 'auto' : 0 }} className={`mt-2 space-y-2 overflow-hidden ${settings.enableBlacklist ? '' : 'pointer-events-none'}`}>
                         <textarea value={localBlacklist} onChange={handleBlacklistChange} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder={DEFAULT_BLACKLIST_KEYWORDS} aria-label="Blacklist Keywords" />
-                        <div className="text-right"><motion.button whileTap={{ scale: 0.95 }} type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500">Reset to Default</motion.button></div>
+                        <div className="text-right"><button type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500 active:scale-95">Reset to Default</button></div>
                     </motion.div>
                 </div>
 
@@ -237,7 +266,7 @@ export function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps
             </div>
         </div>
     );
-}
+});
 
 export default SettingsPanel;
 
