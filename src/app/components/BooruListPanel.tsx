@@ -405,13 +405,13 @@ export const BooruListPanel: React.FC = () => {
 
   return (
     <>
-      <div className="h-full flex flex-col space-y-4 md:space-y-6">
+      <div className="h-full flex flex-col">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="rounded-lg md:rounded-xl bg-gradient-to-br from-[rgb(var(--color-surface-alt-rgb))] via-[rgb(var(--color-surface-alt-rgb))] to-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 md:p-6 shadow-sm"
+          className="rounded-lg md:rounded-xl bg-gradient-to-br from-[rgb(var(--color-surface-alt-rgb))] via-[rgb(var(--color-surface-alt-rgb))] to-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 md:p-6 shadow-sm mb-4 md:mb-6"
         >
           <div className="flex items-start gap-3 md:gap-4">
             <div className="rounded-md md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/10 p-2 md:p-3">
@@ -435,7 +435,7 @@ export const BooruListPanel: React.FC = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-3 md:p-4 shadow-sm"
+            className="rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-3 md:p-4 shadow-sm mb-4 md:mb-6"
           >
             {renderSearchControls()}
           </motion.div>
@@ -469,7 +469,7 @@ export const BooruListPanel: React.FC = () => {
 
         {/* Pagination Controls - Desktop Only */}
         {!isMobile && totalPages > 1 && (
-          <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 md:p-4">
+          <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 md:p-4 -mx-6 -mb-6">
             <div className="flex items-center justify-center gap-4">
               {/* Previous Button */}
               <button
