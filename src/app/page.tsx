@@ -22,6 +22,7 @@ import BooruListPanel from './components/BooruListPanel';
 import { StatusMessage } from './components/StatusMessage';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
+import ErrorPage from './components/ErrorPage';
 import DesktopAppShell from './layouts/DesktopAppShell';
 import MobileAppShell from './layouts/MobileAppShell';
 import SettingsPanel from './components/SettingsPanel';
@@ -206,11 +207,16 @@ const BooruTagExtractor = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [activeSite, setActiveSite] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
+    const [isRetrying, setIsRetrying] = useState(false);
+    const [showFullErrorPage, setShowFullErrorPage] = useState(false);
     const [tagCategories, setTagCategories] = useState<TagCategoryOption[]>(DEFAULT_TAG_CATEGORIES);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [copySuccess, setCopySuccess] = useState(false);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
+    const retryCountRef = useRef<number>(0);
+    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [showSettings, setShowSettings] = useState(false);
  const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -228,6 +234,26 @@ const BooruTagExtractor = () => {
     const [copyStatus, setCopyStatus] = useState<CopyStatus>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [showHistoryMobile, setShowHistoryMobile] = useState<boolean>(false);
+
+    // Helper: Clear all timeouts
+    const clearAllTimeouts = useCallback(() => {
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+            debounceTimeoutRef.current = null;
+        }
+        if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+        }
+    }, []);
+
+    // Helper: Reset retry state
+    const resetRetryState = useCallback(() => {
+        setRetryCount(0);
+        retryCountRef.current = 0;
+        setIsRetrying(false);
+        setShowFullErrorPage(false);
+    }, []);
 
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
@@ -360,6 +386,12 @@ const BooruTagExtractor = () => {
         const trimmedUrl = targetUrl.trim();
         if (!trimmedUrl || loading || trimmedUrl === currentExtractionUrl.current) return;
 
+        // Guard: prevent extraction if max retry attempts have been reached
+        if (retryCountRef.current >= 3 && showFullErrorPage) {
+            console.log('Blocked extraction attempt: max retry limit (3) already reached.');
+            return;
+        }
+
         let site = BOORU_SITES.find(s => s.urlPattern.test(trimmedUrl));
 
         if (!site && settings.enableUnsupportedSites) {
@@ -432,16 +464,123 @@ const BooruTagExtractor = () => {
                 if (clientErr) { errorMsg = clientErr; siteName = ''; } else if (!html) { errorMsg = 'Failed HTML fetch via Client Proxy.'; siteName = ''; }
                 else { try { const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); try { doc.querySelector('base')?.remove(); const head = doc.head || doc.documentElement.appendChild(doc.createElement('head')); const base = doc.createElement('base'); base.href = new URL('./', trimmedUrl).href; head.insertBefore(base, head.firstChild); } catch (e) { console.warn(`Base tag set failed:`, e); } const detectPageError = (d: Document) => { let detected = false; let msg = "Check URL/site."; if (d.title.toLowerCase().match(/error|access denied|cloudflare/)) { detected = true; msg = `Site error in title: ${d.title.substring(0, 100)}`; } const errEl = d.querySelector('.error,#error-page,.dtext-error,[class*="error"],[id*="error"],#challenge-running'); if (errEl?.textContent?.trim()) { detected = true; const errTxt = errEl.textContent.trim().toLowerCase(); if (errTxt.includes("rate limit")) msg = "Rate limit exceeded."; else if (errTxt.includes("login") || errTxt.includes("authenticate")) msg = "Login required."; else if (errTxt.includes("not found")) msg = "Post not found (404)."; else if (errTxt.includes("cloudflare")) msg = "Blocked by Cloudflare."; else msg = `Site Error: ${errEl.textContent.trim().substring(0, 150)}`; } if (!detected && d.body) { const bodyTxt = d.body.textContent?.toLowerCase() || ''; if (bodyTxt.includes('you must be logged in')) { detected = true; msg = `Login required.`; } else if (bodyTxt.includes('access denied')) { detected = true; msg = `Access denied.`; } else if (bodyTxt.includes('cloudflare')) { detected = true; msg = `Blocked by Cloudflare.`; } else if (bodyTxt.includes('enable javascript')) { detected = true; msg = `Site requires JS/Cookies.`; } } return { detected, msg }; }; const { detected: pageErr, msg: specificErr } = detectPageError(doc); if (pageErr) { errorMsg = `Extraction stopped: ${specificErr}`; siteName = ''; } else { result = site.extractTags(doc); imgUrl = result.imageUrl; imgTitle = result.title; const tagCount = calculateTotalTags(result.tags || {}); if (tagCount === 0) errorMsg = result.imageUrl ? 'Warning: Image found, no tags (Client).' : 'Warning: No tags/image (Client).'; } } catch (parseErr) { errorMsg = `Parse/extract failed via ${proxyUsed}: ${(parseErr as Error).message}`; siteName = ''; } }
             }
-            if (errorMsg) { setError(errorMsg); console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed); setActiveSite(siteName || null); if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) { setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; } else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName); } }
-            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; }); } }
+            if (errorMsg) {
+                setError(errorMsg);
+                console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
+                setActiveSite(siteName || null);
+
+                // Check if this is a critical error that should show the error page
+                const isCriticalError = errorMsg.toLowerCase().includes('bad gateway') ||
+                                       errorMsg.toLowerCase().includes('403') ||
+                                       errorMsg.toLowerCase().includes('timed out') ||
+                                       errorMsg.toLowerCase().includes('failed to connect');
+
+                if (isCriticalError && !errorMsg.toLowerCase().includes('warning')) {
+                    setShowFullErrorPage(true);
+
+                    // Auto-retry if we haven't reached max retries yet (using ref for reliable count)
+                    if (retryCountRef.current < 3) {
+                        // Clear any pending retry timeout before scheduling a new one
+                        if (retryTimeoutRef.current) {
+                            clearTimeout(retryTimeoutRef.current);
+                            retryTimeoutRef.current = null;
+                        }
+
+                        retryCountRef.current += 1;
+                        const newRetryCount = retryCountRef.current;
+                        setRetryCount(newRetryCount);
+                        setIsRetrying(true);
+
+                        const backoffDelay = Math.pow(2, newRetryCount) * 1000; // 2s, 4s, 8s
+                        console.log(`Auto-retrying extraction (attempt ${newRetryCount}/3) after ${backoffDelay}ms...`);
+
+                        // Store timeout ID so we can clear it if needed
+                        retryTimeoutRef.current = setTimeout(() => {
+                            retryTimeoutRef.current = null;
+                            setIsRetrying(false);
+                            void extractTags(trimmedUrl);
+                        }, backoffDelay);
+                    } else {
+                        // Max retries reached, clear any pending timeouts and stop
+                        if (retryTimeoutRef.current) {
+                            clearTimeout(retryTimeoutRef.current);
+                            retryTimeoutRef.current = null;
+                        }
+                        console.log('Max retry attempts (3) reached. Stopping auto-retry.');
+                        setIsRetrying(false);
+                    }
+                }
+
+                if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) {
+                    setAllExtractedTags({});
+                    setImageUrl(undefined);
+                    setImageTitle(undefined);
+                    currentExtractionUrl.current = null;
+                } else {
+                    setAllExtractedTags(result.tags || {});
+                    setImageUrl(imgUrl);
+                    setImageTitle(imgTitle);
+                    console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName);
+                }
+            }
+            else {
+                // Clear timeouts and reset retry state on success
+                clearAllTimeouts();
+                resetRetryState();
+
+                setAllExtractedTags(result.tags || {});
+                setImageUrl(imgUrl);
+                setImageTitle(imgTitle);
+                setActiveSite(siteName);
+                setError('');
+                const tagCount = calculateTotalTags(result.tags || {});
+                if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`);
+                if (settings.saveHistory) {
+                    const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() };
+                    setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; });
+                }
+            }
         } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
         finally { setLoading(false); }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage, clearAllTimeouts, resetRetryState]);
 
-    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+    const handleReportBug = useCallback(() => {
+        const githubIssuesUrl = 'https://github.com/IRedDragonICY/booruprompt/issues/new';
+        const issueTitle = encodeURIComponent('502 Gateway Error - Failed to fetch from booru site');
+        const issueBody = encodeURIComponent(
+            `## Bug Report\n\n` +
+            `**Error:** ${error}\n\n` +
+            `**URL:** ${url}\n\n` +
+            `**Fetch Mode:** ${settings.fetchMode}\n\n` +
+            `**Retry Count:** ${retryCount}\n\n` +
+            `**Steps to Reproduce:**\n` +
+            `1. Paste the URL above\n` +
+            `2. Click Extract or enable auto-extract\n` +
+            `3. Observe the 502 gateway error\n\n` +
+            `**Expected Behavior:**\n` +
+            `Tags should be extracted successfully from the booru post.\n\n` +
+            `**Additional Context:**\n` +
+            `Add any other context about the problem here.`
+        );
+
+        window.open(`${githubIssuesUrl}?title=${issueTitle}&body=${issueBody}`, '_blank');
+    }, [error, url, settings.fetchMode, retryCount]);
+
+    const handleRetryAgain = useCallback(async () => {
+        clearAllTimeouts();
+        resetRetryState();
+        setError('');
+        await extractTags(url);
+    }, [url, extractTags, clearAllTimeouts, resetRetryState]);
+
+    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); resetRetryState(); clearAllTimeouts(); currentExtractionUrl.current = null; cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [clearAllTimeouts, resetRetryState]);
 
     useEffect(() => {
-        if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
+        // Block auto-extract if not in extractor view, auto-extract disabled, or max retry reached
+        if (activeView !== 'extractor' || !settings.autoExtract || (showFullErrorPage && retryCountRef.current >= 3)) {
+            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+            return;
+        }
         if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); const trimmedUrl = url.trim();
         if (trimmedUrl && trimmedUrl.includes('.') && trimmedUrl.length > 10 && trimmedUrl.startsWith('http')) {
             const isSupported = BOORU_SITES.some(s => s.urlPattern.test(trimmedUrl));
@@ -460,7 +599,7 @@ const BooruTagExtractor = () => {
         }
         else if (!trimmedUrl && currentExtractionUrl.current) handleReset(); else if (trimmedUrl && !trimmedUrl.startsWith('http')) { if (trimmedUrl !== currentExtractionUrl.current) setError('URL must start with http:// or https://'); }
         else if (trimmedUrl && trimmedUrl !== currentExtractionUrl.current) setError(''); return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); };
-    }, [url, extractTags, settings.autoExtract, settings.enableUnsupportedSites, findSimilarSite, handleReset, activeView]);
+    }, [url, extractTags, settings.autoExtract, settings.enableUnsupportedSites, findSimilarSite, handleReset, activeView, showFullErrorPage]);
 
     useEffect(() => {
          const handlePaste = (event: ClipboardEvent) => {
@@ -608,9 +747,18 @@ const BooruTagExtractor = () => {
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                        {error && showFullErrorPage && (
+                                            <ErrorPage
+                                                error={error}
+                                                retryCount={retryCount}
+                                                isRetrying={isRetrying}
+                                                onReportBug={handleReportBug}
+                                                onRetryAgain={handleRetryAgain}
+                                            />
+                                        )}
+                                        {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
-                                    {isMobile && !loading && !hasResults && <BooruInfoSection />}
+                                    {isMobile && !loading && !hasResults && !error && <BooruInfoSection />}
                                     <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                     {!isMobile && (
                     <AnimatePresence>
@@ -779,21 +927,37 @@ const BooruTagExtractor = () => {
                                 <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
                                 <div className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
                                     {/* Info Section - Full Width */}
-                                    {!loading && !hasResults && (
+                                    {!loading && !hasResults && !error && (
                                         <div className="flex justify-center">
                                             <div className="w-full max-w-4xl">
                                                 <BooruInfoSection />
                                             </div>
                                         </div>
                                     )}
-                                    
-                                    {/* Two Column Layout */}
-                                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-                                        {/* Left Column - Preview and Categories */}
-                                        <div className="space-y-4 overflow-hidden">
-                                            <AnimatePresence mode='wait'>
-                                                {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
-                                            </AnimatePresence>
+
+                                    {/* Error Page - Full Width Center */}
+                                    {error && showFullErrorPage && !loading && (
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <div className="w-full max-w-2xl">
+                                                <ErrorPage
+                                                    error={error}
+                                                    retryCount={retryCount}
+                                                    isRetrying={isRetrying}
+                                                    onReportBug={handleReportBug}
+                                                    onRetryAgain={handleRetryAgain}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Two Column Layout - Hidden when error page shown */}
+                                    {!showFullErrorPage && (
+                                        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
+                                            {/* Left Column - Preview and Categories */}
+                                            <div className="space-y-4 overflow-hidden">
+                                                <AnimatePresence mode='wait'>
+                                                    {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                                </AnimatePresence>
                                             <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                             <AnimatePresence>
                                             {!loading && hasResults && totalExtractedTagCount > 0 && (
@@ -854,6 +1018,7 @@ const BooruTagExtractor = () => {
                                         </AnimatePresence>
                                     </div>
                                 </div>
+                                    )}
                                 </div>
                                 {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
                                 {!isMobile && (
