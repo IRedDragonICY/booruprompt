@@ -934,23 +934,30 @@ const BooruTagExtractor = () => {
                                             </div>
                                         </div>
                                     )}
-                                    
-                                    {/* Two Column Layout */}
-                                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-                                        {/* Left Column - Preview and Categories */}
-                                        <div className="space-y-4 overflow-hidden">
-                                            <AnimatePresence mode='wait'>
-                                                {error && showFullErrorPage && !loading && (
-                                                    <ErrorPage
-                                                        error={error}
-                                                        retryCount={retryCount}
-                                                        isRetrying={isRetrying}
-                                                        onReportBug={handleReportBug}
-                                                        onRetryAgain={handleRetryAgain}
-                                                    />
-                                                )}
-                                                {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
-                                            </AnimatePresence>
+
+                                    {/* Error Page - Full Width Center */}
+                                    {error && showFullErrorPage && !loading && (
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <div className="w-full max-w-2xl">
+                                                <ErrorPage
+                                                    error={error}
+                                                    retryCount={retryCount}
+                                                    isRetrying={isRetrying}
+                                                    onReportBug={handleReportBug}
+                                                    onRetryAgain={handleRetryAgain}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Two Column Layout - Hidden when error page shown */}
+                                    {!showFullErrorPage && (
+                                        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
+                                            {/* Left Column - Preview and Categories */}
+                                            <div className="space-y-4 overflow-hidden">
+                                                <AnimatePresence mode='wait'>
+                                                    {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                                </AnimatePresence>
                                             <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                             <AnimatePresence>
                                             {!loading && hasResults && totalExtractedTagCount > 0 && (
@@ -1011,6 +1018,7 @@ const BooruTagExtractor = () => {
                                         </AnimatePresence>
                                     </div>
                                 </div>
+                                    )}
                                 </div>
                                 {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
                                 {!isMobile && (
