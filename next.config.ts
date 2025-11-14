@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
           return [
             { source: '/booru-tag', destination: '/' },
             { source: '/image-metadata', destination: '/' },
+            { source: '/booru-list', destination: '/' },
           ];
         },
       }),

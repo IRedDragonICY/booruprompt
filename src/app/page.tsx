@@ -18,6 +18,7 @@ import FilteredTagsPanel from './components/FilteredTagsPanel';
 import PreviewSection from './components/PreviewSection';
 import CategoryToggle from './components/CategoryToggle';
 import BooruInfoSection from './components/BooruInfoSection';
+import BooruListPanel from './components/BooruListPanel';
 import { StatusMessage } from './components/StatusMessage';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
@@ -586,6 +587,7 @@ const BooruTagExtractor = () => {
                     active={activeView}
                     selectExtractor={() => setActiveView('extractor')}
                     selectImage={() => setActiveView('image')}
+                    selectBooruList={() => setActiveView('booru-list')}
                     openSettings={() => setActiveView('settings')}
                     highlightSettings={showSettings}
                     isDraggingOverExtractor={isDraggingOver}
@@ -739,6 +741,12 @@ const BooruTagExtractor = () => {
                                   </div>
                                 )}
                             </motion.div>
+                        ) : activeView === 'booru-list' ? (
+                            <motion.div key="booru-list-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+                                <div className="flex-grow overflow-y-auto p-6 pb-24 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <BooruListPanel />
+                                </div>
+                            </motion.div>
                         ) : (
                             <motion.div key="settings-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} transition={{ duration: 0.25, ease: "easeOut" }}>
                                 <SettingsPanel settings={settings} onSettingsChange={handleSettingsChange} />
@@ -752,6 +760,7 @@ const BooruTagExtractor = () => {
                     highlightSettings={showSettings}
                     selectExtractor={() => setActiveView('extractor')}
                     selectImage={() => setActiveView('image')}
+                    selectBooruList={() => setActiveView('booru-list')}
                     openSettings={handleOpenSettings}
                     isDraggingOverExtractor={isDraggingOver}
                     isDraggingOverImage={isDraggingOverImage}
@@ -895,7 +904,13 @@ const BooruTagExtractor = () => {
                                  </div>
                                 )}
                             </motion.div>
-                        )}
+                        ) : activeView === 'booru-list' ? (
+                            <motion.div key="booru-list-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                                <div className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                                    <BooruListPanel />
+                                </div>
+                            </motion.div>
+                        ) : null}
                     </AnimatePresence>
                 </DesktopAppShell>
             )}
