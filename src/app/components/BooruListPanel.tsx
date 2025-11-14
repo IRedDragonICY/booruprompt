@@ -416,10 +416,10 @@ export const BooruListPanel: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
+        {/* Pagination Controls - Desktop Only */}
+        {!isMobile && totalPages > 1 && (
           <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 md:p-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-center gap-4">
               {/* Previous Button */}
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -435,44 +435,66 @@ export const BooruListPanel: React.FC = () => {
 
               {/* Page Numbers */}
               <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
+                {(() => {
+                  const pages: (number | string)[] = [];
+
+                  if (totalPages <= 7) {
+                    // Show all pages if total is 7 or less
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(i);
+                    }
                   } else {
-                    pageNum = currentPage - 2 + i;
+                    // Always show first page
+                    pages.push(1);
+
+                    if (currentPage <= 4) {
+                      // Near the start: 1 2 3 4 5 ... last
+                      for (let i = 2; i <= 5; i++) {
+                        pages.push(i);
+                      }
+                      pages.push('...');
+                      pages.push(totalPages);
+                    } else if (currentPage >= totalPages - 3) {
+                      // Near the end: 1 ... last-4 last-3 last-2 last-1 last
+                      pages.push('...');
+                      for (let i = totalPages - 4; i <= totalPages; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      // In the middle: 1 ... current-1 current current+1 ... last
+                      pages.push('...');
+                      pages.push(currentPage - 1);
+                      pages.push(currentPage);
+                      pages.push(currentPage + 1);
+                      pages.push('...');
+                      pages.push(totalPages);
+                    }
                   }
 
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        currentPage === pageNum
-                          ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
-                          : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
+                  return pages.map((page, idx) => {
+                    if (page === '...') {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="text-[rgb(var(--color-on-surface-muted-rgb))] px-1">
+                          ...
+                        </span>
+                      );
+                    }
 
-                {totalPages > 5 && currentPage < totalPages - 2 && (
-                  <>
-                    <span className="text-[rgb(var(--color-on-surface-muted-rgb))]">...</span>
-                    <button
-                      onClick={() => setCurrentPage(totalPages)}
-                      className="w-8 h-8 rounded-lg text-sm font-medium bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-200"
-                    >
-                      {totalPages}
-                    </button>
-                  </>
-                )}
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page as number)}
+                        className={`w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          currentPage === page
+                            ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
+                            : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Next Button */}
@@ -487,11 +509,6 @@ export const BooruListPanel: React.FC = () => {
               >
                 Next
               </button>
-            </div>
-
-            {/* Page Info */}
-            <div className="mt-2 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-              Page {currentPage} of {totalPages}
             </div>
           </div>
         )}
