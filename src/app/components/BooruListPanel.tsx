@@ -285,9 +285,22 @@ export const BooruListPanel: React.FC = () => {
 
       {/* Mobile Pagination Controls */}
       {isMobile && totalPages > 1 && (
-        <div className="flex flex-col gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
-          {/* Page Numbers Row */}
-          <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+          {/* Previous Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+              currentPage === 1
+                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+            }`}
+          >
+            Prev
+          </button>
+
+          {/* Page Numbers */}
+          <div className="flex items-center justify-center gap-0.5 flex-1 overflow-x-auto scrollbar-none">
             {(() => {
               const pages: (number | string)[] = [];
 
@@ -337,7 +350,7 @@ export const BooruListPanel: React.FC = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page as number)}
-                    className={`min-w-[28px] h-7 px-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                    className={`min-w-[26px] h-7 px-1 rounded-md text-xs font-medium transition-all duration-200 ${
                       currentPage === page
                         ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
                         : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))]'
@@ -350,32 +363,18 @@ export const BooruListPanel: React.FC = () => {
             })()}
           </div>
 
-          {/* Prev/Next Buttons Row */}
-          <div className="flex items-center justify-between gap-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className={`flex-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                currentPage === 1
-                  ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
-                  : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
-              }`}
-            >
-              Previous
-            </button>
-
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className={`flex-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                currentPage === totalPages
-                  ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
-                  : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
-              }`}
-            >
-              Next
-            </button>
-          </div>
+          {/* Next Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+              currentPage === totalPages
+                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+            }`}
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
