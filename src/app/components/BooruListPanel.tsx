@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
@@ -31,6 +31,23 @@ interface BooruData {
   page_index: number;
 }
 
+// Custom debounce hook for performance optimization
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export const BooruListPanel: React.FC = () => {
   const [booruData, setBooruData] = useState<BooruData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +57,9 @@ export const BooruListPanel: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  // Debounce search query to reduce filtering operations
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Detect mobile
   useEffect(() => {
@@ -73,13 +93,13 @@ export const BooruListPanel: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filter and search
+  // Filter and search - using debounced search for better performance
   const filteredData = useMemo(() => {
     return booruData.filter(booru => {
       const matchesSearch =
-        booru.booru_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        booru.booru_short_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        booru.domain.toLowerCase().includes(searchQuery.toLowerCase());
+        booru.booru_title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        booru.booru_short_name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        booru.domain.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
 
       const matchesFilter =
         filterSafe === 'all' ||
@@ -88,12 +108,12 @@ export const BooruListPanel: React.FC = () => {
 
       return matchesSearch && matchesFilter;
     });
-  }, [booruData, searchQuery, filterSafe]);
+  }, [booruData, debouncedSearchQuery, filterSafe]);
 
   // Reset to page 1 when search/filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterSafe]);
+  }, [debouncedSearchQuery, filterSafe]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -101,17 +121,56 @@ export const BooruListPanel: React.FC = () => {
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
-  // Format number with commas
-  const formatNumber = (num: number) => {
+  // Format number with commas - memoized
+  const formatNumber = useCallback((num: number) => {
     return num.toLocaleString('en-US');
-  };
+  }, []);
 
-  // BooruCard component to handle individual favicon loading
-  const BooruCard = ({ booru, index }: { booru: BooruData; index: number }) => {
+  // Memoized event handlers for better performance
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
+  const handleFilterAll = useCallback(() => {
+    setFilterSafe('all');
+  }, []);
+
+  const handleFilterSfw = useCallback(() => {
+    setFilterSafe('sfw');
+  }, []);
+
+  const handleFilterNsfw = useCallback(() => {
+    setFilterSafe('nsfw');
+  }, []);
+
+  const handleItemsPerPageChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handlePrevPage = useCallback(() => {
+    setCurrentPage(prev => Math.max(1, prev - 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+  }, [totalPages]);
+
+  // BooruCard component to handle individual favicon loading - memoized
+  const BooruCard = memo(({ booru, index }: { booru: BooruData; index: number }) => {
     const [faviconError, setFaviconError] = useState(false);
 
     // Use Google's favicon service to avoid CORS issues
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${booru.domain}&sz=64`;
+
+    // Memoize favicon error handler
+    const handleFaviconError = useCallback(() => {
+      setFaviconError(true);
+    }, []);
 
     return (
       <motion.a
@@ -119,11 +178,12 @@ export const BooruListPanel: React.FC = () => {
         href={booru.booru_url}
         target="_blank"
         rel="noopener noreferrer"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.3) }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15, delay: Math.min(index * 0.01, 0.15) }}
         className="group relative rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 shadow-sm hover:shadow-md hover:border-[rgb(var(--color-primary-rgb))]/30 transition-all duration-200"
+        style={{ willChange: 'opacity' }}
       >
         {/* Rank Badge */}
         <div className="absolute -top-2 -left-2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-[rgb(var(--color-primary-rgb))] text-white font-bold text-xs md:text-sm flex items-center justify-center shadow-md">
@@ -149,8 +209,9 @@ export const BooruListPanel: React.FC = () => {
                   src={faviconUrl}
                   alt={booru.booru_title}
                   className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                  onError={() => setFaviconError(true)}
+                  onError={handleFaviconError}
                   loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <GlobeAltIcon className="h-5 w-5 md:h-6 md:w-6 text-[rgb(var(--color-on-surface-muted-rgb))]" />
@@ -202,7 +263,10 @@ export const BooruListPanel: React.FC = () => {
         </div>
       </motion.a>
     );
-  };
+  });
+
+  // Add display name for better debugging
+  BooruCard.displayName = 'BooruCard';
 
   // Render Search and Filter Controls component
   const renderSearchControls = () => (
@@ -214,7 +278,7 @@ export const BooruListPanel: React.FC = () => {
           type="text"
           placeholder="Search booru sites..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           className="w-full pl-9 md:pl-10 pr-3 py-2 md:py-2.5 rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
         />
       </div>
@@ -222,7 +286,7 @@ export const BooruListPanel: React.FC = () => {
       {/* Filter Buttons */}
       <div className="flex gap-2">
         <button
-          onClick={() => setFilterSafe('all')}
+          onClick={handleFilterAll}
           className={`flex-1 md:flex-none px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
             filterSafe === 'all'
               ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
@@ -232,7 +296,7 @@ export const BooruListPanel: React.FC = () => {
           All
         </button>
         <button
-          onClick={() => setFilterSafe('sfw')}
+          onClick={handleFilterSfw}
           className={`flex-1 md:flex-none px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${
             filterSafe === 'sfw'
               ? 'bg-[rgb(var(--color-success-rgb))] text-white shadow-sm'
@@ -243,7 +307,7 @@ export const BooruListPanel: React.FC = () => {
           <span>SFW</span>
         </button>
         <button
-          onClick={() => setFilterSafe('nsfw')}
+          onClick={handleFilterNsfw}
           className={`flex-1 md:flex-none px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${
             filterSafe === 'nsfw'
               ? 'bg-[rgb(var(--color-error-rgb))] text-white shadow-sm'
@@ -264,10 +328,7 @@ export const BooruListPanel: React.FC = () => {
           <select
             id="items-per-page"
             value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
+            onChange={handleItemsPerPageChange}
             className="px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
           >
             <option value={10}>10</option>
@@ -288,7 +349,7 @@ export const BooruListPanel: React.FC = () => {
         <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
           {/* Previous Button */}
           <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={handlePrevPage}
             disabled={currentPage === 1}
             className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
               currentPage === 1
@@ -349,7 +410,7 @@ export const BooruListPanel: React.FC = () => {
                 return (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page as number)}
+                    onClick={() => handlePageChange(page as number)}
                     className={`min-w-[26px] h-7 px-1 rounded-md text-xs font-medium transition-all duration-200 ${
                       currentPage === page
                         ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
@@ -365,7 +426,7 @@ export const BooruListPanel: React.FC = () => {
 
           {/* Next Button */}
           <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={handleNextPage}
             disabled={currentPage === totalPages}
             className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
               currentPage === totalPages
@@ -443,7 +504,10 @@ export const BooruListPanel: React.FC = () => {
 
         {/* Booru Grid */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className={`flex-1 overflow-y-auto scrollbar-thin ${isMobile ? 'pb-40' : ''}`}>
+          <div
+            className={`flex-1 overflow-y-auto scrollbar-thin ${isMobile ? 'pb-40' : ''}`}
+            style={{ contain: 'layout style paint' }}
+          >
             <AnimatePresence mode="popLayout">
               {filteredData.length === 0 ? (
               <motion.div
@@ -458,7 +522,10 @@ export const BooruListPanel: React.FC = () => {
                 </div>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 pb-4">
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 pb-4"
+                style={{ contain: 'layout style' }}
+              >
                 {paginatedData.map((booru, index) => (
                   <BooruCard key={booru.rank} booru={booru} index={index} />
                 ))}
@@ -473,7 +540,7 @@ export const BooruListPanel: React.FC = () => {
             <div className="flex items-center justify-center gap-4">
               {/* Previous Button */}
               <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={handlePrevPage}
                 disabled={currentPage === 1}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   currentPage === 1
@@ -534,7 +601,7 @@ export const BooruListPanel: React.FC = () => {
                     return (
                       <button
                         key={page}
-                        onClick={() => setCurrentPage(page as number)}
+                        onClick={() => handlePageChange(page as number)}
                         className={`w-8 h-8 rounded-lg text-sm font-medium transition-all duration-200 ${
                           currentPage === page
                             ? 'bg-[rgb(var(--color-primary-rgb))] text-white shadow-sm'
@@ -550,7 +617,7 @@ export const BooruListPanel: React.FC = () => {
 
               {/* Next Button */}
               <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={handleNextPage}
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   currentPage === totalPages
