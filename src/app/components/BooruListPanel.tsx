@@ -48,6 +48,9 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+type SortField = 'rank' | 'images' | 'members';
+type SortDirection = 'asc' | 'desc';
+
 export const BooruListPanel: React.FC = () => {
   const [booruData, setBooruData] = useState<BooruData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +60,8 @@ export const BooruListPanel: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [sortField, setSortField] = useState<SortField>('rank');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   // Debounce search query to reduce filtering operations
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -93,9 +98,9 @@ export const BooruListPanel: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filter and search - using debounced search for better performance
+  // Filter, search, and sort - using debounced search for better performance
   const filteredData = useMemo(() => {
-    return booruData.filter(booru => {
+    const filtered = booruData.filter(booru => {
       const matchesSearch =
         booru.booru_title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
         booru.booru_short_name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
@@ -108,12 +113,31 @@ export const BooruListPanel: React.FC = () => {
 
       return matchesSearch && matchesFilter;
     });
-  }, [booruData, debouncedSearchQuery, filterSafe]);
 
-  // Reset to page 1 when search/filter changes
+    // Sort the filtered data
+    return filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortField) {
+        case 'rank':
+          comparison = a.rank - b.rank; // Lower rank number = higher position
+          break;
+        case 'images':
+          comparison = a.images - b.images;
+          break;
+        case 'members':
+          comparison = a.members - b.members;
+          break;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [booruData, debouncedSearchQuery, filterSafe, sortField, sortDirection]);
+
+  // Reset to page 1 when search/filter/sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchQuery, filterSafe]);
+  }, [debouncedSearchQuery, filterSafe, sortField, sortDirection]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -159,6 +183,14 @@ export const BooruListPanel: React.FC = () => {
   const handleNextPage = useCallback(() => {
     setCurrentPage(prev => Math.min(totalPages, prev + 1));
   }, [totalPages]);
+
+  const handleSortFieldChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortField(e.target.value as SortField);
+  }, []);
+
+  const handleSortDirectionToggle = useCallback(() => {
+    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+  }, []);
 
   // BooruCard component to handle individual favicon loading - memoized
   const BooruCard = memo(({ booru, index }: { booru: BooruData; index: number }) => {
@@ -316,6 +348,39 @@ export const BooruListPanel: React.FC = () => {
         >
           <ShieldExclamationIcon className="h-4 w-4" />
           <span>NSFW</span>
+        </button>
+      </div>
+
+      {/* Sort Controls */}
+      <div className="flex items-center gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+        <label htmlFor="sort-by" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] whitespace-nowrap">
+          Sort by:
+        </label>
+        <select
+          id="sort-by"
+          value={sortField}
+          onChange={handleSortFieldChange}
+          className="flex-1 md:flex-none px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+        >
+          <option value="rank">Rank (Top)</option>
+          <option value="images">Images Count</option>
+          <option value="members">Members Count</option>
+        </select>
+        <button
+          onClick={handleSortDirectionToggle}
+          className="px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-200 flex items-center gap-1"
+          title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+        >
+          {sortDirection === 'asc' ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
+            </svg>
+          )}
+          <span className="hidden md:inline">{sortDirection === 'asc' ? 'Asc' : 'Desc'}</span>
         </button>
       </div>
 
