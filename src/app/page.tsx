@@ -235,6 +235,26 @@ const BooruTagExtractor = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [showHistoryMobile, setShowHistoryMobile] = useState<boolean>(false);
 
+    // Helper: Clear all timeouts
+    const clearAllTimeouts = useCallback(() => {
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+            debounceTimeoutRef.current = null;
+        }
+        if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+        }
+    }, []);
+
+    // Helper: Reset retry state
+    const resetRetryState = useCallback(() => {
+        setRetryCount(0);
+        retryCountRef.current = 0;
+        setIsRetrying(false);
+        setShowFullErrorPage(false);
+    }, []);
+
     const handleLocationChange = useCallback(() => {
         const currentPath = window.location.pathname;
         if (currentPath === '/image-metadata') setActiveView('image');
@@ -504,20 +524,15 @@ const BooruTagExtractor = () => {
                 }
             }
             else {
-                // Clear any pending retry timeout on success
-                if (retryTimeoutRef.current) {
-                    clearTimeout(retryTimeoutRef.current);
-                    retryTimeoutRef.current = null;
-                }
+                // Clear timeouts and reset retry state on success
+                clearAllTimeouts();
+                resetRetryState();
 
                 setAllExtractedTags(result.tags || {});
                 setImageUrl(imgUrl);
                 setImageTitle(imgTitle);
                 setActiveSite(siteName);
                 setError('');
-                setRetryCount(0); // Reset retry count on success
-                retryCountRef.current = 0; // Reset ref too
-                setShowFullErrorPage(false);
                 const tagCount = calculateTotalTags(result.tags || {});
                 if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`);
                 if (settings.saveHistory) {
@@ -527,29 +542,7 @@ const BooruTagExtractor = () => {
             }
         } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
         finally { setLoading(false); }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
-
-    const handleRetry = useCallback(async () => {
-        if (retryCount >= 3 || isRetrying) return;
-
-        setIsRetrying(true);
-        const newRetryCount = retryCount + 1;
-        setRetryCount(newRetryCount);
-
-        // Exponential backoff: 2s, 4s, 8s
-        const backoffDelay = Math.pow(2, newRetryCount) * 1000;
-
-        console.log(`Retrying extraction (attempt ${newRetryCount}/3) after ${backoffDelay}ms...`);
-
-        await new Promise(resolve => setTimeout(resolve, backoffDelay));
-
-        setIsRetrying(false);
-        setShowFullErrorPage(false);
-        setError('');
-
-        // Re-extract with current URL
-        await extractTags(url);
-    }, [retryCount, isRetrying, url, extractTags]);
+    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage, clearAllTimeouts, resetRetryState]);
 
     const handleReportBug = useCallback(() => {
         const githubIssuesUrl = 'https://github.com/IRedDragonICY/booruprompt/issues/new';
@@ -574,22 +567,13 @@ const BooruTagExtractor = () => {
     }, [error, url, settings.fetchMode, retryCount]);
 
     const handleRetryAgain = useCallback(async () => {
-        // Clear any pending retry timeout
-        if (retryTimeoutRef.current) {
-            clearTimeout(retryTimeoutRef.current);
-            retryTimeoutRef.current = null;
-        }
-
-        // Reset retry count and try again from the beginning
-        setRetryCount(0);
-        retryCountRef.current = 0; // Reset ref too
-        setIsRetrying(false);
-        setShowFullErrorPage(false);
+        clearAllTimeouts();
+        resetRetryState();
         setError('');
         await extractTags(url);
-    }, [url, extractTags]);
+    }, [url, extractTags, clearAllTimeouts, resetRetryState]);
 
-    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); setRetryCount(0); retryCountRef.current = 0; setIsRetrying(false); setShowFullErrorPage(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); if (retryTimeoutRef.current) { clearTimeout(retryTimeoutRef.current); retryTimeoutRef.current = null; } cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); resetRetryState(); clearAllTimeouts(); currentExtractionUrl.current = null; cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [clearAllTimeouts, resetRetryState]);
 
     useEffect(() => {
         // Block auto-extract if not in extractor view, auto-extract disabled, or max retry reached
@@ -766,7 +750,6 @@ const BooruTagExtractor = () => {
                                         {error && showFullErrorPage && (
                                             <ErrorPage
                                                 error={error}
-                                                onRetry={handleRetry}
                                                 retryCount={retryCount}
                                                 isRetrying={isRetrying}
                                                 onReportBug={handleReportBug}
@@ -960,7 +943,6 @@ const BooruTagExtractor = () => {
                                                 {error && showFullErrorPage && !loading && (
                                                     <ErrorPage
                                                         error={error}
-                                                        onRetry={handleRetry}
                                                         retryCount={retryCount}
                                                         isRetrying={isRetrying}
                                                         onReportBug={handleReportBug}

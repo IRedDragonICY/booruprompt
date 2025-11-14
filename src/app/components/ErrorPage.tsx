@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 
 interface ErrorPageProps {
   error: string;
-  onRetry: () => void;
   retryCount: number;
   isRetrying: boolean;
   onReportBug: () => void;
@@ -12,14 +11,12 @@ interface ErrorPageProps {
 
 export const ErrorPage: React.FC<ErrorPageProps> = ({
   error,
-  onRetry,
   retryCount,
   isRetrying,
   onReportBug,
   onRetryAgain,
 }) => {
   const maxRetries = 3;
-  const canRetry = retryCount < maxRetries;
   const maxRetryReached = retryCount >= maxRetries;
 
   return (
