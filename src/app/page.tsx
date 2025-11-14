@@ -435,31 +435,46 @@ const BooruTagExtractor = () => {
                 else { try { const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); try { doc.querySelector('base')?.remove(); const head = doc.head || doc.documentElement.appendChild(doc.createElement('head')); const base = doc.createElement('base'); base.href = new URL('./', trimmedUrl).href; head.insertBefore(base, head.firstChild); } catch (e) { console.warn(`Base tag set failed:`, e); } const detectPageError = (d: Document) => { let detected = false; let msg = "Check URL/site."; if (d.title.toLowerCase().match(/error|access denied|cloudflare/)) { detected = true; msg = `Site error in title: ${d.title.substring(0, 100)}`; } const errEl = d.querySelector('.error,#error-page,.dtext-error,[class*="error"],[id*="error"],#challenge-running'); if (errEl?.textContent?.trim()) { detected = true; const errTxt = errEl.textContent.trim().toLowerCase(); if (errTxt.includes("rate limit")) msg = "Rate limit exceeded."; else if (errTxt.includes("login") || errTxt.includes("authenticate")) msg = "Login required."; else if (errTxt.includes("not found")) msg = "Post not found (404)."; else if (errTxt.includes("cloudflare")) msg = "Blocked by Cloudflare."; else msg = `Site Error: ${errEl.textContent.trim().substring(0, 150)}`; } if (!detected && d.body) { const bodyTxt = d.body.textContent?.toLowerCase() || ''; if (bodyTxt.includes('you must be logged in')) { detected = true; msg = `Login required.`; } else if (bodyTxt.includes('access denied')) { detected = true; msg = `Access denied.`; } else if (bodyTxt.includes('cloudflare')) { detected = true; msg = `Blocked by Cloudflare.`; } else if (bodyTxt.includes('enable javascript')) { detected = true; msg = `Site requires JS/Cookies.`; } } return { detected, msg }; }; const { detected: pageErr, msg: specificErr } = detectPageError(doc); if (pageErr) { errorMsg = `Extraction stopped: ${specificErr}`; siteName = ''; } else { result = site.extractTags(doc); imgUrl = result.imageUrl; imgTitle = result.title; const tagCount = calculateTotalTags(result.tags || {}); if (tagCount === 0) errorMsg = result.imageUrl ? 'Warning: Image found, no tags (Client).' : 'Warning: No tags/image (Client).'; } } catch (parseErr) { errorMsg = `Parse/extract failed via ${proxyUsed}: ${(parseErr as Error).message}`; siteName = ''; } }
             }
             if (errorMsg) {
-                setError(errorMsg);
                 console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
-                setActiveSite(siteName || null);
 
                 // Track retry count for retryable errors
                 const isRetryableError = errorMsg.includes('bad gateway') ||
+                                        errorMsg.includes('Server bad gateway') ||
                                         errorMsg.includes('timed out') ||
+                                        errorMsg.includes('Server timed out') ||
                                         errorMsg.includes('Failed to fetch') ||
                                         errorMsg.includes('Status: 403') ||
-                                        errorMsg.includes('Failed to connect');
+                                        errorMsg.includes('Status: 502') ||
+                                        errorMsg.includes('Status: 504') ||
+                                        errorMsg.includes('Failed to connect') ||
+                                        errorMsg.includes('network') ||
+                                        errorMsg.includes('Network error');
 
+                let newRetryCount = 0;
                 if (isRetryableError) {
                     if (lastFailedUrl.current === trimmedUrl) {
-                        setRetryCount(prev => prev + 1);
+                        newRetryCount = (retryCount || 0) + 1;
                     } else {
                         lastFailedUrl.current = trimmedUrl;
-                        setRetryCount(1);
+                        newRetryCount = 1;
                     }
+                    setRetryCount(newRetryCount);
                 }
 
-                if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) {
+                // Update error message
+                setError(errorMsg);
+                setActiveSite(siteName || null);
+
+                const isWarningWithData = errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0;
+
+                if (!isWarningWithData) {
                     setAllExtractedTags({});
                     setImageUrl(undefined);
                     setImageTitle(undefined);
-                    currentExtractionUrl.current = null;
+                    // Don't reset currentExtractionUrl for retryable errors to prevent auto-retry loop
+                    if (!isRetryableError) {
+                        currentExtractionUrl.current = null;
+                    }
                 } else {
                     setAllExtractedTags(result.tags || {});
                     setImageUrl(imgUrl);
@@ -499,31 +514,37 @@ const BooruTagExtractor = () => {
         } catch (err) {
             clearTimeout(timeoutId);
             const msg = `Unexpected error: ${(err as Error).message}`;
-            setError(msg);
             console.error(msg, err);
 
             // Track retry count for unexpected errors
             const isRetryableError = msg.includes('Failed to fetch') ||
                                     msg.includes('network') ||
+                                    msg.includes('Network error') ||
                                     msg.includes('timed out');
 
+            let newRetryCount = 0;
             if (isRetryableError) {
                 if (lastFailedUrl.current === trimmedUrl) {
-                    setRetryCount(prev => prev + 1);
+                    newRetryCount = (retryCount || 0) + 1;
                 } else {
                     lastFailedUrl.current = trimmedUrl;
-                    setRetryCount(1);
+                    newRetryCount = 1;
                 }
+                setRetryCount(newRetryCount);
             }
 
+            setError(msg);
             setAllExtractedTags({});
             setActiveSite(null);
             setImageUrl(undefined);
             setImageTitle(undefined);
-            currentExtractionUrl.current = null;
+            // Don't reset currentExtractionUrl for retryable errors
+            if (!isRetryableError) {
+                currentExtractionUrl.current = null;
+            }
         }
         finally { setLoading(false); }
-    }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
+    }, [loading, retryCount, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
 
     const handleRetry = useCallback(() => {
         if (lastFailedUrl.current) {
