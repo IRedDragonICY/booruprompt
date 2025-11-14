@@ -157,10 +157,10 @@ export const BooruListPanel: React.FC = () => {
         </button>
       </div>
 
-      {/* Items per page selector */}
+      {/* Items per page selector and Results Count */}
       <div className="flex items-center justify-between gap-3 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
         <div className="flex items-center gap-2">
-          <label htmlFor="items-per-page" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+          <label htmlFor="items-per-page" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] whitespace-nowrap">
             Per page:
           </label>
           <select
@@ -180,10 +180,54 @@ export const BooruListPanel: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-          Showing <span className="font-semibold text-[rgb(var(--color-primary-rgb))]">{startIndex + 1}-{Math.min(endIndex, filteredData.length)}</span> of {filteredData.length}
+        <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] text-right">
+          <span className="font-semibold text-[rgb(var(--color-primary-rgb))]">{startIndex + 1}-{Math.min(endIndex, filteredData.length)}</span> of {filteredData.length}
         </p>
       </div>
+
+      {/* Mobile Pagination Controls */}
+      {isMobile && totalPages > 1 && (
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
+          {/* Previous Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+              currentPage === 1
+                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+            }`}
+          >
+            Prev
+          </button>
+
+          {/* Page Info */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+              Page
+            </span>
+            <span className="px-2 py-1 rounded-md bg-[rgb(var(--color-primary-rgb))]/10 text-xs font-semibold text-[rgb(var(--color-primary-rgb))]">
+              {currentPage}
+            </span>
+            <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+              of {totalPages}
+            </span>
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+              currentPage === totalPages
+                ? 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-faint-rgb))] cursor-not-allowed'
+                : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 
