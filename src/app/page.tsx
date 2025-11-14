@@ -205,12 +205,14 @@ const BooruTagExtractor = () => {
     const [displayedTags, setDisplayedTags] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [retryCount, setRetryCount] = useState(0);
     const [activeSite, setActiveSite] = useState<string | null>(null);
     const [tagCategories, setTagCategories] = useState<TagCategoryOption[]>(DEFAULT_TAG_CATEGORIES);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [copySuccess, setCopySuccess] = useState(false);
     const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentExtractionUrl = useRef<string | null>(null);
+    const lastFailedUrl = useRef<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
  const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -432,13 +434,122 @@ const BooruTagExtractor = () => {
                 if (clientErr) { errorMsg = clientErr; siteName = ''; } else if (!html) { errorMsg = 'Failed HTML fetch via Client Proxy.'; siteName = ''; }
                 else { try { const parser = new DOMParser(); const doc = parser.parseFromString(html, 'text/html'); try { doc.querySelector('base')?.remove(); const head = doc.head || doc.documentElement.appendChild(doc.createElement('head')); const base = doc.createElement('base'); base.href = new URL('./', trimmedUrl).href; head.insertBefore(base, head.firstChild); } catch (e) { console.warn(`Base tag set failed:`, e); } const detectPageError = (d: Document) => { let detected = false; let msg = "Check URL/site."; if (d.title.toLowerCase().match(/error|access denied|cloudflare/)) { detected = true; msg = `Site error in title: ${d.title.substring(0, 100)}`; } const errEl = d.querySelector('.error,#error-page,.dtext-error,[class*="error"],[id*="error"],#challenge-running'); if (errEl?.textContent?.trim()) { detected = true; const errTxt = errEl.textContent.trim().toLowerCase(); if (errTxt.includes("rate limit")) msg = "Rate limit exceeded."; else if (errTxt.includes("login") || errTxt.includes("authenticate")) msg = "Login required."; else if (errTxt.includes("not found")) msg = "Post not found (404)."; else if (errTxt.includes("cloudflare")) msg = "Blocked by Cloudflare."; else msg = `Site Error: ${errEl.textContent.trim().substring(0, 150)}`; } if (!detected && d.body) { const bodyTxt = d.body.textContent?.toLowerCase() || ''; if (bodyTxt.includes('you must be logged in')) { detected = true; msg = `Login required.`; } else if (bodyTxt.includes('access denied')) { detected = true; msg = `Access denied.`; } else if (bodyTxt.includes('cloudflare')) { detected = true; msg = `Blocked by Cloudflare.`; } else if (bodyTxt.includes('enable javascript')) { detected = true; msg = `Site requires JS/Cookies.`; } } return { detected, msg }; }; const { detected: pageErr, msg: specificErr } = detectPageError(doc); if (pageErr) { errorMsg = `Extraction stopped: ${specificErr}`; siteName = ''; } else { result = site.extractTags(doc); imgUrl = result.imageUrl; imgTitle = result.title; const tagCount = calculateTotalTags(result.tags || {}); if (tagCount === 0) errorMsg = result.imageUrl ? 'Warning: Image found, no tags (Client).' : 'Warning: No tags/image (Client).'; } } catch (parseErr) { errorMsg = `Parse/extract failed via ${proxyUsed}: ${(parseErr as Error).message}`; siteName = ''; } }
             }
-            if (errorMsg) { setError(errorMsg); console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed); setActiveSite(siteName || null); if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) { setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; } else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName); } }
-            else { setAllExtractedTags(result.tags || {}); setImageUrl(imgUrl); setImageTitle(imgTitle); setActiveSite(siteName); setError(''); const tagCount = calculateTotalTags(result.tags || {}); if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`); if (settings.saveHistory) { const newEntry: HistoryEntry = { id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, url: trimmedUrl, tags: result.tags || {}, imageUrl: imgUrl, title: imgTitle, siteName, timestamp: Date.now() }; setHistory(prev => { const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)]; const maxSize = settings.maxHistorySize; const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize); saveHistoryToLocalStorage(finalHistory); return finalHistory; }); } }
-        } catch (err) { clearTimeout(timeoutId); const msg = `Unexpected error: ${(err as Error).message}`; setError(msg); console.error(msg, err); setAllExtractedTags({}); setActiveSite(null); setImageUrl(undefined); setImageTitle(undefined); currentExtractionUrl.current = null; }
+            if (errorMsg) {
+                setError(errorMsg);
+                console.error("Error:", errorMsg, "Mode:", settings.fetchMode, "Proxy:", proxyUsed);
+                setActiveSite(siteName || null);
+
+                // Track retry count for retryable errors
+                const isRetryableError = errorMsg.includes('bad gateway') ||
+                                        errorMsg.includes('timed out') ||
+                                        errorMsg.includes('Failed to fetch') ||
+                                        errorMsg.includes('Status: 403') ||
+                                        errorMsg.includes('Failed to connect');
+
+                if (isRetryableError) {
+                    if (lastFailedUrl.current === trimmedUrl) {
+                        setRetryCount(prev => prev + 1);
+                    } else {
+                        lastFailedUrl.current = trimmedUrl;
+                        setRetryCount(1);
+                    }
+                }
+
+                if (!(errorMsg.toLowerCase().includes('warning') && calculateTotalTags(result.tags) > 0)) {
+                    setAllExtractedTags({});
+                    setImageUrl(undefined);
+                    setImageTitle(undefined);
+                    currentExtractionUrl.current = null;
+                } else {
+                    setAllExtractedTags(result.tags || {});
+                    setImageUrl(imgUrl);
+                    setImageTitle(imgTitle);
+                    console.warn("Warning with data:", errorMsg, "URL:", trimmedUrl, "Site:", siteName);
+                }
+            }
+            else {
+                setAllExtractedTags(result.tags || {});
+                setImageUrl(imgUrl);
+                setImageTitle(imgTitle);
+                setActiveSite(siteName);
+                setError('');
+                setRetryCount(0);
+                lastFailedUrl.current = null;
+                const tagCount = calculateTotalTags(result.tags || {});
+                if (tagCount > 0) console.log(`Extracted ${tagCount} tags from ${siteName} via ${proxyUsed}.`);
+                if (settings.saveHistory) {
+                    const newEntry: HistoryEntry = {
+                        id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                        url: trimmedUrl,
+                        tags: result.tags || {},
+                        imageUrl: imgUrl,
+                        title: imgTitle,
+                        siteName,
+                        timestamp: Date.now()
+                    };
+                    setHistory(prev => {
+                        const updated = [newEntry, ...prev.filter(h => h.url !== trimmedUrl)];
+                        const maxSize = settings.maxHistorySize;
+                        const finalHistory = maxSize === -1 ? updated : updated.slice(0, maxSize);
+                        saveHistoryToLocalStorage(finalHistory);
+                        return finalHistory;
+                    });
+                }
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            const msg = `Unexpected error: ${(err as Error).message}`;
+            setError(msg);
+            console.error(msg, err);
+
+            // Track retry count for unexpected errors
+            const isRetryableError = msg.includes('Failed to fetch') ||
+                                    msg.includes('network') ||
+                                    msg.includes('timed out');
+
+            if (isRetryableError) {
+                if (lastFailedUrl.current === trimmedUrl) {
+                    setRetryCount(prev => prev + 1);
+                } else {
+                    lastFailedUrl.current = trimmedUrl;
+                    setRetryCount(1);
+                }
+            }
+
+            setAllExtractedTags({});
+            setActiveSite(null);
+            setImageUrl(undefined);
+            setImageTitle(undefined);
+            currentExtractionUrl.current = null;
+        }
         finally { setLoading(false); }
     }, [loading, settings.fetchMode, settings.clientProxyUrl, settings.saveHistory, settings.maxHistorySize, settings.enableUnsupportedSites, findSimilarSite, saveHistoryToLocalStorage]);
 
-    const handleReset = useCallback(() => { setUrl(''); setAllExtractedTags({}); setImageUrl(undefined); setImageTitle(undefined); setDisplayedTags(''); setError(''); setActiveSite(null); setTagCategories(DEFAULT_TAG_CATEGORIES); setCopySuccess(false); setLoading(false); currentExtractionUrl.current = null; if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
+    const handleRetry = useCallback(() => {
+        if (lastFailedUrl.current) {
+            setError('');
+            currentExtractionUrl.current = null;
+            void extractTags(lastFailedUrl.current);
+        }
+    }, [extractTags]);
+
+    const handleReset = useCallback(() => {
+        setUrl('');
+        setAllExtractedTags({});
+        setImageUrl(undefined);
+        setImageTitle(undefined);
+        setDisplayedTags('');
+        setError('');
+        setRetryCount(0);
+        lastFailedUrl.current = null;
+        setActiveSite(null);
+        setTagCategories(DEFAULT_TAG_CATEGORIES);
+        setCopySuccess(false);
+        setLoading(false);
+        currentExtractionUrl.current = null;
+        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+        cardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
 
     useEffect(() => {
         if (activeView !== 'extractor' || !settings.autoExtract) { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current); return; }
@@ -608,7 +719,7 @@ const BooruTagExtractor = () => {
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
                                         {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
-                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
+                                        {error && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error" onRetry={handleRetry} retryCount={retryCount}>{error}</StatusMessage>)}
                                     </AnimatePresence>
                                     {isMobile && !loading && !hasResults && <BooruInfoSection />}
                                     <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
