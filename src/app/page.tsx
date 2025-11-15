@@ -28,6 +28,7 @@ import MobileAppShell from './layouts/MobileAppShell';
 import SettingsPanel from './components/SettingsPanel';
 import { HistoryItem as HistoryItemComponent } from './components/HistoryList';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
+import { DEFAULT_LOCALE, getLocaleFromStorage } from '../i18n/config';
 import type { ImageMetadata } from './utils/imageMetadata';
 import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
 
@@ -218,7 +219,7 @@ const BooruTagExtractor = () => {
     const retryCountRef = useRef<number>(0);
     const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [showSettings, setShowSettings] = useState(false);
- const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
+ const [settings, setSettings] = useState<Settings>({ language: DEFAULT_LOCALE, theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -296,6 +297,7 @@ const BooruTagExtractor = () => {
         const isValidMaxHistorySize = (i: unknown): i is number => typeof i === 'number' && (i === -1 || (Number.isInteger(i) && i >= 0));
 
          setSettings({
+            language: getLocaleFromStorage(),
             theme: loadStoredItem<ThemePreference>(THEME_STORAGE_KEY, 'system'),
             colorTheme: loadStoredItem<ColorTheme>(COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME),
             customColorHex: loadStoredItem<string | undefined>(CUSTOM_COLOR_HEX_STORAGE_KEY, DEFAULT_CUSTOM_COLOR_HEX),

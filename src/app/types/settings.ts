@@ -1,8 +1,11 @@
+import type { LocaleCode } from '../../i18n/config';
+
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
 export type FetchMode = 'server' | 'clientProxy';
 
 export interface Settings {
+  language: LocaleCode;
   theme: ThemePreference;
   autoExtract: boolean;
   colorTheme: ColorTheme;

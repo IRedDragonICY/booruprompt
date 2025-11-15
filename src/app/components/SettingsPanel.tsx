@@ -4,6 +4,9 @@ import { TooltipWrapper } from './TooltipWrapper';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
 import type { Settings, ThemePreference, ColorTheme, FetchMode } from '../types/settings';
 import { AnimatePresence, motion } from 'framer-motion';
+import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from '../../i18n/provider';
+import type { LocaleCode } from '../../i18n/config';
 
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
@@ -38,6 +41,7 @@ function useDebounce<T>(value: T, delay: number): T {
 interface SettingsPanelProps { settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 
 export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
+    const { t, setLocale } = useTranslation();
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
 
@@ -89,6 +93,7 @@ export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsC
     const handleBlacklistChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => { setLocalBlacklist(e.target.value); onSettingsChange({ blacklistKeywords: e.target.value }); }, [onSettingsChange]);
     const handleBlacklistReset = useCallback(() => { setLocalBlacklist(DEFAULT_BLACKLIST_KEYWORDS); onSettingsChange({ blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS }); }, [onSettingsChange]);
     const handleMaxHistoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => { const value = parseInt(e.target.value, 10); onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value }); }, [onSettingsChange]);
+    const handleLanguageChange = useCallback((locale: LocaleCode) => { setLocale(locale); onSettingsChange({ language: locale }); }, [setLocale, onSettingsChange]);
 
     const themeOptions = useMemo(() => [
         { value: 'system' as ThemePreference, label: 'System', icon: <ComputerDesktopIcon />, animation: 'gentle' as const },
@@ -168,6 +173,22 @@ export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsC
                             <input type="text" value={currentCustomHex} onChange={handleCustomColorTextChange} maxLength={7} className="flex-1 appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-2 py-1 font-mono text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]" placeholder="#rrggbb" aria-label="Custom color hex code" pattern="^#?([a-fA-F0-9]{6})$" />
                         </motion.div>
                     )}
+                </div>
+
+                <div>
+                    <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 mr-2">
+                            <path d="M21.721 12.752a9.711 9.711 0 00-.945-5.003 12.754 12.754 0 01-4.339 2.708 18.991 18.991 0 01-.214 4.772 17.165 17.165 0 005.498-2.477zM14.634 15.55a17.324 17.324 0 00.332-4.647c-.952.227-1.945.347-2.966.347-1.021 0-2.014-.12-2.966-.347a17.515 17.515 0 00.332 4.647 17.385 17.385 0 005.268 0zM9.772 17.119a18.963 18.963 0 004.456 0A17.182 17.182 0 0112 21.724a17.18 17.18 0 01-2.228-4.605zM7.777 15.23a18.87 18.87 0 01-.214-4.774 12.753 12.753 0 01-4.34-2.708 9.711 9.711 0 00-.944 5.004 17.165 17.165 0 005.498 2.477zM21.356 14.752a9.765 9.765 0 01-7.478 6.817 18.64 18.64 0 001.988-4.718 18.627 18.627 0 005.49-2.098zM2.644 14.752c1.682.971 3.53 1.688 5.49 2.099a18.64 18.64 0 001.988 4.718 9.765 9.765 0 01-7.478-6.816zM13.878 2.43a9.755 9.755 0 016.116 3.986 11.267 11.267 0 01-3.746 2.504 18.63 18.63 0 00-2.37-6.49zM12 2.276a17.152 17.152 0 012.805 7.121c-.897.23-1.837.353-2.805.353-.968 0-1.908-.122-2.805-.353A17.151 17.151 0 0112 2.276zM10.122 2.43a18.629 18.629 0 00-2.37 6.49 11.266 11.266 0 01-3.746-2.504 9.754 9.754 0 016.116-3.985z" />
+                        </svg>
+                        <span>{t('settings.language.title')}</span>
+                    </label>
+                    <p className="mb-3 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                        {t('settings.language.description')}
+                    </p>
+                    <LanguageSelector
+                        currentLanguage={settings.language}
+                        onLanguageChange={handleLanguageChange}
+                    />
                 </div>
 
                 <div>
