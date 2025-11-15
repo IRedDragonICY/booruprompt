@@ -22,7 +22,7 @@ interface I18nProviderProps {
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [locale, setLocaleState] = useState<LocaleCode>(initialLocale || DEFAULT_LOCALE);
   const [messages, setMessages] = useState<Messages>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load messages for the current locale
   useEffect(() => {
@@ -120,11 +120,8 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     t,
   };
 
-  if (isLoading) {
-    // Show minimal loading state
-    return null;
-  }
-
+  // Always render children even while loading
+  // The UI will use default locale (en) initially
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

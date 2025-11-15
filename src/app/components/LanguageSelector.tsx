@@ -39,7 +39,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     [onLanguageChange]
   );
 
-  const currentLocale = SUPPORTED_LOCALES.find((l) => l.code === currentLanguage);
+  const currentLocale = SUPPORTED_LOCALES.find((l) => l.code === currentLanguage) || SUPPORTED_LOCALES[0];
 
   return (
     <div>
