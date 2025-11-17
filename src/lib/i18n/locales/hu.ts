@@ -138,5 +138,179 @@ export const hu: TranslationSchema = {
     modal: {
       close: 'Beállítások Bezárása'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru Címke Kinyerő',
+      subtitle: 'Címkék kinyerése booru képtáblákból',
+      supported: 'Támogatott platformok:',
+      urlLabel: 'Booru Bejegyzés URL',
+      urlPlaceholder: 'Illessze be a booru bejegyzés URL-jét ide...',
+      manualButton: 'Manuális Kinyerés',
+      resetButton: 'Visszaállítás',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Címke Kinyerő',
+      heroSubtitle: 'Címkék kinyerése, szűrése és másolása booru oldalakról azonnal',
+      features: {
+        smart: { title: 'Okos', subtitle: 'Automatikus kinyerés' },
+        fast: { title: 'Gyors', subtitle: 'Azonnali eredmények' },
+        private: { title: 'Privát', subtitle: 'Kliens oldali' },
+        copy: { title: 'Másolás', subtitle: 'Egy kattintás' }
+      },
+      cta: {
+        paste: 'Beillesztés',
+        extract: 'Kinyerés',
+        filter: 'Szűrés',
+        copy: 'Másolás'
+      },
+      supportNotice: 'Támogatja a Danbooru, Gelbooru, Safebooru, Rule34, e621 és más oldalakat'
+    },
+    preview: {
+      title: 'Előnézet'
+    },
+    status: {
+      resultLabel: 'Eredmény:'
+    },
+    categories: {
+      title: 'Kategóriák Szűrése',
+      enableAll: 'Összes',
+      disableAll: 'Egyik sem',
+      items: {
+        copyright: 'Szerzői Jog',
+        character: 'Karakter',
+        general: 'Általános',
+        meta: 'Meta',
+        other: 'Egyéb'
+      },
+      count_one: '{{count}} címke',
+      count_other: '{{count}} címke'
+    },
+    filteredTags: {
+      label: 'Szűrt Címkék',
+      ariaLabel: 'Szűrt címkék',
+      empty: 'Nincsenek megjelenítendő címkék.',
+      copy: 'Címkék Másolása',
+      copied: 'Másolva!'
+    },
+    history: {
+      extractionTitle: 'Kinyerési Előzmények',
+      imageTitle: 'Kép Előzmények',
+      searchExtraction: 'Cím, url, címkék keresése...',
+      searchImages: 'Fájlnév, promptok, paraméterek keresése...',
+      emptySearch: 'Nincs a keresésnek megfelelő bejegyzés.',
+      clearTooltip: 'Összes Előzmény Törlése',
+      clearAction: 'Előzmények Törlése',
+      confirmMessage: 'Biztosan törli?',
+      confirmYes: 'Igen, Törlés',
+      confirmCancel: 'Mégse',
+      searchAriaLabel: '{{context}} keresése',
+      searchFallback: 'előzmények',
+      clearSearchTooltip: 'Keresés Törlése',
+      clearSearchAria: 'Keresés törlése'
+    },
+    mobile: {
+      historyButton: 'Előzmények',
+      urlLabel: 'Booru Bejegyzés URL',
+      urlPlaceholder: 'URL Beillesztése vagy Húzás & Ejtés...',
+      manualButton: 'Manuális Kinyerés',
+      resetButton: 'Visszaállítás'
+    }
+  },
+  imageTool: {
+    title: 'Kép Metaadatok',
+    dropCtaTitle: 'Húzza & Ejtse a PNG-t Ide',
+    dropCtaSubtitle: 'vagy kattintson a feltöltéshez',
+    selectButton: 'PNG Kiválasztása',
+    statusProcessing: 'Feldolgozás...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Pozitív Prompt',
+    negativePrompt: 'Negatív Prompt',
+    parameters: 'Paraméterek',
+    copy: 'Másolás',
+    copyAll: 'Összes Másolása',
+    copySuccess: 'Másolva!',
+    noMetadata: 'Nem találhatók generálási metaadatok.',
+    loadMetadata: 'Metaadatok Betöltése',
+    deleteEntry: 'Bejegyzés Törlése',
+    historyTitle: 'Kép Előzmények',
+    historySearch: 'Fájlnév, promptok, paraméterek keresése...',
+    previewAlt: 'Előnézet',
+    footer: {
+      metadataNotice: "PNG metaadat kinyerés a 'parameters' szövegrészlethez."
+    }
+  },
+  historyItem: {
+    load: 'Előzmény bejegyzés betöltése',
+    delete: 'Előzmény bejegyzés törlése',
+    previewAlt: 'Előnézet'
+  },
+  imagePreview: {
+    loading: 'Előnézet betöltése...',
+    error: 'Az előnézet betöltése sikertelen.',
+    errorDetail: 'Szerver proxy hiba vagy érvénytelen kép',
+    videoUnsupported: 'A böngésző nem támogatja a videót.',
+    openFull: 'Teljes méretű előnézet megnyitása',
+    close: 'Bezárás',
+    reset: 'Visszaállítás',
+    openOriginal: 'Eredeti megnyitása'
+  },
+  booruList: {
+    pageTitle: 'Top Booru Rangsor',
+    pageDescriptionShort: 'Fedezze fel a legjobb booru oldalakat összképszám és aktivitás alapján rangsorolva.',
+    pageDescriptionLong: 'Fedezze fel a legnépszerűbb booru oldalakat a weben. Rangsorolva összképszám, tagszám és aktivitás szerint a Booru.org adataival.',
+    searchPlaceholder: 'Booru oldalak keresése...',
+    filter: {
+      all: 'Összes',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Képek',
+      members: 'Tagok',
+      owner: 'Tulajdonos'
+    },
+    sort: {
+      label: 'Rendezés:',
+      rank: 'Rangsor (Top)',
+      images: 'Képek Száma',
+      members: 'Tagok Száma',
+      asc: 'Növekvő',
+      desc: 'Csökkenő'
+    },
+    itemsPerPage: 'Oldalanként:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> / {{total}}',
+    pagination: {
+      previous: 'Előző',
+      next: 'Következő',
+      previousShort: 'Előző',
+      nextShort: 'Köv'
+    },
+    emptyState: 'Nem találhatók booru oldalak',
+    loading: 'Booru adatok betöltése...',
+    errorTitle: 'Adatok Betöltési Hiba',
+    errors: {
+      fetchFailed: 'Nem sikerült lekérni a booru adatokat.',
+      unknown: 'Valami hiba történt a rangsor betöltése során.'
+    },
+    ownerLabel: 'Tulajdonos:',
+    visit: '{{name}} Meglátogatása'
+  },
+  booruDetail: {
+    backButton: 'Vissza a Booru Listához',
+    notFoundTitle: 'Booru Nem Található',
+    notFoundDescription: 'A(z) "{{domain}}" booru domain nem található az adatbázisunkban.',
+    statistics: 'Statisztikák',
+    totalImages: 'Összes Kép',
+    totalMembers: 'Összes Tag',
+    shortName: 'Rövid Név',
+    owner: 'Tulajdonos',
+    hosted: 'Üzemeltető: booru.org',
+    protocol: 'Protokoll',
+    yes: 'Igen',
+    no: 'Nem',
+    visit: '{{name}} Meglátogatása',
+    loading: 'Betöltés...'
   }
 };

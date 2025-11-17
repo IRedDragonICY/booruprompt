@@ -138,5 +138,179 @@ export const hi: TranslationSchema = {
     modal: {
       close: 'सेटिंग्स बंद करें'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru टैग निष्कर्षक',
+      subtitle: 'booru छवि बोर्ड से टैग निकालें',
+      supported: 'समर्थित प्लेटफ़ॉर्म:',
+      urlLabel: 'Booru पोस्ट URL',
+      urlPlaceholder: 'अपना booru पोस्ट URL यहां पेस्ट करें...',
+      manualButton: 'मैन्युअल रूप से निकालें',
+      resetButton: 'रीसेट करें',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru टैग निष्कर्षक',
+      heroSubtitle: 'booru साइटों से तुरंत टैग निकालें, फ़िल्टर करें और कॉपी करें',
+      features: {
+        smart: { title: 'स्मार्ट', subtitle: 'ऑटो-निष्कर्षण' },
+        fast: { title: 'तेज़', subtitle: 'तत्काल परिणाम' },
+        private: { title: 'निजी', subtitle: 'क्लाइंट-साइड' },
+        copy: { title: 'कॉपी', subtitle: 'एक क्लिक' }
+      },
+      cta: {
+        paste: 'पेस्ट',
+        extract: 'निकालें',
+        filter: 'फ़िल्टर',
+        copy: 'कॉपी'
+      },
+      supportNotice: 'Danbooru, Gelbooru, Safebooru, Rule34, e621, और अधिक का समर्थन करता है'
+    },
+    preview: {
+      title: 'पूर्वावलोकन'
+    },
+    status: {
+      resultLabel: 'इसके लिए परिणाम:'
+    },
+    categories: {
+      title: 'श्रेणियां फ़िल्टर करें',
+      enableAll: 'सभी',
+      disableAll: 'कोई नहीं',
+      items: {
+        copyright: 'कॉपीराइट',
+        character: 'चरित्र',
+        general: 'सामान्य',
+        meta: 'मेटा',
+        other: 'अन्य'
+      },
+      count_one: '{{count}} टैग',
+      count_other: '{{count}} टैग'
+    },
+    filteredTags: {
+      label: 'फ़िल्टर किए गए टैग',
+      ariaLabel: 'फ़िल्टर किए गए टैग',
+      empty: 'प्रदर्शित करने के लिए कोई टैग नहीं।',
+      copy: 'टैग कॉपी करें',
+      copied: 'कॉपी हो गया!'
+    },
+    history: {
+      extractionTitle: 'निष्कर्षण इतिहास',
+      imageTitle: 'छवि इतिहास',
+      searchExtraction: 'शीर्षक, url, टैग खोजें...',
+      searchImages: 'फ़ाइल नाम, प्रॉम्प्ट, पैरामीटर खोजें...',
+      emptySearch: 'कोई प्रविष्टि आपकी खोज से मेल नहीं खाती।',
+      clearTooltip: 'सभी इतिहास साफ़ करें',
+      clearAction: 'इतिहास साफ़ करें',
+      confirmMessage: 'वास्तव में साफ़ करें?',
+      confirmYes: 'हां, साफ़ करें',
+      confirmCancel: 'रद्द करें',
+      searchAriaLabel: '{{context}} खोजें',
+      searchFallback: 'इतिहास',
+      clearSearchTooltip: 'खोज साफ़ करें',
+      clearSearchAria: 'खोज साफ़ करें'
+    },
+    mobile: {
+      historyButton: 'इतिहास',
+      urlLabel: 'Booru पोस्ट URL',
+      urlPlaceholder: 'URL पेस्ट करें या ड्रैग एंड ड्रॉप...',
+      manualButton: 'मैन्युअल रूप से निकालें',
+      resetButton: 'रीसेट करें'
+    }
+  },
+  imageTool: {
+    title: 'छवि मेटाडेटा',
+    dropCtaTitle: 'PNG यहां ड्रैग एंड ड्रॉप करें',
+    dropCtaSubtitle: 'या अपलोड करने के लिए क्लिक करें',
+    selectButton: 'PNG चुनें',
+    statusProcessing: 'प्रसंस्करण...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'सकारात्मक प्रॉम्प्ट',
+    negativePrompt: 'नकारात्मक प्रॉम्प्ट',
+    parameters: 'पैरामीटर',
+    copy: 'कॉपी',
+    copyAll: 'सभी कॉपी करें',
+    copySuccess: 'कॉपी हो गया!',
+    noMetadata: 'कोई जनरेशन मेटाडेटा नहीं मिला।',
+    loadMetadata: 'मेटाडेटा लोड करें',
+    deleteEntry: 'प्रविष्टि हटाएं',
+    historyTitle: 'छवि इतिहास',
+    historySearch: 'फ़ाइल नाम, प्रॉम्प्ट, पैरामीटर खोजें...',
+    previewAlt: 'पूर्वावलोकन',
+    footer: {
+      metadataNotice: '"parameters" टेक्स्ट चंक के लिए PNG मेटाडेटा निष्कर्षण।'
+    }
+  },
+  historyItem: {
+    load: 'यह इतिहास प्रविष्टि लोड करें',
+    delete: 'यह इतिहास प्रविष्टि हटाएं',
+    previewAlt: 'पूर्वावलोकन'
+  },
+  imagePreview: {
+    loading: 'पूर्वावलोकन लोड हो रहा है...',
+    error: 'पूर्वावलोकन लोड नहीं किया जा सका।',
+    errorDetail: 'सर्वर प्रॉक्सी त्रुटि या अमान्य छवि',
+    videoUnsupported: 'आपका ब्राउज़र वीडियो का समर्थन नहीं करता।',
+    openFull: 'पूर्ण आकार का पूर्वावलोकन खोलें',
+    close: 'बंद करें',
+    reset: 'रीसेट करें',
+    openOriginal: 'मूल खोलें'
+  },
+  booruList: {
+    pageTitle: 'शीर्ष Booru लीडरबोर्ड',
+    pageDescriptionShort: 'कुल छवियों और गतिविधि के आधार पर शीर्ष booru साइटों का अन्वेषण करें।',
+    pageDescriptionLong: 'वेब से सबसे लोकप्रिय booru साइटों की खोज करें। Booru.org से डेटा के साथ कुल छवियों, सदस्य संख्या और गतिविधि के आधार पर रैंक किया गया।',
+    searchPlaceholder: 'booru साइटें खोजें...',
+    filter: {
+      all: 'सभी',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'छवियां',
+      members: 'सदस्य',
+      owner: 'मालिक'
+    },
+    sort: {
+      label: 'इससे क्रमबद्ध करें:',
+      rank: 'रैंक (शीर्ष)',
+      images: 'छवि संख्या',
+      members: 'सदस्य संख्या',
+      asc: 'आरोही',
+      desc: 'अवरोही'
+    },
+    itemsPerPage: 'प्रति पृष्ठ:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> में से {{total}}',
+    pagination: {
+      previous: 'पिछला',
+      next: 'अगला',
+      previousShort: 'पिछला',
+      nextShort: 'अगला'
+    },
+    emptyState: 'कोई booru साइट नहीं मिली',
+    loading: 'booru डेटा लोड हो रहा है...',
+    errorTitle: 'डेटा लोड करने में त्रुटि',
+    errors: {
+      fetchFailed: 'booru डेटा प्राप्त करने में विफल।',
+      unknown: 'लीडरबोर्ड लोड करते समय कुछ गलत हो गया।'
+    },
+    ownerLabel: 'मालिक:',
+    visit: '{{name}} पर जाएं'
+  },
+  booruDetail: {
+    backButton: 'Booru सूची पर वापस जाएं',
+    notFoundTitle: 'Booru नहीं मिला',
+    notFoundDescription: 'booru डोमेन "{{domain}}" हमारे डेटाबेस में नहीं मिला।',
+    statistics: 'सांख्यिकी',
+    totalImages: 'कुल छवियां',
+    totalMembers: 'कुल सदस्य',
+    shortName: 'संक्षिप्त नाम',
+    owner: 'मालिक',
+    hosted: 'booru.org द्वारा होस्ट किया गया',
+    protocol: 'प्रोटोकॉल',
+    yes: 'हां',
+    no: 'नहीं',
+    visit: '{{name}} पर जाएं',
+    loading: 'लोड हो रहा है...'
   }
 };

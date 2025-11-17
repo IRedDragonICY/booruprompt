@@ -139,4 +139,179 @@ export const el: TranslationSchema = {
       close: 'Κλείσιμο Ρυθμίσεων'
     }
   }
+,
+  extractor: {
+    header: {
+      title: 'Εξαγωγέας Ετικετών Booru',
+      subtitle: 'Εξαγωγή ετικετών από πίνακες εικόνων booru',
+      supported: 'Υποστηριζόμενες πλατφόρμες:',
+      urlLabel: 'URL Ανάρτησης Booru',
+      urlPlaceholder: 'Επικολλήστε το URL ανάρτησης booru εδώ...',
+      manualButton: 'Χειροκίνητη Εξαγωγή',
+      resetButton: 'Επαναφορά',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Εξαγωγέας Ετικετών Booru',
+      heroSubtitle: 'Εξάγετε, φιλτράρετε και αντιγράψτε ετικέτες από ιστότοπους booru αμέσως',
+      features: {
+        smart: { title: 'Έξυπνο', subtitle: 'Αυτόματη εξαγωγή' },
+        fast: { title: 'Γρήγορο', subtitle: 'Άμεσα αποτελέσματα' },
+        private: { title: 'Ιδιωτικό', subtitle: 'Πλευρά πελάτη' },
+        copy: { title: 'Αντιγραφή', subtitle: 'Ένα κλικ' }
+      },
+      cta: {
+        paste: 'Επικόλληση',
+        extract: 'Εξαγωγή',
+        filter: 'Φιλτράρισμα',
+        copy: 'Αντιγραφή'
+      },
+      supportNotice: 'Υποστηρίζει Danbooru, Gelbooru, Safebooru, Rule34, e621 και άλλα'
+    },
+    preview: {
+      title: 'Προεπισκόπηση'
+    },
+    status: {
+      resultLabel: 'Αποτέλεσμα για:'
+    },
+    categories: {
+      title: 'Φιλτράρισμα Κατηγοριών',
+      enableAll: 'Όλα',
+      disableAll: 'Κανένα',
+      items: {
+        copyright: 'Πνευματικά Δικαιώματα',
+        character: 'Χαρακτήρας',
+        general: 'Γενικά',
+        meta: 'Meta',
+        other: 'Άλλο'
+      },
+      count_one: '{{count}} ετικέτα',
+      count_other: '{{count}} ετικέτες'
+    },
+    filteredTags: {
+      label: 'Φιλτραρισμένες Ετικέτες',
+      ariaLabel: 'Φιλτραρισμένες ετικέτες',
+      empty: 'Δεν υπάρχουν ετικέτες προς εμφάνιση.',
+      copy: 'Αντιγραφή Ετικετών',
+      copied: 'Αντιγράφηκε!'
+    },
+    history: {
+      extractionTitle: 'Ιστορικό Εξαγωγής',
+      imageTitle: 'Ιστορικό Εικόνων',
+      searchExtraction: 'Αναζήτηση τίτλου, url, ετικετών...',
+      searchImages: 'Αναζήτηση ονόματος αρχείου, προτροπών, παραμέτρων...',
+      emptySearch: 'Δεν βρέθηκαν καταχωρήσεις που να ταιριάζουν στην αναζήτησή σας.',
+      clearTooltip: 'Εκκαθάριση Όλου του Ιστορικού',
+      clearAction: 'Εκκαθάριση Ιστορικού',
+      confirmMessage: 'Πραγματικά εκκαθάριση;',
+      confirmYes: 'Ναι, Εκκαθάριση',
+      confirmCancel: 'Ακύρωση',
+      searchAriaLabel: 'Αναζήτηση {{context}}',
+      searchFallback: 'ιστορικό',
+      clearSearchTooltip: 'Εκκαθάριση Αναζήτησης',
+      clearSearchAria: 'Εκκαθάριση αναζήτησης'
+    },
+    mobile: {
+      historyButton: 'Ιστορικό',
+      urlLabel: 'URL Ανάρτησης Booru',
+      urlPlaceholder: 'Επικόλληση URL ή Σύρσιμο & Απόθεση...',
+      manualButton: 'Χειροκίνητη Εξαγωγή',
+      resetButton: 'Επαναφορά'
+    }
+  },
+  imageTool: {
+    title: 'Μεταδεδομένα Εικόνας',
+    dropCtaTitle: 'Σύρετε & Αποθέστε PNG Εδώ',
+    dropCtaSubtitle: 'ή κάντε κλικ για μεταφόρτωση',
+    selectButton: 'Επιλογή PNG',
+    statusProcessing: 'Επεξεργασία...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Θετική Προτροπή',
+    negativePrompt: 'Αρνητική Προτροπή',
+    parameters: 'Παράμετροι',
+    copy: 'Αντιγραφή',
+    copyAll: 'Αντιγραφή Όλων',
+    copySuccess: 'Αντιγράφηκε!',
+    noMetadata: 'Δεν βρέθηκαν μεταδεδομένα δημιουργίας.',
+    loadMetadata: 'Φόρτωση Μεταδεδομένων',
+    deleteEntry: 'Διαγραφή Καταχώρησης',
+    historyTitle: 'Ιστορικό Εικόνων',
+    historySearch: 'Αναζήτηση ονόματος αρχείου, προτροπών, παραμέτρων...',
+    previewAlt: 'Προεπισκόπηση',
+    footer: {
+      metadataNotice: "Εξαγωγή μεταδεδομένων PNG για κομμάτι κειμένου 'parameters'."
+    }
+  },
+  historyItem: {
+    load: 'Φόρτωση αυτής της καταχώρησης ιστορικού',
+    delete: 'Διαγραφή αυτής της καταχώρησης ιστορικού',
+    previewAlt: 'Προεπισκόπηση'
+  },
+  imagePreview: {
+    loading: 'Φόρτωση προεπισκόπησης...',
+    error: 'Δεν ήταν δυνατή η φόρτωση προεπισκόπησης.',
+    errorDetail: 'Σφάλμα διακομιστή μεσολάβησης ή μη έγκυρη εικόνα',
+    videoUnsupported: 'Το πρόγραμμα περιήγησής σας δεν υποστηρίζει βίντεο.',
+    openFull: 'Άνοιγμα προεπισκόπησης πλήρους μεγέθους',
+    close: 'Κλείσιμο',
+    reset: 'Επαναφορά',
+    openOriginal: 'Άνοιγμα πρωτότυπου'
+  },
+  booruList: {
+    pageTitle: 'Κορυφαία Κατάταξη Booru',
+    pageDescriptionShort: 'Εξερευνήστε τους κορυφαίους ιστότοπους booru κατατασμένους κατά συνολικές εικόνες και δραστηριότητα.',
+    pageDescriptionLong: 'Ανακαλύψτε τους πιο δημοφιλείς ιστότοπους booru από όλο τον ιστό. Κατατασμένοι κατά συνολικές εικόνες, αριθμό μελών και δραστηριότητα με δεδομένα από το Booru.org.',
+    searchPlaceholder: 'Αναζήτηση ιστότοπων booru...',
+    filter: {
+      all: 'Όλα',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Εικόνες',
+      members: 'Μέλη',
+      owner: 'Ιδιοκτήτης'
+    },
+    sort: {
+      label: 'Ταξινόμηση κατά:',
+      rank: 'Κατάταξη (Κορυφή)',
+      images: 'Αριθμός Εικόνων',
+      members: 'Αριθμός Μελών',
+      asc: 'Αύξουσα',
+      desc: 'Φθίνουσα'
+    },
+    itemsPerPage: 'Ανά σελίδα:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> από {{total}}',
+    pagination: {
+      previous: 'Προηγούμενο',
+      next: 'Επόμενο',
+      previousShort: 'Προηγ',
+      nextShort: 'Επόμ'
+    },
+    emptyState: 'Δεν βρέθηκαν ιστότοποι booru',
+    loading: 'Φόρτωση δεδομένων booru...',
+    errorTitle: 'Σφάλμα Φόρτωσης Δεδομένων',
+    errors: {
+      fetchFailed: 'Αποτυχία λήψης δεδομένων booru.',
+      unknown: 'Κάτι πήγε στραβά κατά τη φόρτωση της κατάταξης.'
+    },
+    ownerLabel: 'Ιδιοκτήτης:',
+    visit: 'Επίσκεψη {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Επιστροφή στη Λίστα Booru',
+    notFoundTitle: 'Δεν Βρέθηκε Booru',
+    notFoundDescription: 'Ο τομέας booru "{{domain}}" δεν βρέθηκε στη βάση δεδομένων μας.',
+    statistics: 'Στατιστικά',
+    totalImages: 'Συνολικές Εικόνες',
+    totalMembers: 'Συνολικά Μέλη',
+    shortName: 'Σύντομο Όνομα',
+    owner: 'Ιδιοκτήτης',
+    hosted: 'Φιλοξενείται από το booru.org',
+    protocol: 'Πρωτόκολλο',
+    yes: 'Ναι',
+    no: 'Όχι',
+    visit: 'Επίσκεψη {{name}}',
+    loading: 'Φόρτωση...'
+  }
 };

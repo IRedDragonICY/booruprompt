@@ -138,5 +138,179 @@ export const pl: TranslationSchema = {
     modal: {
       close: 'Zamknij Ustawienia'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Ekstraktor Tagów Booru',
+      subtitle: 'Wyodrębnij tagi z tablic obrazów booru',
+      supported: 'Obsługiwane platformy:',
+      urlLabel: 'URL Posta Booru',
+      urlPlaceholder: 'Wklej tutaj URL swojego posta booru...',
+      manualButton: 'Wyodrębnij Ręcznie',
+      resetButton: 'Resetuj',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Ekstraktor Tagów Booru',
+      heroSubtitle: 'Wyodrębniaj, filtruj i kopiuj tagi z witryn booru natychmiast',
+      features: {
+        smart: { title: 'Inteligentny', subtitle: 'Auto-wyodrębnianie' },
+        fast: { title: 'Szybki', subtitle: 'Natychmiastowe wyniki' },
+        private: { title: 'Prywatny', subtitle: 'Po stronie klienta' },
+        copy: { title: 'Kopiuj', subtitle: 'Jednym kliknięciem' }
+      },
+      cta: {
+        paste: 'Wklej',
+        extract: 'Wyodrębnij',
+        filter: 'Filtruj',
+        copy: 'Kopiuj'
+      },
+      supportNotice: 'Obsługuje Danbooru, Gelbooru, Safebooru, Rule34, e621 i więcej'
+    },
+    preview: {
+      title: 'Podgląd'
+    },
+    status: {
+      resultLabel: 'Wynik dla:'
+    },
+    categories: {
+      title: 'Filtruj Kategorie',
+      enableAll: 'Wszystko',
+      disableAll: 'Brak',
+      items: {
+        copyright: 'Prawa Autorskie',
+        character: 'Postać',
+        general: 'Ogólne',
+        meta: 'Meta',
+        other: 'Inne'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tagów'
+    },
+    filteredTags: {
+      label: 'Przefiltrowane Tagi',
+      ariaLabel: 'Przefiltrowane tagi',
+      empty: 'Brak tagów do wyświetlenia.',
+      copy: 'Kopiuj Tagi',
+      copied: 'Skopiowano!'
+    },
+    history: {
+      extractionTitle: 'Historia Wyodrębniania',
+      imageTitle: 'Historia Obrazów',
+      searchExtraction: 'Szukaj tytułu, url, tagów...',
+      searchImages: 'Szukaj nazwy pliku, podpowiedzi, parametrów...',
+      emptySearch: 'Brak wpisów pasujących do wyszukiwania.',
+      clearTooltip: 'Wyczyść Całą Historię',
+      clearAction: 'Wyczyść Historię',
+      confirmMessage: 'Naprawdę wyczyścić?',
+      confirmYes: 'Tak, Wyczyść',
+      confirmCancel: 'Anuluj',
+      searchAriaLabel: 'Szukaj {{context}}',
+      searchFallback: 'historia',
+      clearSearchTooltip: 'Wyczyść Wyszukiwanie',
+      clearSearchAria: 'Wyczyść wyszukiwanie'
+    },
+    mobile: {
+      historyButton: 'Historia',
+      urlLabel: 'URL Posta Booru',
+      urlPlaceholder: 'Wklej URL lub Przeciągnij i Upuść...',
+      manualButton: 'Wyodrębnij Ręcznie',
+      resetButton: 'Resetuj'
+    }
+  },
+  imageTool: {
+    title: 'Metadane Obrazu',
+    dropCtaTitle: 'Przeciągnij i Upuść PNG Tutaj',
+    dropCtaSubtitle: 'lub kliknij, aby przesłać',
+    selectButton: 'Wybierz PNG',
+    statusProcessing: 'Przetwarzanie...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Pozytywna Podpowiedź',
+    negativePrompt: 'Negatywna Podpowiedź',
+    parameters: 'Parametry',
+    copy: 'Kopiuj',
+    copyAll: 'Kopiuj Wszystko',
+    copySuccess: 'Skopiowano!',
+    noMetadata: 'Nie znaleziono metadanych generowania.',
+    loadMetadata: 'Załaduj Metadane',
+    deleteEntry: 'Usuń Wpis',
+    historyTitle: 'Historia Obrazów',
+    historySearch: 'Szukaj nazwy pliku, podpowiedzi, parametrów...',
+    previewAlt: 'Podgląd',
+    footer: {
+      metadataNotice: "Ekstrakcja metadanych PNG dla fragmentu tekstu 'parameters'."
+    }
+  },
+  historyItem: {
+    load: 'Załaduj ten wpis historii',
+    delete: 'Usuń ten wpis historii',
+    previewAlt: 'Podgląd'
+  },
+  imagePreview: {
+    loading: 'Ładowanie podglądu...',
+    error: 'Nie można załadować podglądu.',
+    errorDetail: 'Błąd proxy serwera lub nieprawidłowy obraz',
+    videoUnsupported: 'Twoja przeglądarka nie obsługuje wideo.',
+    openFull: 'Otwórz podgląd pełnowymiarowy',
+    close: 'Zamknij',
+    reset: 'Resetuj',
+    openOriginal: 'Otwórz oryginał'
+  },
+  booruList: {
+    pageTitle: 'Tabela Liderów Najlepszych Booru',
+    pageDescriptionShort: 'Odkryj najlepsze witryny booru według łącznej liczby obrazów i aktywności.',
+    pageDescriptionLong: 'Odkryj najpopularniejsze witryny booru z całej sieci. Pozycjonowane według łącznej liczby obrazów, liczby członków i aktywności z danymi z Booru.org.',
+    searchPlaceholder: 'Szukaj witryn booru...',
+    filter: {
+      all: 'Wszystko',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Obrazy',
+      members: 'Członkowie',
+      owner: 'Właściciel'
+    },
+    sort: {
+      label: 'Sortuj według:',
+      rank: 'Pozycja (Najlepsze)',
+      images: 'Liczba Obrazów',
+      members: 'Liczba Członków',
+      asc: 'Rosnąco',
+      desc: 'Malejąco'
+    },
+    itemsPerPage: 'Na stronę:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> z {{total}}',
+    pagination: {
+      previous: 'Poprzednia',
+      next: 'Następna',
+      previousShort: 'Poprz',
+      nextShort: 'Nast'
+    },
+    emptyState: 'Nie znaleziono witryn booru',
+    loading: 'Ładowanie danych booru...',
+    errorTitle: 'Błąd Ładowania Danych',
+    errors: {
+      fetchFailed: 'Nie udało się pobrać danych booru.',
+      unknown: 'Coś poszło nie tak podczas ładowania tabeli liderów.'
+    },
+    ownerLabel: 'Właściciel:',
+    visit: 'Odwiedź {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Wróć do Listy Booru',
+    notFoundTitle: 'Nie Znaleziono Booru',
+    notFoundDescription: 'Domena booru "{{domain}}" nie została znaleziona w naszej bazie danych.',
+    statistics: 'Statystyki',
+    totalImages: 'Łączna Liczba Obrazów',
+    totalMembers: 'Łączna Liczba Członków',
+    shortName: 'Krótka Nazwa',
+    owner: 'Właściciel',
+    hosted: 'Hostowane przez booru.org',
+    protocol: 'Protokół',
+    yes: 'Tak',
+    no: 'Nie',
+    visit: 'Odwiedź {{name}}',
+    loading: 'Ładowanie...'
   }
 };

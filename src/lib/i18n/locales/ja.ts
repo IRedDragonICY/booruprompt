@@ -138,5 +138,179 @@ export const ja: TranslationSchema = {
     modal: {
       close: '設定を閉じる'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru タグ抽出ツール',
+      subtitle: 'Booru画像ボードからタグを抽出',
+      supported: '対応プラットフォーム:',
+      urlLabel: 'Booru投稿URL',
+      urlPlaceholder: 'Booru投稿URLをここに貼り付け...',
+      manualButton: '手動抽出',
+      resetButton: 'リセット',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru タグ抽出ツール',
+      heroSubtitle: 'Booruサイトからタグを瞬時に抽出、フィルタ、コピー',
+      features: {
+        smart: { title: 'スマート', subtitle: '自動抽出' },
+        fast: { title: '高速', subtitle: '即座に結果' },
+        private: { title: 'プライベート', subtitle: 'クライアント側' },
+        copy: { title: 'コピー', subtitle: 'ワンクリック' }
+      },
+      cta: {
+        paste: '貼り付け',
+        extract: '抽出',
+        filter: 'フィルタ',
+        copy: 'コピー'
+      },
+      supportNotice: 'Danbooru、Gelbooru、Safebooru、Rule34、e621などに対応'
+    },
+    preview: {
+      title: 'プレビュー'
+    },
+    status: {
+      resultLabel: '結果:'
+    },
+    categories: {
+      title: 'カテゴリをフィルタ',
+      enableAll: 'すべて',
+      disableAll: 'なし',
+      items: {
+        copyright: '著作権',
+        character: 'キャラクター',
+        general: '一般',
+        meta: 'メタ',
+        other: 'その他'
+      },
+      count_one: '{{count}}個のタグ',
+      count_other: '{{count}}個のタグ'
+    },
+    filteredTags: {
+      label: 'フィルタされたタグ',
+      ariaLabel: 'フィルタされたタグ',
+      empty: '表示するタグがありません。',
+      copy: 'タグをコピー',
+      copied: 'コピーしました！'
+    },
+    history: {
+      extractionTitle: '抽出履歴',
+      imageTitle: '画像履歴',
+      searchExtraction: 'タイトル、URL、タグを検索...',
+      searchImages: 'ファイル名、プロンプト、パラメータを検索...',
+      emptySearch: '検索に一致するエントリがありません。',
+      clearTooltip: 'すべての履歴をクリア',
+      clearAction: '履歴をクリア',
+      confirmMessage: '本当にクリアしますか？',
+      confirmYes: 'はい、クリア',
+      confirmCancel: 'キャンセル',
+      searchAriaLabel: '{{context}}を検索',
+      searchFallback: '履歴',
+      clearSearchTooltip: '検索をクリア',
+      clearSearchAria: '検索をクリア'
+    },
+    mobile: {
+      historyButton: '履歴',
+      urlLabel: 'Booru投稿URL',
+      urlPlaceholder: 'URLを貼り付けるかドラッグ＆ドロップ...',
+      manualButton: '手動抽出',
+      resetButton: 'リセット'
+    }
+  },
+  imageTool: {
+    title: '画像メタデータ',
+    dropCtaTitle: 'PNGをここにドラッグ＆ドロップ',
+    dropCtaSubtitle: 'またはクリックしてアップロード',
+    selectButton: 'PNGを選択',
+    statusProcessing: '処理中...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'ポジティブプロンプト',
+    negativePrompt: 'ネガティブプロンプト',
+    parameters: 'パラメータ',
+    copy: 'コピー',
+    copyAll: 'すべてコピー',
+    copySuccess: 'コピーしました！',
+    noMetadata: '生成メタデータが見つかりません。',
+    loadMetadata: 'メタデータを読み込む',
+    deleteEntry: 'エントリを削除',
+    historyTitle: '画像履歴',
+    historySearch: 'ファイル名、プロンプト、パラメータを検索...',
+    previewAlt: 'プレビュー',
+    footer: {
+      metadataNotice: "'parameters'テキストチャンクのPNGメタデータ抽出。"
+    }
+  },
+  historyItem: {
+    load: 'この履歴エントリを読み込む',
+    delete: 'この履歴エントリを削除',
+    previewAlt: 'プレビュー'
+  },
+  imagePreview: {
+    loading: 'プレビューを読み込み中...',
+    error: 'プレビューを読み込めませんでした。',
+    errorDetail: 'サーバープロキシエラーまたは無効な画像',
+    videoUnsupported: 'ブラウザがビデオをサポートしていません。',
+    openFull: 'フルサイズプレビューを開く',
+    close: '閉じる',
+    reset: 'リセット',
+    openOriginal: 'オリジナルを開く'
+  },
+  booruList: {
+    pageTitle: 'トップBooruランキング',
+    pageDescriptionShort: '総画像数とアクティビティでランク付けされたトップBooruサイトを探索。',
+    pageDescriptionLong: 'Web上で最も人気のあるBooruサイトを発見。Booru.orgのデータを使用して、総画像数、メンバー数、アクティビティでランク付け。',
+    searchPlaceholder: 'Booruサイトを検索...',
+    filter: {
+      all: 'すべて',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: '画像',
+      members: 'メンバー',
+      owner: '所有者'
+    },
+    sort: {
+      label: '並び替え:',
+      rank: 'ランク（トップ）',
+      images: '画像数',
+      members: 'メンバー数',
+      asc: '昇順',
+      desc: '降順'
+    },
+    itemsPerPage: 'ページあたり:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> / {{total}}',
+    pagination: {
+      previous: '前へ',
+      next: '次へ',
+      previousShort: '前',
+      nextShort: '次'
+    },
+    emptyState: 'Booruサイトが見つかりません',
+    loading: 'Booruデータを読み込み中...',
+    errorTitle: 'データ読み込みエラー',
+    errors: {
+      fetchFailed: 'Booruデータの取得に失敗しました。',
+      unknown: 'ランキングの読み込み中に問題が発生しました。'
+    },
+    ownerLabel: '所有者:',
+    visit: '{{name}}を訪問'
+  },
+  booruDetail: {
+    backButton: 'Booruリストに戻る',
+    notFoundTitle: 'Booruが見つかりません',
+    notFoundDescription: 'Booruドメイン「{{domain}}」はデータベースに見つかりませんでした。',
+    statistics: '統計',
+    totalImages: '総画像数',
+    totalMembers: '総メンバー数',
+    shortName: '短縮名',
+    owner: '所有者',
+    hosted: 'booru.orgでホスティング',
+    protocol: 'プロトコル',
+    yes: 'はい',
+    no: 'いいえ',
+    visit: '{{name}}を訪問',
+    loading: '読み込み中...'
   }
 };

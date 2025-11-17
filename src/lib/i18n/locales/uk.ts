@@ -138,5 +138,179 @@ export const uk: TranslationSchema = {
     modal: {
       close: 'Закрити налаштування'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Вилучення Тегів Booru',
+      subtitle: 'Вилучення тегів з дошок зображень booru',
+      supported: 'Підтримувані платформи:',
+      urlLabel: 'URL Публікації Booru',
+      urlPlaceholder: 'Вставте URL публікації booru тут...',
+      manualButton: 'Вилучити Вручну',
+      resetButton: 'Скинути',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Вилучення Тегів Booru',
+      heroSubtitle: 'Вилучайте, фільтруйте та копіюйте теги з сайтів booru миттєво',
+      features: {
+        smart: { title: 'Розумний', subtitle: 'Авто-вилучення' },
+        fast: { title: 'Швидкий', subtitle: 'Миттєві результати' },
+        private: { title: 'Приватний', subtitle: 'На стороні клієнта' },
+        copy: { title: 'Копіювати', subtitle: 'Одним кліком' }
+      },
+      cta: {
+        paste: 'Вставити',
+        extract: 'Вилучити',
+        filter: 'Фільтр',
+        copy: 'Копіювати'
+      },
+      supportNotice: 'Підтримує Danbooru, Gelbooru, Safebooru, Rule34, e621 та інші'
+    },
+    preview: {
+      title: 'Попередній перегляд'
+    },
+    status: {
+      resultLabel: 'Результат для:'
+    },
+    categories: {
+      title: 'Фільтрувати Категорії',
+      enableAll: 'Усе',
+      disableAll: 'Нічого',
+      items: {
+        copyright: 'Авторське Право',
+        character: 'Персонаж',
+        general: 'Загальне',
+        meta: 'Мета',
+        other: 'Інше'
+      },
+      count_one: '{{count}} тег',
+      count_other: '{{count}} тегів'
+    },
+    filteredTags: {
+      label: 'Відфільтровані Теги',
+      ariaLabel: 'Відфільтровані теги',
+      empty: 'Немає тегів для відображення.',
+      copy: 'Копіювати Теги',
+      copied: 'Скопійовано!'
+    },
+    history: {
+      extractionTitle: 'Історія Вилучення',
+      imageTitle: 'Історія Зображень',
+      searchExtraction: 'Пошук заголовка, url, тегів...',
+      searchImages: 'Пошук імені файлу, підказок, параметрів...',
+      emptySearch: 'Жодного запису не відповідає вашому пошуку.',
+      clearTooltip: 'Очистити Всю Історію',
+      clearAction: 'Очистити Історію',
+      confirmMessage: 'Дійсно очистити?',
+      confirmYes: 'Так, Очистити',
+      confirmCancel: 'Скасувати',
+      searchAriaLabel: 'Пошук {{context}}',
+      searchFallback: 'історія',
+      clearSearchTooltip: 'Очистити Пошук',
+      clearSearchAria: 'Очистити пошук'
+    },
+    mobile: {
+      historyButton: 'Історія',
+      urlLabel: 'URL Публікації Booru',
+      urlPlaceholder: 'Вставте URL або Перетягніть & Відпустіть...',
+      manualButton: 'Вилучити Вручну',
+      resetButton: 'Скинути'
+    }
+  },
+  imageTool: {
+    title: 'Метадані Зображення',
+    dropCtaTitle: 'Перетягніть & Відпустіть PNG Тут',
+    dropCtaSubtitle: 'або натисніть для завантаження',
+    selectButton: 'Вибрати PNG',
+    statusProcessing: 'Обробка...',
+    previewMeta: '{{name}} ({{size}} КБ)',
+    positivePrompt: 'Позитивний Підказка',
+    negativePrompt: 'Негативний Підказка',
+    parameters: 'Параметри',
+    copy: 'Копіювати',
+    copyAll: 'Копіювати Все',
+    copySuccess: 'Скопійовано!',
+    noMetadata: 'Метадані генерації не знайдено.',
+    loadMetadata: 'Завантажити Метадані',
+    deleteEntry: 'Видалити Запис',
+    historyTitle: 'Історія Зображень',
+    historySearch: 'Пошук імені файлу, підказок, параметрів...',
+    previewAlt: 'Попередній перегляд',
+    footer: {
+      metadataNotice: "Вилучення метаданих PNG для текстового фрагмента 'parameters'."
+    }
+  },
+  historyItem: {
+    load: 'Завантажити цей запис історії',
+    delete: 'Видалити цей запис історії',
+    previewAlt: 'Попередній перегляд'
+  },
+  imagePreview: {
+    loading: 'Завантаження попереднього перегляду...',
+    error: 'Не вдалося завантажити попередній перегляд.',
+    errorDetail: 'Помилка серверного проксі або недійсне зображення',
+    videoUnsupported: 'Ваш браузер не підтримує відео.',
+    openFull: 'Відкрити попередній перегляд у повному розмірі',
+    close: 'Закрити',
+    reset: 'Скинути',
+    openOriginal: 'Відкрити оригінал'
+  },
+  booruList: {
+    pageTitle: 'Топ Рейтинг Booru',
+    pageDescriptionShort: 'Досліджуйте найкращі сайти booru, ранжовані за загальною кількістю зображень та активністю.',
+    pageDescriptionLong: 'Відкрийте для себе найпопулярніші сайти booru з усього інтернету. Ранжовані за загальною кількістю зображень, кількістю учасників та активністю з даними від Booru.org.',
+    searchPlaceholder: 'Пошук сайтів booru...',
+    filter: {
+      all: 'Усі',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Зображення',
+      members: 'Учасники',
+      owner: 'Власник'
+    },
+    sort: {
+      label: 'Сортувати за:',
+      rank: 'Рейтинг (Топ)',
+      images: 'Кількість Зображень',
+      members: 'Кількість Учасників',
+      asc: 'За зростанням',
+      desc: 'За спаданням'
+    },
+    itemsPerPage: 'На сторінку:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> з {{total}}',
+    pagination: {
+      previous: 'Попередня',
+      next: 'Наступна',
+      previousShort: 'Попер',
+      nextShort: 'Наст'
+    },
+    emptyState: 'Сайти booru не знайдено',
+    loading: 'Завантаження даних booru...',
+    errorTitle: 'Помилка Завантаження Даних',
+    errors: {
+      fetchFailed: 'Не вдалося отримати дані booru.',
+      unknown: 'Щось пішло не так під час завантаження рейтингу.'
+    },
+    ownerLabel: 'Власник:',
+    visit: 'Відвідати {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Повернутися до Списку Booru',
+    notFoundTitle: 'Booru Не Знайдено',
+    notFoundDescription: 'Домен booru "{{domain}}" не знайдено в нашій базі даних.',
+    statistics: 'Статистика',
+    totalImages: 'Загальна Кількість Зображень',
+    totalMembers: 'Загальна Кількість Учасників',
+    shortName: 'Коротке Ім\'я',
+    owner: 'Власник',
+    hosted: 'Розміщено на booru.org',
+    protocol: 'Протокол',
+    yes: 'Так',
+    no: 'Ні',
+    visit: 'Відвідати {{name}}',
+    loading: 'Завантаження...'
   }
 };

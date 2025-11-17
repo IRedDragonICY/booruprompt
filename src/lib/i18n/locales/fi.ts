@@ -139,4 +139,179 @@ export const fi: TranslationSchema = {
       close: 'Sulje Asetukset'
     }
   }
+,
+  extractor: {
+    header: {
+      title: 'Booru-taginpurkaja',
+      subtitle: 'Pura tagit booru-kuvatauluista',
+      supported: 'Tuetut alustat:',
+      urlLabel: 'Booru-julkaisun URL',
+      urlPlaceholder: 'Liitä booru-julkaisun URL tähän...',
+      manualButton: 'Pura Manuaalisesti',
+      resetButton: 'Nollaa',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru-taginpurkaja',
+      heroSubtitle: 'Pura, suodata ja kopioi tagit booru-sivustoilta välittömästi',
+      features: {
+        smart: { title: 'Älykäs', subtitle: 'Automaattinen purku' },
+        fast: { title: 'Nopea', subtitle: 'Välittömät tulokset' },
+        private: { title: 'Yksityinen', subtitle: 'Asiakaspuoli' },
+        copy: { title: 'Kopioi', subtitle: 'Yhdellä napsautuksella' }
+      },
+      cta: {
+        paste: 'Liitä',
+        extract: 'Pura',
+        filter: 'Suodata',
+        copy: 'Kopioi'
+      },
+      supportNotice: 'Tukee Danboorua, Gelboorua, Safeboorua, Rule34:ää, e621:tä ja muita'
+    },
+    preview: {
+      title: 'Esikatselu'
+    },
+    status: {
+      resultLabel: 'Tulos:'
+    },
+    categories: {
+      title: 'Suodata Kategoriat',
+      enableAll: 'Kaikki',
+      disableAll: 'Ei mitään',
+      items: {
+        copyright: 'Tekijänoikeus',
+        character: 'Hahmo',
+        general: 'Yleinen',
+        meta: 'Meta',
+        other: 'Muu'
+      },
+      count_one: '{{count}} tagi',
+      count_other: '{{count}} tagia'
+    },
+    filteredTags: {
+      label: 'Suodatetut Tagit',
+      ariaLabel: 'Suodatetut tagit',
+      empty: 'Ei tageja näytettävänä.',
+      copy: 'Kopioi Tagit',
+      copied: 'Kopioitu!'
+    },
+    history: {
+      extractionTitle: 'Purkuhistoria',
+      imageTitle: 'Kuvahistoria',
+      searchExtraction: 'Hae otsikko, url, tagit...',
+      searchImages: 'Hae tiedostonimi, kehotukset, parametrit...',
+      emptySearch: 'Ei hakuasi vastaavia merkintöjä.',
+      clearTooltip: 'Tyhjennä Koko Historia',
+      clearAction: 'Tyhjennä Historia',
+      confirmMessage: 'Varmasti tyhjennä?',
+      confirmYes: 'Kyllä, Tyhjennä',
+      confirmCancel: 'Peruuta',
+      searchAriaLabel: 'Hae {{context}}',
+      searchFallback: 'historia',
+      clearSearchTooltip: 'Tyhjennä Haku',
+      clearSearchAria: 'Tyhjennä haku'
+    },
+    mobile: {
+      historyButton: 'Historia',
+      urlLabel: 'Booru-julkaisun URL',
+      urlPlaceholder: 'Liitä URL tai Vedä & Pudota...',
+      manualButton: 'Pura Manuaalisesti',
+      resetButton: 'Nollaa'
+    }
+  },
+  imageTool: {
+    title: 'Kuvan Metatiedot',
+    dropCtaTitle: 'Vedä & Pudota PNG Tähän',
+    dropCtaSubtitle: 'tai napsauta ladataksesi',
+    selectButton: 'Valitse PNG',
+    statusProcessing: 'Käsitellään...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Positiivinen Kehote',
+    negativePrompt: 'Negatiivinen Kehote',
+    parameters: 'Parametrit',
+    copy: 'Kopioi',
+    copyAll: 'Kopioi Kaikki',
+    copySuccess: 'Kopioitu!',
+    noMetadata: 'Luontimetatietoja ei löytynyt.',
+    loadMetadata: 'Lataa Metatiedot',
+    deleteEntry: 'Poista Merkintä',
+    historyTitle: 'Kuvahistoria',
+    historySearch: 'Hae tiedostonimi, kehotukset, parametrit...',
+    previewAlt: 'Esikatselu',
+    footer: {
+      metadataNotice: "PNG-metatietojen purku 'parameters' tekstilohkolle."
+    }
+  },
+  historyItem: {
+    load: 'Lataa tämä historiamerkintä',
+    delete: 'Poista tämä historiamerkintä',
+    previewAlt: 'Esikatselu'
+  },
+  imagePreview: {
+    loading: 'Ladataan esikatselua...',
+    error: 'Esikatselua ei voitu ladata.',
+    errorDetail: 'Palvelinvälityspalvelinvirhe tai virheellinen kuva',
+    videoUnsupported: 'Selaimesi ei tue videota.',
+    openFull: 'Avaa täysikokoinen esikatselu',
+    close: 'Sulje',
+    reset: 'Nollaa',
+    openOriginal: 'Avaa alkuperäinen'
+  },
+  booruList: {
+    pageTitle: 'Huippu Booru -Sijoitus',
+    pageDescriptionShort: 'Tutki parhaita booru-sivustoja kuvien kokonaismäärän ja aktiivisuuden mukaan.',
+    pageDescriptionLong: 'Löydä suosituimmat booru-sivustot koko verkosta. Järjestetty kuvien kokonaismäärän, jäsenmäärän ja aktiivisuuden mukaan Booru.org-tiedoilla.',
+    searchPlaceholder: 'Hae booru-sivustoja...',
+    filter: {
+      all: 'Kaikki',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Kuvat',
+      members: 'Jäsenet',
+      owner: 'Omistaja'
+    },
+    sort: {
+      label: 'Järjestä:',
+      rank: 'Sijoitus (Huippu)',
+      images: 'Kuvien Määrä',
+      members: 'Jäsenten Määrä',
+      asc: 'Nouseva',
+      desc: 'Laskeva'
+    },
+    itemsPerPage: 'Sivua kohti:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> / {{total}}',
+    pagination: {
+      previous: 'Edellinen',
+      next: 'Seuraava',
+      previousShort: 'Edel',
+      nextShort: 'Seur'
+    },
+    emptyState: 'Booru-sivustoja ei löytynyt',
+    loading: 'Ladataan booru-tietoja...',
+    errorTitle: 'Virhe Tietojen Lataamisessa',
+    errors: {
+      fetchFailed: 'Booru-tietojen haku epäonnistui.',
+      unknown: 'Jokin meni pieleen sijoituksen lataamisessa.'
+    },
+    ownerLabel: 'Omistaja:',
+    visit: 'Käy {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Takaisin Booru-Listaan',
+    notFoundTitle: 'Boorua Ei Löytynyt',
+    notFoundDescription: 'Booru-verkkotunnusta "{{domain}}" ei löytynyt tietokannastamme.',
+    statistics: 'Tilastot',
+    totalImages: 'Kuvien Kokonaismäärä',
+    totalMembers: 'Jäsenten Kokonaismäärä',
+    shortName: 'Lyhyt Nimi',
+    owner: 'Omistaja',
+    hosted: 'Isännöi booru.org',
+    protocol: 'Protokolla',
+    yes: 'Kyllä',
+    no: 'Ei',
+    visit: 'Käy {{name}}',
+    loading: 'Ladataan...'
+  }
 };

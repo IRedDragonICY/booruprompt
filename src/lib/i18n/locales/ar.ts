@@ -138,5 +138,179 @@ export const ar: TranslationSchema = {
     modal: {
       close: 'إغلاق الإعدادات'
     }
+  },
+  extractor: {
+    header: {
+      title: 'مستخرج علامات Booru',
+      subtitle: 'استخراج العلامات من لوحات صور booru',
+      supported: 'المنصات المدعومة:',
+      urlLabel: 'رابط منشور Booru',
+      urlPlaceholder: 'الصق رابط منشور booru هنا...',
+      manualButton: 'استخراج يدوي',
+      resetButton: 'إعادة تعيين',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'مستخرج علامات Booru',
+      heroSubtitle: 'استخراج وتصفية ونسخ العلامات من مواقع booru فوراً',
+      features: {
+        smart: { title: 'ذكي', subtitle: 'استخراج تلقائي' },
+        fast: { title: 'سريع', subtitle: 'نتائج فورية' },
+        private: { title: 'خاص', subtitle: 'جانب العميل' },
+        copy: { title: 'نسخ', subtitle: 'نقرة واحدة' }
+      },
+      cta: {
+        paste: 'لصق',
+        extract: 'استخراج',
+        filter: 'تصفية',
+        copy: 'نسخ'
+      },
+      supportNotice: 'يدعم Danbooru وGelbooru وSafebooru وRule34 وe621 والمزيد'
+    },
+    preview: {
+      title: 'معاينة'
+    },
+    status: {
+      resultLabel: 'النتيجة لـ:'
+    },
+    categories: {
+      title: 'تصفية الفئات',
+      enableAll: 'الكل',
+      disableAll: 'لا شيء',
+      items: {
+        copyright: 'حقوق النشر',
+        character: 'الشخصية',
+        general: 'عام',
+        meta: 'ميتا',
+        other: 'أخرى'
+      },
+      count_one: '{{count}} علامة',
+      count_other: '{{count}} علامات'
+    },
+    filteredTags: {
+      label: 'العلامات المصفاة',
+      ariaLabel: 'العلامات المصفاة',
+      empty: 'لا توجد علامات للعرض.',
+      copy: 'نسخ العلامات',
+      copied: 'تم النسخ!'
+    },
+    history: {
+      extractionTitle: 'سجل الاستخراج',
+      imageTitle: 'سجل الصور',
+      searchExtraction: 'البحث عن العنوان، الرابط، العلامات...',
+      searchImages: 'البحث عن اسم الملف، المطالبات، المعاملات...',
+      emptySearch: 'لا توجد إدخالات تطابق بحثك.',
+      clearTooltip: 'مسح كل السجل',
+      clearAction: 'مسح السجل',
+      confirmMessage: 'هل تريد حقاً المسح؟',
+      confirmYes: 'نعم، امسح',
+      confirmCancel: 'إلغاء',
+      searchAriaLabel: 'البحث في {{context}}',
+      searchFallback: 'السجل',
+      clearSearchTooltip: 'مسح البحث',
+      clearSearchAria: 'مسح البحث'
+    },
+    mobile: {
+      historyButton: 'السجل',
+      urlLabel: 'رابط منشور Booru',
+      urlPlaceholder: 'الصق الرابط أو اسحب وأفلت...',
+      manualButton: 'استخراج يدوي',
+      resetButton: 'إعادة تعيين'
+    }
+  },
+  imageTool: {
+    title: 'بيانات تعريف الصورة',
+    dropCtaTitle: 'اسحب وأفلت PNG هنا',
+    dropCtaSubtitle: 'أو انقر للتحميل',
+    selectButton: 'اختر PNG',
+    statusProcessing: 'جارٍ المعالجة...',
+    previewMeta: '{{name}} ({{size}} كيلوبايت)',
+    positivePrompt: 'المطالبة الإيجابية',
+    negativePrompt: 'المطالبة السلبية',
+    parameters: 'المعاملات',
+    copy: 'نسخ',
+    copyAll: 'نسخ الكل',
+    copySuccess: 'تم النسخ!',
+    noMetadata: 'لم يتم العثور على بيانات تعريف التوليد.',
+    loadMetadata: 'تحميل البيانات التعريفية',
+    deleteEntry: 'حذف الإدخال',
+    historyTitle: 'سجل الصور',
+    historySearch: 'البحث عن اسم الملف، المطالبات، المعاملات...',
+    previewAlt: 'معاينة',
+    footer: {
+      metadataNotice: 'استخراج بيانات تعريف PNG لكتلة نص "parameters".'
+    }
+  },
+  historyItem: {
+    load: 'تحميل إدخال السجل هذا',
+    delete: 'حذف إدخال السجل هذا',
+    previewAlt: 'معاينة'
+  },
+  imagePreview: {
+    loading: 'جارٍ تحميل المعاينة...',
+    error: 'تعذر تحميل المعاينة.',
+    errorDetail: 'خطأ في خادم الوكيل أو صورة غير صالحة',
+    videoUnsupported: 'متصفحك لا يدعم الفيديو.',
+    openFull: 'فتح المعاينة بالحجم الكامل',
+    close: 'إغلاق',
+    reset: 'إعادة تعيين',
+    openOriginal: 'فتح الأصل'
+  },
+  booruList: {
+    pageTitle: 'تصنيف أفضل مواقع Booru',
+    pageDescriptionShort: 'استكشف أفضل مواقع booru مرتبة حسب إجمالي الصور والنشاط.',
+    pageDescriptionLong: 'اكتشف مواقع booru الأكثر شعبية على الويب. مرتبة حسب إجمالي الصور وعدد الأعضاء والنشاط مع بيانات من Booru.org.',
+    searchPlaceholder: 'البحث عن مواقع booru...',
+    filter: {
+      all: 'الكل',
+      sfw: 'آمن للعمل',
+      nsfw: 'غير آمن للعمل'
+    },
+    stats: {
+      images: 'الصور',
+      members: 'الأعضاء',
+      owner: 'المالك'
+    },
+    sort: {
+      label: 'ترتيب حسب:',
+      rank: 'الترتيب (الأعلى)',
+      images: 'عدد الصور',
+      members: 'عدد الأعضاء',
+      asc: 'تصاعدي',
+      desc: 'تنازلي'
+    },
+    itemsPerPage: 'لكل صفحة:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> من {{total}}',
+    pagination: {
+      previous: 'السابق',
+      next: 'التالي',
+      previousShort: 'السابق',
+      nextShort: 'التالي'
+    },
+    emptyState: 'لم يتم العثور على مواقع booru',
+    loading: 'جارٍ تحميل بيانات booru...',
+    errorTitle: 'خطأ في تحميل البيانات',
+    errors: {
+      fetchFailed: 'فشل جلب بيانات booru.',
+      unknown: 'حدث خطأ ما أثناء تحميل التصنيف.'
+    },
+    ownerLabel: 'المالك:',
+    visit: 'زيارة {{name}}'
+  },
+  booruDetail: {
+    backButton: 'العودة إلى قائمة Booru',
+    notFoundTitle: 'Booru غير موجود',
+    notFoundDescription: 'نطاق booru "{{domain}}" غير موجود في قاعدة بياناتنا.',
+    statistics: 'الإحصائيات',
+    totalImages: 'إجمالي الصور',
+    totalMembers: 'إجمالي الأعضاء',
+    shortName: 'الاسم المختصر',
+    owner: 'المالك',
+    hosted: 'مستضاف بواسطة booru.org',
+    protocol: 'البروتوكول',
+    yes: 'نعم',
+    no: 'لا',
+    visit: 'زيارة {{name}}',
+    loading: 'جارٍ التحميل...'
   }
 };

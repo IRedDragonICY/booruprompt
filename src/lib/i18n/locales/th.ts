@@ -138,5 +138,179 @@ export const th: TranslationSchema = {
     modal: {
       close: 'ปิดการตั้งค่า'
     }
+  },
+  extractor: {
+    header: {
+      title: 'เครื่องมือแยกแท็ก Booru',
+      subtitle: 'แยกแท็กจากกระดานภาพ booru',
+      supported: 'แพลตฟอร์มที่รองรับ:',
+      urlLabel: 'URL โพสต์ Booru',
+      urlPlaceholder: 'วาง URL โพสต์ booru ของคุณที่นี่...',
+      manualButton: 'แยกด้วยตนเอง',
+      resetButton: 'รีเซ็ต',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'เครื่องมือแยกแท็ก Booru',
+      heroSubtitle: 'แยก กรอง และคัดลอกแท็กจากไซต์ booru ได้ทันที',
+      features: {
+        smart: { title: 'ฉลาด', subtitle: 'แยกอัตโนมัติ' },
+        fast: { title: 'เร็ว', subtitle: 'ผลลัพธ์ทันที' },
+        private: { title: 'ส่วนตัว', subtitle: 'ฝั่งไคลเอนต์' },
+        copy: { title: 'คัดลอก', subtitle: 'คลิกเดียว' }
+      },
+      cta: {
+        paste: 'วาง',
+        extract: 'แยก',
+        filter: 'กรอง',
+        copy: 'คัดลอก'
+      },
+      supportNotice: 'รองรับ Danbooru, Gelbooru, Safebooru, Rule34, e621 และอื่นๆ'
+    },
+    preview: {
+      title: 'ตัวอย่าง'
+    },
+    status: {
+      resultLabel: 'ผลลัพธ์สำหรับ:'
+    },
+    categories: {
+      title: 'กรองหมวดหมู่',
+      enableAll: 'ทั้งหมด',
+      disableAll: 'ไม่มี',
+      items: {
+        copyright: 'ลิขสิทธิ์',
+        character: 'ตัวละคร',
+        general: 'ทั่วไป',
+        meta: 'เมตา',
+        other: 'อื่นๆ'
+      },
+      count_one: '{{count}} แท็ก',
+      count_other: '{{count}} แท็ก'
+    },
+    filteredTags: {
+      label: 'แท็กที่กรองแล้ว',
+      ariaLabel: 'แท็กที่กรองแล้ว',
+      empty: 'ไม่มีแท็กที่จะแสดง',
+      copy: 'คัดลอกแท็ก',
+      copied: 'คัดลอกแล้ว!'
+    },
+    history: {
+      extractionTitle: 'ประวัติการแยก',
+      imageTitle: 'ประวัติรูปภาพ',
+      searchExtraction: 'ค้นหาชื่อเรื่อง url แท็ก...',
+      searchImages: 'ค้นหาชื่อไฟล์ พรอมต์ พารามิเตอร์...',
+      emptySearch: 'ไม่มีรายการที่ตรงกับการค้นหาของคุณ',
+      clearTooltip: 'ล้างประวัติทั้งหมด',
+      clearAction: 'ล้างประวัติ',
+      confirmMessage: 'ต้องการล้างจริงหรือ?',
+      confirmYes: 'ใช่ ล้าง',
+      confirmCancel: 'ยกเลิก',
+      searchAriaLabel: 'ค้นหา {{context}}',
+      searchFallback: 'ประวัติ',
+      clearSearchTooltip: 'ล้างการค้นหา',
+      clearSearchAria: 'ล้างการค้นหา'
+    },
+    mobile: {
+      historyButton: 'ประวัติ',
+      urlLabel: 'URL โพสต์ Booru',
+      urlPlaceholder: 'วาง URL หรือลากแล้ววาง...',
+      manualButton: 'แยกด้วยตนเอง',
+      resetButton: 'รีเซ็ต'
+    }
+  },
+  imageTool: {
+    title: 'ข้อมูลเมตาของรูปภาพ',
+    dropCtaTitle: 'ลากและวาง PNG ที่นี่',
+    dropCtaSubtitle: 'หรือคลิกเพื่ออัปโหลด',
+    selectButton: 'เลือก PNG',
+    statusProcessing: 'กำลังประมวลผล...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'พรอมต์เชิงบวก',
+    negativePrompt: 'พรอมต์เชิงลบ',
+    parameters: 'พารามิเตอร์',
+    copy: 'คัดลอก',
+    copyAll: 'คัดลอกทั้งหมด',
+    copySuccess: 'คัดลอกแล้ว!',
+    noMetadata: 'ไม่พบข้อมูลเมตาการสร้าง',
+    loadMetadata: 'โหลดข้อมูลเมตา',
+    deleteEntry: 'ลบรายการ',
+    historyTitle: 'ประวัติรูปภาพ',
+    historySearch: 'ค้นหาชื่อไฟล์ พรอมต์ พารามิเตอร์...',
+    previewAlt: 'ตัวอย่าง',
+    footer: {
+      metadataNotice: 'การแยกข้อมูลเมตา PNG สำหรับบล็อกข้อความ "parameters"'
+    }
+  },
+  historyItem: {
+    load: 'โหลดรายการประวัตินี้',
+    delete: 'ลบรายการประวัตินี้',
+    previewAlt: 'ตัวอย่าง'
+  },
+  imagePreview: {
+    loading: 'กำลังโหลดตัวอย่าง...',
+    error: 'ไม่สามารถโหลดตัวอย่างได้',
+    errorDetail: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์พร็อกซีหรือรูปภาพไม่ถูกต้อง',
+    videoUnsupported: 'เบราว์เซอร์ของคุณไม่รองรับวิดีโอ',
+    openFull: 'เปิดตัวอย่างขนาดเต็ม',
+    close: 'ปิด',
+    reset: 'รีเซ็ต',
+    openOriginal: 'เปิดต้นฉบับ'
+  },
+  booruList: {
+    pageTitle: 'อันดับ Booru ยอดนิยม',
+    pageDescriptionShort: 'สำรวจไซต์ booru ยอดนิยมจัดอันดับตามจำนวนรูปภาพทั้งหมดและกิจกรรม',
+    pageDescriptionLong: 'ค้นพบไซต์ booru ยอดนิยมจากทั่วเว็บ จัดอันดับตามจำนวนรูปภาพทั้งหมด จำนวนสมาชิก และกิจกรรมด้วยข้อมูลจาก Booru.org',
+    searchPlaceholder: 'ค้นหาไซต์ booru...',
+    filter: {
+      all: 'ทั้งหมด',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'รูปภาพ',
+      members: 'สมาชิก',
+      owner: 'เจ้าของ'
+    },
+    sort: {
+      label: 'เรียงตาม:',
+      rank: 'อันดับ (ยอดนิยม)',
+      images: 'จำนวนรูปภาพ',
+      members: 'จำนวนสมาชิก',
+      asc: 'น้อยไปมาก',
+      desc: 'มากไปน้อย'
+    },
+    itemsPerPage: 'ต่อหน้า:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> จาก {{total}}',
+    pagination: {
+      previous: 'ก่อนหน้า',
+      next: 'ถัดไป',
+      previousShort: 'ก่อน',
+      nextShort: 'ถัดไป'
+    },
+    emptyState: 'ไม่พบไซต์ booru',
+    loading: 'กำลังโหลดข้อมูล booru...',
+    errorTitle: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
+    errors: {
+      fetchFailed: 'ไม่สามารถดึงข้อมูล booru',
+      unknown: 'เกิดข้อผิดพลาดขณะโหลดกระดานผู้นำ'
+    },
+    ownerLabel: 'เจ้าของ:',
+    visit: 'เยี่ยมชม {{name}}'
+  },
+  booruDetail: {
+    backButton: 'กลับไปที่รายการ Booru',
+    notFoundTitle: 'ไม่พบ Booru',
+    notFoundDescription: 'ไม่พบโดเมน booru "{{domain}}" ในฐานข้อมูลของเรา',
+    statistics: 'สถิติ',
+    totalImages: 'รูปภาพทั้งหมด',
+    totalMembers: 'สมาชิกทั้งหมด',
+    shortName: 'ชื่อย่อ',
+    owner: 'เจ้าของ',
+    hosted: 'โฮสต์โดย booru.org',
+    protocol: 'โปรโตคอล',
+    yes: 'ใช่',
+    no: 'ไม่',
+    visit: 'เยี่ยมชม {{name}}',
+    loading: 'กำลังโหลด...'
   }
 };

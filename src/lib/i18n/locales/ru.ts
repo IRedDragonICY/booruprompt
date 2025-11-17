@@ -138,5 +138,179 @@ export const ru: TranslationSchema = {
     modal: {
       close: 'Закрыть настройки'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Извлечение тегов Booru',
+      subtitle: 'Извлечение тегов с имиджбордов booru',
+      supported: 'Поддерживаемые платформы:',
+      urlLabel: 'URL поста Booru',
+      urlPlaceholder: 'Вставьте URL вашего поста booru сюда...',
+      manualButton: 'Извлечь вручную',
+      resetButton: 'Сбросить',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Извлечение тегов Booru',
+      heroSubtitle: 'Извлекайте, фильтруйте и копируйте теги с сайтов booru мгновенно',
+      features: {
+        smart: { title: 'Умно', subtitle: 'Авто-извлечение' },
+        fast: { title: 'Быстро', subtitle: 'Мгновенные результаты' },
+        private: { title: 'Приватно', subtitle: 'На стороне клиента' },
+        copy: { title: 'Копировать', subtitle: 'Один клик' }
+      },
+      cta: {
+        paste: 'Вставить',
+        extract: 'Извлечь',
+        filter: 'Фильтровать',
+        copy: 'Копировать'
+      },
+      supportNotice: 'Поддерживает Danbooru, Gelbooru, Safebooru, Rule34, e621 и другие'
+    },
+    preview: {
+      title: 'Предпросмотр'
+    },
+    status: {
+      resultLabel: 'Результат для:'
+    },
+    categories: {
+      title: 'Фильтр категорий',
+      enableAll: 'Все',
+      disableAll: 'Нет',
+      items: {
+        copyright: 'Авторские права',
+        character: 'Персонаж',
+        general: 'Общее',
+        meta: 'Мета',
+        other: 'Другое'
+      },
+      count_one: '{{count}} тег',
+      count_other: '{{count}} тегов'
+    },
+    filteredTags: {
+      label: 'Отфильтрованные теги',
+      ariaLabel: 'Отфильтрованные теги',
+      empty: 'Нет тегов для отображения.',
+      copy: 'Копировать теги',
+      copied: 'Скопировано!'
+    },
+    history: {
+      extractionTitle: 'История извлечений',
+      imageTitle: 'История изображений',
+      searchExtraction: 'Поиск по названию, url, тегам...',
+      searchImages: 'Поиск по имени файла, промптам, параметрам...',
+      emptySearch: 'Нет записей, соответствующих вашему поиску.',
+      clearTooltip: 'Очистить всю историю',
+      clearAction: 'Очистить историю',
+      confirmMessage: 'Действительно очистить?',
+      confirmYes: 'Да, очистить',
+      confirmCancel: 'Отмена',
+      searchAriaLabel: 'Поиск {{context}}',
+      searchFallback: 'история',
+      clearSearchTooltip: 'Очистить поиск',
+      clearSearchAria: 'Очистить поиск'
+    },
+    mobile: {
+      historyButton: 'История',
+      urlLabel: 'URL поста Booru',
+      urlPlaceholder: 'Вставьте URL или перетащите...',
+      manualButton: 'Извлечь вручную',
+      resetButton: 'Сбросить'
+    }
+  },
+  imageTool: {
+    title: 'Метаданные изображения',
+    dropCtaTitle: 'Перетащите PNG сюда',
+    dropCtaSubtitle: 'или нажмите для загрузки',
+    selectButton: 'Выбрать PNG',
+    statusProcessing: 'Обработка...',
+    previewMeta: '{{name}} ({{size}} КБ)',
+    positivePrompt: 'Позитивный промпт',
+    negativePrompt: 'Негативный промпт',
+    parameters: 'Параметры',
+    copy: 'Копировать',
+    copyAll: 'Копировать всё',
+    copySuccess: 'Скопировано!',
+    noMetadata: 'Метаданные генерации не найдены.',
+    loadMetadata: 'Загрузить метаданные',
+    deleteEntry: 'Удалить запись',
+    historyTitle: 'История изображений',
+    historySearch: 'Поиск по имени файла, промптам, параметрам...',
+    previewAlt: 'Предпросмотр',
+    footer: {
+      metadataNotice: 'Извлечение метаданных PNG для текстового блока "parameters".'
+    }
+  },
+  historyItem: {
+    load: 'Загрузить эту запись истории',
+    delete: 'Удалить эту запись истории',
+    previewAlt: 'Предпросмотр'
+  },
+  imagePreview: {
+    loading: 'Загрузка предпросмотра...',
+    error: 'Не удалось загрузить предпросмотр.',
+    errorDetail: 'Ошибка серверного прокси или недействительное изображение',
+    videoUnsupported: 'Ваш браузер не поддерживает видео.',
+    openFull: 'Открыть предпросмотр в полном размере',
+    close: 'Закрыть',
+    reset: 'Сбросить',
+    openOriginal: 'Открыть оригинал'
+  },
+  booruList: {
+    pageTitle: 'Топ рейтинг Booru',
+    pageDescriptionShort: 'Исследуйте лучшие сайты booru, отсортированные по общему количеству изображений и активности.',
+    pageDescriptionLong: 'Откройте для себя самые популярные сайты booru в сети. Ранжированы по общему количеству изображений, количеству участников и активности с данными от Booru.org.',
+    searchPlaceholder: 'Поиск сайтов booru...',
+    filter: {
+      all: 'Все',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Изображения',
+      members: 'Участники',
+      owner: 'Владелец'
+    },
+    sort: {
+      label: 'Сортировка:',
+      rank: 'Рейтинг (Топ)',
+      images: 'Количество изображений',
+      members: 'Количество участников',
+      asc: 'По возр.',
+      desc: 'По убыв.'
+    },
+    itemsPerPage: 'На страницу:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> из {{total}}',
+    pagination: {
+      previous: 'Предыдущая',
+      next: 'Следующая',
+      previousShort: 'Пред',
+      nextShort: 'След'
+    },
+    emptyState: 'Сайты booru не найдены',
+    loading: 'Загрузка данных booru...',
+    errorTitle: 'Ошибка загрузки данных',
+    errors: {
+      fetchFailed: 'Не удалось получить данные booru.',
+      unknown: 'Что-то пошло не так при загрузке рейтинга.'
+    },
+    ownerLabel: 'Владелец:',
+    visit: 'Посетить {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Вернуться к списку Booru',
+    notFoundTitle: 'Booru не найден',
+    notFoundDescription: 'Домен booru "{{domain}}" не найден в нашей базе данных.',
+    statistics: 'Статистика',
+    totalImages: 'Всего изображений',
+    totalMembers: 'Всего участников',
+    shortName: 'Краткое название',
+    owner: 'Владелец',
+    hosted: 'Размещено на booru.org',
+    protocol: 'Протокол',
+    yes: 'Да',
+    no: 'Нет',
+    visit: 'Посетить {{name}}',
+    loading: 'Загрузка...'
   }
 };

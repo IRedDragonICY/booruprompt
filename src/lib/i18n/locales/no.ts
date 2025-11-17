@@ -139,4 +139,179 @@ export const no: TranslationSchema = {
       close: 'Lukk Innstillinger'
     }
   }
+,
+  extractor: {
+    header: {
+      title: 'Booru Tagg-ekstraktor',
+      subtitle: 'Trekk ut tagger fra booru bildetavler',
+      supported: 'Støttede plattformer:',
+      urlLabel: 'Booru Innleggs-URL',
+      urlPlaceholder: 'Lim inn booru innleggs-URL her...',
+      manualButton: 'Trekk Ut Manuelt',
+      resetButton: 'Tilbakestill',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Tagg-ekstraktor',
+      heroSubtitle: 'Trekk ut, filtrer og kopier tagger fra boorusider øyeblikkelig',
+      features: {
+        smart: { title: 'Smart', subtitle: 'Auto-uttrekk' },
+        fast: { title: 'Rask', subtitle: 'Øyeblikkelige resultater' },
+        private: { title: 'Privat', subtitle: 'Klientsiden' },
+        copy: { title: 'Kopier', subtitle: 'Ett klikk' }
+      },
+      cta: {
+        paste: 'Lim inn',
+        extract: 'Trekk ut',
+        filter: 'Filtrer',
+        copy: 'Kopier'
+      },
+      supportNotice: 'Støtter Danbooru, Gelbooru, Safebooru, Rule34, e621 og flere'
+    },
+    preview: {
+      title: 'Forhåndsvisning'
+    },
+    status: {
+      resultLabel: 'Resultat for:'
+    },
+    categories: {
+      title: 'Filtrer Kategorier',
+      enableAll: 'Alle',
+      disableAll: 'Ingen',
+      items: {
+        copyright: 'Opphavsrett',
+        character: 'Karakter',
+        general: 'Generelt',
+        meta: 'Meta',
+        other: 'Annet'
+      },
+      count_one: '{{count}} tagg',
+      count_other: '{{count}} tagger'
+    },
+    filteredTags: {
+      label: 'Filtrerte Tagger',
+      ariaLabel: 'Filtrerte tagger',
+      empty: 'Ingen tagger å vise.',
+      copy: 'Kopier Tagger',
+      copied: 'Kopiert!'
+    },
+    history: {
+      extractionTitle: 'Uttrekkingshistorikk',
+      imageTitle: 'Bildehistorikk',
+      searchExtraction: 'Søk tittel, url, tagger...',
+      searchImages: 'Søk filnavn, oppfordringer, parametere...',
+      emptySearch: 'Ingen oppføringer samsvarer med søket ditt.',
+      clearTooltip: 'Tøm All Historikk',
+      clearAction: 'Tøm Historikk',
+      confirmMessage: 'Virkelig tømme?',
+      confirmYes: 'Ja, Tøm',
+      confirmCancel: 'Avbryt',
+      searchAriaLabel: 'Søk {{context}}',
+      searchFallback: 'historikk',
+      clearSearchTooltip: 'Tøm Søk',
+      clearSearchAria: 'Tøm søk'
+    },
+    mobile: {
+      historyButton: 'Historikk',
+      urlLabel: 'Booru Innleggs-URL',
+      urlPlaceholder: 'Lim inn URL eller Dra & Slipp...',
+      manualButton: 'Trekk Ut Manuelt',
+      resetButton: 'Tilbakestill'
+    }
+  },
+  imageTool: {
+    title: 'Bildemetadata',
+    dropCtaTitle: 'Dra & Slipp PNG Her',
+    dropCtaSubtitle: 'eller klikk for å laste opp',
+    selectButton: 'Velg PNG',
+    statusProcessing: 'Behandler...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Positiv Oppfordring',
+    negativePrompt: 'Negativ Oppfordring',
+    parameters: 'Parametere',
+    copy: 'Kopier',
+    copyAll: 'Kopier Alt',
+    copySuccess: 'Kopiert!',
+    noMetadata: 'Ingen genereringsmetadata funnet.',
+    loadMetadata: 'Last Metadata',
+    deleteEntry: 'Slett Oppføring',
+    historyTitle: 'Bildehistorikk',
+    historySearch: 'Søk filnavn, oppfordringer, parametere...',
+    previewAlt: 'Forhåndsvisning',
+    footer: {
+      metadataNotice: "PNG-metadatauttrekking for 'parameters' tekstbit."
+    }
+  },
+  historyItem: {
+    load: 'Last denne historikkoppføringen',
+    delete: 'Slett denne historikkoppføringen',
+    previewAlt: 'Forhåndsvisning'
+  },
+  imagePreview: {
+    loading: 'Laster forhåndsvisning...',
+    error: 'Kunne ikke laste forhåndsvisning.',
+    errorDetail: 'Serverproxyfeil eller ugyldig bilde',
+    videoUnsupported: 'Nettleseren din støtter ikke video.',
+    openFull: 'Åpne forhåndsvisning i full størrelse',
+    close: 'Lukk',
+    reset: 'Tilbakestill',
+    openOriginal: 'Åpne original'
+  },
+  booruList: {
+    pageTitle: 'Topp Booru Rangering',
+    pageDescriptionShort: 'Utforsk de beste boorusidene rangert etter totalt antall bilder og aktivitet.',
+    pageDescriptionLong: 'Oppdag de mest populære boorusidene fra hele nettet. Rangert etter totalt antall bilder, antall medlemmer og aktivitet med data fra Booru.org.',
+    searchPlaceholder: 'Søk boorusider...',
+    filter: {
+      all: 'Alle',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Bilder',
+      members: 'Medlemmer',
+      owner: 'Eier'
+    },
+    sort: {
+      label: 'Sorter etter:',
+      rank: 'Rangering (Topp)',
+      images: 'Bildeantall',
+      members: 'Medlemsantall',
+      asc: 'Stigende',
+      desc: 'Synkende'
+    },
+    itemsPerPage: 'Per side:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> av {{total}}',
+    pagination: {
+      previous: 'Forrige',
+      next: 'Neste',
+      previousShort: 'Forr',
+      nextShort: 'Neste'
+    },
+    emptyState: 'Ingen boorusider funnet',
+    loading: 'Laster boorudata...',
+    errorTitle: 'Feil ved Lasting av Data',
+    errors: {
+      fetchFailed: 'Kunne ikke hente boorudata.',
+      unknown: 'Noe gikk galt under lasting av rangeringen.'
+    },
+    ownerLabel: 'Eier:',
+    visit: 'Besøk {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Tilbake til Booruliste',
+    notFoundTitle: 'Booru Ikke Funnet',
+    notFoundDescription: 'Boorudomenet "{{domain}}" ble ikke funnet i databasen vår.',
+    statistics: 'Statistikk',
+    totalImages: 'Totalt Antall Bilder',
+    totalMembers: 'Totalt Antall Medlemmer',
+    shortName: 'Kortnavn',
+    owner: 'Eier',
+    hosted: 'Hostet av booru.org',
+    protocol: 'Protokoll',
+    yes: 'Ja',
+    no: 'Nei',
+    visit: 'Besøk {{name}}',
+    loading: 'Laster...'
+  }
 };

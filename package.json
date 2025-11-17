@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "prebuild": "npm run check:i18n",
     "start": "next start",
     "lint": "next lint",
+    "check:i18n": "node scripts/check-translations.js",
+    "check:i18n:report": "node scripts/check-translations.js || true",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

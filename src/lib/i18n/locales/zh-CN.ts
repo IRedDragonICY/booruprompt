@@ -1,8 +1,6 @@
-import { en } from './en';
 import type { TranslationSchema } from './en';
 
 export const zh_CN: TranslationSchema = {
-  ...en,
   common: {
     appName: 'Booru 标签提取器',
     language: '语言',
@@ -81,7 +79,6 @@ export const zh_CN: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
     title: '设置',
     sections: {
       appearance: '外观',
@@ -180,7 +177,6 @@ export const zh_CN: TranslationSchema = {
     }
   },
   extractor: {
-    ...en.extractor,
     header: {
       title: 'Booru 标签提取器',
       subtitle: '从 booru 图站提取标签',
@@ -260,7 +256,6 @@ export const zh_CN: TranslationSchema = {
     }
   },
   imageTool: {
-    ...en.imageTool,
     title: '图片元数据',
     dropCtaTitle: '拖放 PNG 到此处',
     dropCtaSubtitle: '或点击上传',
@@ -284,13 +279,11 @@ export const zh_CN: TranslationSchema = {
     }
   },
   historyItem: {
-    ...en.historyItem,
     load: '加载此历史记录',
     delete: '删除此历史记录',
     previewAlt: '预览'
   },
   imagePreview: {
-    ...en.imagePreview,
     loading: '预览加载中...',
     error: '无法加载预览。',
     errorDetail: '服务器代理错误或无效图片',
@@ -301,7 +294,6 @@ export const zh_CN: TranslationSchema = {
     openOriginal: '打开原图'
   },
   booruList: {
-    ...en.booruList,
     pageTitle: '热门 Booru 排行榜',
     pageDescriptionShort: '按图片总数与活跃度浏览顶级 booru 站点。',
     pageDescriptionLong: '发现全网最受欢迎的 booru 站点。根据图片、会员与活跃度排名，数据来自 Booru.org。',
@@ -343,7 +335,6 @@ export const zh_CN: TranslationSchema = {
     visit: '访问 {{name}}'
   },
   booruDetail: {
-    ...en.booruDetail,
     backButton: '返回 Booru 列表',
     notFoundTitle: '未找到 Booru',
     notFoundDescription: '在数据库中找不到 booru 域名 "{{domain}}"。',

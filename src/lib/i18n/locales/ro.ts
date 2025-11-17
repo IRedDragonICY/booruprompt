@@ -138,5 +138,179 @@ export const ro: TranslationSchema = {
     modal: {
       close: 'Închide Setări'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Extractor de Etichete Booru',
+      subtitle: 'Extrageți etichete din panourile de imagini booru',
+      supported: 'Platforme suportate:',
+      urlLabel: 'URL Postare Booru',
+      urlPlaceholder: 'Lipiți URL-ul postării booru aici...',
+      manualButton: 'Extragere Manuală',
+      resetButton: 'Resetare',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Extractor de Etichete Booru',
+      heroSubtitle: 'Extrageți, filtrați și copiați etichete de pe site-urile booru instant',
+      features: {
+        smart: { title: 'Inteligent', subtitle: 'Extragere automată' },
+        fast: { title: 'Rapid', subtitle: 'Rezultate instantanee' },
+        private: { title: 'Privat', subtitle: 'Pe partea clientului' },
+        copy: { title: 'Copiere', subtitle: 'Un clic' }
+      },
+      cta: {
+        paste: 'Lipire',
+        extract: 'Extragere',
+        filter: 'Filtrare',
+        copy: 'Copiere'
+      },
+      supportNotice: 'Suportă Danbooru, Gelbooru, Safebooru, Rule34, e621 și altele'
+    },
+    preview: {
+      title: 'Previzualizare'
+    },
+    status: {
+      resultLabel: 'Rezultat pentru:'
+    },
+    categories: {
+      title: 'Filtrare Categorii',
+      enableAll: 'Toate',
+      disableAll: 'Niciuna',
+      items: {
+        copyright: 'Drepturi de Autor',
+        character: 'Personaj',
+        general: 'General',
+        meta: 'Meta',
+        other: 'Altele'
+      },
+      count_one: '{{count}} etichetă',
+      count_other: '{{count}} etichete'
+    },
+    filteredTags: {
+      label: 'Etichete Filtrate',
+      ariaLabel: 'Etichete filtrate',
+      empty: 'Nicio etichetă de afișat.',
+      copy: 'Copiază Etichete',
+      copied: 'Copiat!'
+    },
+    history: {
+      extractionTitle: 'Istoricul Extragerii',
+      imageTitle: 'Istoricul Imaginilor',
+      searchExtraction: 'Căutare titlu, url, etichete...',
+      searchImages: 'Căutare nume fișier, prompturi, parametri...',
+      emptySearch: 'Nicio intrare nu corespunde căutării dumneavoastră.',
+      clearTooltip: 'Șterge Tot Istoricul',
+      clearAction: 'Șterge Istoricul',
+      confirmMessage: 'Sigur ștergeți?',
+      confirmYes: 'Da, Șterge',
+      confirmCancel: 'Anulează',
+      searchAriaLabel: 'Căutare {{context}}',
+      searchFallback: 'istoric',
+      clearSearchTooltip: 'Șterge Căutarea',
+      clearSearchAria: 'Șterge căutarea'
+    },
+    mobile: {
+      historyButton: 'Istoric',
+      urlLabel: 'URL Postare Booru',
+      urlPlaceholder: 'Lipește URL sau Trage & Plasează...',
+      manualButton: 'Extragere Manuală',
+      resetButton: 'Resetare'
+    }
+  },
+  imageTool: {
+    title: 'Metadate Imagine',
+    dropCtaTitle: 'Trageți & Plasați PNG Aici',
+    dropCtaSubtitle: 'sau faceți clic pentru a încărca',
+    selectButton: 'Selectare PNG',
+    statusProcessing: 'Procesare...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Prompt Pozitiv',
+    negativePrompt: 'Prompt Negativ',
+    parameters: 'Parametri',
+    copy: 'Copiere',
+    copyAll: 'Copiază Tot',
+    copySuccess: 'Copiat!',
+    noMetadata: 'Nu s-au găsit metadate de generare.',
+    loadMetadata: 'Încarcă Metadate',
+    deleteEntry: 'Șterge Intrarea',
+    historyTitle: 'Istoricul Imaginilor',
+    historySearch: 'Căutare nume fișier, prompturi, parametri...',
+    previewAlt: 'Previzualizare',
+    footer: {
+      metadataNotice: "Extragere metadate PNG pentru fragmentul de text 'parameters'."
+    }
+  },
+  historyItem: {
+    load: 'Încarcă această intrare din istoric',
+    delete: 'Șterge această intrare din istoric',
+    previewAlt: 'Previzualizare'
+  },
+  imagePreview: {
+    loading: 'Se încarcă previzualizarea...',
+    error: 'Nu s-a putut încărca previzualizarea.',
+    errorDetail: 'Eroare proxy server sau imagine invalidă',
+    videoUnsupported: 'Browserul dumneavoastră nu suportă video.',
+    openFull: 'Deschide previzualizare la dimensiune completă',
+    close: 'Închide',
+    reset: 'Resetare',
+    openOriginal: 'Deschide originalul'
+  },
+  booruList: {
+    pageTitle: 'Clasament Top Booru',
+    pageDescriptionShort: 'Explorați site-urile booru de top clasate după numărul total de imagini și activitate.',
+    pageDescriptionLong: 'Descoperă cele mai populare site-uri booru de pe web. Clasate după numărul total de imagini, număr de membri și activitate cu date de la Booru.org.',
+    searchPlaceholder: 'Căutare site-uri booru...',
+    filter: {
+      all: 'Toate',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Imagini',
+      members: 'Membri',
+      owner: 'Proprietar'
+    },
+    sort: {
+      label: 'Sortare după:',
+      rank: 'Clasament (Top)',
+      images: 'Număr Imagini',
+      members: 'Număr Membri',
+      asc: 'Crescător',
+      desc: 'Descrescător'
+    },
+    itemsPerPage: 'Pe pagină:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> din {{total}}',
+    pagination: {
+      previous: 'Anterior',
+      next: 'Următor',
+      previousShort: 'Ant',
+      nextShort: 'Urm'
+    },
+    emptyState: 'Nu s-au găsit site-uri booru',
+    loading: 'Se încarcă date booru...',
+    errorTitle: 'Eroare la Încărcarea Datelor',
+    errors: {
+      fetchFailed: 'Eșec la preluarea datelor booru.',
+      unknown: 'Ceva nu a mers bine la încărcarea clasamentului.'
+    },
+    ownerLabel: 'Proprietar:',
+    visit: 'Vizitează {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Înapoi la Lista Booru',
+    notFoundTitle: 'Booru Nu a Fost Găsit',
+    notFoundDescription: 'Domeniul booru "{{domain}}" nu a fost găsit în baza noastră de date.',
+    statistics: 'Statistici',
+    totalImages: 'Total Imagini',
+    totalMembers: 'Total Membri',
+    shortName: 'Nume Scurt',
+    owner: 'Proprietar',
+    hosted: 'Găzduit de booru.org',
+    protocol: 'Protocol',
+    yes: 'Da',
+    no: 'Nu',
+    visit: 'Vizitează {{name}}',
+    loading: 'Se încarcă...'
   }
 };

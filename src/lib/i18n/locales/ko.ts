@@ -138,5 +138,179 @@ export const ko: TranslationSchema = {
     modal: {
       close: '설정 닫기'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru 태그 추출기',
+      subtitle: 'Booru 이미지 보드에서 태그 추출',
+      supported: '지원되는 플랫폼:',
+      urlLabel: 'Booru 게시물 URL',
+      urlPlaceholder: 'Booru 게시물 URL을 여기에 붙여넣으세요...',
+      manualButton: '수동 추출',
+      resetButton: '재설정',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru 태그 추출기',
+      heroSubtitle: 'Booru 사이트에서 태그를 즉시 추출, 필터링 및 복사',
+      features: {
+        smart: { title: '스마트', subtitle: '자동 추출' },
+        fast: { title: '빠름', subtitle: '즉시 결과' },
+        private: { title: '비공개', subtitle: '클라이언트측' },
+        copy: { title: '복사', subtitle: '원클릭' }
+      },
+      cta: {
+        paste: '붙여넣기',
+        extract: '추출',
+        filter: '필터',
+        copy: '복사'
+      },
+      supportNotice: 'Danbooru, Gelbooru, Safebooru, Rule34, e621 등을 지원합니다'
+    },
+    preview: {
+      title: '미리보기'
+    },
+    status: {
+      resultLabel: '결과:'
+    },
+    categories: {
+      title: '카테고리 필터',
+      enableAll: '전체',
+      disableAll: '없음',
+      items: {
+        copyright: '저작권',
+        character: '캐릭터',
+        general: '일반',
+        meta: '메타',
+        other: '기타'
+      },
+      count_one: '{{count}}개 태그',
+      count_other: '{{count}}개 태그'
+    },
+    filteredTags: {
+      label: '필터된 태그',
+      ariaLabel: '필터된 태그',
+      empty: '표시할 태그가 없습니다.',
+      copy: '태그 복사',
+      copied: '복사됨!'
+    },
+    history: {
+      extractionTitle: '추출 기록',
+      imageTitle: '이미지 기록',
+      searchExtraction: '제목, URL, 태그 검색...',
+      searchImages: '파일명, 프롬프트, 매개변수 검색...',
+      emptySearch: '검색과 일치하는 항목이 없습니다.',
+      clearTooltip: '모든 기록 지우기',
+      clearAction: '기록 지우기',
+      confirmMessage: '정말 지우시겠습니까?',
+      confirmYes: '예, 지우기',
+      confirmCancel: '취소',
+      searchAriaLabel: '{{context}} 검색',
+      searchFallback: '기록',
+      clearSearchTooltip: '검색 지우기',
+      clearSearchAria: '검색 지우기'
+    },
+    mobile: {
+      historyButton: '기록',
+      urlLabel: 'Booru 게시물 URL',
+      urlPlaceholder: 'URL 붙여넣기 또는 드래그 앤 드롭...',
+      manualButton: '수동 추출',
+      resetButton: '재설정'
+    }
+  },
+  imageTool: {
+    title: '이미지 메타데이터',
+    dropCtaTitle: 'PNG를 여기에 드래그 앤 드롭',
+    dropCtaSubtitle: '또는 클릭하여 업로드',
+    selectButton: 'PNG 선택',
+    statusProcessing: '처리 중...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: '긍정 프롬프트',
+    negativePrompt: '부정 프롬프트',
+    parameters: '매개변수',
+    copy: '복사',
+    copyAll: '모두 복사',
+    copySuccess: '복사됨!',
+    noMetadata: '생성 메타데이터를 찾을 수 없습니다.',
+    loadMetadata: '메타데이터 로드',
+    deleteEntry: '항목 삭제',
+    historyTitle: '이미지 기록',
+    historySearch: '파일명, 프롬프트, 매개변수 검색...',
+    previewAlt: '미리보기',
+    footer: {
+      metadataNotice: "'parameters' 텍스트 청크에 대한 PNG 메타데이터 추출."
+    }
+  },
+  historyItem: {
+    load: '이 기록 항목 로드',
+    delete: '이 기록 항목 삭제',
+    previewAlt: '미리보기'
+  },
+  imagePreview: {
+    loading: '미리보기 로드 중...',
+    error: '미리보기를 로드할 수 없습니다.',
+    errorDetail: '서버 프록시 오류 또는 유효하지 않은 이미지',
+    videoUnsupported: '브라우저가 비디오를 지원하지 않습니다.',
+    openFull: '전체 크기 미리보기 열기',
+    close: '닫기',
+    reset: '재설정',
+    openOriginal: '원본 열기'
+  },
+  booruList: {
+    pageTitle: '상위 Booru 순위표',
+    pageDescriptionShort: '총 이미지 및 활동별로 순위가 매겨진 상위 Booru 사이트를 탐색하세요.',
+    pageDescriptionLong: '웹에서 가장 인기 있는 Booru 사이트를 발견하세요. Booru.org의 데이터로 총 이미지, 회원 수 및 활동별로 순위가 매겨집니다.',
+    searchPlaceholder: 'Booru 사이트 검색...',
+    filter: {
+      all: '전체',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: '이미지',
+      members: '회원',
+      owner: '소유자'
+    },
+    sort: {
+      label: '정렬 기준:',
+      rank: '순위 (상위)',
+      images: '이미지 수',
+      members: '회원 수',
+      asc: '오름차순',
+      desc: '내림차순'
+    },
+    itemsPerPage: '페이지당:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> / {{total}}',
+    pagination: {
+      previous: '이전',
+      next: '다음',
+      previousShort: '이전',
+      nextShort: '다음'
+    },
+    emptyState: 'Booru 사이트를 찾을 수 없습니다',
+    loading: 'Booru 데이터 로드 중...',
+    errorTitle: '데이터 로드 오류',
+    errors: {
+      fetchFailed: 'Booru 데이터를 가져오지 못했습니다.',
+      unknown: '리더보드를 로드하는 동안 문제가 발생했습니다.'
+    },
+    ownerLabel: '소유자:',
+    visit: '{{name}} 방문'
+  },
+  booruDetail: {
+    backButton: 'Booru 목록으로 돌아가기',
+    notFoundTitle: 'Booru를 찾을 수 없음',
+    notFoundDescription: 'Booru 도메인 "{{domain}}"을 데이터베이스에서 찾을 수 없습니다.',
+    statistics: '통계',
+    totalImages: '총 이미지',
+    totalMembers: '총 회원',
+    shortName: '짧은 이름',
+    owner: '소유자',
+    hosted: 'booru.org에서 호스팅',
+    protocol: '프로토콜',
+    yes: '예',
+    no: '아니오',
+    visit: '{{name}} 방문',
+    loading: '로드 중...'
   }
 };

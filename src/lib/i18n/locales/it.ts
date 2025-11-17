@@ -138,5 +138,179 @@ export const it: TranslationSchema = {
     modal: {
       close: 'Chiudi Impostazioni'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Estrattore di Tag Booru',
+      subtitle: 'Estrai tag dalle bacheche di immagini booru',
+      supported: 'Piattaforme supportate:',
+      urlLabel: 'URL Post Booru',
+      urlPlaceholder: 'Incolla qui l\'URL del tuo post booru...',
+      manualButton: 'Estrai Manualmente',
+      resetButton: 'Ripristina',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Estrattore di Tag Booru',
+      heroSubtitle: 'Estrai, filtra e copia i tag dai siti booru istantaneamente',
+      features: {
+        smart: { title: 'Intelligente', subtitle: 'Auto-estrazione' },
+        fast: { title: 'Veloce', subtitle: 'Risultati istantanei' },
+        private: { title: 'Privato', subtitle: 'Lato client' },
+        copy: { title: 'Copia', subtitle: 'Un clic' }
+      },
+      cta: {
+        paste: 'Incolla',
+        extract: 'Estrai',
+        filter: 'Filtra',
+        copy: 'Copia'
+      },
+      supportNotice: 'Supporta Danbooru, Gelbooru, Safebooru, Rule34, e621 e altro'
+    },
+    preview: {
+      title: 'Anteprima'
+    },
+    status: {
+      resultLabel: 'Risultato per:'
+    },
+    categories: {
+      title: 'Filtra Categorie',
+      enableAll: 'Tutto',
+      disableAll: 'Nessuno',
+      items: {
+        copyright: 'Copyright',
+        character: 'Personaggio',
+        general: 'Generale',
+        meta: 'Meta',
+        other: 'Altro'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tag'
+    },
+    filteredTags: {
+      label: 'Tag Filtrati',
+      ariaLabel: 'Tag filtrati',
+      empty: 'Nessun tag da visualizzare.',
+      copy: 'Copia Tag',
+      copied: 'Copiato!'
+    },
+    history: {
+      extractionTitle: 'Cronologia Estrazione',
+      imageTitle: 'Cronologia Immagini',
+      searchExtraction: 'Cerca titolo, url, tag...',
+      searchImages: 'Cerca nome file, prompt, parametri...',
+      emptySearch: 'Nessuna voce corrisponde alla tua ricerca.',
+      clearTooltip: 'Cancella Tutta la Cronologia',
+      clearAction: 'Cancella Cronologia',
+      confirmMessage: 'Cancellare davvero?',
+      confirmYes: 'Sì, Cancella',
+      confirmCancel: 'Annulla',
+      searchAriaLabel: 'Cerca {{context}}',
+      searchFallback: 'cronologia',
+      clearSearchTooltip: 'Cancella Ricerca',
+      clearSearchAria: 'Cancella ricerca'
+    },
+    mobile: {
+      historyButton: 'Cronologia',
+      urlLabel: 'URL Post Booru',
+      urlPlaceholder: 'Incolla URL o Trascina e Rilascia...',
+      manualButton: 'Estrai Manualmente',
+      resetButton: 'Ripristina'
+    }
+  },
+  imageTool: {
+    title: 'Metadati Immagine',
+    dropCtaTitle: 'Trascina e Rilascia PNG Qui',
+    dropCtaSubtitle: 'o clicca per caricare',
+    selectButton: 'Seleziona PNG',
+    statusProcessing: 'Elaborazione...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Prompt Positivo',
+    negativePrompt: 'Prompt Negativo',
+    parameters: 'Parametri',
+    copy: 'Copia',
+    copyAll: 'Copia Tutto',
+    copySuccess: 'Copiato!',
+    noMetadata: 'Nessun metadato di generazione trovato.',
+    loadMetadata: 'Carica Metadati',
+    deleteEntry: 'Elimina Voce',
+    historyTitle: 'Cronologia Immagini',
+    historySearch: 'Cerca nome file, prompt, parametri...',
+    previewAlt: 'Anteprima',
+    footer: {
+      metadataNotice: 'Estrazione metadati PNG per blocco di testo "parameters".'
+    }
+  },
+  historyItem: {
+    load: 'Carica questa voce della cronologia',
+    delete: 'Elimina questa voce della cronologia',
+    previewAlt: 'Anteprima'
+  },
+  imagePreview: {
+    loading: 'Caricamento anteprima...',
+    error: 'Impossibile caricare l\'anteprima.',
+    errorDetail: 'Errore proxy server o immagine non valida',
+    videoUnsupported: 'Il tuo browser non supporta i video.',
+    openFull: 'Apri anteprima a grandezza naturale',
+    close: 'Chiudi',
+    reset: 'Ripristina',
+    openOriginal: 'Apri originale'
+  },
+  booruList: {
+    pageTitle: 'Classifica Top Booru',
+    pageDescriptionShort: 'Esplora i migliori siti booru classificati per immagini totali e attività.',
+    pageDescriptionLong: 'Scopri i siti booru più popolari del web. Classificati per immagini totali, numero di membri e attività con dati da Booru.org.',
+    searchPlaceholder: 'Cerca siti booru...',
+    filter: {
+      all: 'Tutto',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Immagini',
+      members: 'Membri',
+      owner: 'Proprietario'
+    },
+    sort: {
+      label: 'Ordina per:',
+      rank: 'Classifica (Top)',
+      images: 'Numero Immagini',
+      members: 'Numero Membri',
+      asc: 'Cresc',
+      desc: 'Decresc'
+    },
+    itemsPerPage: 'Per pagina:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> di {{total}}',
+    pagination: {
+      previous: 'Precedente',
+      next: 'Successivo',
+      previousShort: 'Prec',
+      nextShort: 'Succ'
+    },
+    emptyState: 'Nessun sito booru trovato',
+    loading: 'Caricamento dati booru...',
+    errorTitle: 'Errore Caricamento Dati',
+    errors: {
+      fetchFailed: 'Recupero dati booru fallito.',
+      unknown: 'Si è verificato un errore durante il caricamento della classifica.'
+    },
+    ownerLabel: 'Proprietario:',
+    visit: 'Visita {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Torna alla Lista Booru',
+    notFoundTitle: 'Booru Non Trovato',
+    notFoundDescription: 'Il dominio booru "{{domain}}" non è stato trovato nel nostro database.',
+    statistics: 'Statistiche',
+    totalImages: 'Immagini Totali',
+    totalMembers: 'Membri Totali',
+    shortName: 'Nome Breve',
+    owner: 'Proprietario',
+    hosted: 'Ospitato da booru.org',
+    protocol: 'Protocollo',
+    yes: 'Sì',
+    no: 'No',
+    visit: 'Visita {{name}}',
+    loading: 'Caricamento...'
   }
 };

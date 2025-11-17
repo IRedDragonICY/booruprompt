@@ -1,8 +1,6 @@
-import { en } from './en';
 import type { TranslationSchema } from './en';
 
 export const zh_TW: TranslationSchema = {
-  ...en,
   common: {
     appName: 'Booru 標籤擷取器',
     language: '語言',
@@ -179,7 +177,6 @@ export const zh_TW: TranslationSchema = {
     }
   },
   extractor: {
-    ...en.extractor,
     header: {
       title: 'Booru 標籤擷取器',
       subtitle: '從 booru 圖站擷取標籤',
@@ -259,7 +256,6 @@ export const zh_TW: TranslationSchema = {
     }
   },
   imageTool: {
-    ...en.imageTool,
     title: '圖片中繼資料',
     dropCtaTitle: '拖放 PNG 到此處',
     dropCtaSubtitle: '或點選上傳',
@@ -283,13 +279,11 @@ export const zh_TW: TranslationSchema = {
     }
   },
   historyItem: {
-    ...en.historyItem,
     load: '載入此歷史記錄',
     delete: '刪除此歷史記錄',
     previewAlt: '預覽'
   },
   imagePreview: {
-    ...en.imagePreview,
     loading: '預覽載入中...',
     error: '無法載入預覽。',
     errorDetail: '伺服器代理錯誤或無效圖片',
@@ -300,7 +294,6 @@ export const zh_TW: TranslationSchema = {
     openOriginal: '開啟原圖'
   },
   booruList: {
-    ...en.booruList,
     pageTitle: '熱門 Booru 排行榜',
     pageDescriptionShort: '按圖片總數與活躍度瀏覽頂級 booru 網站。',
     pageDescriptionLong: '發現全網最受歡迎的 booru 網站。根據圖片、會員與活躍度排名，資料來自 Booru.org。',
@@ -342,7 +335,6 @@ export const zh_TW: TranslationSchema = {
     visit: '造訪 {{name}}'
   },
   booruDetail: {
-    ...en.booruDetail,
     backButton: '返回 Booru 列表',
     notFoundTitle: '未找到 Booru',
     notFoundDescription: '在資料庫中找不到 booru 網域 "{{domain}}"。',

@@ -138,5 +138,179 @@ export const fr: TranslationSchema = {
     modal: {
       close: 'Fermer les Paramètres'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Extracteur de Tags Booru',
+      subtitle: 'Extraire les tags des forums d\'images booru',
+      supported: 'Plateformes supportées :',
+      urlLabel: 'URL du Post Booru',
+      urlPlaceholder: 'Collez l\'URL de votre post booru ici...',
+      manualButton: 'Extraire Manuellement',
+      resetButton: 'Réinitialiser',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Extracteur de Tags Booru',
+      heroSubtitle: 'Extraire, filtrer et copier les tags des sites booru instantanément',
+      features: {
+        smart: { title: 'Intelligent', subtitle: 'Auto-extraction' },
+        fast: { title: 'Rapide', subtitle: 'Résultats instantanés' },
+        private: { title: 'Privé', subtitle: 'Côté client' },
+        copy: { title: 'Copier', subtitle: 'En un clic' }
+      },
+      cta: {
+        paste: 'Coller',
+        extract: 'Extraire',
+        filter: 'Filtrer',
+        copy: 'Copier'
+      },
+      supportNotice: 'Supporte Danbooru, Gelbooru, Safebooru, Rule34, e621, et plus'
+    },
+    preview: {
+      title: 'Aperçu'
+    },
+    status: {
+      resultLabel: 'Résultat pour :'
+    },
+    categories: {
+      title: 'Filtrer les Catégories',
+      enableAll: 'Tout',
+      disableAll: 'Aucun',
+      items: {
+        copyright: 'Copyright',
+        character: 'Personnage',
+        general: 'Général',
+        meta: 'Méta',
+        other: 'Autre'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tags'
+    },
+    filteredTags: {
+      label: 'Tags Filtrés',
+      ariaLabel: 'Tags filtrés',
+      empty: 'Aucun tag à afficher.',
+      copy: 'Copier les Tags',
+      copied: 'Copié !'
+    },
+    history: {
+      extractionTitle: 'Historique d\'Extraction',
+      imageTitle: 'Historique des Images',
+      searchExtraction: 'Rechercher titre, url, tags...',
+      searchImages: 'Rechercher nom de fichier, prompts, paramètres...',
+      emptySearch: 'Aucune entrée ne correspond à votre recherche.',
+      clearTooltip: 'Effacer Tout l\'Historique',
+      clearAction: 'Effacer l\'Historique',
+      confirmMessage: 'Vraiment effacer ?',
+      confirmYes: 'Oui, Effacer',
+      confirmCancel: 'Annuler',
+      searchAriaLabel: 'Rechercher {{context}}',
+      searchFallback: 'historique',
+      clearSearchTooltip: 'Effacer la Recherche',
+      clearSearchAria: 'Effacer la recherche'
+    },
+    mobile: {
+      historyButton: 'Historique',
+      urlLabel: 'URL du Post Booru',
+      urlPlaceholder: 'Collez l\'URL ou Glissez-Déposez...',
+      manualButton: 'Extraire Manuellement',
+      resetButton: 'Réinitialiser'
+    }
+  },
+  imageTool: {
+    title: 'Métadonnées d\'Image',
+    dropCtaTitle: 'Glissez-Déposez un PNG Ici',
+    dropCtaSubtitle: 'ou cliquez pour télécharger',
+    selectButton: 'Sélectionner PNG',
+    statusProcessing: 'Traitement...',
+    previewMeta: '{{name}} ({{size}} Ko)',
+    positivePrompt: 'Prompt Positif',
+    negativePrompt: 'Prompt Négatif',
+    parameters: 'Paramètres',
+    copy: 'Copier',
+    copyAll: 'Copier Tout',
+    copySuccess: 'Copié !',
+    noMetadata: 'Aucune métadonnée de génération trouvée.',
+    loadMetadata: 'Charger les Métadonnées',
+    deleteEntry: 'Supprimer l\'Entrée',
+    historyTitle: 'Historique des Images',
+    historySearch: 'Rechercher nom de fichier, prompts, paramètres...',
+    previewAlt: 'Aperçu',
+    footer: {
+      metadataNotice: 'Extraction de métadonnées PNG pour le bloc de texte "parameters".'
+    }
+  },
+  historyItem: {
+    load: 'Charger cette entrée d\'historique',
+    delete: 'Supprimer cette entrée d\'historique',
+    previewAlt: 'Aperçu'
+  },
+  imagePreview: {
+    loading: 'Chargement de l\'aperçu...',
+    error: 'Impossible de charger l\'aperçu.',
+    errorDetail: 'Erreur de proxy serveur ou image invalide',
+    videoUnsupported: 'Votre navigateur ne supporte pas la vidéo.',
+    openFull: 'Ouvrir l\'aperçu en taille réelle',
+    close: 'Fermer',
+    reset: 'Réinitialiser',
+    openOriginal: 'Ouvrir l\'original'
+  },
+  booruList: {
+    pageTitle: 'Classement des Meilleurs Boorus',
+    pageDescriptionShort: 'Explorez les meilleurs sites booru classés par nombre total d\'images et d\'activité.',
+    pageDescriptionLong: 'Découvrez les sites booru les plus populaires du web. Classés par nombre total d\'images, nombre de membres et activité avec des données de Booru.org.',
+    searchPlaceholder: 'Rechercher des sites booru...',
+    filter: {
+      all: 'Tout',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Images',
+      members: 'Membres',
+      owner: 'Propriétaire'
+    },
+    sort: {
+      label: 'Trier par :',
+      rank: 'Rang (Top)',
+      images: 'Nombre d\'Images',
+      members: 'Nombre de Membres',
+      asc: 'Asc',
+      desc: 'Desc'
+    },
+    itemsPerPage: 'Par page :',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> sur {{total}}',
+    pagination: {
+      previous: 'Précédent',
+      next: 'Suivant',
+      previousShort: 'Préc',
+      nextShort: 'Suiv'
+    },
+    emptyState: 'Aucun site booru trouvé',
+    loading: 'Chargement des données booru...',
+    errorTitle: 'Erreur de Chargement des Données',
+    errors: {
+      fetchFailed: 'Échec de la récupération des données booru.',
+      unknown: 'Une erreur s\'est produite lors du chargement du classement.'
+    },
+    ownerLabel: 'Propriétaire :',
+    visit: 'Visiter {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Retour à la Liste des Boorus',
+    notFoundTitle: 'Booru Non Trouvé',
+    notFoundDescription: 'Le domaine booru "{{domain}}" n\'a pas été trouvé dans notre base de données.',
+    statistics: 'Statistiques',
+    totalImages: 'Images Totales',
+    totalMembers: 'Membres Totaux',
+    shortName: 'Nom Court',
+    owner: 'Propriétaire',
+    hosted: 'Hébergé par booru.org',
+    protocol: 'Protocole',
+    yes: 'Oui',
+    no: 'Non',
+    visit: 'Visiter {{name}}',
+    loading: 'Chargement...'
   }
 };

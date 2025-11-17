@@ -1,15 +1,15 @@
-import { en } from './en';
 import type { TranslationSchema } from './en';
 
 export const nl: TranslationSchema = {
-  ...en,
   common: {
-    ...en.common,
     appName: 'Booru Tag Extractor',
     language: 'Taal',
     english: 'Engels',
     indonesian: 'Indonesisch',
     chinese: 'Chinees',
+    author: 'IRedDragonICY',
+    defaultDescription: 'Tags extraheren, filteren en kopiëren van booru posts direct.',
+    unknown: 'Onbekend',
     languageSwitcher: {
       title: 'Interfacetaal',
       description: 'Opgeslagen in uw browser. Standaardtaal is Engels.',
@@ -23,8 +23,17 @@ export const nl: TranslationSchema = {
       booruList: 'Booru',
       settings: 'Instellingen'
     },
+    navTooltip: {
+      extractor: 'Tag Extractor',
+      image: 'Afbeeldingsmetadata',
+      booruList: 'Booru Ranglijst',
+      settings: 'Instellingen'
+    },
+    dropOverlay: {
+      url: 'URL Loslaten',
+      png: 'PNG Loslaten'
+    },
     actions: {
-      ...en.common.actions,
       add: 'Toevoegen',
       apply: 'Toepassen',
       back: 'Terug',
@@ -35,10 +44,38 @@ export const nl: TranslationSchema = {
       copy: 'Kopiëren',
       copied: 'Gekopieerd!',
       delete: 'Verwijderen',
+      done: 'Klaar',
+      edit: 'Bewerken',
+      next: 'Volgende',
+      previous: 'Vorige',
+      refresh: 'Vernieuwen',
+      reset: 'Resetten',
+      retry: 'Opnieuw Proberen',
       save: 'Opslaan',
       search: 'Zoeken',
+      select: 'Selecteren',
+      submit: 'Verzenden',
       all: 'Alles',
-      none: 'Geen'
+      none: 'Geen',
+      visit: 'Bezoeken',
+      previousShort: 'Vor',
+      nextShort: 'Volg'
+    },
+    status: {
+      loading: 'Laden...',
+      processing: 'Verwerken...'
+    },
+    footer: {
+      madeWith: 'Gemaakt met',
+      by: 'door'
+    },
+    statusBar: {
+      serverProxy: 'Serverproxy.',
+      clientProxy: 'Client Proxy ({{proxy}}).',
+      historyEnabled: 'Geschiedenis ingeschakeld ({{size}}).',
+      historyDisabled: 'Geschiedenis uitgeschakeld.',
+      historyUnlimited: 'Onbeperkt',
+      historyEntries: '{{count}} Vermeldingen'
     }
   },
   settings: {
@@ -138,5 +175,179 @@ export const nl: TranslationSchema = {
     modal: {
       close: 'Instellingen Sluiten'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru Tag Extractor',
+      subtitle: 'Extraheer tags van booru afbeeldingsborden',
+      supported: 'Ondersteunde platforms:',
+      urlLabel: 'Booru Post URL',
+      urlPlaceholder: 'Plak hier uw booru post URL...',
+      manualButton: 'Handmatig Extraheren',
+      resetButton: 'Resetten',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Tag Extractor',
+      heroSubtitle: 'Extraheer, filter en kopieer tags van booru sites direct',
+      features: {
+        smart: { title: 'Slim', subtitle: 'Auto-extract' },
+        fast: { title: 'Snel', subtitle: 'Directe resultaten' },
+        private: { title: 'Privé', subtitle: 'Client-side' },
+        copy: { title: 'Kopieer', subtitle: 'Eén klik' }
+      },
+      cta: {
+        paste: 'Plakken',
+        extract: 'Extraheren',
+        filter: 'Filteren',
+        copy: 'Kopiëren'
+      },
+      supportNotice: 'Ondersteunt Danbooru, Gelbooru, Safebooru, Rule34, e621 en meer'
+    },
+    preview: {
+      title: 'Voorvertoning'
+    },
+    status: {
+      resultLabel: 'Resultaat voor:'
+    },
+    categories: {
+      title: 'Categorieën Filteren',
+      enableAll: 'Alles',
+      disableAll: 'Geen',
+      items: {
+        copyright: 'Copyright',
+        character: 'Karakter',
+        general: 'Algemeen',
+        meta: 'Meta',
+        other: 'Overig'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tags'
+    },
+    filteredTags: {
+      label: 'Gefilterde Tags',
+      ariaLabel: 'Gefilterde tags',
+      empty: 'Geen tags om weer te geven.',
+      copy: 'Tags Kopiëren',
+      copied: 'Gekopieerd!'
+    },
+    history: {
+      extractionTitle: 'Extractiegeschiedenis',
+      imageTitle: 'Afbeeldingsgeschiedenis',
+      searchExtraction: 'Zoek titel, url, tags...',
+      searchImages: 'Zoek bestandsnaam, prompts, params...',
+      emptySearch: 'Geen items komen overeen met uw zoekopdracht.',
+      clearTooltip: 'Wis Alle Geschiedenis',
+      clearAction: 'Wis Geschiedenis',
+      confirmMessage: 'Echt wissen?',
+      confirmYes: 'Ja, Wissen',
+      confirmCancel: 'Annuleren',
+      searchAriaLabel: 'Zoek {{context}}',
+      searchFallback: 'geschiedenis',
+      clearSearchTooltip: 'Zoekopdracht Wissen',
+      clearSearchAria: 'Zoekopdracht wissen'
+    },
+    mobile: {
+      historyButton: 'Geschiedenis',
+      urlLabel: 'Booru Post URL',
+      urlPlaceholder: 'Plak URL of Sleep & Zet Neer...',
+      manualButton: 'Handmatig Extraheren',
+      resetButton: 'Resetten'
+    }
+  },
+  imageTool: {
+    title: 'Afbeeldingsmetadata',
+    dropCtaTitle: 'Sleep & Zet PNG Hier Neer',
+    dropCtaSubtitle: 'of klik om te uploaden',
+    selectButton: 'Selecteer PNG',
+    statusProcessing: 'Verwerken...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Positieve Prompt',
+    negativePrompt: 'Negatieve Prompt',
+    parameters: 'Parameters',
+    copy: 'Kopiëren',
+    copyAll: 'Alles Kopiëren',
+    copySuccess: 'Gekopieerd!',
+    noMetadata: 'Geen generatiemetadata gevonden.',
+    loadMetadata: 'Metadata Laden',
+    deleteEntry: 'Item Verwijderen',
+    historyTitle: 'Afbeeldingsgeschiedenis',
+    historySearch: 'Zoek bestandsnaam, prompts, params...',
+    previewAlt: 'Voorvertoning',
+    footer: {
+      metadataNotice: "PNG metadata-extractie voor 'parameters' tekstchunk."
+    }
+  },
+  historyItem: {
+    load: 'Laad dit geschiedenisitem',
+    delete: 'Verwijder dit geschiedenisitem',
+    previewAlt: 'Voorvertoning'
+  },
+  imagePreview: {
+    loading: 'Voorvertoning laden...',
+    error: 'Kon voorvertoning niet laden.',
+    errorDetail: 'Serverproxyfout of ongeldige afbeelding',
+    videoUnsupported: 'Uw browser ondersteunt geen video.',
+    openFull: 'Open voorvertoning op volledige grootte',
+    close: 'Sluiten',
+    reset: 'Resetten',
+    openOriginal: 'Open origineel'
+  },
+  booruList: {
+    pageTitle: 'Top Booru Ranglijst',
+    pageDescriptionShort: 'Verken de top booru sites gerangschikt op totaal aantal afbeeldingen en activiteit.',
+    pageDescriptionLong: 'Ontdek de meest populaire booru sites van het hele web. Gerangschikt op totaal aantal afbeeldingen, aantal leden en activiteit met gegevens van Booru.org.',
+    searchPlaceholder: 'Zoek booru sites...',
+    filter: {
+      all: 'Alles',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Afbeeldingen',
+      members: 'Leden',
+      owner: 'Eigenaar'
+    },
+    sort: {
+      label: 'Sorteren op:',
+      rank: 'Rang (Top)',
+      images: 'Aantal Afbeeldingen',
+      members: 'Aantal Leden',
+      asc: 'Oplopend',
+      desc: 'Aflopend'
+    },
+    itemsPerPage: 'Per pagina:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> van {{total}}',
+    pagination: {
+      previous: 'Vorige',
+      next: 'Volgende',
+      previousShort: 'Vor',
+      nextShort: 'Volg'
+    },
+    emptyState: 'Geen booru sites gevonden',
+    loading: 'Booru gegevens laden...',
+    errorTitle: 'Fout bij Laden van Gegevens',
+    errors: {
+      fetchFailed: 'Kon booru gegevens niet ophalen.',
+      unknown: 'Er ging iets mis bij het laden van de ranglijst.'
+    },
+    ownerLabel: 'Eigenaar:',
+    visit: 'Bezoek {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Terug naar Booru Lijst',
+    notFoundTitle: 'Booru Niet Gevonden',
+    notFoundDescription: 'Het booru domein "{{domain}}" is niet gevonden in onze database.',
+    statistics: 'Statistieken',
+    totalImages: 'Totaal Afbeeldingen',
+    totalMembers: 'Totaal Leden',
+    shortName: 'Korte Naam',
+    owner: 'Eigenaar',
+    hosted: 'Gehost door booru.org',
+    protocol: 'Protocol',
+    yes: 'Ja',
+    no: 'Nee',
+    visit: 'Bezoek {{name}}',
+    loading: 'Laden...'
   }
 };

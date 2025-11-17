@@ -138,5 +138,179 @@ export const tr: TranslationSchema = {
     modal: {
       close: 'Ayarları Kapat'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru Etiket Çıkarıcı',
+      subtitle: 'Booru görüntü panolarından etiket çıkarın',
+      supported: 'Desteklenen platformlar:',
+      urlLabel: 'Booru Gönderi URL\'si',
+      urlPlaceholder: 'Booru gönderi URL\'nizi buraya yapıştırın...',
+      manualButton: 'Manuel Çıkar',
+      resetButton: 'Sıfırla',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Etiket Çıkarıcı',
+      heroSubtitle: 'Booru sitelerinden etiketleri anında çıkarın, filtreleyin ve kopyalayın',
+      features: {
+        smart: { title: 'Akıllı', subtitle: 'Otomatik çıkar' },
+        fast: { title: 'Hızlı', subtitle: 'Anında sonuçlar' },
+        private: { title: 'Özel', subtitle: 'İstemci tarafı' },
+        copy: { title: 'Kopyala', subtitle: 'Tek tıkla' }
+      },
+      cta: {
+        paste: 'Yapıştır',
+        extract: 'Çıkar',
+        filter: 'Filtrele',
+        copy: 'Kopyala'
+      },
+      supportNotice: 'Danbooru, Gelbooru, Safebooru, Rule34, e621 ve daha fazlasını destekler'
+    },
+    preview: {
+      title: 'Önizleme'
+    },
+    status: {
+      resultLabel: 'Sonuç:'
+    },
+    categories: {
+      title: 'Kategorileri Filtrele',
+      enableAll: 'Tümü',
+      disableAll: 'Hiçbiri',
+      items: {
+        copyright: 'Telif Hakkı',
+        character: 'Karakter',
+        general: 'Genel',
+        meta: 'Meta',
+        other: 'Diğer'
+      },
+      count_one: '{{count}} etiket',
+      count_other: '{{count}} etiket'
+    },
+    filteredTags: {
+      label: 'Filtrelenmiş Etiketler',
+      ariaLabel: 'Filtrelenmiş etiketler',
+      empty: 'Görüntülenecek etiket yok.',
+      copy: 'Etiketleri Kopyala',
+      copied: 'Kopyalandı!'
+    },
+    history: {
+      extractionTitle: 'Çıkarma Geçmişi',
+      imageTitle: 'Görüntü Geçmişi',
+      searchExtraction: 'Başlık, url, etiket ara...',
+      searchImages: 'Dosya adı, istem, parametre ara...',
+      emptySearch: 'Aramanızla eşleşen giriş yok.',
+      clearTooltip: 'Tüm Geçmişi Temizle',
+      clearAction: 'Geçmişi Temizle',
+      confirmMessage: 'Gerçekten temizlensin mi?',
+      confirmYes: 'Evet, Temizle',
+      confirmCancel: 'İptal',
+      searchAriaLabel: '{{context}} ara',
+      searchFallback: 'geçmiş',
+      clearSearchTooltip: 'Aramayı Temizle',
+      clearSearchAria: 'Aramayı temizle'
+    },
+    mobile: {
+      historyButton: 'Geçmiş',
+      urlLabel: 'Booru Gönderi URL\'si',
+      urlPlaceholder: 'URL Yapıştırın veya Sürükle Bırak...',
+      manualButton: 'Manuel Çıkar',
+      resetButton: 'Sıfırla'
+    }
+  },
+  imageTool: {
+    title: 'Görüntü Meta Verisi',
+    dropCtaTitle: 'PNG\'yi Buraya Sürükle Bırak',
+    dropCtaSubtitle: 'veya yüklemek için tıklayın',
+    selectButton: 'PNG Seç',
+    statusProcessing: 'İşleniyor...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Pozitif İstem',
+    negativePrompt: 'Negatif İstem',
+    parameters: 'Parametreler',
+    copy: 'Kopyala',
+    copyAll: 'Tümünü Kopyala',
+    copySuccess: 'Kopyalandı!',
+    noMetadata: 'Oluşturma meta verisi bulunamadı.',
+    loadMetadata: 'Meta Veriyi Yükle',
+    deleteEntry: 'Girişi Sil',
+    historyTitle: 'Görüntü Geçmişi',
+    historySearch: 'Dosya adı, istem, parametre ara...',
+    previewAlt: 'Önizleme',
+    footer: {
+      metadataNotice: "'parameters' metin parçası için PNG meta veri çıkarımı."
+    }
+  },
+  historyItem: {
+    load: 'Bu geçmiş girişini yükle',
+    delete: 'Bu geçmiş girişini sil',
+    previewAlt: 'Önizleme'
+  },
+  imagePreview: {
+    loading: 'Önizleme yükleniyor...',
+    error: 'Önizleme yüklenemedi.',
+    errorDetail: 'Sunucu proxy hatası veya geçersiz görüntü',
+    videoUnsupported: 'Tarayıcınız videoyu desteklemiyor.',
+    openFull: 'Tam boyutlu önizlemeyi aç',
+    close: 'Kapat',
+    reset: 'Sıfırla',
+    openOriginal: 'Orijinali aç'
+  },
+  booruList: {
+    pageTitle: 'En İyi Booru Sıralaması',
+    pageDescriptionShort: 'Toplam görüntü ve aktiviteye göre sıralanan en iyi booru sitelerini keşfedin.',
+    pageDescriptionLong: 'Web\'deki en popüler booru sitelerini keşfedin. Booru.org\'dan gelen verilerle toplam görüntü, üye sayısı ve aktiviteye göre sıralanmıştır.',
+    searchPlaceholder: 'Booru siteleri ara...',
+    filter: {
+      all: 'Tümü',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Görüntüler',
+      members: 'Üyeler',
+      owner: 'Sahip'
+    },
+    sort: {
+      label: 'Sırala:',
+      rank: 'Sıralama (En İyi)',
+      images: 'Görüntü Sayısı',
+      members: 'Üye Sayısı',
+      asc: 'Artan',
+      desc: 'Azalan'
+    },
+    itemsPerPage: 'Sayfa başına:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> / {{total}}',
+    pagination: {
+      previous: 'Önceki',
+      next: 'Sonraki',
+      previousShort: 'Önc',
+      nextShort: 'Sonr'
+    },
+    emptyState: 'Booru sitesi bulunamadı',
+    loading: 'Booru verileri yükleniyor...',
+    errorTitle: 'Veri Yükleme Hatası',
+    errors: {
+      fetchFailed: 'Booru verileri alınamadı.',
+      unknown: 'Sıralama yüklenirken bir şeyler ters gitti.'
+    },
+    ownerLabel: 'Sahip:',
+    visit: '{{name}} Ziyaret Et'
+  },
+  booruDetail: {
+    backButton: 'Booru Listesine Geri Dön',
+    notFoundTitle: 'Booru Bulunamadı',
+    notFoundDescription: '"{{domain}}" booru alan adı veri tabanımızda bulunamadı.',
+    statistics: 'İstatistikler',
+    totalImages: 'Toplam Görüntü',
+    totalMembers: 'Toplam Üye',
+    shortName: 'Kısa Ad',
+    owner: 'Sahip',
+    hosted: 'booru.org tarafından barındırılıyor',
+    protocol: 'Protokol',
+    yes: 'Evet',
+    no: 'Hayır',
+    visit: '{{name}} Ziyaret Et',
+    loading: 'Yükleniyor...'
   }
 };

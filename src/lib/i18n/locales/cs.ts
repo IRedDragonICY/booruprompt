@@ -138,5 +138,179 @@ export const cs: TranslationSchema = {
     modal: {
       close: 'Zavřít Nastavení'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Extraktor Tagů Booru',
+      subtitle: 'Extrahujte tagy z obrazových desek booru',
+      supported: 'Podporované platformy:',
+      urlLabel: 'URL Příspěvku Booru',
+      urlPlaceholder: 'Vložte URL svého příspěvku booru zde...',
+      manualButton: 'Extrahovat Ručně',
+      resetButton: 'Obnovit',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Extraktor Tagů Booru',
+      heroSubtitle: 'Extrahujte, filtrujte a kopírujte tagy z webů booru okamžitě',
+      features: {
+        smart: { title: 'Chytrý', subtitle: 'Automatická extrakce' },
+        fast: { title: 'Rychlý', subtitle: 'Okamžité výsledky' },
+        private: { title: 'Soukromý', subtitle: 'Na straně klienta' },
+        copy: { title: 'Kopírovat', subtitle: 'Jedním kliknutím' }
+      },
+      cta: {
+        paste: 'Vložit',
+        extract: 'Extrahovat',
+        filter: 'Filtrovat',
+        copy: 'Kopírovat'
+      },
+      supportNotice: 'Podporuje Danbooru, Gelbooru, Safebooru, Rule34, e621 a další'
+    },
+    preview: {
+      title: 'Náhled'
+    },
+    status: {
+      resultLabel: 'Výsledek pro:'
+    },
+    categories: {
+      title: 'Filtrovat Kategorie',
+      enableAll: 'Vše',
+      disableAll: 'Žádné',
+      items: {
+        copyright: 'Autorská Práva',
+        character: 'Postava',
+        general: 'Obecné',
+        meta: 'Meta',
+        other: 'Jiné'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tagů'
+    },
+    filteredTags: {
+      label: 'Filtrované Tagy',
+      ariaLabel: 'Filtrované tagy',
+      empty: 'Žádné tagy k zobrazení.',
+      copy: 'Kopírovat Tagy',
+      copied: 'Zkopírováno!'
+    },
+    history: {
+      extractionTitle: 'Historie Extrakce',
+      imageTitle: 'Historie Obrázků',
+      searchExtraction: 'Hledat název, url, tagy...',
+      searchImages: 'Hledat název souboru, výzvy, parametry...',
+      emptySearch: 'Žádné záznamy neodpovídají vašemu vyhledávání.',
+      clearTooltip: 'Vymazat Veškerou Historii',
+      clearAction: 'Vymazat Historii',
+      confirmMessage: 'Opravdu vymazat?',
+      confirmYes: 'Ano, Vymazat',
+      confirmCancel: 'Zrušit',
+      searchAriaLabel: 'Hledat {{context}}',
+      searchFallback: 'historie',
+      clearSearchTooltip: 'Vymazat Vyhledávání',
+      clearSearchAria: 'Vymazat vyhledávání'
+    },
+    mobile: {
+      historyButton: 'Historie',
+      urlLabel: 'URL Příspěvku Booru',
+      urlPlaceholder: 'Vložit URL nebo Přetáhnout & Pustit...',
+      manualButton: 'Extrahovat Ručně',
+      resetButton: 'Obnovit'
+    }
+  },
+  imageTool: {
+    title: 'Metadata Obrázku',
+    dropCtaTitle: 'Přetáhněte & Pusťte PNG Zde',
+    dropCtaSubtitle: 'nebo klikněte pro nahrání',
+    selectButton: 'Vybrat PNG',
+    statusProcessing: 'Zpracování...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Pozitivní Výzva',
+    negativePrompt: 'Negativní Výzva',
+    parameters: 'Parametry',
+    copy: 'Kopírovat',
+    copyAll: 'Kopírovat Vše',
+    copySuccess: 'Zkopírováno!',
+    noMetadata: 'Nebyla nalezena žádná metadata generování.',
+    loadMetadata: 'Načíst Metadata',
+    deleteEntry: 'Smazat Záznam',
+    historyTitle: 'Historie Obrázků',
+    historySearch: 'Hledat název souboru, výzvy, parametry...',
+    previewAlt: 'Náhled',
+    footer: {
+      metadataNotice: "Extrakce metadat PNG pro textový úsek 'parameters'."
+    }
+  },
+  historyItem: {
+    load: 'Načíst tento záznam historie',
+    delete: 'Smazat tento záznam historie',
+    previewAlt: 'Náhled'
+  },
+  imagePreview: {
+    loading: 'Načítání náhledu...',
+    error: 'Náhled se nepodařilo načíst.',
+    errorDetail: 'Chyba serverové proxy nebo neplatný obrázek',
+    videoUnsupported: 'Váš prohlížeč nepodporuje video.',
+    openFull: 'Otevřít náhled v plné velikosti',
+    close: 'Zavřít',
+    reset: 'Obnovit',
+    openOriginal: 'Otevřít originál'
+  },
+  booruList: {
+    pageTitle: 'Žebříček Nejlepších Booru',
+    pageDescriptionShort: 'Prozkoumejte nejlepší weby booru seřazené podle celkového počtu obrázků a aktivity.',
+    pageDescriptionLong: 'Objevte nejpopulárnější weby booru z celého webu. Seřazeno podle celkového počtu obrázků, počtu členů a aktivity s daty z Booru.org.',
+    searchPlaceholder: 'Hledat weby booru...',
+    filter: {
+      all: 'Vše',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Obrázky',
+      members: 'Členové',
+      owner: 'Vlastník'
+    },
+    sort: {
+      label: 'Seřadit podle:',
+      rank: 'Pořadí (Nejlepší)',
+      images: 'Počet Obrázků',
+      members: 'Počet Členů',
+      asc: 'Vzestupně',
+      desc: 'Sestupně'
+    },
+    itemsPerPage: 'Na stránku:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> z {{total}}',
+    pagination: {
+      previous: 'Předchozí',
+      next: 'Další',
+      previousShort: 'Před',
+      nextShort: 'Další'
+    },
+    emptyState: 'Nebyly nalezeny žádné weby booru',
+    loading: 'Načítání dat booru...',
+    errorTitle: 'Chyba Načítání Dat',
+    errors: {
+      fetchFailed: 'Nepodařilo se načíst data booru.',
+      unknown: 'Při načítání žebříčku se něco pokazilo.'
+    },
+    ownerLabel: 'Vlastník:',
+    visit: 'Navštívit {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Zpět na Seznam Booru',
+    notFoundTitle: 'Booru Nebylo Nalezeno',
+    notFoundDescription: 'Doména booru "{{domain}}" nebyla v naší databázi nalezena.',
+    statistics: 'Statistiky',
+    totalImages: 'Celkový Počet Obrázků',
+    totalMembers: 'Celkový Počet Členů',
+    shortName: 'Krátký Název',
+    owner: 'Vlastník',
+    hosted: 'Hostováno na booru.org',
+    protocol: 'Protokol',
+    yes: 'Ano',
+    no: 'Ne',
+    visit: 'Navštívit {{name}}',
+    loading: 'Načítání...'
   }
 };

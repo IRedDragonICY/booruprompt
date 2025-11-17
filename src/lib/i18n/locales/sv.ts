@@ -138,5 +138,179 @@ export const sv: TranslationSchema = {
     modal: {
       close: 'Stäng Inställningar'
     }
+  },
+  extractor: {
+    header: {
+      title: 'Booru Taggextraktor',
+      subtitle: 'Extrahera taggar från booru bildtavlor',
+      supported: 'Stödda plattformar:',
+      urlLabel: 'Booru Inläggs-URL',
+      urlPlaceholder: 'Klistra in din booru inläggs-URL här...',
+      manualButton: 'Extrahera Manuellt',
+      resetButton: 'Återställ',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Taggextraktor',
+      heroSubtitle: 'Extrahera, filtrera och kopiera taggar från boorusajter omedelbart',
+      features: {
+        smart: { title: 'Smart', subtitle: 'Auto-extrahering' },
+        fast: { title: 'Snabb', subtitle: 'Omedelbara resultat' },
+        private: { title: 'Privat', subtitle: 'Klientsidan' },
+        copy: { title: 'Kopiera', subtitle: 'Ett klick' }
+      },
+      cta: {
+        paste: 'Klistra in',
+        extract: 'Extrahera',
+        filter: 'Filtrera',
+        copy: 'Kopiera'
+      },
+      supportNotice: 'Stöder Danbooru, Gelbooru, Safebooru, Rule34, e621 och fler'
+    },
+    preview: {
+      title: 'Förhandsvisning'
+    },
+    status: {
+      resultLabel: 'Resultat för:'
+    },
+    categories: {
+      title: 'Filtrera Kategorier',
+      enableAll: 'Alla',
+      disableAll: 'Inga',
+      items: {
+        copyright: 'Upphovsrätt',
+        character: 'Karaktär',
+        general: 'Allmänt',
+        meta: 'Meta',
+        other: 'Övrigt'
+      },
+      count_one: '{{count}} tagg',
+      count_other: '{{count}} taggar'
+    },
+    filteredTags: {
+      label: 'Filtrerade Taggar',
+      ariaLabel: 'Filtrerade taggar',
+      empty: 'Inga taggar att visa.',
+      copy: 'Kopiera Taggar',
+      copied: 'Kopierat!'
+    },
+    history: {
+      extractionTitle: 'Extraheringshistorik',
+      imageTitle: 'Bildhistorik',
+      searchExtraction: 'Sök titel, url, taggar...',
+      searchImages: 'Sök filnamn, uppmaningar, parametrar...',
+      emptySearch: 'Inga poster matchar din sökning.',
+      clearTooltip: 'Rensa All Historik',
+      clearAction: 'Rensa Historik',
+      confirmMessage: 'Verkligen rensa?',
+      confirmYes: 'Ja, Rensa',
+      confirmCancel: 'Avbryt',
+      searchAriaLabel: 'Sök {{context}}',
+      searchFallback: 'historik',
+      clearSearchTooltip: 'Rensa Sökning',
+      clearSearchAria: 'Rensa sökning'
+    },
+    mobile: {
+      historyButton: 'Historik',
+      urlLabel: 'Booru Inläggs-URL',
+      urlPlaceholder: 'Klistra in URL eller Dra & Släpp...',
+      manualButton: 'Extrahera Manuellt',
+      resetButton: 'Återställ'
+    }
+  },
+  imageTool: {
+    title: 'Bildmetadata',
+    dropCtaTitle: 'Dra & Släpp PNG Här',
+    dropCtaSubtitle: 'eller klicka för att ladda upp',
+    selectButton: 'Välj PNG',
+    statusProcessing: 'Bearbetar...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Positiv Uppmaning',
+    negativePrompt: 'Negativ Uppmaning',
+    parameters: 'Parametrar',
+    copy: 'Kopiera',
+    copyAll: 'Kopiera Allt',
+    copySuccess: 'Kopierat!',
+    noMetadata: 'Ingen genereringsmetadata hittades.',
+    loadMetadata: 'Ladda Metadata',
+    deleteEntry: 'Radera Post',
+    historyTitle: 'Bildhistorik',
+    historySearch: 'Sök filnamn, uppmaningar, parametrar...',
+    previewAlt: 'Förhandsvisning',
+    footer: {
+      metadataNotice: "PNG-metadataextrahering för 'parameters' textchunk."
+    }
+  },
+  historyItem: {
+    load: 'Ladda denna historikpost',
+    delete: 'Radera denna historikpost',
+    previewAlt: 'Förhandsvisning'
+  },
+  imagePreview: {
+    loading: 'Laddar förhandsvisning...',
+    error: 'Kunde inte ladda förhandsvisning.',
+    errorDetail: 'Serverproxyfel eller ogiltig bild',
+    videoUnsupported: 'Din webbläsare stöder inte video.',
+    openFull: 'Öppna fullstor förhandsvisning',
+    close: 'Stäng',
+    reset: 'Återställ',
+    openOriginal: 'Öppna original'
+  },
+  booruList: {
+    pageTitle: 'Topp Booru Rankingstabell',
+    pageDescriptionShort: 'Utforska de bästa boorusajterna rankade efter totalt antal bilder och aktivitet.',
+    pageDescriptionLong: 'Upptäck de mest populära boorusajterna från hela webben. Rankade efter totalt antal bilder, antal medlemmar och aktivitet med data från Booru.org.',
+    searchPlaceholder: 'Sök boorusajter...',
+    filter: {
+      all: 'Alla',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Bilder',
+      members: 'Medlemmar',
+      owner: 'Ägare'
+    },
+    sort: {
+      label: 'Sortera efter:',
+      rank: 'Ranking (Topp)',
+      images: 'Antal Bilder',
+      members: 'Antal Medlemmar',
+      asc: 'Stigande',
+      desc: 'Fallande'
+    },
+    itemsPerPage: 'Per sida:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> av {{total}}',
+    pagination: {
+      previous: 'Föregående',
+      next: 'Nästa',
+      previousShort: 'Föreg',
+      nextShort: 'Nästa'
+    },
+    emptyState: 'Inga boorusajter hittades',
+    loading: 'Laddar boorudata...',
+    errorTitle: 'Fel vid Laddning av Data',
+    errors: {
+      fetchFailed: 'Misslyckades med att hämta boorudata.',
+      unknown: 'Något gick fel vid laddning av rankingslistan.'
+    },
+    ownerLabel: 'Ägare:',
+    visit: 'Besök {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Tillbaka till Boorulista',
+    notFoundTitle: 'Booru Hittades Inte',
+    notFoundDescription: 'Boorudomänen "{{domain}}" hittades inte i vår databas.',
+    statistics: 'Statistik',
+    totalImages: 'Totalt Antal Bilder',
+    totalMembers: 'Totalt Antal Medlemmar',
+    shortName: 'Kortnamn',
+    owner: 'Ägare',
+    hosted: 'Hostad av booru.org',
+    protocol: 'Protokoll',
+    yes: 'Ja',
+    no: 'Nej',
+    visit: 'Besök {{name}}',
+    loading: 'Laddar...'
   }
 };
