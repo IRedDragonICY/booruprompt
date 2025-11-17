@@ -1,4 +1,4 @@
-export const en = {
+const enBase = {
   common: {
     appName: 'Booru Tag Extractor',
     language: 'Language',
@@ -348,6 +348,12 @@ export const en = {
     visit: 'Visit {{name}}',
     loading: 'Loading...'
   }
-} as const;
+};
 
-export type TranslationSchema = typeof en;
+type DeepStringRecord<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepStringRecord<T[K]>;
+};
+
+export type TranslationSchema = DeepStringRecord<typeof enBase>;
+
+export const en: TranslationSchema = enBase;

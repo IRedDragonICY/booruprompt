@@ -11,6 +11,7 @@ export const zh: TranslationSchema = {
     chinese: '中文',
     author: 'IRedDragonICY',
     defaultDescription: '即时提取、筛选并复制 booru 帖子的标签。',
+    unknown: '未知',
     languageSwitcher: {
       title: '界面语言',
       description: '保存在浏览器中。默认语言为英语。',
