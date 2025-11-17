@@ -11,24 +11,9 @@ export const LanguageSelector: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const resolveLabel = useCallback(
-    (code: string) => {
-      switch (code) {
-        case 'id':
-          return t('common.indonesian');
-        case 'zh':
-          return t('common.chinese');
-        case 'en':
-        default:
-          return t('common.english');
-      }
-    },
-    [t]
-  );
-
   const localizedLanguages = useMemo(
-    () => languages.map(({ code }) => ({ code, label: resolveLabel(code) })),
-    [languages, resolveLabel]
+    () => languages.map(({ code, nativeName }) => ({ code, label: nativeName })),
+    [languages]
   );
 
   const filteredLanguages = useMemo(() => {
@@ -117,7 +102,7 @@ export const LanguageSelector: React.FC = () => {
           aria-expanded={isOpen}
           aria-label={t('common.languageSwitcher.title')}
         >
-          <span>{resolveLabel(language)}</span>
+          <span>{languages.find(l => l.code === language)?.nativeName || language}</span>
           <span className={`text-[rgb(var(--color-on-surface-muted-rgb))] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
             <ChevronDownIcon />
           </span>
