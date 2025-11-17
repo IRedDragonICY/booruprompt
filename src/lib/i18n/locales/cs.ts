@@ -63,31 +63,80 @@ export const cs: TranslationSchema = {
       custom: 'Vlastní Barva'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Vlastní Barva',
+      pickerLabel: 'Vlastní výběr barvy',
+      inputLabel: 'Hexadecimální kód vlastní barvy',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Serverová Proxy',
+        description: 'Používá server této aplikace k načítání dat. Doporučeno, spolehlivější.'
+      },
+      clientProxy: {
+        label: 'Klientská Proxy',
+        description: 'Používá veřejnou CORS proxy ve vašem prohlížeči. Může být méně spolehlivá nebo omezená.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Vyberte klientskou proxy službu:',
+      ariaLabel: 'Výběr klientské proxy služby',
+      helper: 'Výkon a spolehlivost se liší mezi proxy.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Automatická Extrakce',
+        description: 'Extrahovat štítky automaticky po vložení/zadání platné URL.',
+        tooltip: 'Zapnout nebo vypnout automatickou extrakci štítků při vložení/zadání platné URL'
+      },
+      previews: {
+        label: 'Povolit Náhledy',
+        description: 'Zobrazit náhledy obrázků/videí během extrakce a v historii.',
+        tooltip: 'Zapnout nebo vypnout náhledy obrázků/videí pro úsporu šířky pásma nebo vyhnutí se potenciálním problémům',
+        note: 'Obrázky jsou vždy načítány přes Serverovou Proxy.'
+      },
+      saveHistory: {
+        label: 'Uložit Historii',
+        description: 'Ukládat úspěšné extrakce lokálně ve vašem prohlížeči.',
+        tooltip: 'Zapnout nebo vypnout ukládání historie extrakcí do lokálního úložiště prohlížeče'
+      },
+      unsupportedSites: {
+        label: 'Povolit pro Nepodporované Stránky',
+        description: 'Zkusit extrahovat z nepodporovaných stránek pomocí podobných vzorů stránek. Nemusí fungovat pro všechny stránky.',
+        tooltip: 'Povolit extrakci pro nepodporované webové stránky pomocí podobných vzorů stránek'
+      },
+      blacklist: {
+        label: 'Povolit Černou Listinu Klíčových Slov',
+        description: 'Zadejte klíčová slova k blokování, oddělená čárkami, středníky nebo novými řádky.',
+        tooltip: 'Blokovat nežádoucí štítky filtrováním konkrétních klíčových slov',
+        placeholder: 'Zadejte klíčová slova k blokování…',
+        ariaLabel: 'Klíčová slova černé listiny',
+        reset: 'Obnovit Výchozí'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Maximální Velikost Historie',
+      description: 'Nastavte maximální počet záznamů pro historii extrakce a obrázků.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Motiv {{label}}',
+      colorThemeOption: 'Barevný motiv {{label}}',
+      historySizeSelect: 'Maximální velikost historie'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Záznamů',
+      '30': '30 Záznamů',
+      '50': '50 Záznamů',
+      '100': '100 Záznamů',
+      unlimited: 'Neomezeno'
     },
     support: {
-      ...en.settings.support
+      title: 'Podpora a Zpětná Vazba',
+      cta: 'Nahlásit Problém na GitHub',
+      description: 'Našli jste chybu nebo máte návrh? Dejte nám vědět!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Zavřít Nastavení'
     }
   }
 };

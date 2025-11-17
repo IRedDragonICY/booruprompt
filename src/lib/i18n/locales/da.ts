@@ -63,31 +63,80 @@ export const da: TranslationSchema = {
       custom: 'Brugerdefineret Farve'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Brugerdefineret Farve',
+      pickerLabel: 'Brugerdefineret farvevælger',
+      inputLabel: 'Brugerdefineret farve hex-kode',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Server Proxy',
+        description: 'Bruger denne applikations server til at hente data. Anbefalet, mere pålidelig.'
+      },
+      clientProxy: {
+        label: 'Klient-side Proxy',
+        description: 'Bruger en offentlig CORS-proxy i din browser. Kan være mindre pålidelig eller hastighedsbegrænset.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Vælg klientproxy-tjeneste:',
+      ariaLabel: 'Klientproxy-tjeneste Vælger',
+      helper: 'Ydeevne og pålidelighed varierer mellem proxies.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Automatisk Udtrækning',
+        description: 'Udtræk tags automatisk efter indsætning/indtastning af en gyldig URL.',
+        tooltip: 'Aktiver eller deaktiver automatisk tag-udtrækning ved indsætning/indtastning af en gyldig URL'
+      },
+      previews: {
+        label: 'Aktiver Forhåndsvisninger',
+        description: 'Vis billede-/videoforhåndsvisninger under udtrækning og i historik.',
+        tooltip: 'Aktiver eller deaktiver billede-/videoforhåndsvisninger for at spare båndbredde eller undgå potentielle problemer',
+        note: 'Billeder hentes altid via Server Proxy.'
+      },
+      saveHistory: {
+        label: 'Gem Historik',
+        description: 'Gem vellykkede udtrækninger lokalt i din browser.',
+        tooltip: 'Aktiver eller deaktiver gemning af udtrækningshistorik til din browsers lokale lager'
+      },
+      unsupportedSites: {
+        label: 'Aktiver for Ikke-understøttede Sites',
+        description: 'Forsøg at udtrække fra ikke-understøttede sites ved hjælp af lignende site-mønstre. Virker muligvis ikke for alle sites.',
+        tooltip: 'Aktiver udtrækning for ikke-understøttede websteder ved at bruge lignende site-mønstre'
+      },
+      blacklist: {
+        label: 'Aktiver Nøgleord Sortliste',
+        description: 'Indtast nøgleord der skal blokeres, adskilt af kommaer, semikolon eller nye linjer.',
+        tooltip: 'Bloker uønskede tags ved at filtrere specifikke nøgleord',
+        placeholder: 'Indtast nøgleord der skal blokeres…',
+        ariaLabel: 'Sortliste nøgleord',
+        reset: 'Nulstil til Standard'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Maksimal Historikstørrelse',
+      description: 'Indstil det maksimale antal poster for både udtræknings- og billedhistorik.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Tema {{label}}',
+      colorThemeOption: 'Farvetema {{label}}',
+      historySizeSelect: 'Maksimal historikstørrelse'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Poster',
+      '30': '30 Poster',
+      '50': '50 Poster',
+      '100': '100 Poster',
+      unlimited: 'Ubegrænset'
     },
     support: {
-      ...en.settings.support
+      title: 'Support & Feedback',
+      cta: 'Rapporter et Problem på GitHub',
+      description: 'Fandt en fejl eller har et forslag? Lad os vide det!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Luk Indstillinger'
     }
   }
 };

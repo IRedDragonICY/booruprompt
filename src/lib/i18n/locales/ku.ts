@@ -63,31 +63,80 @@ export const ku: TranslationSchema = {
       custom: 'Renga Taybet'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Renga Taybet',
+      pickerLabel: 'Hilbijêrê renga taybet',
+      inputLabel: 'Koda hex ya renga taybet',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Proxy ya Server',
+        description: 'Ji bo wergirtina daneyan servera vê sepanê bi kar tîne. Pêşniyar tê kirin, ewledar e.'
+      },
+      clientProxy: {
+        label: 'Proxy ya Aliyê Muwekîl',
+        description: 'Di geroka we de proxy ya CORS a giştî bi kar tîne. Dibe ku kêmtir ewledar an sînordar be.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Karûbarê Proxy yê Muwekîl hilbijêre:',
+      ariaLabel: 'Hilbijêrê Karûbarê Proxy yê Muwekîl',
+      helper: 'Performans û pêbawerî di navbera proxiyan de cuda ye.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Derxistina Xweber',
+        description: 'Piştî nivîsandina/pêşkêşkirina URL-yek derbasdar, tag bi awayekî xweber derxe.',
+        tooltip: 'Derxistina xweber a tagan di dema nivîsandina/pêşkêşkirina URL-yek derbasdar de çalak an neçalak bike'
+      },
+      previews: {
+        label: 'Pêşdîtinê çalak bike',
+        description: 'Di dema derxistinê û di dîrokê de pêşdîtinên wêne/vîdyoyê nîşan bide.',
+        tooltip: 'Pêşdîtinên wêne/vîdyoyê çalak an neçalak bike da ku firehiya bandê xilas bike an ji pirsgirêkên gengaz dûr bikeve',
+        note: 'Wêne her gav bi rêya Proxy ya Server tên standin.'
+      },
+      saveHistory: {
+        label: 'Dîrokê tomar bike',
+        description: 'Derxistinên serkeftî di geroka we de bi awayekî herêmî tomar bike.',
+        tooltip: 'Tomarkirina dîroka derxistinê di bîra herêmî ya geroka we de çalak an neçalak bike'
+      },
+      unsupportedSites: {
+        label: 'Ji bo malperên nepiştevanî çalak bike',
+        description: 'Hewl bide ku ji malperên nepiştevanî bi karanîna şablonên malperên hevçiqas derxînî. Dibe ku ji bo hemû malpera neke.',
+        tooltip: 'Derxistinê ji bo malperên nepiştevanî bi karanîna şablonên malperên hevçiqas çalak bike'
+      },
+      blacklist: {
+        label: 'Lîsteya Reş a Peyvên Sereke çalak bike',
+        description: 'Peyvên sereke yên ku divê asteng bikin binivîse, bi vîrgul, nîvxal an rêzên nû veqetandî.',
+        tooltip: 'Bi parzûnkirina peyvên sereke yên diyarkirî tagan yên naxwazî asteng bike',
+        placeholder: 'Peyvên sereke yên ku divê asteng bikin binivîse…',
+        ariaLabel: 'Peyvên Sereke yên Lîsteya Reş',
+        reset: 'Vegerîne Bingehîn'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Mezinahiya Herî Zêde ya Dîrokê',
+      description: 'Ji bo her du dîroka derxistinê û wêneyan hejmara herî zêde ya têketinê bicîh bike.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Mijar {{label}}',
+      colorThemeOption: 'Mijara rengî {{label}}',
+      historySizeSelect: 'Mezinahiya herî zêde ya dîrokê'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 têketin',
+      '30': '30 têketin',
+      '50': '50 têketin',
+      '100': '100 têketin',
+      unlimited: 'Bêsînor'
     },
     support: {
-      ...en.settings.support
+      title: 'Piştgirî û Şîrove',
+      cta: 'Li ser GitHub pirsgirêkekê ragihandin',
+      description: 'Çewtiyekê dît an pêşniyarekî heye? Ji me re bêje!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Mîhengan bigire'
     }
   }
 };

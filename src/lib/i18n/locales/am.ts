@@ -63,31 +63,80 @@ export const am: TranslationSchema = {
       custom: 'ብጁ ቀለም'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'ብጁ ቀለም',
+      pickerLabel: 'ብጁ ቀለም መምረጫ',
+      inputLabel: 'ብጁ ቀለም hex ኮድ',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'የአገልጋይ ፕሮክሲ',
+        description: 'መረጃ ለማግኘት የዚህን መተግበሪያ አገልጋይ ይጠቀማል። የሚመከር፣ የበለጠ አስተማማኝ።'
+      },
+      clientProxy: {
+        label: 'የደንበኛ ጎን ፕሮክሲ',
+        description: 'በአሳሽዎ ውስጥ የህዝብ CORS ፕሮክሲን ይጠቀማል። ያነሰ አስተማማኝ ወይም የተገደበ ሊሆን ይችላል።'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'የደንበኛ ፕሮክሲ አገልግሎትን ይምረጡ፡',
+      ariaLabel: 'የደንበኛ ፕሮክሲ አገልግሎት መራጭ',
+      helper: 'አፈጻጸም እና አስተማማኝነት በፕሮክሲዎች መካከል ይለያያል።'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'ራስ-ሰር መውጣት',
+        description: 'ትክክለኛ URL ካለቀሱ/ከተጻፈ በኋላ መለያዎችን በራስ-ሰር ያውጡ።',
+        tooltip: 'ትክክለኛ URL በሚለጠፍበት/በሚጽፍበት ጊዜ የራስ-ሰር መለያ መውጣት ያንቁ ወይም ያሰናክሉ'
+      },
+      previews: {
+        label: 'ቅድመ-እይታዎችን ያንቁ',
+        description: 'በማውጣት እና በታሪክ ውስጥ የምስል/ቪዲዮ ቅድመ-እይታዎችን አሳይ።',
+        tooltip: 'የመተላለፊያ ይዘትን ለመቆጠብ ወይም ሊከሰቱ የሚችሉ ችግሮችን ለማስወገድ የምስል/ቪዲዮ ቅድመ-እይታዎችን ያንቁ ወይም ያሰናክሉ',
+        note: 'ምስሎች ሁሌም በአገልጋይ ፕሮክሲ በኩል ይመጣሉ።'
+      },
+      saveHistory: {
+        label: 'ታሪክን አስቀምጥ',
+        description: 'ስኬታማ የሆኑ ውጤቶችን በአሳሽዎ ውስጥ በአካባቢያዊ ያከማቹ።',
+        tooltip: 'የመውጣት ታሪክን በአሳሽዎ የአካባቢያዊ ማከማቻ ውስጥ ማስቀመጥን ያንቁ ወይም ያሰናክሉ'
+      },
+      unsupportedSites: {
+        label: 'ላልተደገፉ ድረ-ገጾች ያንቁ',
+        description: 'ተመሳሳይ የድረ-ገጽ ቅጦችን በመጠቀም ያልተደገፉ ድረ-ገጾችን ለማውጣት ይሞክሩ። ለሁሉም ድረ-ገጾች ላይሰራ ይችላል።',
+        tooltip: 'ተመሳሳይ የድረ-ገጽ ቅጦችን በመጠቀም ላልተደገፉ ድረ-ገጾች መውጣትን ያንቁ'
+      },
+      blacklist: {
+        label: 'የቁልፍ ቃላት ጥቁር ዝርዝርን ያንቁ',
+        description: 'ለማገድ የሚፈልጓቸው ቁልፍ ቃላት ያስገቡ፣ በኮማ፣ በሴሚኮሎን ወይም በአዲስ መስመሮች ተለይተው።',
+        tooltip: 'የተወሰኑ ቁልፍ ቃላትን በማጣራት ያልተፈለጉ መለያዎችን ያግዱ',
+        placeholder: 'ለማገድ ቁልፍ ቃላት ያስገቡ…',
+        ariaLabel: 'የጥቁር ዝርዝር ቁልፍ ቃላት',
+        reset: 'ወደ ነባሪ ዳግም አስጀምር'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'ከፍተኛ የታሪክ መጠን',
+      description: 'ለሁለቱም የማውጣት እና የምስል ታሪክ ከፍተኛውን የግቤቶች ብዛት ያስቀምጡ።'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'ጭብጥ {{label}}',
+      colorThemeOption: 'የቀለም ጭብጥ {{label}}',
+      historySizeSelect: 'ከፍተኛ የታሪክ መጠን'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 ግቤቶች',
+      '30': '30 ግቤቶች',
+      '50': '50 ግቤቶች',
+      '100': '100 ግቤቶች',
+      unlimited: 'ያልተገደበ'
     },
     support: {
-      ...en.settings.support
+      title: 'ድጋፍ እና አስተያየት',
+      cta: 'በGitHub ላይ ችግር ሪፖርት ያድርጉ',
+      description: 'ስህተት አግኝተዋል ወይም ሃሳብ አለዎት? ያሳውቁን!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'ቅንብሮችን ዝጋ'
     }
   }
 };

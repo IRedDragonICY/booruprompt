@@ -63,31 +63,80 @@ export const fi: TranslationSchema = {
       custom: 'Mukautettu Väri'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Mukautettu Väri',
+      pickerLabel: 'Mukautettu värivalitsin',
+      inputLabel: 'Mukautettu väri hex-koodi',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Palvelin Proxy',
+        description: 'Käyttää tämän sovelluksen palvelinta tietojen hakemiseen. Suositeltu, luotettavampi.'
+      },
+      clientProxy: {
+        label: 'Asiakaspuolen Proxy',
+        description: 'Käyttää julkista CORS-välityspalvelinta selaimessasi. Voi olla vähemmän luotettava tai nopeusrajoitettu.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Valitse asiakasproxypalvelu:',
+      ariaLabel: 'Asiakasproxypalvelun valitsin',
+      helper: 'Suorituskyky ja luotettavuus vaihtelevat välityspalvelimien välillä.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Automaattinen Purku',
+        description: 'Pura tagit automaattisesti kelvollisen URL-osoitteen liittämisen/kirjoittamisen jälkeen.',
+        tooltip: 'Ota käyttöön tai poista käytöstä automaattinen tagien purku kelvollisen URL-osoitteen liittämisen/kirjoittamisen yhteydessä'
+      },
+      previews: {
+        label: 'Ota Esikatselut Käyttöön',
+        description: 'Näytä kuva-/videoesikatselut purun aikana ja historiassa.',
+        tooltip: 'Ota käyttöön tai poista käytöstä kuva-/videoesikatselut kaistanleveyden säästämiseksi tai mahdollisten ongelmien välttämiseksi',
+        note: 'Kuvat haetaan aina Palvelin Proxyn kautta.'
+      },
+      saveHistory: {
+        label: 'Tallenna Historia',
+        description: 'Tallenna onnistuneet purkamiset paikallisesti selaimeesi.',
+        tooltip: 'Ota käyttöön tai poista käytöstä purkuhistorian tallentaminen selaimen paikalliseen tallennustilaan'
+      },
+      unsupportedSites: {
+        label: 'Ota Käyttöön Ei-tuetuille Sivustoille',
+        description: 'Yritä purkaa ei-tuetuista sivustoista käyttämällä samankaltaisia sivustomalleja. Ei välttämättä toimi kaikilla sivustoilla.',
+        tooltip: 'Ota käyttöön purku ei-tuetuille verkkosivustoille käyttämällä samankaltaisia sivustomalleja'
+      },
+      blacklist: {
+        label: 'Ota Avainsana Mustalistaus Käyttöön',
+        description: 'Syötä estettävät avainsanat erotettuna pilkuilla, puolipisteillä tai uusilla riveillä.',
+        tooltip: 'Estä ei-toivotut tagit suodattamalla tiettyjä avainsanoja',
+        placeholder: 'Syötä estettävät avainsanat…',
+        ariaLabel: 'Mustalistauksen avainsanat',
+        reset: 'Palauta Oletusarvot'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Suurin Historiakoko',
+      description: 'Aseta merkintöjen enimmäismäärä sekä purku- että kuvahistorialle.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Teema {{label}}',
+      colorThemeOption: 'Väriteema {{label}}',
+      historySizeSelect: 'Suurin historiakoko'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Merkintää',
+      '30': '30 Merkintää',
+      '50': '50 Merkintää',
+      '100': '100 Merkintää',
+      unlimited: 'Rajoittamaton'
     },
     support: {
-      ...en.settings.support
+      title: 'Tuki & Palaute',
+      cta: 'Ilmoita Ongelmasta GitHubissa',
+      description: 'Löysitkö virheen tai onko sinulla ehdotus? Kerro meille!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Sulje Asetukset'
     }
   }
 };

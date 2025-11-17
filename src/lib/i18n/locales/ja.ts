@@ -63,31 +63,80 @@ export const ja: TranslationSchema = {
       custom: 'カスタムカラー'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'カスタムカラー',
+      pickerLabel: 'カスタムカラーピッカー',
+      inputLabel: 'カスタムカラーの16進数コード',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'サーバープロキシ',
+        description: 'このアプリケーションのサーバーを使用してデータを取得します。推奨、より信頼性が高い。'
+      },
+      clientProxy: {
+        label: 'クライアント側プロキシ',
+        description: 'ブラウザで公開CORSプロキシを使用します。信頼性が低い場合や制限される場合があります。'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'クライアントプロキシサービスを選択：',
+      ariaLabel: 'クライアントプロキシサービスセレクター',
+      helper: 'プロキシによってパフォーマンスと信頼性が異なります。'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: '自動抽出',
+        description: '有効なURLを貼り付け/入力した後、自動的にタグを抽出します。',
+        tooltip: '有効なURLを貼り付け/入力した際の自動タグ抽出を有効または無効にする'
+      },
+      previews: {
+        label: 'プレビューを有効化',
+        description: '抽出時と履歴で画像/動画のプレビューを表示します。',
+        tooltip: '帯域幅の節約や潜在的な問題回避のため、画像/動画プレビューを有効または無効にする',
+        note: '画像は常にサーバープロキシ経由で取得されます。'
+      },
+      saveHistory: {
+        label: '履歴を保存',
+        description: '成功した抽出をブラウザにローカル保存します。',
+        tooltip: 'ブラウザのローカルストレージへの抽出履歴の保存を有効または無効にする'
+      },
+      unsupportedSites: {
+        label: '未対応サイトで有効化',
+        description: '類似サイトのパターンを使用して、未対応サイトから抽出を試みます。すべてのサイトで機能するわけではありません。',
+        tooltip: '類似サイトパターンを使用して未対応ウェブサイトでの抽出を有効にする'
+      },
+      blacklist: {
+        label: 'キーワードブラックリストを有効化',
+        description: 'ブロックするキーワードをカンマ、セミコロン、または改行で区切って入力します。',
+        tooltip: '特定のキーワードをフィルタリングして不要なタグをブロックする',
+        placeholder: 'ブロックするキーワードを入力…',
+        ariaLabel: 'ブラックリストキーワード',
+        reset: 'デフォルトにリセット'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: '最大履歴サイズ',
+      description: '抽出履歴と画像履歴の両方の最大エントリ数を設定します。'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'テーマ {{label}}',
+      colorThemeOption: 'カラーテーマ {{label}}',
+      historySizeSelect: '最大履歴サイズ'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10エントリ',
+      '30': '30エントリ',
+      '50': '50エントリ',
+      '100': '100エントリ',
+      unlimited: '無制限'
     },
     support: {
-      ...en.settings.support
+      title: 'サポート&フィードバック',
+      cta: 'GitHubで問題を報告',
+      description: 'バグを見つけたり提案がありますか？お知らせください！'
     },
     modal: {
-      ...en.settings.modal
+      close: '設定を閉じる'
     }
   }
 };

@@ -63,31 +63,80 @@ export const pt: TranslationSchema = {
       custom: 'Cor Personalizada'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Cor Personalizada',
+      pickerLabel: 'Seletor de cor personalizada',
+      inputLabel: 'Código hexadecimal da cor personalizada',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Proxy do Servidor',
+        description: 'Usa o servidor desta aplicação para obter dados. Recomendado, mais confiável.'
+      },
+      clientProxy: {
+        label: 'Proxy do Cliente',
+        description: 'Usa um proxy CORS público no seu navegador. Pode ser menos confiável ou limitado.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Selecionar serviço de proxy do cliente:',
+      ariaLabel: 'Seletor de serviço de proxy do cliente',
+      helper: 'O desempenho e a confiabilidade variam entre proxies.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Extração Automática',
+        description: 'Extrair tags automaticamente após colar/digitar uma URL válida.',
+        tooltip: 'Ativar ou desativar a extração automática de tags ao colar/digitar uma URL válida'
+      },
+      previews: {
+        label: 'Ativar Prévias',
+        description: 'Mostrar prévias de imagem/vídeo durante a extração e no histórico.',
+        tooltip: 'Ativar ou desativar prévias de imagem/vídeo para economizar largura de banda ou evitar problemas potenciais',
+        note: 'As imagens são sempre obtidas através do Proxy do Servidor.'
+      },
+      saveHistory: {
+        label: 'Salvar Histórico',
+        description: 'Armazenar extrações bem-sucedidas localmente no seu navegador.',
+        tooltip: 'Ativar ou desativar o salvamento do histórico de extrações no armazenamento local do navegador'
+      },
+      unsupportedSites: {
+        label: 'Ativar para Sites Não Suportados',
+        description: 'Tentar extrair de sites não suportados usando padrões de sites semelhantes. Pode não funcionar para todos os sites.',
+        tooltip: 'Ativar extração para sites não suportados usando padrões de sites semelhantes'
+      },
+      blacklist: {
+        label: 'Ativar Lista Negra de Palavras-Chave',
+        description: 'Digite palavras-chave para bloquear, separadas por vírgulas, ponto e vírgula ou quebras de linha.',
+        tooltip: 'Bloquear tags indesejadas filtrando palavras-chave específicas',
+        placeholder: 'Digite palavras-chave para bloquear…',
+        ariaLabel: 'Palavras-chave da lista negra',
+        reset: 'Redefinir para Padrão'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Tamanho Máximo do Histórico',
+      description: 'Definir o número máximo de entradas para o histórico de extração e imagem.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Tema {{label}}',
+      colorThemeOption: 'Tema de cor {{label}}',
+      historySizeSelect: 'Tamanho máximo do histórico'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Entradas',
+      '30': '30 Entradas',
+      '50': '50 Entradas',
+      '100': '100 Entradas',
+      unlimited: 'Ilimitado'
     },
     support: {
-      ...en.settings.support
+      title: 'Suporte e Feedback',
+      cta: 'Relatar um Problema no GitHub',
+      description: 'Encontrou um bug ou tem uma sugestão? Nos avise!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Fechar Configurações'
     }
   }
 };

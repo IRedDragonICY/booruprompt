@@ -63,31 +63,80 @@ export const ca: TranslationSchema = {
       custom: 'Color personalitzat'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Color personalitzat',
+      pickerLabel: 'Selector de color personalitzat',
+      inputLabel: 'Codi hex del color personalitzat',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Servidor intermediari',
+        description: 'Utilitza el servidor d\'aquesta aplicació per obtenir dades. Recomanat, més fiable.'
+      },
+      clientProxy: {
+        label: 'Intermediari del costat del client',
+        description: 'Utilitza un servidor intermediari CORS públic al navegador. Pot ser menys fiable o tenir limitacions.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Selecciona el servei d\'intermediari del client:',
+      ariaLabel: 'Selector del servei d\'intermediari del client',
+      helper: 'El rendiment i la fiabilitat varien entre intermediaris.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Extracció automàtica',
+        description: 'Extreu etiquetes automàticament després d\'enganxar/escriure un URL vàlid.',
+        tooltip: 'Activa o desactiva l\'extracció automàtica d\'etiquetes en enganxar/escriure un URL vàlid'
+      },
+      previews: {
+        label: 'Activa les previsualitzacions',
+        description: 'Mostra previsualitzacions d\'imatges/vídeos durant l\'extracció i a l\'historial.',
+        tooltip: 'Activa o desactiva les previsualitzacions d\'imatges/vídeos per estalviar ample de banda o evitar possibles problemes',
+        note: 'Les imatges sempre s\'obtenen mitjançant el servidor intermediari.'
+      },
+      saveHistory: {
+        label: 'Desa l\'historial',
+        description: 'Emmagatzema les extraccions reeixides localment al navegador.',
+        tooltip: 'Activa o desactiva el desament de l\'historial d\'extraccions a l\'emmagatzematge local del navegador'
+      },
+      unsupportedSites: {
+        label: 'Activa per a llocs no compatibles',
+        description: 'Intenta extreure de llocs no compatibles utilitzant patrons de llocs similars. Pot no funcionar per a tots els llocs.',
+        tooltip: 'Activa l\'extracció per a llocs web no compatibles utilitzant patrons de llocs similars'
+      },
+      blacklist: {
+        label: 'Activa la llista negra de paraules clau',
+        description: 'Introdueix paraules clau per bloquejar, separades per comes, punts i comes o línies noves.',
+        tooltip: 'Bloqueja etiquetes no desitjades filtrant paraules clau específiques',
+        placeholder: 'Introdueix paraules clau per bloquejar…',
+        ariaLabel: 'Paraules clau de la llista negra',
+        reset: 'Restaura als valors per defecte'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Mida màxima de l\'historial',
+      description: 'Estableix el nombre màxim d\'entrades per a l\'historial d\'extracció i d\'imatges.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Tema {{label}}',
+      colorThemeOption: 'Tema de color {{label}}',
+      historySizeSelect: 'Mida màxima de l\'historial'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 entrades',
+      '30': '30 entrades',
+      '50': '50 entrades',
+      '100': '100 entrades',
+      unlimited: 'Il·limitades'
     },
     support: {
-      ...en.settings.support
+      title: 'Suport i comentaris',
+      cta: 'Informa d\'un problema a GitHub',
+      description: 'Has trobat un error o tens un suggeriment? Fes-nos-ho saber!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Tanca la configuració'
     }
   }
 };

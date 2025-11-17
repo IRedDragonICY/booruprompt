@@ -63,31 +63,80 @@ export const tr: TranslationSchema = {
       custom: 'Özel Renk'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Özel Renk',
+      pickerLabel: 'Özel renk seçici',
+      inputLabel: 'Özel renk hex kodu',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Sunucu Proxy',
+        description: 'Veri almak için bu uygulamanın sunucusunu kullanır. Önerilir, daha güvenilir.'
+      },
+      clientProxy: {
+        label: 'İstemci Tarafı Proxy',
+        description: 'Tarayıcınızda genel bir CORS proxy kullanır. Daha az güvenilir veya sınırlı olabilir.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'İstemci Proxy Hizmetini Seçin:',
+      ariaLabel: 'İstemci Proxy Hizmet Seçici',
+      helper: 'Performans ve güvenilirlik proxy\'ler arasında değişir.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Otomatik Çıkarma',
+        description: 'Geçerli bir URL yapıştırdıktan/yazdıktan sonra etiketleri otomatik olarak çıkar.',
+        tooltip: 'Geçerli bir URL yapıştırma/yazma üzerine otomatik etiket çıkarımını etkinleştir veya devre dışı bırak'
+      },
+      previews: {
+        label: 'Önizlemeleri Etkinleştir',
+        description: 'Çıkarma sırasında ve geçmişte resim/video önizlemelerini göster.',
+        tooltip: 'Bant genişliği tasarrufu sağlamak veya olası sorunları önlemek için resim/video önizlemelerini etkinleştir veya devre dışı bırak',
+        note: 'Resimler her zaman Sunucu Proxy üzerinden alınır.'
+      },
+      saveHistory: {
+        label: 'Geçmişi Kaydet',
+        description: 'Başarılı çıkarmaları tarayıcınızda yerel olarak saklayın.',
+        tooltip: 'Çıkarma geçmişini tarayıcınızın yerel deposuna kaydetmeyi etkinleştir veya devre dışı bırak'
+      },
+      unsupportedSites: {
+        label: 'Desteklenmeyen Siteler için Etkinleştir',
+        description: 'Benzer site modellerini kullanarak desteklenmeyen sitelerden çıkarmayı deneyin. Tüm siteler için çalışmayabilir.',
+        tooltip: 'Benzer site modellerini kullanarak desteklenmeyen web siteleri için çıkarmayı etkinleştir'
+      },
+      blacklist: {
+        label: 'Anahtar Kelime Kara Listesini Etkinleştir',
+        description: 'Engellenecek anahtar kelimeleri virgül, noktalı virgül veya yeni satırlarla ayırarak girin.',
+        tooltip: 'Belirli anahtar kelimeleri filtreleyerek istenmeyen etiketleri engelleyin',
+        placeholder: 'Engellenecek anahtar kelimeleri girin…',
+        ariaLabel: 'Kara Liste Anahtar Kelimeleri',
+        reset: 'Varsayılana Sıfırla'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Maksimum Geçmiş Boyutu',
+      description: 'Hem çıkarma hem de resim geçmişi için maksimum giriş sayısını ayarlayın.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Tema {{label}}',
+      colorThemeOption: 'Renk teması {{label}}',
+      historySizeSelect: 'Maksimum geçmiş boyutu'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Giriş',
+      '30': '30 Giriş',
+      '50': '50 Giriş',
+      '100': '100 Giriş',
+      unlimited: 'Sınırsız'
     },
     support: {
-      ...en.settings.support
+      title: 'Destek ve Geri Bildirim',
+      cta: 'GitHub\'da Sorun Bildir',
+      description: 'Bir hata mı buldunuz veya öneriniz mi var? Bize bildirin!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Ayarları Kapat'
     }
   }
 };

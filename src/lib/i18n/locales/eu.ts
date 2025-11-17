@@ -63,31 +63,80 @@ export const eu: TranslationSchema = {
       custom: 'Kolore pertsonalizatua'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Kolore pertsonalizatua',
+      pickerLabel: 'Kolore pertsonalizatuaren hautatzailea',
+      inputLabel: 'Kolore pertsonalizatuaren hex kodea',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Zerbitzari proxya',
+        description: 'Aplikazio honen zerbitzaria erabiltzen du datuak eskuratzeko. Gomendatua, fidagarriagoa.'
+      },
+      clientProxy: {
+        label: 'Bezero aldeko proxya',
+        description: 'CORS proxy publiko bat erabiltzen du zure nabigatzailean. Gutxiago fidagarria edo mugatua izan daiteke.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Hautatu bezero proxy zerbitzua:',
+      ariaLabel: 'Bezero proxy zerbitzuaren hautatzailea',
+      helper: 'Errendimendua eta fidagarritasuna proxyen artean aldatzen dira.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Erauzketa automatikoa',
+        description: 'Etiketak automatikoki atera URL baliozkoa itsatsi/idatzi ondoren.',
+        tooltip: 'Gaitu edo desgaitu etiketen erauzketa automatikoa URL baliozkoa itsatsi/idazterakoan'
+      },
+      previews: {
+        label: 'Gaitu aurrebistak',
+        description: 'Erakutsi irudi/bideo aurrebistak erauzketaren eta historiaren bitartean.',
+        tooltip: 'Gaitu edo desgaitu irudi/bideo aurrebistak banda-zabalera aurrezteko edo arazo posibleak saihesteko',
+        note: 'Irudiak beti zerbitzari proxyaren bidez eskuratzen dira.'
+      },
+      saveHistory: {
+        label: 'Gorde historia',
+        description: 'Gorde erauzketa arrakastatsuen kopia tokian zure nabigatzailean.',
+        tooltip: 'Gaitu edo desgaitu erauzketa historiaren gordetzea nabigatzailearen tokiko biltegian'
+      },
+      unsupportedSites: {
+        label: 'Gaitu onartzen ez diren webguneentzat',
+        description: 'Saiatu onartzen ez diren webguneetatik ateratzen webgune antzeko ereduak erabiliz. Webgune guztientzat ez da funtzionatu dezake.',
+        tooltip: 'Gaitu erauzpena webgune antzeko ereduak erabiliz onartzen ez diren webguneentzat'
+      },
+      blacklist: {
+        label: 'Gaitu hitz gakoen zerrenda beltza',
+        description: 'Sartu blokeatzeko hitz gakoak, komaz, puntu eta komaz edo lerro berriekin bereizita.',
+        tooltip: 'Blokeatu nahi ez diren etiketak hitz gako zehatzak iragaziz',
+        placeholder: 'Sartu blokeatzeko hitz gakoak…',
+        ariaLabel: 'Zerrenda beltzeko hitz gakoak',
+        reset: 'Berrezarri lehenetsira'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Historiaren gehienezko tamaina',
+      description: 'Ezarri sarrera kopuru maximoa erauzketa eta irudi historiarako.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Gaia {{label}}',
+      colorThemeOption: 'Kolore gaia {{label}}',
+      historySizeSelect: 'Historiaren gehienezko tamaina'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 sarrera',
+      '30': '30 sarrera',
+      '50': '50 sarrera',
+      '100': '100 sarrera',
+      unlimited: 'Mugagabea'
     },
     support: {
-      ...en.settings.support
+      title: 'Laguntza eta iritziak',
+      cta: 'Jakinarazi arazo bat GitHub-en',
+      description: 'Akats bat aurkitu duzu edo iradokizunik duzu? Jakinarazi!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Itxi ezarpenak'
     }
   }
 };

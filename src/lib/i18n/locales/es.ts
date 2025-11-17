@@ -63,31 +63,80 @@ export const es: TranslationSchema = {
       custom: 'Color Personalizado'
     },
     customColor: {
-      ...en.settings.customColor
+      label: 'Color Personalizado',
+      pickerLabel: 'Selector de color personalizado',
+      inputLabel: 'Código hexadecimal del color personalizado',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: 'Proxy del Servidor',
+        description: 'Usa el servidor de esta aplicación para obtener datos. Recomendado, más confiable.'
+      },
+      clientProxy: {
+        label: 'Proxy del Cliente',
+        description: 'Usa un proxy CORS público en tu navegador. Puede ser menos confiable o limitado.'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: 'Seleccionar servicio de proxy del cliente:',
+      ariaLabel: 'Selector de servicio de proxy del cliente',
+      helper: 'El rendimiento y la confiabilidad varían entre proxies.'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: 'Extracción Automática',
+        description: 'Extrae etiquetas automáticamente después de pegar/escribir una URL válida.',
+        tooltip: 'Activar o desactivar la extracción automática de etiquetas al pegar/escribir una URL válida'
+      },
+      previews: {
+        label: 'Activar Vistas Previas',
+        description: 'Mostrar vistas previas de imagen/video durante la extracción y en el historial.',
+        tooltip: 'Activar o desactivar las vistas previas de imagen/video para ahorrar ancho de banda o evitar problemas potenciales',
+        note: 'Las imágenes siempre se obtienen a través del Proxy del Servidor.'
+      },
+      saveHistory: {
+        label: 'Guardar Historial',
+        description: 'Almacenar extracciones exitosas localmente en tu navegador.',
+        tooltip: 'Activar o desactivar el guardado del historial de extracciones en el almacenamiento local del navegador'
+      },
+      unsupportedSites: {
+        label: 'Activar para Sitios No Compatibles',
+        description: 'Intentar extraer de sitios no compatibles usando patrones de sitios similares. Puede no funcionar para todos los sitios.',
+        tooltip: 'Activar extracción para sitios web no compatibles usando patrones de sitios similares'
+      },
+      blacklist: {
+        label: 'Activar Lista Negra de Palabras Clave',
+        description: 'Ingresa palabras clave para bloquear, separadas por comas, punto y coma o líneas nuevas.',
+        tooltip: 'Bloquear etiquetas no deseadas filtrando palabras clave específicas',
+        placeholder: 'Ingresa palabras clave para bloquear…',
+        ariaLabel: 'Palabras clave de la lista negra',
+        reset: 'Restablecer a Predeterminado'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: 'Tamaño Máximo del Historial',
+      description: 'Establece el número máximo de entradas para el historial de extracción e imagen.'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: 'Tema {{label}}',
+      colorThemeOption: 'Tema de color {{label}}',
+      historySizeSelect: 'Tamaño máximo del historial'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 Entradas',
+      '30': '30 Entradas',
+      '50': '50 Entradas',
+      '100': '100 Entradas',
+      unlimited: 'Ilimitado'
     },
     support: {
-      ...en.settings.support
+      title: 'Soporte y Comentarios',
+      cta: 'Informar un Problema en GitHub',
+      description: '¿Encontraste un error o tienes una sugerencia? ¡Háznoslo saber!'
     },
     modal: {
-      ...en.settings.modal
+      close: 'Cerrar Configuración'
     }
   }
 };

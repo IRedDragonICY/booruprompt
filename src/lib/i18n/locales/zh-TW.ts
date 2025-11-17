@@ -102,31 +102,80 @@ export const zh_TW: TranslationSchema = {
       custom: '自訂顏色'
     },
     customColor: {
-      ...en.settings.customColor
+      label: '自訂顏色',
+      pickerLabel: '自訂顏色選擇器',
+      inputLabel: '自訂顏色十六進位',
+      placeholder: '#rrggbb'
     },
     fetchModes: {
-      ...en.settings.fetchModes
+      server: {
+        label: '伺服器代理',
+        description: '使用本應用程式的伺服器擷取資料。建議且更穩定。'
+      },
+      clientProxy: {
+        label: '客戶端代理',
+        description: '在瀏覽器中使用公共 CORS 代理，可能不穩定或受限。'
+      }
     },
     clientProxy: {
-      ...en.settings.clientProxy
+      selectLabel: '選擇客戶端代理服務：',
+      ariaLabel: '客戶端代理選擇器',
+      helper: '不同代理的效能與穩定性會有所不同。'
     },
     toggles: {
-      ...en.settings.toggles
+      autoExtract: {
+        label: '自動擷取',
+        description: '貼上/輸入有效 URL 後自動擷取標籤。',
+        tooltip: '啟用或停用貼上/輸入 URL 時的自動擷取'
+      },
+      previews: {
+        label: '啟用預覽',
+        description: '在擷取和歷史記錄中顯示圖片/影片預覽。',
+        tooltip: '啟用或停用預覽以節省頻寬或避免問題',
+        note: '圖片始終透過伺服器代理擷取。'
+      },
+      saveHistory: {
+        label: '儲存歷史',
+        description: '在瀏覽器本機儲存成功的擷取。',
+        tooltip: '將擷取歷史儲存到瀏覽器本機儲存空間'
+      },
+      unsupportedSites: {
+        label: '啟用未支援網站',
+        description: '嘗試使用相似模式從未支援網站擷取，結果不保證。',
+        tooltip: '透過相似網站模式在未支援網站上嘗試擷取'
+      },
+      blacklist: {
+        label: '啟用關鍵詞黑名單',
+        description: '輸入要封鎖的關鍵詞，使用逗號、分號或換行分隔。',
+        tooltip: '透過篩選特定關鍵詞封鎖不想要的標籤',
+        placeholder: '請輸入要封鎖的關鍵詞…',
+        ariaLabel: '黑名單關鍵詞',
+        reset: '恢復預設'
+      }
     },
     historySize: {
-      ...en.settings.historySize
+      label: '歷史記錄上限',
+      description: '設定擷取與圖片歷史的最大條數。'
     },
     accessibility: {
-      ...en.settings.accessibility
+      themeOption: '{{label}} 主題',
+      colorThemeOption: '{{label}} 配色',
+      historySizeSelect: '歷史記錄上限'
     },
     historySizeOptions: {
-      ...en.settings.historySizeOptions
+      '10': '10 條',
+      '30': '30 條',
+      '50': '50 條',
+      '100': '100 條',
+      unlimited: '無限制'
     },
     support: {
-      ...en.settings.support
+      title: '支援與回饋',
+      cta: '在 GitHub 回報問題',
+      description: '發現 bug 或有建議？告訴我們！'
     },
     modal: {
-      ...en.settings.modal
+      close: '關閉設定'
     }
   },
   extractor: {
