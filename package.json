@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "prebuild": "npm run check:i18n",
+    "build:strict": "npm run check:i18n && next build",
     "start": "next start",
     "lint": "next lint",
     "check:i18n": "node scripts/check-translations.js",
