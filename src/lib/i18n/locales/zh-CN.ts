@@ -1,7 +1,7 @@
 import { en } from './en';
 import type { TranslationSchema } from './en';
 
-export const zh: TranslationSchema = {
+export const zh_CN: TranslationSchema = {
   ...en,
   common: {
     appName: 'Booru 标签提取器',
