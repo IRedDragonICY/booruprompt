@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { en } from './locales/en';
 import { id } from './locales/id';
+import { jv } from './locales/jv';
 import { zh_CN } from './locales/zh-CN';
 import { zh_TW } from './locales/zh-TW';
 import { ja } from './locales/ja';
@@ -40,6 +41,7 @@ export const DEFAULT_LANGUAGE = 'en';
 export const availableLanguages = [
   { code: 'en', label: 'English', nativeName: 'English', region: 'United States, United Kingdom' },
   { code: 'id', label: 'Indonesian', nativeName: 'Bahasa Indonesia', region: 'Indonesia' },
+  { code: 'jv', label: 'Javanese', nativeName: 'Basa Jawa', region: 'Java, Indonesia' },
   { code: 'zh-CN', label: 'Chinese (Simplified)', nativeName: '简体中文', region: 'China, Singapore' },
   { code: 'zh-TW', label: 'Chinese (Traditional)', nativeName: '繁體中文', region: 'Taiwan, Hong Kong' },
   { code: 'ja', label: 'Japanese', nativeName: '日本語', region: 'Japan' },
@@ -76,6 +78,7 @@ export const availableLanguages = [
 const resources = {
   en: { translation: en },
   id: { translation: id },
+  jv: { translation: jv },
   'zh-CN': { translation: zh_CN },
   'zh-TW': { translation: zh_TW },
   ja: { translation: ja },
