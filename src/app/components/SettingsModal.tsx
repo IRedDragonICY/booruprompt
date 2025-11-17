@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import { AnimatedIcon } from './AnimatedIcon';
+import { LanguageSelector } from './LanguageSelector';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
@@ -174,6 +175,8 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                             </TooltipWrapper>
                         </div>
                         <div className="space-y-6 px-4 md:px-0 pb-4 md:pb-0">
+                            <LanguageSelector />
+
                             <div>
                                 <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">

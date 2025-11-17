@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { LanguageProvider } from "./providers/LanguageProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -123,8 +124,10 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface text-on-surface`}
         >
-        {children}
-        <Analytics />
+        <LanguageProvider>
+            {children}
+            <Analytics />
+        </LanguageProvider>
         </body>
         </html>
     );

@@ -27,6 +27,7 @@ import DesktopAppShell from './layouts/DesktopAppShell';
 import MobileAppShell from './layouts/MobileAppShell';
 import SettingsPanel from './components/SettingsPanel';
 import { HistoryItem as HistoryItemComponent } from './components/HistoryList';
+import { useTranslation } from 'react-i18next';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
 import type { ImageMetadata } from './utils/imageMetadata';
 import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
@@ -199,6 +200,11 @@ const createThumbnail = (file: File, size: number): Promise<string | null> => {
 };
 
 const BooruTagExtractor = () => {
+    const { t } = useTranslation();
+    const translateCategoryLabel = useCallback(
+        (categoryId: string, fallback?: string) => t(`extractor.categories.items.${categoryId}`, { defaultValue: fallback ?? categoryId }),
+        [t]
+    );
     const [url, setUrl] = useState('');
     const [allExtractedTags, setAllExtractedTags] = useState<Partial<Record<TagCategory, string[]>>>({});
     const [imageUrl, setImageUrl] = useState<string | undefined>();
@@ -661,7 +667,7 @@ const BooruTagExtractor = () => {
     const handleCloseSettings = useCallback(() => setShowSettings(false), []);
     const shouldShowPreviewSection = useMemo(() => activeView !== 'image' && activeView !== 'settings' && settings.enableImagePreviews && (!!imageUrl || (loading && !imageUrl && !!currentExtractionUrl.current && !error)), [activeView, settings.enableImagePreviews, imageUrl, loading, currentExtractionUrl, error]);
     const hasResults = useMemo(() => totalExtractedTagCount > 0 || !!imageUrl, [totalExtractedTagCount, imageUrl]);
-    const getSelectedProxyLabel = useCallback(() => CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || 'Unknown', [settings.clientProxyUrl]);
+    const selectedProxyLabel = useMemo(() => CLIENT_PROXY_OPTIONS.find(p => p.value === settings.clientProxyUrl)?.label || t('common.unknown'), [settings.clientProxyUrl, t]);
     const handleClearImage = useCallback(() => { setImageFile(null); setImageData(null); setImageError(null); if (imagePreviewUrl) { URL.revokeObjectURL(imagePreviewUrl); setImagePreviewUrl(null); } setCopyStatus({}); if (fileInputRef.current) fileInputRef.current.value = ''; imageCardBodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [imagePreviewUrl]);
     const processImageFile = useCallback(async (file: File | null | undefined) => {
         if (!file || imageLoading) return; handleClearImage(); setImageLoading(true); setImageFile(file);
@@ -717,9 +723,19 @@ const BooruTagExtractor = () => {
     ), [handleLoadImageHistoryEntry, handleDeleteImageHistoryEntry]);
 
     const historySizeDisplay = useMemo(() => {
-        if (settings.maxHistorySize === -1) return 'Unlimited';
-        return `${settings.maxHistorySize} Entries`;
-    }, [settings.maxHistorySize]);
+        if (settings.maxHistorySize === -1) return t('common.statusBar.historyUnlimited');
+        return t('common.statusBar.historyEntries', { count: settings.maxHistorySize });
+    }, [settings.maxHistorySize, t]);
+
+    const fetchStatusText = useMemo(() => settings.fetchMode === 'server'
+        ? t('common.statusBar.serverProxy')
+        : t('common.statusBar.clientProxy', { proxy: selectedProxyLabel })
+    , [selectedProxyLabel, settings.fetchMode, t]);
+
+    const historyStatusText = useMemo(() => settings.saveHistory
+        ? t('common.statusBar.historyEnabled', { size: historySizeDisplay })
+        : t('common.statusBar.historyDisabled')
+    , [historySizeDisplay, settings.saveHistory, t]);
 
     return (
         <div className="flex h-screen items-start justify-center bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-300">
@@ -746,7 +762,11 @@ const BooruTagExtractor = () => {
                                  <ExtractorHeader activeSite={activeSite} url={url} onUrlChange={handleUrlChange} onExtract={handleManualExtract} onReset={handleReset} loading={loading} />
                                 <div ref={cardBodyRef} className="flex-grow space-y-6 overflow-y-auto p-6 pb-40 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode='wait'>
-                                        {!isMobile && activeSite && !error && !loading && hasResults && <StatusMessage type="info">Result for: <span className="font-medium">{activeSite}</span></StatusMessage>}
+                                                                                {!isMobile && activeSite && !error && !loading && hasResults && (
+                                                                                    <StatusMessage type="info">
+                                                                                        {t('extractor.status.resultLabel')} <span className="font-medium">{activeSite}</span>
+                                                                                    </StatusMessage>
+                                                                                )}
                                         {error && showFullErrorPage && (
                                             <ErrorPage
                                                 error={error}
@@ -759,21 +779,21 @@ const BooruTagExtractor = () => {
                                         {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                     </AnimatePresence>
                                     {isMobile && !loading && !hasResults && !error && <BooruInfoSection />}
-                                    <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
+                                    <PreviewSection title={t('extractor.preview.title')} show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                     {!isMobile && (
                     <AnimatePresence>
                                           {!loading && hasResults && totalExtractedTagCount > 0 && (
                                               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                                   <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4">
-                                                      <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
-                                                      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={catOpt} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
+                                                      <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">{t('extractor.categories.title')}</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label={t('extractor.categories.enableAll')}>{t('extractor.categories.enableAll')}</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2.5 py-1 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label={t('extractor.categories.disableAll')}>{t('extractor.categories.disableAll')}</motion.button>)}</div></div>
+                                                      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const label = translateCategoryLabel(catOpt.id, catOpt.label); const localizedCategory = { ...catOpt, label }; if (count > 0 || DEFAULT_TAG_CATEGORIES.some(d => d.id === catOpt.id)) return <CategoryToggle key={catOpt.id} category={localizedCategory} count={count} onToggle={() => toggleTagCategory(catOpt.id)} />; return null; })}</div>
                                                   </div>
                                               </motion.div>
                                           )}
                                       </AnimatePresence>
                                     )}
                                     {!isMobile && settings.saveHistory && history.length > 0 && (
-                                      <HistoryPanelBase title="Extraction History" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />
+                                      <HistoryPanelBase title={t('extractor.history.extractionTitle')} history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder={t('extractor.history.searchExtraction')} onClearHistory={handleClearHistory} />
                                     )}
                                 </div>
                                 {isMobile && (
@@ -786,8 +806,8 @@ const BooruTagExtractor = () => {
                                   >
                                       <div className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-md">
                                         <div className="mb-2 grid grid-cols-5 gap-2">
-                                          {DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; return (
-                                            <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${catOpt.label}${count ? ` • ${count}` : ''}`}>
+                                                                                    {DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; const label = translateCategoryLabel(catOpt.id, catOpt.label); return (
+                                                                                        <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)]' : 'bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${label}${count ? ` • ${count}` : ''}`}>
                                               {count > 0 && (
                                                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[rgb(var(--color-primary-rgb))] text-[9px] font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                                   {count > 99 ? '99+' : count}
@@ -814,82 +834,93 @@ const BooruTagExtractor = () => {
                                                   )}
                                                 </svg>
                                               </span>
-                                              <span className={`truncate text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{catOpt.label}</span>
+                                                                                            <span className={`truncate text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
                                             </button>
                                           ); })}
                                         </div>
                                         {/* Compact Filtered Tags for mobile */}
                                         {(!loading && hasResults && displayedTags) && (
                                           <div className="mb-2 flex items-start gap-2">
-                                            <div className="min-h-[34px] max-h-[60px] flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-2 py-1.5 text-[11px] leading-snug scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Filtered tags preview">
+                                                                                        <div className="min-h-[34px] max-h-[60px] flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-2 py-1.5 text-[11px] leading-snug scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label={t('extractor.filteredTags.ariaLabel')}>
                                               {displayedTags}
                                             </div>
-                                            <button onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition ${copySuccess ? 'bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))]' : 'bg-[rgb(var(--color-primary-rgb))] text-[rgb(var(--color-primary-content-rgb))] hover:bg-[rgb(var(--color-primary-focus-rgb))]'}`}>{copySuccess ? 'Copied' : 'Copy'}</button>
+                                                                                        <button onClick={handleCopy} disabled={!displayedTags || copySuccess} className={`shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition ${copySuccess ? 'bg-[rgb(var(--color-success-rgb))] text-[rgb(var(--color-success-content-rgb))]' : 'bg-[rgb(var(--color-primary-rgb))] text-[rgb(var(--color-primary-content-rgb))] hover:bg-[rgb(var(--color-primary-focus-rgb))]'}`}>{copySuccess ? t('extractor.filteredTags.copied') : t('extractor.filteredTags.copy')}</button>
                                           </div>
                                         )}
-                                      <label htmlFor="url" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">Booru Post URL</label>
-                                      <input id="url" type="url" value={url} onChange={handleUrlChange} placeholder="Paste URL or Drag & Drop..." className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" />
+                                                                            <label htmlFor="url" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{t('extractor.header.urlLabel')}</label>
+                                                                            <input id="url" type="url" value={url} onChange={handleUrlChange} placeholder={t('extractor.mobile.urlPlaceholder')} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]" aria-label={t('extractor.header.urlLabel')} />
                                       <div className="mt-2 grid grid-cols-[auto_1fr_auto] gap-2 items-stretch">
-                                        <button onClick={() => setShowHistoryMobile(true)} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]" aria-label="Open Extraction History">
+                                                                                <button onClick={() => setShowHistoryMobile(true)} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]" aria-label={t('extractor.history.extractionTitle')}>
                                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M12 8.25a.75.75 0 01.75.75v3.75h3a.75.75 0 010 1.5h-3.75A.75.75 0 0111.25 13V9a.75.75 0 01.75-.75z"/><path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 1.5a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" clipRule="evenodd"/></svg>
                                         </button>
-                                        <button onClick={handleManualExtract} disabled={loading || !url.trim()} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow transition hover:bg-[rgb(var(--color-primary-focus-rgb))] disabled:opacity-60 disabled:cursor-not-allowed">{loading ? 'Processing…' : 'Extract Manually'}</button>
-                                        <button onClick={handleReset} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]">Reset</button>
+                                                                                <button onClick={handleManualExtract} disabled={loading || !url.trim()} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow transition hover:bg-[rgb(var(--color-primary-focus-rgb))] disabled:opacity-60 disabled:cursor-not-allowed">{loading ? t('common.status.processing') : t('extractor.mobile.manualButton')}</button>
+                                                                                <button onClick={handleReset} className="inline-flex items-center justify-center rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] px-5 py-2.5 text-sm font-semibold shadow transition hover:bg-[rgb(var(--color-surface-border-rgb))]">{t('extractor.mobile.resetButton')}</button>
                                       </div>
                                     </div>
                                   </motion.div>
                                 )}
                     
-                                {!isMobile && (
-                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a></p>
-                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{settings.fetchMode === 'server' ? 'Server Proxy.' : `Client Proxy (${getSelectedProxyLabel()}).`} History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
-                                  </div>
-                                )}
+                                                                {!isMobile && (
+                                                                    <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                                                        <p>
+                                                                            {t('common.footer.madeWith')} <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> {t('common.footer.by')} <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">{t('common.author')}</a>
+                                                                        </p>
+                                                                        <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{fetchStatusText} {historyStatusText}</p>
+                                                                    </div>
+                                                                )}
                             </motion.div>
                         ) : activeView === 'image' ? (
                             <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
                                  <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">Image Metadata</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent="Clear"><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label="Clear"><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
+                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">{t('imageTool.title')}</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent={t('common.actions.clear')}><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label={t('common.actions.clear')}><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
                                 </div>
                                  <div ref={imageCardBodyRef} className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode="wait">
-                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing...</p></motion.div>)
+                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">{t('imageTool.statusProcessing')}</p></motion.div>)
                                         : !imageFile ? (<motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
-                                            <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
-                                                 <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">Drag & Drop PNG Here</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click to upload</p>
-                                                 <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Select PNG</motion.button>
+                                                <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
+                                                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">{t('imageTool.dropCtaTitle')}</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('imageTool.dropCtaSubtitle')}</p>
+                                                    <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">{t('imageTool.selectButton')}</motion.button>
                                              </div>
                                              <AnimatePresence>{imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}</AnimatePresence>
-                                             {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                            {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title={t('imageTool.historyTitle')} history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder={t('imageTool.historySearch')} onClearHistory={handleClearImageHistory} />)}
                                         </motion.div>)
                                         : (<motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                                             <AnimatePresence>{imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}</AnimatePresence>
-                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
+                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt={t('imageTool.previewAlt')} layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
                                             {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? ( <>
                                                 {imageData.positivePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Positive Prompt</h3><TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
-                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Positive Prompt"/>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.positivePrompt')}</h3><TooltipWrapper tipContent={copyStatus.positive ? t('imageTool.copySuccess') : t('imageTool.copy')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label={t('imageTool.positivePrompt')}/>
                                                 </MotionCard>)}
                                                 {imageData.negativePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Negative Prompt</h3><TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
-                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Negative Prompt"/>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.negativePrompt')}</h3><TooltipWrapper tipContent={copyStatus.negative ? t('imageTool.copySuccess') : t('imageTool.copy')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label={t('imageTool.negativePrompt')}/>
                                                 </MotionCard>)}
                                                 {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">Parameters</h3><TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.parameters')}</h3><TooltipWrapper tipContent={copyStatus.parameters ? t('imageTool.copySuccess') : t('imageTool.copyAll')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
                                                     <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">{Object.entries(imageData.parameters).map(([k, v]) => (<ParameterItem key={k} label={k} value={v} />))}</div>
                                                 </MotionCard>)}
-                                            </>) : (!imageError && <StatusMessage type="info">No generation metadata found.</StatusMessage>)}
-                                            {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                            </>) : (!imageError && <StatusMessage type="info">{t('imageTool.noMetadata')}</StatusMessage>)}
+                                                {settings.saveHistory && imageHistory.length > 0 && (
+                                                    <HistoryPanelBase
+                                                        title={t('imageTool.historyTitle')}
+                                                        history={imageHistory}
+                                                        renderItem={renderImageHistoryItem}
+                                                        filterPredicate={imageFilterPredicate}
+                                                        searchPlaceholder={t('imageTool.historySearch')}
+                                                        onClearHistory={handleClearImageHistory}
+                                                    />
+                                                )}
                                         </motion.div>)}
                                     </AnimatePresence>
                                 </div>
-                                {!isMobile && (
-                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
-                                     <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
-                                  </div>
-                                )}
+                                                                {!isMobile && (
+                                                                    <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                                                         <p>{t('imageTool.footer.metadataNotice')}</p>
+                                                                         <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{historyStatusText}</p>
+                                                                    </div>
+                                                                )}
                             </motion.div>
                         ) : activeView === 'booru-list' ? (
                             <motion.div key="booru-list-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
@@ -958,14 +989,14 @@ const BooruTagExtractor = () => {
                                                 <AnimatePresence mode='wait'>
                                                     {error && !showFullErrorPage && (error.toLowerCase().includes('warning') ? <StatusMessage type="warning">{error}</StatusMessage> : <StatusMessage type="error">{error}</StatusMessage>)}
                                                 </AnimatePresence>
-                                            <PreviewSection title="Preview" show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
+                                            <PreviewSection title={t('extractor.preview.title')} show={shouldShowPreviewSection} imageUrl={imageUrl} imageTitle={imageTitle} loading={loading} error={error || undefined} />
                                             <AnimatePresence>
                                             {!loading && hasResults && totalExtractedTagCount > 0 && (
                                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.4 }}>
                                                     <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3">
-                                                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Filter Categories</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label="All">All</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label="None">None</motion.button>)}</div></div>
-                                                        <div className="grid grid-cols-5 gap-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; return (
-                                                            <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-lg px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40' : 'bg-[rgb(var(--color-surface-alt-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'} `} aria-pressed={active} title={`${catOpt.label}${count ? ` • ${count}` : ''}`}>
+                                                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">{t('extractor.categories.title')}</h3><div className="flex shrink-0 space-x-2">{!areAllCategoriesEnabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(true)} className="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900" aria-label={t('extractor.categories.enableAll')}>{t('extractor.categories.enableAll')}</motion.button>)}{!areAllCategoriesDisabled && (<motion.button whileTap={{ scale: 0.95 }} onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500" aria-label={t('extractor.categories.disableAll')}>{t('extractor.categories.disableAll')}</motion.button>)}</div></div>
+                                                        <div className="grid grid-cols-5 gap-2">{DEFAULT_TAG_CATEGORIES.map(catDef => { const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef; const count = tagCounts[catOpt.id] || 0; const active = catOpt.enabled; const label = translateCategoryLabel(catOpt.id, catOpt.label); return (
+                                                            <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-lg px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40' : 'bg-[rgb(var(--color-surface-alt-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-pressed={active} title={`${label}${count ? ` • ${count}` : ''}`}>
                                                                 <span className="mb-1 grid h-6 w-6 place-items-center rounded-md" style={{ backgroundColor: active ? `rgba(var(--color-primary-rgb),0.2)` : 'transparent' }}>
                                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`h-4 w-4 ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
                                                                         {catOpt.id === 'copyright' && (
@@ -987,7 +1018,7 @@ const BooruTagExtractor = () => {
                                                                         )}
                                                                     </svg>
                                                                 </span>
-                                                                <span className={`text-xs font-medium ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{catOpt.label}</span>
+                                                                <span className={`text-xs font-medium ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
                                                                 {count > 0 && (
                                                                     <span className={`text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]/70' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>
                                                                         {count}
@@ -1022,52 +1053,72 @@ const BooruTagExtractor = () => {
                                 </div>
                                 {/* FilteredTagsPanel is presented compactly inside the sticky panel on mobile */}
                                 {!isMobile && (
-                                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                    <p>Made with <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> by <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">IRedDragonICY</a> • {settings.fetchMode === 'server' ? 'Server Proxy' : `Client Proxy (${getSelectedProxyLabel()})`} • History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}</p>
-                                </div>
+                                                                <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-2 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                                                        <p>
+                                                                            {t('common.footer.madeWith')} <span className="animate-heartBeat mx-0.5 inline-block text-red-500 dark:text-red-400">❤️</span> {t('common.footer.by')} <a href="https://x.com/ireddragonicy" target="_blank" rel="noopener noreferrer" className="font-medium underline transition-colors hover:text-[rgb(var(--color-primary-rgb))]">{t('common.author')}</a> • {fetchStatusText} • {historyStatusText}
+                                                                        </p>
+                                                                </div>
                                 )}
                             </motion.div>
                         ) : activeView === 'image' ? (
                             <motion.div key="image-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">Image Metadata</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent="Clear"><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label="Clear"><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
+                                    <div className="flex items-center justify-between"><h1 className="text-xl font-semibold sm:text-2xl">{t('imageTool.title')}</h1>{imageFile && !imageLoading && (<TooltipWrapper tipContent={t('common.actions.clear')}><motion.button onClick={handleClearImage} whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1, backgroundColor: 'rgba(var(--color-error-rgb), 0.1)' }} className="rounded-full p-1.5 text-[rgb(var(--color-on-surface-faint-rgb))] transition hover:text-[rgb(var(--color-error-rgb))]" aria-label={t('common.actions.clear')}><XMarkIcon/></motion.button></TooltipWrapper>)}</div>
                                 </div>
                                 <div ref={imageCardBodyRef} className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                                     <AnimatePresence mode="wait">
-                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Processing...</p></motion.div>)
+                                        {imageLoading ? (<motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center text-center"><LoadingSpinner/><p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">{t('imageTool.statusProcessing')}</p></motion.div>)
                                         : !imageFile ? (<motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-full min-h-[300px] flex-col items-center justify-center">
-                                            <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
-                                                 <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">Drag & Drop PNG Here</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">or click to upload</p>
-                                                 <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">Select PNG</motion.button>
+                                                <div className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors ${isDraggingOverImage ? 'border-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.05)]' : 'border-[rgb(var(--color-surface-border-rgb))] bg-transparent'}`}>
+                                                    <AnimatedIcon animation="gentle"><ArrowUpOnSquareIcon/></AnimatedIcon><p className="mb-2 font-semibold">{t('imageTool.dropCtaTitle')}</p><p className="mb-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('imageTool.dropCtaSubtitle')}</p>
+                                                    <input type="file" ref={fileInputRef} onChange={handleImageInputChange} accept="image/png" className="sr-only" /><motion.button whileTap={{ scale: 0.97 }} onClick={triggerFileInput} className="inline-flex items-center justify-center rounded-lg bg-[rgb(var(--color-primary-rgb))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-primary-content-rgb))] shadow-xs transition hover:bg-[rgb(var(--color-primary-focus-rgb))] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">{t('imageTool.selectButton')}</motion.button>
                                              </div>
                                              <AnimatePresence>{imageError && <div className="mt-4 w-full"><StatusMessage type="error">{imageError}</StatusMessage></div>}</AnimatePresence>
-                                             {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                             {settings.saveHistory && imageHistory.length > 0 && (
+                                                 <HistoryPanelBase
+                                                     title={t('imageTool.historyTitle')}
+                                                     history={imageHistory}
+                                                     renderItem={renderImageHistoryItem}
+                                                     filterPredicate={imageFilterPredicate}
+                                                     searchPlaceholder={t('imageTool.historySearch')}
+                                                     onClearHistory={handleClearImageHistory}
+                                                 />
+                                             )}
                                         </motion.div>)
                                         : (<motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                                             <AnimatePresence>{imageError && <StatusMessage type={imageError.toLowerCase().includes("only supported for png") ? 'warning' : 'error'}>{imageError}</StatusMessage>}</AnimatePresence>
-                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt="Preview" layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
+                                            {imagePreviewUrl && (<MotionCard className="overflow-hidden rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]"><div className="relative mx-auto max-h-72 w-full bg-[rgb(var(--color-surface-rgb))] aspect-video flex items-center justify-center"><Image src={imagePreviewUrl} alt={t('imageTool.previewAlt')} layout="fill" objectFit="contain" unoptimized /></div><div className="p-3 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))] truncate">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</div></MotionCard>)}
                                             {(imageData?.positivePrompt || imageData?.negativePrompt || imageData?.parameters) ? ( <>
                                                 {imageData.positivePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Positive Prompt</h3><TooltipWrapper tipContent={copyStatus.positive ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
-                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Positive Prompt"/>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.positivePrompt')}</h3><TooltipWrapper tipContent={copyStatus.positive ? t('imageTool.copySuccess') : t('imageTool.copy')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('positive', imageData.positivePrompt)} disabled={copyStatus.positive} className={`rounded-full p-1.5 transition-colors ${copyStatus.positive ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.positive ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.positivePrompt} rows={4} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label={t('imageTool.positivePrompt')}/>
                                                 </MotionCard>)}
                                                 {imageData.negativePrompt && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Negative Prompt</h3><TooltipWrapper tipContent={copyStatus.negative ? 'Copied!' : 'Copy'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
-                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label="Negative Prompt"/>
+                                                    <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.negativePrompt')}</h3><TooltipWrapper tipContent={copyStatus.negative ? t('imageTool.copySuccess') : t('imageTool.copy')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('negative', imageData.negativePrompt)} disabled={copyStatus.negative} className={`rounded-full p-1.5 transition-colors ${copyStatus.negative ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.negative ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <textarea readOnly value={imageData.negativePrompt} rows={3} className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-2.5 text-xs focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" aria-label={t('imageTool.negativePrompt')}/>
                                                 </MotionCard>)}
                                                 {imageData.parameters && Object.keys(imageData.parameters).length > 0 && (<MotionCard className="rounded-2xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">Parameters</h3><TooltipWrapper tipContent={copyStatus.parameters ? 'Copied!' : 'Copy All'}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
+                                                    <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">{t('imageTool.parameters')}</h3><TooltipWrapper tipContent={copyStatus.parameters ? t('imageTool.copySuccess') : t('imageTool.copyAll')}><motion.button whileTap={{ scale: 0.95 }} onClick={() => handleMetadataCopy('parameters', formatParametersForCopy(imageData.parameters))} disabled={copyStatus.parameters} className={`rounded-full p-1.5 transition-colors ${copyStatus.parameters ? 'text-[rgb(var(--color-success-rgb))]' : 'text-[rgb(var(--color-on-surface-faint-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgba(var(--color-primary-rgb),0.1)]'}`}><AnimatedIcon animation="gentle">{copyStatus.parameters ? <CheckCircleIcon /> : <ClipboardIcon />}</AnimatedIcon></motion.button></TooltipWrapper></div>
                                                     <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] pr-2">{Object.entries(imageData.parameters).map(([k, v]) => (<ParameterItem key={k} label={k} value={v} />))}</div>
                                                 </MotionCard>)}
-                                            </>) : (!imageError && <StatusMessage type="info">No generation metadata found.</StatusMessage>)}
-                                            {settings.saveHistory && imageHistory.length > 0 && (<HistoryPanelBase title="Image History" history={imageHistory} renderItem={renderImageHistoryItem} filterPredicate={imageFilterPredicate} searchPlaceholder="Search filename, prompts, params..." onClearHistory={handleClearImageHistory}/>)}
+                                            </>) : (!imageError && <StatusMessage type="info">{t('imageTool.noMetadata')}</StatusMessage>)}
+                                            {settings.saveHistory && imageHistory.length > 0 && (
+                                                <HistoryPanelBase
+                                                    title={t('imageTool.historyTitle')}
+                                                    history={imageHistory}
+                                                    renderItem={renderImageHistoryItem}
+                                                    filterPredicate={imageFilterPredicate}
+                                                    searchPlaceholder={t('imageTool.historySearch')}
+                                                    onClearHistory={handleClearImageHistory}
+                                                />
+                                            )}
                                         </motion.div>)}
                                     </AnimatePresence>
                                 </div>
                                 {!isMobile && (
                                  <div className="shrink-0 border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-4 text-center text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                     <p>PNG metadata extraction for &rsquo;parameters&apos; text chunk.</p>
-                                      <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">History {settings.saveHistory ? `enabled (${historySizeDisplay})` : 'disabled'}.</p>
+                                     <p>{t('imageTool.footer.metadataNotice')}</p>
+                                      <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{historyStatusText}</p>
                                  </div>
                                 )}
                             </motion.div>
@@ -1089,7 +1140,16 @@ const BooruTagExtractor = () => {
                     <div className="mb-2 flex items-center justify-center">
                       <div className="h-1.5 w-12 rounded-full bg-[rgb(var(--color-on-surface-faint-rgb))]" />
                     </div>
-                    <HistoryPanelBase noToggle className="rounded-t-2xl" title="" history={history} renderItem={renderHistoryItem} filterPredicate={extractionFilterPredicate} searchPlaceholder="Search title, url, tags..." onClearHistory={handleClearHistory} />
+                                        <HistoryPanelBase
+                                            noToggle
+                                            className="rounded-t-2xl"
+                                            title={t('extractor.history.extractionTitle')}
+                                            history={history}
+                                            renderItem={renderHistoryItem}
+                                            filterPredicate={extractionFilterPredicate}
+                                            searchPlaceholder={t('extractor.history.searchExtraction')}
+                                            onClearHistory={handleClearHistory}
+                                        />
                   </motion.div>
                  </div>
             </div>

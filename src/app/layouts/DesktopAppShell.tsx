@@ -6,6 +6,7 @@ import DesktopSideNav from '../components/DesktopSideNav';
 import { ArrowDownTrayIcon } from '../components/icons/icons';
 
 import type { ActiveView } from '../types/settings';
+import { useTranslation } from 'react-i18next';
 
 interface DesktopAppShellProps {
     active: ActiveView;
@@ -46,6 +47,7 @@ export function DesktopAppShell({
     onImageDrop,
     children,
 }: DesktopAppShellProps) {
+    const { t } = useTranslation();
     const dragHandlers = active === 'extractor'
         ? { onDragOver: onExtractorDragOver, onDragLeave: onExtractorDragLeave, onDrop: onExtractorDrop }
         : { onDragOver: onImageDragOver, onDragLeave: onImageDragLeave, onDrop: onImageDrop };
@@ -76,7 +78,7 @@ export function DesktopAppShell({
                         >
                             <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                 <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8" />
-                                <p className="font-semibold">Drop URL</p>
+                                <p className="font-semibold">{t('common.dropOverlay.url')}</p>
                             </div>
                         </motion.div>
                     )}
@@ -90,7 +92,7 @@ export function DesktopAppShell({
                         >
                             <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                 <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8" />
-                                <p className="font-semibold">Drop PNG</p>
+                                <p className="font-semibold">{t('common.dropOverlay.png')}</p>
                             </div>
                         </motion.div>
                     )}

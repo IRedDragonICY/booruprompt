@@ -1,0 +1,353 @@
+export const en = {
+  common: {
+    appName: 'Booru Tag Extractor',
+    language: 'Language',
+    english: 'English',
+    indonesian: 'Bahasa Indonesia',
+    chinese: 'Chinese',
+    author: 'IRedDragonICY',
+    defaultDescription: 'Extract, filter, and copy tags from booru posts instantly.',
+    unknown: 'Unknown',
+    languageSwitcher: {
+      title: 'Interface language',
+      description: 'Stored in your browser. Default language is English.',
+      instantNotice: 'Changes apply instantly without reloading.',
+      searchPlaceholder: 'Search languages...',
+      noResults: 'No languages found'
+    },
+    nav: {
+      extractor: 'Tags',
+      image: 'Image',
+      booruList: 'Boorus',
+      settings: 'Settings'
+    },
+    navTooltip: {
+      extractor: 'Tag Extractor',
+      image: 'Image Metadata',
+      booruList: 'Booru Leaderboard',
+      settings: 'Settings'
+    },
+    dropOverlay: {
+      url: 'Drop URL',
+      png: 'Drop PNG'
+    },
+    actions: {
+      add: 'Add',
+      apply: 'Apply',
+      back: 'Back',
+      cancel: 'Cancel',
+      clear: 'Clear',
+      close: 'Close',
+      confirm: 'Confirm',
+      copy: 'Copy',
+      copied: 'Copied!',
+      delete: 'Delete',
+      done: 'Done',
+      edit: 'Edit',
+      next: 'Next',
+      previous: 'Previous',
+      refresh: 'Refresh',
+      reset: 'Reset',
+      retry: 'Retry',
+      save: 'Save',
+      search: 'Search',
+      select: 'Select',
+      submit: 'Submit',
+      all: 'All',
+      none: 'None',
+      visit: 'Visit',
+      previousShort: 'Prev',
+      nextShort: 'Next'
+    },
+    status: {
+      loading: 'Loading...',
+      processing: 'Processing...'
+    },
+    footer: {
+      madeWith: 'Made with',
+      by: 'by'
+    },
+    statusBar: {
+      serverProxy: 'Server Proxy.',
+      clientProxy: 'Client Proxy ({{proxy}}).',
+      historyEnabled: 'History enabled ({{size}}).',
+      historyDisabled: 'History disabled.',
+      historyUnlimited: 'Unlimited',
+      historyEntries: '{{count}} Entries'
+    }
+  },
+  settings: {
+    title: 'Settings',
+    sections: {
+      appearance: 'Appearance',
+      colorTheme: 'Color Theme',
+      dataFetch: 'Data Fetching Method'
+    },
+    themeOptions: {
+      system: 'System',
+      light: 'Light',
+      dark: 'Dark'
+    },
+    colorThemes: {
+      blue: 'Blue',
+      orange: 'Orange',
+      teal: 'Teal',
+      rose: 'Rose',
+      purple: 'Purple',
+      green: 'Green',
+      custom: 'Custom Color'
+    },
+    customColor: {
+      label: 'Custom Color',
+      pickerLabel: 'Custom color picker',
+      inputLabel: 'Custom color hex code',
+      placeholder: '#rrggbb'
+    },
+    fetchModes: {
+      server: {
+        label: 'Server Proxy',
+        description: "Uses this application's server to fetch data. Recommended, more reliable."
+      },
+      clientProxy: {
+        label: 'Client-Side Proxy',
+        description: 'Uses a public CORS proxy in your browser. May be less reliable or rate-limited.'
+      }
+    },
+    clientProxy: {
+      selectLabel: 'Select Client Proxy Service:',
+      ariaLabel: 'Client Proxy Service Selector',
+      helper: 'Performance and reliability vary between proxies.'
+    },
+    toggles: {
+      autoExtract: {
+        label: 'Automatic Extraction',
+        description: 'Extract tags automatically after pasting/typing a valid URL.',
+        tooltip: 'Enable or disable automatic tag extraction upon pasting/typing a valid URL'
+      },
+      previews: {
+        label: 'Enable Previews',
+        description: 'Show image/video previews during extraction and in history.',
+        tooltip: 'Enable or disable image/video previews to save bandwidth or avoid potential issues',
+        note: 'Images are always fetched via the Server Proxy.'
+      },
+      saveHistory: {
+        label: 'Save History',
+        description: 'Store successful extractions locally in your browser.',
+        tooltip: "Enable or disable saving extraction history to your browser's local storage"
+      },
+      unsupportedSites: {
+        label: 'Enable for Unsupported Sites',
+        description: 'Try to extract from unsupported sites using similar site patterns. May not work for all sites.',
+        tooltip: 'Enable extraction for unsupported websites by using similar site patterns'
+      },
+      blacklist: {
+        label: 'Enable Keyword Blacklist',
+        description: 'Enter keywords to block, separated by commas, semicolons, or new lines.',
+        tooltip: 'Block unwanted tags by filtering out specific keywords',
+        placeholder: 'Enter keywords to block…',
+        ariaLabel: 'Blacklist Keywords',
+        reset: 'Reset to Default'
+      }
+    },
+    historySize: {
+      label: 'Maximum History Size',
+      description: 'Set the max number of entries for both extraction and image history.'
+    },
+    accessibility: {
+      themeOption: 'Theme {{label}}',
+      colorThemeOption: 'Color theme {{label}}',
+      historySizeSelect: 'Maximum history size'
+    },
+    historySizeOptions: {
+      '10': '10 Entries',
+      '30': '30 Entries',
+      '50': '50 Entries',
+      '100': '100 Entries',
+      unlimited: 'Unlimited'
+    },
+    support: {
+      title: 'Support & Feedback',
+      cta: 'Report an Issue on GitHub',
+      description: 'Found a bug or have a suggestion? Let us know!'
+    },
+    modal: {
+      close: 'Close Settings'
+    }
+  },
+  extractor: {
+    header: {
+      title: 'Booru Tag Extractor',
+      subtitle: 'Extract tags from booru image boards',
+      supported: 'Supported platforms:',
+      urlLabel: 'Booru Post URL',
+      urlPlaceholder: 'Paste your booru post URL here...',
+      manualButton: 'Extract Manually',
+      resetButton: 'Reset',
+      activePlaceholder: '—'
+    },
+    info: {
+      heroTitle: 'Booru Tag Extractor',
+      heroSubtitle: 'Extract, filter, and copy tags from booru sites instantly',
+      features: {
+        smart: { title: 'Smart', subtitle: 'Auto-extract' },
+        fast: { title: 'Fast', subtitle: 'Instant results' },
+        private: { title: 'Private', subtitle: 'Client-side' },
+        copy: { title: 'Copy', subtitle: 'One-click' }
+      },
+      cta: {
+        paste: 'Paste',
+        extract: 'Extract',
+        filter: 'Filter',
+        copy: 'Copy'
+      },
+      supportNotice: 'Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more'
+    },
+    preview: {
+      title: 'Preview'
+    },
+    status: {
+      resultLabel: 'Result for:'
+    },
+    categories: {
+      title: 'Filter Categories',
+      enableAll: 'All',
+      disableAll: 'None',
+      items: {
+        copyright: 'Copyright',
+        character: 'Character',
+        general: 'General',
+        meta: 'Meta',
+        other: 'Other'
+      },
+      count_one: '{{count}} tag',
+      count_other: '{{count}} tags'
+    },
+    filteredTags: {
+      label: 'Filtered Tags',
+      ariaLabel: 'Filtered tags',
+      empty: 'No tags to display.',
+      copy: 'Copy Tags',
+      copied: 'Copied!'
+    },
+    history: {
+      extractionTitle: 'Extraction History',
+      imageTitle: 'Image History',
+      searchExtraction: 'Search title, url, tags...',
+      searchImages: 'Search filename, prompts, params...',
+      emptySearch: 'No entries match your search.',
+      clearTooltip: 'Clear All History',
+      clearAction: 'Clear History',
+      confirmMessage: 'Really clear?',
+      confirmYes: 'Yes, Clear',
+      confirmCancel: 'Cancel',
+      searchAriaLabel: 'Search {{context}}',
+      searchFallback: 'history',
+      clearSearchTooltip: 'Clear Search',
+      clearSearchAria: 'Clear search'
+    },
+    mobile: {
+      historyButton: 'History',
+      urlLabel: 'Booru Post URL',
+      urlPlaceholder: 'Paste URL or Drag & Drop...',
+      manualButton: 'Extract Manually',
+      resetButton: 'Reset'
+    }
+  },
+  imageTool: {
+    title: 'Image Metadata',
+    dropCtaTitle: 'Drag & Drop PNG Here',
+    dropCtaSubtitle: 'or click to upload',
+    selectButton: 'Select PNG',
+    statusProcessing: 'Processing...',
+    previewMeta: '{{name}} ({{size}} KB)',
+    positivePrompt: 'Positive Prompt',
+    negativePrompt: 'Negative Prompt',
+    parameters: 'Parameters',
+    copy: 'Copy',
+    copyAll: 'Copy All',
+    copySuccess: 'Copied!',
+    noMetadata: 'No generation metadata found.',
+    loadMetadata: 'Load Metadata',
+    deleteEntry: 'Delete Entry',
+    historyTitle: 'Image History',
+    historySearch: 'Search filename, prompts, params...',
+    previewAlt: 'Preview',
+    footer: {
+      metadataNotice: "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  historyItem: {
+    load: 'Load this history entry',
+    delete: 'Delete this history entry',
+    previewAlt: 'Preview'
+  },
+  imagePreview: {
+    loading: 'Loading preview...',
+    error: 'Could not load preview.',
+    errorDetail: 'Server proxy error or invalid image',
+    videoUnsupported: 'Your browser does not support video.',
+    openFull: 'Open full-size preview',
+    close: 'Close',
+    reset: 'Reset',
+    openOriginal: 'Open original'
+  },
+  booruList: {
+    pageTitle: 'Top Booru Leaderboard',
+    pageDescriptionShort: 'Explore the top booru sites ranked by total images and activity.',
+    pageDescriptionLong: 'Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.',
+    searchPlaceholder: 'Search booru sites...',
+    filter: {
+      all: 'All',
+      sfw: 'SFW',
+      nsfw: 'NSFW'
+    },
+    stats: {
+      images: 'Images',
+      members: 'Members',
+      owner: 'Owner'
+    },
+    sort: {
+      label: 'Sort by:',
+      rank: 'Rank (Top)',
+      images: 'Images Count',
+      members: 'Members Count',
+      asc: 'Asc',
+      desc: 'Desc'
+    },
+    itemsPerPage: 'Per page:',
+    resultsRange: '<strong>{{start}}-{{end}}</strong> of {{total}}',
+    pagination: {
+      previous: 'Previous',
+      next: 'Next',
+      previousShort: 'Prev',
+      nextShort: 'Next'
+    },
+    emptyState: 'No booru sites found',
+    loading: 'Loading booru data...',
+    errorTitle: 'Error Loading Data',
+    errors: {
+      fetchFailed: 'Failed to fetch booru data.',
+      unknown: 'Something went wrong while loading the leaderboard.'
+    },
+    ownerLabel: 'Owner:',
+    visit: 'Visit {{name}}'
+  },
+  booruDetail: {
+    backButton: 'Back to Booru List',
+    notFoundTitle: 'Booru Not Found',
+    notFoundDescription: 'The booru domain "{{domain}}" was not found in our database.',
+    statistics: 'Statistics',
+    totalImages: 'Total Images',
+    totalMembers: 'Total Members',
+    shortName: 'Short Name',
+    owner: 'Owner',
+    hosted: 'Hosted by booru.org',
+    protocol: 'Protocol',
+    yes: 'Yes',
+    no: 'No',
+    visit: 'Visit {{name}}',
+    loading: 'Loading...'
+  }
+} as const;
+
+export type TranslationSchema = typeof en;
