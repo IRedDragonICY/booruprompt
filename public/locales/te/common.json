@@ -5,8 +5,8 @@
   "indonesian": "ఇండోనేషియన్",
   "chinese": "చైనీస్",
   "author": "IRedDragonICY",
-  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
-  "unknown": "Unknown",
+  "defaultDescription": "booru పోస్ట్‌ల నుండి ట్యాగ్‌లను తక్షణమే సంగ్రహించండి, ఫిల్టర్ చేయండి మరియు కాపీ చేయండి.",
+  "unknown": "తెలియదు",
   "languageSwitcher": {
     "title": "ఇంటర్‌ఫేస్ భాష",
     "description": "మీ బ్రౌజర్‌లో సేవ్ చేయబడింది. డిఫాల్ట్ భాష ఇంగ్లీష్.",
@@ -21,14 +21,14 @@
     "settings": "సెట్టింగ్‌లు"
   },
   "navTooltip": {
-    "extractor": "Tag Extractor",
-    "image": "Image Metadata",
-    "booruList": "Booru Leaderboard",
-    "settings": "Settings"
+    "extractor": "ట్యాగ్ ఎక్స్‌ట్రాక్టర్",
+    "image": "ఇమేజ్ మెటాడేటా",
+    "booruList": "Booru లీడర్‌బోర్డ్",
+    "settings": "సెట్టింగ్‌లు"
   },
   "dropOverlay": {
-    "url": "Drop URL",
-    "png": "Drop PNG"
+    "url": "URL డ్రాప్ చేయండి",
+    "png": "PNG డ్రాప్ చేయండి"
   },
   "actions": {
     "add": "జోడించు",
@@ -41,25 +41,37 @@
     "copy": "కాపీ చేయి",
     "copied": "కాపీ చేయబడింది!",
     "delete": "తొలగించు",
+    "done": "పూర్తయింది",
+    "edit": "సవరించు",
+    "next": "తరువాత",
+    "previous": "మునుపటి",
+    "refresh": "రిఫ్రెష్ చేయి",
+    "reset": "రీసెట్ చేయి",
+    "retry": "మళ్లీ ప్రయత్నించండి",
     "save": "సేవ్ చేయి",
     "search": "వెతకండి",
+    "select": "ఎంచుకోండి",
+    "submit": "సమర్పించండి",
     "all": "అన్నీ",
-    "none": "ఏదీ లేదు"
+    "none": "ఏదీ లేదు",
+    "visit": "సందర్శించండి",
+    "previousShort": "మునుపటి",
+    "nextShort": "తరువాత"
   },
   "status": {
-    "loading": "Loading...",
-    "processing": "Processing..."
+    "loading": "లోడ్ అవుతోంది...",
+    "processing": "ప్రాసెస్ చేస్తోంది..."
   },
   "footer": {
-    "madeWith": "Made with",
-    "by": "by"
+    "madeWith": "తయారు చేసినది",
+    "by": "ద్వారా"
   },
   "statusBar": {
-    "serverProxy": "Server Proxy.",
-    "clientProxy": "Client Proxy ({{proxy}}).",
-    "historyEnabled": "History enabled ({{size}}).",
-    "historyDisabled": "History disabled.",
-    "historyUnlimited": "Unlimited",
-    "historyEntries": "{{count}} Entries"
+    "serverProxy": "సర్వర్ ప్రాక్సీ.",
+    "clientProxy": "క్లయింట్ ప్రాక్సీ ({{proxy}}).",
+    "historyEnabled": "చరిత్ర ఎనేబుల్ చేయబడింది ({{size}}).",
+    "historyDisabled": "చరిత్ర డిసేబుల్ చేయబడింది.",
+    "historyUnlimited": "అపరిమితం",
+    "historyEntries": "{{count}} ఎంట్రీలు"
   }
 }
