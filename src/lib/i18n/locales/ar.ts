@@ -42,6 +42,52 @@ export const ar: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'الإعدادات',
+    sections: {
+      appearance: 'المظهر',
+      colorTheme: 'سمة اللون',
+      dataFetch: 'طريقة جلب البيانات'
+    },
+    themeOptions: {
+      system: 'النظام',
+      light: 'فاتح',
+      dark: 'داكن'
+    },
+    colorThemes: {
+      blue: 'أزرق',
+      orange: 'برتقالي',
+      teal: 'أزرق مخضر',
+      rose: 'وردي',
+      purple: 'بنفسجي',
+      green: 'أخضر',
+      custom: 'لون مخصص'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

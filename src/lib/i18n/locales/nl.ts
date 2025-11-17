@@ -42,6 +42,52 @@ export const nl: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Instellingen',
+    sections: {
+      appearance: 'Uiterlijk',
+      colorTheme: 'Kleurthema',
+      dataFetch: 'Gegevensophaalmethode'
+    },
+    themeOptions: {
+      system: 'Systeem',
+      light: 'Licht',
+      dark: 'Donker'
+    },
+    colorThemes: {
+      blue: 'Blauw',
+      orange: 'Oranje',
+      teal: 'Groenblauw',
+      rose: 'Roze',
+      purple: 'Paars',
+      green: 'Groen',
+      custom: 'Aangepaste Kleur'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

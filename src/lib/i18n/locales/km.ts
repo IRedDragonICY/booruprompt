@@ -42,6 +42,52 @@ export const km: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'ការកំណត់',
+    sections: {
+      appearance: 'រូបរាង',
+      colorTheme: 'ស្បែកពណ៌',
+      dataFetch: 'វិធីសាស្ត្រទាញយកទិន្នន័យ'
+    },
+    themeOptions: {
+      system: 'ប្រព័ន្ធ',
+      light: 'ភ្លឺ',
+      dark: 'ងងឹត'
+    },
+    colorThemes: {
+      blue: 'ខៀវ',
+      orange: 'ទឹកក្រូច',
+      teal: 'ខៀវបៃតង',
+      rose: 'ផ្កាឈូក',
+      purple: 'ស្វាយ',
+      green: 'បៃតង',
+      custom: 'ពណ៌ផ្ទាល់ខ្លួន'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

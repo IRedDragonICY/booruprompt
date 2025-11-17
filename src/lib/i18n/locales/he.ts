@@ -42,6 +42,52 @@ export const he: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'הגדרות',
+    sections: {
+      appearance: 'מראה',
+      colorTheme: 'ערכת צבעים',
+      dataFetch: 'שיטת אחזור נתונים'
+    },
+    themeOptions: {
+      system: 'מערכת',
+      light: 'בהיר',
+      dark: 'כהה'
+    },
+    colorThemes: {
+      blue: 'כחול',
+      orange: 'כתום',
+      teal: 'טורקיז',
+      rose: 'ורוד',
+      purple: 'סגול',
+      green: 'ירוק',
+      custom: 'צבע מותאם אישית'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

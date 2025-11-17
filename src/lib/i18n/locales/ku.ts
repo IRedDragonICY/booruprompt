@@ -42,6 +42,52 @@ export const ku: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Mîhengên',
+    sections: {
+      appearance: 'Xuyang',
+      colorTheme: 'Mijarê Rengî',
+      dataFetch: 'Rêbaza Wergirtina Daneyan'
+    },
+    themeOptions: {
+      system: 'Sîstem',
+      light: 'Ronî',
+      dark: 'Tarî'
+    },
+    colorThemes: {
+      blue: 'Şîn',
+      orange: 'Pirteqalî',
+      teal: 'Şînzebeş',
+      rose: 'Pembe',
+      purple: 'Mor',
+      green: 'Kesk',
+      custom: 'Renga Taybet'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

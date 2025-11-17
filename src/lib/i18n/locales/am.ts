@@ -42,6 +42,52 @@ export const am: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'ቅንብሮች',
+    sections: {
+      appearance: 'ገጽታ',
+      colorTheme: 'የቀለም ጭብጥ',
+      dataFetch: 'የመረጃ ማግኛ ዘዴ'
+    },
+    themeOptions: {
+      system: 'ስርዓት',
+      light: 'ብርሃን',
+      dark: 'ጨለማ'
+    },
+    colorThemes: {
+      blue: 'ሰማያዊ',
+      orange: 'ብርቱካናማ',
+      teal: 'አረንጓዴ ሰማያዊ',
+      rose: 'ሮዝ',
+      purple: 'ወይንጠጅ',
+      green: 'አረንጓዴ',
+      custom: 'ብጁ ቀለም'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

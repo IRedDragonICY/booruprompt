@@ -42,6 +42,52 @@ export const vi: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Cài đặt',
+    sections: {
+      appearance: 'Giao diện',
+      colorTheme: 'Chủ đề màu',
+      dataFetch: 'Phương thức lấy dữ liệu'
+    },
+    themeOptions: {
+      system: 'Hệ thống',
+      light: 'Sáng',
+      dark: 'Tối'
+    },
+    colorThemes: {
+      blue: 'Xanh dương',
+      orange: 'Cam',
+      teal: 'Xanh ngọc',
+      rose: 'Hồng',
+      purple: 'Tím',
+      green: 'Xanh lá',
+      custom: 'Màu tùy chỉnh'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

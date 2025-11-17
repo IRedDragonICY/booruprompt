@@ -42,6 +42,52 @@ export const te: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'సెట్టింగ్‌లు',
+    sections: {
+      appearance: 'రూపం',
+      colorTheme: 'రంగు థీమ్',
+      dataFetch: 'డేటా పొందే పద్ధతి'
+    },
+    themeOptions: {
+      system: 'సిస్టమ్',
+      light: 'లైట్',
+      dark: 'డార్క్'
+    },
+    colorThemes: {
+      blue: 'నీలం',
+      orange: 'నారింజ',
+      teal: 'టీల్',
+      rose: 'రోజ్',
+      purple: 'ఊదా',
+      green: 'ఆకుపచ్చ',
+      custom: 'అనుకూల రంగు'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

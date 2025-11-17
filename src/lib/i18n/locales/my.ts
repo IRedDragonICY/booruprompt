@@ -42,6 +42,52 @@ export const my: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'ဆက်တင်များ',
+    sections: {
+      appearance: 'အသွင်အပြင်',
+      colorTheme: 'အရောင်သီမ်',
+      dataFetch: 'ဒေတာရယူခြင်းနည်းလမ်း'
+    },
+    themeOptions: {
+      system: 'စနစ်',
+      light: 'အလင်း',
+      dark: 'အမှောင်'
+    },
+    colorThemes: {
+      blue: 'အပြာ',
+      orange: 'လိမ္မော်ရောင်',
+      teal: 'မြစိမ်း',
+      rose: 'နှင်းဆီ',
+      purple: 'ခရမ်း',
+      green: 'အစိမ်း',
+      custom: 'စိတ်ကြိုက်အရောင်'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

@@ -42,6 +42,52 @@ export const ur: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'ترتیبات',
+    sections: {
+      appearance: 'ظاہری شکل',
+      colorTheme: 'رنگ تھیم',
+      dataFetch: 'ڈیٹا حاصل کرنے کا طریقہ'
+    },
+    themeOptions: {
+      system: 'سسٹم',
+      light: 'روشن',
+      dark: 'تاریک'
+    },
+    colorThemes: {
+      blue: 'نیلا',
+      orange: 'نارنجی',
+      teal: 'فیروزی',
+      rose: 'گلابی',
+      purple: 'جامنی',
+      green: 'سبز',
+      custom: 'حسب ضرورت رنگ'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

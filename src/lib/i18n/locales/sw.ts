@@ -42,6 +42,52 @@ export const sw: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Mipangilio',
+    sections: {
+      appearance: 'Muonekano',
+      colorTheme: 'Mandhari ya Rangi',
+      dataFetch: 'Mbinu ya Kupata Data'
+    },
+    themeOptions: {
+      system: 'Mfumo',
+      light: 'Nuru',
+      dark: 'Giza'
+    },
+    colorThemes: {
+      blue: 'Bluu',
+      orange: 'Chungwa',
+      teal: 'Teal',
+      rose: 'Waridi',
+      purple: 'Zambarau',
+      green: 'Kijani',
+      custom: 'Rangi Maalum'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

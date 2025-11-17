@@ -42,6 +42,52 @@ export const bn: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'সেটিংস',
+    sections: {
+      appearance: 'চেহারা',
+      colorTheme: 'রঙের থিম',
+      dataFetch: 'ডেটা আনার পদ্ধতি'
+    },
+    themeOptions: {
+      system: 'সিস্টেম',
+      light: 'হালকা',
+      dark: 'গাঢ়'
+    },
+    colorThemes: {
+      blue: 'নীল',
+      orange: 'কমলা',
+      teal: 'টিল',
+      rose: 'গোলাপী',
+      purple: 'বেগুনি',
+      green: 'সবুজ',
+      custom: 'কাস্টম রঙ'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

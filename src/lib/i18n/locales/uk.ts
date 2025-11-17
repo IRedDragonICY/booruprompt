@@ -42,6 +42,52 @@ export const uk: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Налаштування',
+    sections: {
+      appearance: 'Зовнішній вигляд',
+      colorTheme: 'Кольорова тема',
+      dataFetch: 'Метод отримання даних'
+    },
+    themeOptions: {
+      system: 'Системна',
+      light: 'Світла',
+      dark: 'Темна'
+    },
+    colorThemes: {
+      blue: 'Синій',
+      orange: 'Помаранчевий',
+      teal: 'Бірюзовий',
+      rose: 'Рожевий',
+      purple: 'Фіолетовий',
+      green: 'Зелений',
+      custom: 'Користувацький колір'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

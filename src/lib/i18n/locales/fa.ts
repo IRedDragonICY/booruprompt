@@ -42,6 +42,52 @@ export const fa: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'تنظیمات',
+    sections: {
+      appearance: 'ظاهر',
+      colorTheme: 'تم رنگی',
+      dataFetch: 'روش دریافت داده'
+    },
+    themeOptions: {
+      system: 'سیستم',
+      light: 'روشن',
+      dark: 'تیره'
+    },
+    colorThemes: {
+      blue: 'آبی',
+      orange: 'نارنجی',
+      teal: 'فیروزه‌ای',
+      rose: 'صورتی',
+      purple: 'بنفش',
+      green: 'سبز',
+      custom: 'رنگ سفارشی'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

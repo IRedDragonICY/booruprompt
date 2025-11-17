@@ -42,6 +42,52 @@ export const ne: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'सेटिङहरू',
+    sections: {
+      appearance: 'उपस्थिति',
+      colorTheme: 'रङ थिम',
+      dataFetch: 'डेटा प्राप्ति विधि'
+    },
+    themeOptions: {
+      system: 'प्रणाली',
+      light: 'उज्यालो',
+      dark: 'अँध्यारो'
+    },
+    colorThemes: {
+      blue: 'नीलो',
+      orange: 'सुन्तला',
+      teal: 'टिल',
+      rose: 'गुलाब',
+      purple: 'बैजनी',
+      green: 'हरियो',
+      custom: 'अनुकूलित रङ'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

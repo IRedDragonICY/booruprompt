@@ -42,6 +42,52 @@ export const ka: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'პარამეტრები',
+    sections: {
+      appearance: 'გარეგნობა',
+      colorTheme: 'ფერის თემა',
+      dataFetch: 'მონაცემების მიღების მეთოდი'
+    },
+    themeOptions: {
+      system: 'სისტემა',
+      light: 'ღია',
+      dark: 'მუქი'
+    },
+    colorThemes: {
+      blue: 'ლურჯი',
+      orange: 'ნარინჯისფერი',
+      teal: 'ფირუზისფერი',
+      rose: 'ვარდისფერი',
+      purple: 'იისფერი',
+      green: 'მწვანე',
+      custom: 'მორგებული ფერი'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

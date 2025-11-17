@@ -42,6 +42,52 @@ export const su: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Setélan',
+    sections: {
+      appearance: 'Tampilan',
+      colorTheme: 'Téma Warna',
+      dataFetch: 'Métode Nyokot Data'
+    },
+    themeOptions: {
+      system: 'Sistem',
+      light: 'Caang',
+      dark: 'Poék'
+    },
+    colorThemes: {
+      blue: 'Biru',
+      orange: 'Oranyeu',
+      teal: 'Toska',
+      rose: 'Pinkeun',
+      purple: 'Ungu',
+      green: 'Héjo',
+      custom: 'Warna Adat'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

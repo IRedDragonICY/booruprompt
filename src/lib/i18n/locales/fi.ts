@@ -42,6 +42,52 @@ export const fi: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Asetukset',
+    sections: {
+      appearance: 'Ulkoasu',
+      colorTheme: 'Väriteema',
+      dataFetch: 'Tietojen Hakumenetelmä'
+    },
+    themeOptions: {
+      system: 'Järjestelmä',
+      light: 'Vaalea',
+      dark: 'Tumma'
+    },
+    colorThemes: {
+      blue: 'Sininen',
+      orange: 'Oranssi',
+      teal: 'Turkoosi',
+      rose: 'Ruusu',
+      purple: 'Violetti',
+      green: 'Vihreä',
+      custom: 'Mukautettu Väri'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

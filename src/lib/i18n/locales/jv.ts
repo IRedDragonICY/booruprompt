@@ -50,8 +50,12 @@ export const jv: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
     title: 'Pangaturan',
+    sections: {
+      appearance: 'Tampilan',
+      colorTheme: 'Tema Werna',
+      dataFetch: 'Cara Njupuk Data'
+    },
     themeOptions: {
       system: 'Sistem',
       light: 'Padhang',
@@ -65,6 +69,33 @@ export const jv: TranslationSchema = {
       purple: 'Ungu',
       green: 'Ijo',
       custom: 'Werna Adat'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
     }
   }
 };

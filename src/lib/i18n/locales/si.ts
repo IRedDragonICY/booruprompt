@@ -42,6 +42,52 @@ export const si: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'සැකසීම්',
+    sections: {
+      appearance: 'පෙනුම',
+      colorTheme: 'වර්ණ තේමාව',
+      dataFetch: 'දත්ත ලබා ගැනීමේ ක්‍රමය'
+    },
+    themeOptions: {
+      system: 'පද්ධතිය',
+      light: 'එළිය',
+      dark: 'අඳුර'
+    },
+    colorThemes: {
+      blue: 'නිල්',
+      orange: 'තැඹිලි',
+      teal: 'ටීල්',
+      rose: 'රෝස',
+      purple: 'දම්',
+      green: 'කොළ',
+      custom: 'අභිරුචි වර්ණය'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

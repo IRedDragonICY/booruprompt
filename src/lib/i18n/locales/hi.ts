@@ -42,6 +42,52 @@ export const hi: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'सेटिंग्स',
+    sections: {
+      appearance: 'उपस्थिति',
+      colorTheme: 'रंग थीम',
+      dataFetch: 'डेटा प्राप्ति विधि'
+    },
+    themeOptions: {
+      system: 'सिस्टम',
+      light: 'हल्का',
+      dark: 'गहरा'
+    },
+    colorThemes: {
+      blue: 'नीला',
+      orange: 'नारंगी',
+      teal: 'हरा-नीला',
+      rose: 'गुलाबी',
+      purple: 'बैंगनी',
+      green: 'हरा',
+      custom: 'कस्टम रंग'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

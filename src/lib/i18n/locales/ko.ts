@@ -42,6 +42,52 @@ export const ko: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: '설정',
+    sections: {
+      appearance: '외관',
+      colorTheme: '색상 테마',
+      dataFetch: '데이터 가져오기 방법'
+    },
+    themeOptions: {
+      system: '시스템',
+      light: '밝게',
+      dark: '어둡게'
+    },
+    colorThemes: {
+      blue: '파랑',
+      orange: '주황',
+      teal: '청록',
+      rose: '장미',
+      purple: '보라',
+      green: '초록',
+      custom: '사용자 정의 색상'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

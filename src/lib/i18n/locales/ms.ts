@@ -42,6 +42,52 @@ export const ms: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Tetapan',
+    sections: {
+      appearance: 'Penampilan',
+      colorTheme: 'Tema Warna',
+      dataFetch: 'Kaedah Pengambilan Data'
+    },
+    themeOptions: {
+      system: 'Sistem',
+      light: 'Cerah',
+      dark: 'Gelap'
+    },
+    colorThemes: {
+      blue: 'Biru',
+      orange: 'Oren',
+      teal: 'Hijau Kebiruan',
+      rose: 'Merah Jambu',
+      purple: 'Ungu',
+      green: 'Hijau',
+      custom: 'Warna Tersuai'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

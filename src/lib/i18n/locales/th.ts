@@ -42,6 +42,52 @@ export const th: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'การตั้งค่า',
+    sections: {
+      appearance: 'รูปลักษณ์',
+      colorTheme: 'ธีมสี',
+      dataFetch: 'วิธีการดึงข้อมูล'
+    },
+    themeOptions: {
+      system: 'ระบบ',
+      light: 'สว่าง',
+      dark: 'มืด'
+    },
+    colorThemes: {
+      blue: 'น้ำเงิน',
+      orange: 'ส้ม',
+      teal: 'เขียวอมฟ้า',
+      rose: 'ชมพู',
+      purple: 'ม่วง',
+      green: 'เขียว',
+      custom: 'สีที่กำหนดเอง'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

@@ -42,6 +42,52 @@ export const ta: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'அமைப்புகள்',
+    sections: {
+      appearance: 'தோற்றம்',
+      colorTheme: 'நிற தீம்',
+      dataFetch: 'தரவு பெறும் முறை'
+    },
+    themeOptions: {
+      system: 'கணினி',
+      light: 'வெளிச்சம்',
+      dark: 'இருள்'
+    },
+    colorThemes: {
+      blue: 'நீலம்',
+      orange: 'ஆரஞ்சு',
+      teal: 'டீல்',
+      rose: 'ரோஸ்',
+      purple: 'ஊதா',
+      green: 'பச்சை',
+      custom: 'தனிப்பயன் நிறம்'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

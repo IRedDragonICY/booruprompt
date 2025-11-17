@@ -42,6 +42,52 @@ export const lo: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'ການຕັ້ງຄ່າ',
+    sections: {
+      appearance: 'ຮູບລັກສະນະ',
+      colorTheme: 'ຊຸດສີ',
+      dataFetch: 'ວິທີການດຶງຂໍ້ມູນ'
+    },
+    themeOptions: {
+      system: 'ລະບົບ',
+      light: 'ສະຫວ່າງ',
+      dark: 'ມືດ'
+    },
+    colorThemes: {
+      blue: 'ສີຟ້າ',
+      orange: 'ສົ້ມ',
+      teal: 'ສີຟ້າເຂັ້ມ',
+      rose: 'ສີບົວ',
+      purple: 'ສີມ່ວງ',
+      green: 'ເຂົ້າ',
+      custom: 'ສີກຳນົດເອງ'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

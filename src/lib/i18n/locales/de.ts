@@ -42,6 +42,52 @@ export const de: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Einstellungen',
+    sections: {
+      appearance: 'Erscheinungsbild',
+      colorTheme: 'Farbthema',
+      dataFetch: 'Datenabrufmethode'
+    },
+    themeOptions: {
+      system: 'System',
+      light: 'Hell',
+      dark: 'Dunkel'
+    },
+    colorThemes: {
+      blue: 'Blau',
+      orange: 'Orange',
+      teal: 'Türkis',
+      rose: 'Rosa',
+      purple: 'Lila',
+      green: 'Grün',
+      custom: 'Benutzerdefinierte Farbe'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };

@@ -42,6 +42,52 @@ export const hu: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings
+    title: 'Beállítások',
+    sections: {
+      appearance: 'Megjelenés',
+      colorTheme: 'Színtéma',
+      dataFetch: 'Adatlekérési Módszer'
+    },
+    themeOptions: {
+      system: 'Rendszer',
+      light: 'Világos',
+      dark: 'Sötét'
+    },
+    colorThemes: {
+      blue: 'Kék',
+      orange: 'Narancs',
+      teal: 'Türkiz',
+      rose: 'Rózsa',
+      purple: 'Lila',
+      green: 'Zöld',
+      custom: 'Egyedi Szín'
+    },
+    customColor: {
+      ...en.settings.customColor
+    },
+    fetchModes: {
+      ...en.settings.fetchModes
+    },
+    clientProxy: {
+      ...en.settings.clientProxy
+    },
+    toggles: {
+      ...en.settings.toggles
+    },
+    historySize: {
+      ...en.settings.historySize
+    },
+    accessibility: {
+      ...en.settings.accessibility
+    },
+    historySizeOptions: {
+      ...en.settings.historySizeOptions
+    },
+    support: {
+      ...en.settings.support
+    },
+    modal: {
+      ...en.settings.modal
+    }
   }
 };
