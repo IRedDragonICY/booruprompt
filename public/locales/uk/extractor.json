@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Вилучення Тегів Booru",
+    "subtitle": "Вилучення тегів з дошок зображень booru",
+    "supported": "Підтримувані платформи:",
+    "urlLabel": "URL Публікації Booru",
+    "urlPlaceholder": "Вставте URL публікації booru тут...",
+    "manualButton": "Вилучити Вручну",
+    "resetButton": "Скинути",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Вилучення Тегів Booru",
+    "heroSubtitle": "Вилучайте, фільтруйте та копіюйте теги з сайтів booru миттєво",
+    "features": {
+      "smart": {
+        "title": "Розумний",
+        "subtitle": "Авто-вилучення"
+      },
+      "fast": {
+        "title": "Швидкий",
+        "subtitle": "Миттєві результати"
+      },
+      "private": {
+        "title": "Приватний",
+        "subtitle": "На стороні клієнта"
+      },
+      "copy": {
+        "title": "Копіювати",
+        "subtitle": "Одним кліком"
+      }
+    },
+    "cta": {
+      "paste": "Вставити",
+      "extract": "Вилучити",
+      "filter": "Фільтр",
+      "copy": "Копіювати"
+    },
+    "supportNotice": "Підтримує Danbooru, Gelbooru, Safebooru, Rule34, e621 та інші"
+  },
+  "preview": {
+    "title": "Попередній перегляд"
+  },
+  "status": {
+    "resultLabel": "Результат для:"
+  },
+  "categories": {
+    "title": "Фільтрувати Категорії",
+    "enableAll": "Усе",
+    "disableAll": "Нічого",
+    "items": {
+      "copyright": "Авторське Право",
+      "character": "Персонаж",
+      "general": "Загальне",
+      "meta": "Мета",
+      "other": "Інше"
+    },
+    "count_one": "{{count}} тег",
+    "count_other": "{{count}} тегів"
+  },
+  "filteredTags": {
+    "label": "Відфільтровані Теги",
+    "ariaLabel": "Відфільтровані теги",
+    "empty": "Немає тегів для відображення.",
+    "copy": "Копіювати Теги",
+    "copied": "Скопійовано!"
+  },
+  "history": {
+    "extractionTitle": "Історія Вилучення",
+    "imageTitle": "Історія Зображень",
+    "searchExtraction": "Пошук заголовка, url, тегів...",
+    "searchImages": "Пошук імені файлу, підказок, параметрів...",
+    "emptySearch": "Жодного запису не відповідає вашому пошуку.",
+    "clearTooltip": "Очистити Всю Історію",
+    "clearAction": "Очистити Історію",
+    "confirmMessage": "Дійсно очистити?",
+    "confirmYes": "Так, Очистити",
+    "confirmCancel": "Скасувати",
+    "searchAriaLabel": "Пошук {{context}}",
+    "searchFallback": "історія",
+    "clearSearchTooltip": "Очистити Пошук",
+    "clearSearchAria": "Очистити пошук"
+  },
+  "mobile": {
+    "historyButton": "Історія",
+    "urlLabel": "URL Публікації Booru",
+    "urlPlaceholder": "Вставте URL або Перетягніть & Відпустіть...",
+    "manualButton": "Вилучити Вручну",
+    "resetButton": "Скинути"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Booru 標籤擷取器",
+    "subtitle": "從 booru 圖站擷取標籤",
+    "supported": "支援的平台：",
+    "urlLabel": "Booru 貼文 URL",
+    "urlPlaceholder": "在此貼上 booru 貼文 URL...",
+    "manualButton": "手動擷取",
+    "resetButton": "重設",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Booru 標籤擷取器",
+    "heroSubtitle": "即時擷取、篩選並複製 booru 標籤",
+    "features": {
+      "smart": {
+        "title": "智慧",
+        "subtitle": "自動擷取"
+      },
+      "fast": {
+        "title": "快速",
+        "subtitle": "即時結果"
+      },
+      "private": {
+        "title": "私密",
+        "subtitle": "在客戶端執行"
+      },
+      "copy": {
+        "title": "複製",
+        "subtitle": "一鍵複製"
+      }
+    },
+    "cta": {
+      "paste": "貼上",
+      "extract": "擷取",
+      "filter": "篩選",
+      "copy": "複製"
+    },
+    "supportNotice": "支援 Danbooru、Gelbooru、Safebooru、Rule34、e621 等"
+  },
+  "preview": {
+    "title": "預覽"
+  },
+  "status": {
+    "resultLabel": "結果："
+  },
+  "categories": {
+    "title": "篩選分類",
+    "enableAll": "全選",
+    "disableAll": "全不選",
+    "items": {
+      "copyright": "版權",
+      "character": "角色",
+      "general": "一般",
+      "meta": "中繼資訊",
+      "other": "其他"
+    },
+    "count_one": "{{count}} 個標籤",
+    "count_other": "{{count}} 個標籤"
+  },
+  "filteredTags": {
+    "label": "篩選後的標籤",
+    "ariaLabel": "篩選後的標籤",
+    "empty": "暫無標籤。",
+    "copy": "複製標籤",
+    "copied": "已複製！"
+  },
+  "history": {
+    "extractionTitle": "擷取歷史",
+    "imageTitle": "圖片歷史",
+    "searchExtraction": "搜尋標題、URL、標籤...",
+    "searchImages": "搜尋檔案名稱、提示詞、參數...",
+    "emptySearch": "沒有符合的記錄。",
+    "clearTooltip": "清空所有歷史",
+    "clearAction": "清空歷史",
+    "confirmMessage": "確定要清空嗎？",
+    "confirmYes": "是的，清空",
+    "confirmCancel": "取消",
+    "searchAriaLabel": "搜尋 {{context}}",
+    "searchFallback": "歷史",
+    "clearSearchTooltip": "清除搜尋",
+    "clearSearchAria": "清除搜尋"
+  },
+  "mobile": {
+    "historyButton": "歷史",
+    "urlLabel": "Booru 貼文 URL",
+    "urlPlaceholder": "貼上 URL 或拖放...",
+    "manualButton": "手動擷取",
+    "resetButton": "重設"
+  }
+}

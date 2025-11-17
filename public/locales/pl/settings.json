@@ -1,0 +1,98 @@
+{
+  "title": "Ustawienia",
+  "sections": {
+    "appearance": "Wygląd",
+    "colorTheme": "Motyw Kolorystyczny",
+    "dataFetch": "Metoda Pobierania Danych"
+  },
+  "themeOptions": {
+    "system": "Systemowy",
+    "light": "Jasny",
+    "dark": "Ciemny"
+  },
+  "colorThemes": {
+    "blue": "Niebieski",
+    "orange": "Pomarańczowy",
+    "teal": "Morski",
+    "rose": "Różowy",
+    "purple": "Fioletowy",
+    "green": "Zielony",
+    "custom": "Niestandardowy Kolor"
+  },
+  "customColor": {
+    "label": "Niestandardowy Kolor",
+    "pickerLabel": "Niestandardowy wybór koloru",
+    "inputLabel": "Kod hex niestandardowego koloru",
+    "placeholder": "#rrggbb"
+  },
+  "fetchModes": {
+    "server": {
+      "label": "Proxy Serwera",
+      "description": "Używa serwera tej aplikacji do pobierania danych. Zalecane, bardziej niezawodne."
+    },
+    "clientProxy": {
+      "label": "Proxy Po Stronie Klienta",
+      "description": "Używa publicznego proxy CORS w Twojej przeglądarce. Może być mniej niezawodne lub ograniczone."
+    }
+  },
+  "clientProxy": {
+    "selectLabel": "Wybierz usługę proxy klienta:",
+    "ariaLabel": "Selektor usługi proxy klienta",
+    "helper": "Wydajność i niezawodność różnią się między serwerami proxy."
+  },
+  "toggles": {
+    "autoExtract": {
+      "label": "Automatyczna Ekstrakcja",
+      "description": "Automatycznie wyodrębniaj tagi po wklejeniu/wpisaniu prawidłowego adresu URL.",
+      "tooltip": "Włącz lub wyłącz automatyczną ekstrakcję tagów po wklejeniu/wpisaniu prawidłowego adresu URL"
+    },
+    "previews": {
+      "label": "Włącz Podglądy",
+      "description": "Pokazuj podglądy obrazów/wideo podczas ekstrakcji i w historii.",
+      "tooltip": "Włącz lub wyłącz podglądy obrazów/wideo, aby zaoszczędzić przepustowość lub uniknąć potencjalnych problemów",
+      "note": "Obrazy są zawsze pobierane przez Proxy Serwera."
+    },
+    "saveHistory": {
+      "label": "Zapisz Historię",
+      "description": "Przechowuj pomyślne ekstrakcje lokalnie w przeglądarce.",
+      "tooltip": "Włącz lub wyłącz zapisywanie historii ekstrakcji w lokalnej pamięci przeglądarki"
+    },
+    "unsupportedSites": {
+      "label": "Włącz dla Nieobsługiwanych Witryn",
+      "description": "Spróbuj wyodrębnić z nieobsługiwanych witryn, używając podobnych wzorców witryn. Może nie działać dla wszystkich witryn.",
+      "tooltip": "Włącz ekstrakcję dla nieobsługiwanych stron internetowych, używając podobnych wzorców witryn"
+    },
+    "blacklist": {
+      "label": "Włącz Czarną Listę Słów Kluczowych",
+      "description": "Wprowadź słowa kluczowe do zablokowania, oddzielone przecinkami, średnikami lub nowymi liniami.",
+      "tooltip": "Blokuj niechciane tagi, filtrując określone słowa kluczowe",
+      "placeholder": "Wprowadź słowa kluczowe do zablokowania…",
+      "ariaLabel": "Słowa kluczowe czarnej listy",
+      "reset": "Przywróć Domyślne"
+    }
+  },
+  "historySize": {
+    "label": "Maksymalny Rozmiar Historii",
+    "description": "Ustaw maksymalną liczbę wpisów dla historii ekstrakcji i obrazów."
+  },
+  "accessibility": {
+    "themeOption": "Motyw {{label}}",
+    "colorThemeOption": "Motyw kolorystyczny {{label}}",
+    "historySizeSelect": "Maksymalny rozmiar historii"
+  },
+  "historySizeOptions": {
+    "10": "10 Wpisów",
+    "30": "30 Wpisów",
+    "50": "50 Wpisów",
+    "100": "100 Wpisów",
+    "unlimited": "Nieograniczone"
+  },
+  "support": {
+    "title": "Wsparcie i Opinie",
+    "cta": "Zgłoś Problem na GitHub",
+    "description": "Znalazłeś błąd lub masz sugestię? Daj nam znać!"
+  },
+  "modal": {
+    "close": "Zamknij Ustawienia"
+  }
+}

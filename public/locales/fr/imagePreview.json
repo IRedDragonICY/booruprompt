@@ -1,0 +1,10 @@
+{
+  "loading": "Chargement de l'aperçu...",
+  "error": "Impossible de charger l'aperçu.",
+  "errorDetail": "Erreur de proxy serveur ou image invalide",
+  "videoUnsupported": "Votre navigateur ne supporte pas la vidéo.",
+  "openFull": "Ouvrir l'aperçu en taille réelle",
+  "close": "Fermer",
+  "reset": "Réinitialiser",
+  "openOriginal": "Ouvrir l'original"
+}

@@ -1,0 +1,10 @@
+{
+  "loading": "Carregando prévia...",
+  "error": "Não foi possível carregar a prévia.",
+  "errorDetail": "Erro de proxy do servidor ou imagem inválida",
+  "videoUnsupported": "Seu navegador não suporta vídeo.",
+  "openFull": "Abrir prévia em tamanho real",
+  "close": "Fechar",
+  "reset": "Redefinir",
+  "openOriginal": "Abrir original"
+}

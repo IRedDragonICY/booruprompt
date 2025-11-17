@@ -1,0 +1,77 @@
+{
+  "appName": "Booru ടാഗ് എക്‌സ്ട്രാക്ടർ",
+  "language": "ഭാഷ",
+  "english": "ഇംഗ്ലീഷ്",
+  "indonesian": "ഇൻഡോനേഷ്യൻ",
+  "chinese": "ചൈനീസ്",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "ഇന്റർഫേസ് ഭാഷ",
+    "description": "നിങ്ങളുടെ ബ്രൗസറിൽ സംരക്ഷിച്ചു. സ്ഥിര ഭാഷ ഇംഗ്ലീഷ് ആണ്.",
+    "instantNotice": "മാറ്റങ്ങൾ റീലോഡ് ചെയ്യാതെ പ്രയോഗിക്കുന്നു.",
+    "searchPlaceholder": "ഭാഷകൾ തിരയുക...",
+    "noResults": "ഭാഷകളൊന്നും കണ്ടെത്തിയില്ല"
+  },
+  "nav": {
+    "extractor": "ടാഗുകൾ",
+    "image": "ചിത്രം",
+    "booruList": "Booru",
+    "settings": "ക്രമീകരണങ്ങൾ"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "ചേർക്കുക",
+    "apply": "പ്രയോഗിക്കുക",
+    "back": "തിരികെ",
+    "cancel": "റദ്ദാക്കുക",
+    "clear": "മായ്‌ക്കുക",
+    "close": "അടയ്‌ക്കുക",
+    "confirm": "സ്ഥിരീകരിക്കുക",
+    "copy": "പകർത്തുക",
+    "copied": "പകർത്തി!",
+    "delete": "ഇല്ലാതാക്കുക",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "സംരക്ഷിക്കുക",
+    "search": "തിരയുക",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "എല്ലാം",
+    "none": "ഒന്നുമില്ല",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

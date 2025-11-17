@@ -1,0 +1,98 @@
+{
+  "title": "Cilësimet",
+  "sections": {
+    "appearance": "Pamja",
+    "colorTheme": "Tema e ngjyrave",
+    "dataFetch": "Metoda e marrjes së të dhënave"
+  },
+  "themeOptions": {
+    "system": "Sistemi",
+    "light": "E ndritshme",
+    "dark": "E errët"
+  },
+  "colorThemes": {
+    "blue": "Blu",
+    "orange": "Portokalli",
+    "teal": "Gurkali",
+    "rose": "Rozë",
+    "purple": "Vjollcë",
+    "green": "Jeshile",
+    "custom": "Ngjyrë e personalizuar"
+  },
+  "customColor": {
+    "label": "Ngjyrë e personalizuar",
+    "pickerLabel": "Zgjedhës i ngjyrës së personalizuar",
+    "inputLabel": "Kodi hex i ngjyrës së personalizuar",
+    "placeholder": "#rrggbb"
+  },
+  "fetchModes": {
+    "server": {
+      "label": "Proksi i serverit",
+      "description": "Përdor serverin e këtij aplikacioni për të marrë të dhëna. Rekomandohet, më i besueshëm."
+    },
+    "clientProxy": {
+      "label": "Proksi në anën e klientit",
+      "description": "Përdor një proksi publik CORS në shfletuesin tuaj. Mund të jetë më pak i besueshëm ose i kufizuar."
+    }
+  },
+  "clientProxy": {
+    "selectLabel": "Zgjidh shërbimin e proksit të klientit:",
+    "ariaLabel": "Zgjedhësi i shërbimit të proksit të klientit",
+    "helper": "Performanca dhe besueshmëria ndryshojnë midis proksive."
+  },
+  "toggles": {
+    "autoExtract": {
+      "label": "Ekstraktim automatik",
+      "description": "Ekstrakto etiketat automatikisht pasi ngjitni/shkruani një URL të vlefshme.",
+      "tooltip": "Aktivizo ose çaktivizo ekstraktimin automatik të etiketave kur ngjitni/shkruani një URL të vlefshme"
+    },
+    "previews": {
+      "label": "Aktivizo parapamjet",
+      "description": "Shfaq parapamje të imazheve/videove gjatë ekstraktimit dhe në historik.",
+      "tooltip": "Aktivizo ose çaktivizo parapamjet e imazheve/videove për të kursyer të dhëna ose për të shmangur probleme të mundshme",
+      "note": "Imazhet gjithmonë merren përmes proksit të serverit."
+    },
+    "saveHistory": {
+      "label": "Ruaj historikun",
+      "description": "Ruaj ekstraktimet e suksesshme lokalisht në shfletuesin tuaj.",
+      "tooltip": "Aktivizo ose çaktivizo ruajtjen e historikut të ekstraktimit në ruajtjen lokale të shfletuesit"
+    },
+    "unsupportedSites": {
+      "label": "Aktivizo për faqe të pambështetura",
+      "description": "Provo të ekstraktosh nga faqe të pambështetura duke përdorur modele faqesh të ngjashme. Mund të mos funksionojë për të gjitha faqet.",
+      "tooltip": "Aktivizo ekstraktimin për faqe të pambështetura duke përdorur modele faqesh të ngjashme"
+    },
+    "blacklist": {
+      "label": "Aktivizo listën e zezë të fjalëve kyçe",
+      "description": "Fut fjalë kyçe për të bllokuar, të ndara me presje, pikëpresje ose rreshta të rinj.",
+      "tooltip": "Bllokoj etiketat e padëshiruara duke filtruar fjalë kyçe specifike",
+      "placeholder": "Fut fjalë kyçe për të bllokuar…",
+      "ariaLabel": "Fjalë kyçe të listës së zezë",
+      "reset": "Rikthe në parazgjedhje"
+    }
+  },
+  "historySize": {
+    "label": "Madhësia maksimale e historikut",
+    "description": "Cakto numrin maksimal të hyrjeve për historikun e ekstraktimit dhe të imazheve."
+  },
+  "accessibility": {
+    "themeOption": "Tema {{label}}",
+    "colorThemeOption": "Tema e ngjyrave {{label}}",
+    "historySizeSelect": "Madhësia maksimale e historikut"
+  },
+  "historySizeOptions": {
+    "10": "10 Hyrje",
+    "30": "30 Hyrje",
+    "50": "50 Hyrje",
+    "100": "100 Hyrje",
+    "unlimited": "Pa kufij"
+  },
+  "support": {
+    "title": "Mbështetje dhe reagim",
+    "cta": "Raporto një problem në GitHub",
+    "description": "Ke gjetur një gabim ose ke një sugjerim? Na trego!"
+  },
+  "modal": {
+    "close": "Mbyll cilësimet"
+  }
+}

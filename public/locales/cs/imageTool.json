@@ -1,0 +1,23 @@
+{
+  "title": "Metadata Obrázku",
+  "dropCtaTitle": "Přetáhněte & Pusťte PNG Zde",
+  "dropCtaSubtitle": "nebo klikněte pro nahrání",
+  "selectButton": "Vybrat PNG",
+  "statusProcessing": "Zpracování...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Pozitivní Výzva",
+  "negativePrompt": "Negativní Výzva",
+  "parameters": "Parametry",
+  "copy": "Kopírovat",
+  "copyAll": "Kopírovat Vše",
+  "copySuccess": "Zkopírováno!",
+  "noMetadata": "Nebyla nalezena žádná metadata generování.",
+  "loadMetadata": "Načíst Metadata",
+  "deleteEntry": "Smazat Záznam",
+  "historyTitle": "Historie Obrázků",
+  "historySearch": "Hledat název souboru, výzvy, parametry...",
+  "previewAlt": "Náhled",
+  "footer": {
+    "metadataNotice": "Extrakce metadat PNG pro textový úsek 'parameters'."
+  }
+}

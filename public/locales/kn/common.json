@@ -1,0 +1,77 @@
+{
+  "appName": "Booru ಟ್ಯಾಗ್ ಎಕ್ಸ್‌ಟ್ರಾಕ್ಟರ್",
+  "language": "ಭಾಷೆ",
+  "english": "ಇಂಗ್ಲಿಷ್",
+  "indonesian": "ಇಂಡೋನೇಷಿಯನ್",
+  "chinese": "ಚೈನೀಸ್",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "ಇಂಟರ್‌ಫೇಸ್ ಭಾಷೆ",
+    "description": "ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ. ಡೀಫಾಲ್ಟ್ ಭಾಷೆ ಇಂಗ್ಲಿಷ್ ಆಗಿದೆ.",
+    "instantNotice": "ಬದಲಾವಣೆಗಳು ರೀಲೋಡ್ ಇಲ್ಲದೆ ಅನ್ವಯಿಸುತ್ತವೆ.",
+    "searchPlaceholder": "ಭಾಷೆಗಳನ್ನು ಹುಡುಕಿ...",
+    "noResults": "ಯಾವುದೇ ಭಾಷೆಗಳು ಸಿಗಲಿಲ್ಲ"
+  },
+  "nav": {
+    "extractor": "ಟ್ಯಾಗ್‌ಗಳು",
+    "image": "ಚಿತ್ರ",
+    "booruList": "Booru",
+    "settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "ಸೇರಿಸಿ",
+    "apply": "ಅನ್ವಯಿಸಿ",
+    "back": "ಹಿಂದೆ",
+    "cancel": "ರದ್ದುಮಾಡಿ",
+    "clear": "ತೆರವುಗೊಳಿಸಿ",
+    "close": "ಮುಚ್ಚಿ",
+    "confirm": "ದೃಢೀಕರಿಸಿ",
+    "copy": "ನಕಲಿಸಿ",
+    "copied": "ನಕಲು ಮಾಡಲಾಗಿದೆ!",
+    "delete": "ಅಳಿಸಿ",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "ಉಳಿಸಿ",
+    "search": "ಹುಡುಕಿ",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "ಎಲ್ಲಾ",
+    "none": "ಯಾವುದೂ ಇಲ್ಲ",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

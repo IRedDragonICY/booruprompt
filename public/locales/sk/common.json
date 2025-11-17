@@ -1,0 +1,77 @@
+{
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  },
+  "appName": "Booru extraktor značiek",
+  "language": "Jazyk",
+  "english": "Angličtina",
+  "indonesian": "Indonézština",
+  "chinese": "Čínština",
+  "languageSwitcher": {
+    "title": "Jazyk rozhrania",
+    "description": "Uložené vo vašom prehliadači. Predvolený jazyk je angličtina.",
+    "instantNotice": "Zmeny sa aplikujú okamžite bez opätovného načítania.",
+    "searchPlaceholder": "Hľadať jazyky...",
+    "noResults": "Žiadne jazyky nenájdené"
+  },
+  "nav": {
+    "extractor": "Značky",
+    "image": "Obrázok",
+    "booruList": "Booru",
+    "settings": "Nastavenia"
+  },
+  "actions": {
+    "add": "Pridať",
+    "apply": "Použiť",
+    "back": "Späť",
+    "cancel": "Zrušiť",
+    "clear": "Vymazať",
+    "close": "Zavrieť",
+    "confirm": "Potvrdiť",
+    "copy": "Kopírovať",
+    "copied": "Skopírované!",
+    "delete": "Vymazať",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Uložiť",
+    "search": "Hľadať",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Všetko",
+    "none": "Nič",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "backButton": "Booru Listesine Geri Dön",
+  "notFoundTitle": "Booru Bulunamadı",
+  "notFoundDescription": "\"{{domain}}\" booru alan adı veri tabanımızda bulunamadı.",
+  "statistics": "İstatistikler",
+  "totalImages": "Toplam Görüntü",
+  "totalMembers": "Toplam Üye",
+  "shortName": "Kısa Ad",
+  "owner": "Sahip",
+  "hosted": "booru.org tarafından barındırılıyor",
+  "protocol": "Protokol",
+  "yes": "Evet",
+  "no": "Hayır",
+  "visit": "{{name}} Ziyaret Et",
+  "loading": "Yükleniyor..."
+}

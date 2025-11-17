@@ -1,0 +1,98 @@
+{
+  "title": "设置",
+  "sections": {
+    "appearance": "外观",
+    "colorTheme": "配色方案",
+    "dataFetch": "数据获取方式"
+  },
+  "themeOptions": {
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "colorThemes": {
+    "blue": "蓝色",
+    "orange": "橙色",
+    "teal": "青绿",
+    "rose": "玫瑰",
+    "purple": "紫色",
+    "green": "绿色",
+    "custom": "自定义颜色"
+  },
+  "customColor": {
+    "label": "自定义颜色",
+    "pickerLabel": "自定义颜色选择器",
+    "inputLabel": "自定义颜色十六进制",
+    "placeholder": "#rrggbb"
+  },
+  "fetchModes": {
+    "server": {
+      "label": "服务器代理",
+      "description": "使用本应用的服务器获取数据。推荐且更稳定。"
+    },
+    "clientProxy": {
+      "label": "客户端代理",
+      "description": "在浏览器中使用公共 CORS 代理，可能不稳定或受限。"
+    }
+  },
+  "clientProxy": {
+    "selectLabel": "选择客户端代理服务：",
+    "ariaLabel": "客户端代理选择器",
+    "helper": "不同代理的性能与稳定性会有所不同。"
+  },
+  "toggles": {
+    "autoExtract": {
+      "label": "自动提取",
+      "description": "粘贴/输入有效 URL 后自动提取标签。",
+      "tooltip": "启用或禁用粘贴/输入 URL 时的自动提取"
+    },
+    "previews": {
+      "label": "启用预览",
+      "description": "在提取和历史记录中显示图像/视频预览。",
+      "tooltip": "启用或禁用预览以节省带宽或避免问题",
+      "note": "图像始终通过服务器代理获取。"
+    },
+    "saveHistory": {
+      "label": "保存历史",
+      "description": "在浏览器本地保存成功的提取。",
+      "tooltip": "将提取历史保存到浏览器本地存储"
+    },
+    "unsupportedSites": {
+      "label": "启用未支持站点",
+      "description": "尝试使用相似模式从未支持站点提取，结果不保证。",
+      "tooltip": "通过相似站点模式在未支持站点上尝试提取"
+    },
+    "blacklist": {
+      "label": "启用关键词黑名单",
+      "description": "输入要屏蔽的关键词，使用逗号、分号或换行分隔。",
+      "tooltip": "通过过滤特定关键词屏蔽不想要的标签",
+      "placeholder": "请输入要屏蔽的关键词…",
+      "ariaLabel": "黑名单关键词",
+      "reset": "恢复默认"
+    }
+  },
+  "historySize": {
+    "label": "历史记录上限",
+    "description": "设置提取与图片历史的最大条数。"
+  },
+  "accessibility": {
+    "themeOption": "{{label}} 主题",
+    "colorThemeOption": "{{label}} 配色",
+    "historySizeSelect": "历史记录上限"
+  },
+  "historySizeOptions": {
+    "10": "10 条",
+    "30": "30 条",
+    "50": "50 条",
+    "100": "100 条",
+    "unlimited": "无限制"
+  },
+  "support": {
+    "title": "支持与反馈",
+    "cta": "在 GitHub 报告问题",
+    "description": "发现 bug 或有建议？告诉我们！"
+  },
+  "modal": {
+    "close": "关闭设置"
+  }
+}

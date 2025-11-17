@@ -1,0 +1,77 @@
+{
+  "appName": "Extractor de Etichete Booru",
+  "language": "Limbă",
+  "english": "Engleză",
+  "indonesian": "Indoneziană",
+  "chinese": "Chineză",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Limba interfeței",
+    "description": "Salvată în browser. Limba implicită este engleza.",
+    "instantNotice": "Modificările se aplică instant fără reîncărcare.",
+    "searchPlaceholder": "Caută limbi...",
+    "noResults": "Nu s-au găsit limbi"
+  },
+  "nav": {
+    "extractor": "Etichete",
+    "image": "Imagine",
+    "booruList": "Booru",
+    "settings": "Setări"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Adaugă",
+    "apply": "Aplică",
+    "back": "Înapoi",
+    "cancel": "Anulează",
+    "clear": "Șterge",
+    "close": "Închide",
+    "confirm": "Confirmă",
+    "copy": "Copiază",
+    "copied": "Copiat!",
+    "delete": "Șterge",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Salvează",
+    "search": "Caută",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Toate",
+    "none": "Niciuna",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

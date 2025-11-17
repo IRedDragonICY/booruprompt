@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Топ рейтинг Booru",
+  "pageDescriptionShort": "Исследуйте лучшие сайты booru, отсортированные по общему количеству изображений и активности.",
+  "pageDescriptionLong": "Откройте для себя самые популярные сайты booru в сети. Ранжированы по общему количеству изображений, количеству участников и активности с данными от Booru.org.",
+  "searchPlaceholder": "Поиск сайтов booru...",
+  "filter": {
+    "all": "Все",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Изображения",
+    "members": "Участники",
+    "owner": "Владелец"
+  },
+  "sort": {
+    "label": "Сортировка:",
+    "rank": "Рейтинг (Топ)",
+    "images": "Количество изображений",
+    "members": "Количество участников",
+    "asc": "По возр.",
+    "desc": "По убыв."
+  },
+  "itemsPerPage": "На страницу:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> из {{total}}",
+  "pagination": {
+    "previous": "Предыдущая",
+    "next": "Следующая",
+    "previousShort": "Пред",
+    "nextShort": "След"
+  },
+  "emptyState": "Сайты booru не найдены",
+  "loading": "Загрузка данных booru...",
+  "errorTitle": "Ошибка загрузки данных",
+  "errors": {
+    "fetchFailed": "Не удалось получить данные booru.",
+    "unknown": "Что-то пошло не так при загрузке рейтинга."
+  },
+  "ownerLabel": "Владелец:",
+  "visit": "Посетить {{name}}"
+}

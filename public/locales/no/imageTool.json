@@ -1,0 +1,23 @@
+{
+  "title": "Bildemetadata",
+  "dropCtaTitle": "Dra & Slipp PNG Her",
+  "dropCtaSubtitle": "eller klikk for å laste opp",
+  "selectButton": "Velg PNG",
+  "statusProcessing": "Behandler...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positiv Oppfordring",
+  "negativePrompt": "Negativ Oppfordring",
+  "parameters": "Parametere",
+  "copy": "Kopier",
+  "copyAll": "Kopier Alt",
+  "copySuccess": "Kopiert!",
+  "noMetadata": "Ingen genereringsmetadata funnet.",
+  "loadMetadata": "Last Metadata",
+  "deleteEntry": "Slett Oppføring",
+  "historyTitle": "Bildehistorikk",
+  "historySearch": "Søk filnavn, oppfordringer, parametere...",
+  "previewAlt": "Forhåndsvisning",
+  "footer": {
+    "metadataNotice": "PNG-metadatauttrekking for 'parameters' tekstbit."
+  }
+}

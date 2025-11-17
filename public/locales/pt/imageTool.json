@@ -1,0 +1,23 @@
+{
+  "title": "Metadados da Imagem",
+  "dropCtaTitle": "Arraste e Solte PNG Aqui",
+  "dropCtaSubtitle": "ou clique para carregar",
+  "selectButton": "Selecionar PNG",
+  "statusProcessing": "Processando...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Prompt Positivo",
+  "negativePrompt": "Prompt Negativo",
+  "parameters": "Parâmetros",
+  "copy": "Copiar",
+  "copyAll": "Copiar Tudo",
+  "copySuccess": "Copiado!",
+  "noMetadata": "Nenhum metadado de geração encontrado.",
+  "loadMetadata": "Carregar Metadados",
+  "deleteEntry": "Excluir Entrada",
+  "historyTitle": "Histórico de Imagens",
+  "historySearch": "Pesquisar nome do arquivo, prompts, parâmetros...",
+  "previewAlt": "Prévia",
+  "footer": {
+    "metadataNotice": "Extração de metadados PNG para bloco de texto \"parameters\"."
+  }
+}

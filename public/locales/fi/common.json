@@ -1,0 +1,77 @@
+{
+  "appName": "Booru-taginpurkaja",
+  "language": "Kieli",
+  "english": "Englanti",
+  "indonesian": "Indonesia",
+  "chinese": "Kiina",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Käyttöliittymän kieli",
+    "description": "Tallennettu selaimeesi. Oletuskieli on englanti.",
+    "instantNotice": "Muutokset otetaan käyttöön heti ilman uudelleenlatausta.",
+    "searchPlaceholder": "Hae kieliä...",
+    "noResults": "Kieliä ei löytynyt"
+  },
+  "nav": {
+    "extractor": "Tagit",
+    "image": "Kuva",
+    "booruList": "Booru",
+    "settings": "Asetukset"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Lisää",
+    "apply": "Käytä",
+    "back": "Takaisin",
+    "cancel": "Peruuta",
+    "clear": "Tyhjennä",
+    "close": "Sulje",
+    "confirm": "Vahvista",
+    "copy": "Kopioi",
+    "copied": "Kopioitu!",
+    "delete": "Poista",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Tallenna",
+    "search": "Hae",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Kaikki",
+    "none": "Ei mitään",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

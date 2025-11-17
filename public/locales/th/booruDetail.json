@@ -1,0 +1,16 @@
+{
+  "backButton": "กลับไปที่รายการ Booru",
+  "notFoundTitle": "ไม่พบ Booru",
+  "notFoundDescription": "ไม่พบโดเมน booru \"{{domain}}\" ในฐานข้อมูลของเรา",
+  "statistics": "สถิติ",
+  "totalImages": "รูปภาพทั้งหมด",
+  "totalMembers": "สมาชิกทั้งหมด",
+  "shortName": "ชื่อย่อ",
+  "owner": "เจ้าของ",
+  "hosted": "โฮสต์โดย booru.org",
+  "protocol": "โปรโตคอล",
+  "yes": "ใช่",
+  "no": "ไม่",
+  "visit": "เยี่ยมชม {{name}}",
+  "loading": "กำลังโหลด..."
+}

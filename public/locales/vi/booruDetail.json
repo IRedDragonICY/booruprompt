@@ -1,0 +1,16 @@
+{
+  "backButton": "Quay Lại Danh Sách Booru",
+  "notFoundTitle": "Không Tìm Thấy Booru",
+  "notFoundDescription": "Tên miền booru \"{{domain}}\" không được tìm thấy trong cơ sở dữ liệu của chúng tôi.",
+  "statistics": "Thống Kê",
+  "totalImages": "Tổng Số Hình Ảnh",
+  "totalMembers": "Tổng Số Thành Viên",
+  "shortName": "Tên Ngắn",
+  "owner": "Chủ Sở Hữu",
+  "hosted": "Được lưu trữ bởi booru.org",
+  "protocol": "Giao Thức",
+  "yes": "Có",
+  "no": "Không",
+  "visit": "Truy Cập {{name}}",
+  "loading": "Đang tải..."
+}

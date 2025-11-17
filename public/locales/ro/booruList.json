@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Clasament Top Booru",
+  "pageDescriptionShort": "Explorați site-urile booru de top clasate după numărul total de imagini și activitate.",
+  "pageDescriptionLong": "Descoperă cele mai populare site-uri booru de pe web. Clasate după numărul total de imagini, număr de membri și activitate cu date de la Booru.org.",
+  "searchPlaceholder": "Căutare site-uri booru...",
+  "filter": {
+    "all": "Toate",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Imagini",
+    "members": "Membri",
+    "owner": "Proprietar"
+  },
+  "sort": {
+    "label": "Sortare după:",
+    "rank": "Clasament (Top)",
+    "images": "Număr Imagini",
+    "members": "Număr Membri",
+    "asc": "Crescător",
+    "desc": "Descrescător"
+  },
+  "itemsPerPage": "Pe pagină:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> din {{total}}",
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Următor",
+    "previousShort": "Ant",
+    "nextShort": "Urm"
+  },
+  "emptyState": "Nu s-au găsit site-uri booru",
+  "loading": "Se încarcă date booru...",
+  "errorTitle": "Eroare la Încărcarea Datelor",
+  "errors": {
+    "fetchFailed": "Eșec la preluarea datelor booru.",
+    "unknown": "Ceva nu a mers bine la încărcarea clasamentului."
+  },
+  "ownerLabel": "Proprietar:",
+  "visit": "Vizitează {{name}}"
+}

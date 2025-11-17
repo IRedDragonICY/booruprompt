@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Žebříček Nejlepších Booru",
+  "pageDescriptionShort": "Prozkoumejte nejlepší weby booru seřazené podle celkového počtu obrázků a aktivity.",
+  "pageDescriptionLong": "Objevte nejpopulárnější weby booru z celého webu. Seřazeno podle celkového počtu obrázků, počtu členů a aktivity s daty z Booru.org.",
+  "searchPlaceholder": "Hledat weby booru...",
+  "filter": {
+    "all": "Vše",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Obrázky",
+    "members": "Členové",
+    "owner": "Vlastník"
+  },
+  "sort": {
+    "label": "Seřadit podle:",
+    "rank": "Pořadí (Nejlepší)",
+    "images": "Počet Obrázků",
+    "members": "Počet Členů",
+    "asc": "Vzestupně",
+    "desc": "Sestupně"
+  },
+  "itemsPerPage": "Na stránku:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> z {{total}}",
+  "pagination": {
+    "previous": "Předchozí",
+    "next": "Další",
+    "previousShort": "Před",
+    "nextShort": "Další"
+  },
+  "emptyState": "Nebyly nalezeny žádné weby booru",
+  "loading": "Načítání dat booru...",
+  "errorTitle": "Chyba Načítání Dat",
+  "errors": {
+    "fetchFailed": "Nepodařilo se načíst data booru.",
+    "unknown": "Při načítání žebříčku se něco pokazilo."
+  },
+  "ownerLabel": "Vlastník:",
+  "visit": "Navštívit {{name}}"
+}

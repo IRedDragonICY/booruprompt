@@ -1,0 +1,77 @@
+{
+  "appName": "Booru Tag Extractor",
+  "language": "भाषा",
+  "english": "अङ्ग्रेजी",
+  "indonesian": "इन्डोनेसियाली",
+  "chinese": "चिनियाँ",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "इन्टरफेस भाषा",
+    "description": "तपाईंको ब्राउजरमा बचत गरिएको। पूर्वनिर्धारित भाषा अङ्ग्रेजी हो।",
+    "instantNotice": "परिवर्तनहरू पुन: लोड नगरी तुरुन्तै लागू हुन्छन्।",
+    "searchPlaceholder": "भाषाहरू खोज्नुहोस्...",
+    "noResults": "कुनै भाषा फेला परेन"
+  },
+  "nav": {
+    "extractor": "ट्यागहरू",
+    "image": "तस्बिर",
+    "booruList": "Booru",
+    "settings": "सेटिङहरू"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "थप्नुहोस्",
+    "apply": "लागू गर्नुहोस्",
+    "back": "फिर्ता",
+    "cancel": "रद्द गर्नुहोस्",
+    "clear": "खाली गर्नुहोस्",
+    "close": "बन्द गर्नुहोस्",
+    "confirm": "पुष्टि गर्नुहोस्",
+    "copy": "प्रतिलिपि",
+    "copied": "प्रतिलिपि गरियो!",
+    "delete": "मेटाउनुहोस्",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "बचत गर्नुहोस्",
+    "search": "खोज्नुहोस्",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "सबै",
+    "none": "कुनै पनि होइन",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

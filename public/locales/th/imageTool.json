@@ -1,0 +1,23 @@
+{
+  "title": "ข้อมูลเมตาของรูปภาพ",
+  "dropCtaTitle": "ลากและวาง PNG ที่นี่",
+  "dropCtaSubtitle": "หรือคลิกเพื่ออัปโหลด",
+  "selectButton": "เลือก PNG",
+  "statusProcessing": "กำลังประมวลผล...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "พรอมต์เชิงบวก",
+  "negativePrompt": "พรอมต์เชิงลบ",
+  "parameters": "พารามิเตอร์",
+  "copy": "คัดลอก",
+  "copyAll": "คัดลอกทั้งหมด",
+  "copySuccess": "คัดลอกแล้ว!",
+  "noMetadata": "ไม่พบข้อมูลเมตาการสร้าง",
+  "loadMetadata": "โหลดข้อมูลเมตา",
+  "deleteEntry": "ลบรายการ",
+  "historyTitle": "ประวัติรูปภาพ",
+  "historySearch": "ค้นหาชื่อไฟล์ พรอมต์ พารามิเตอร์...",
+  "previewAlt": "ตัวอย่าง",
+  "footer": {
+    "metadataNotice": "การแยกข้อมูลเมตา PNG สำหรับบล็อกข้อความ \"parameters\""
+  }
+}

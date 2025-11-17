@@ -1,0 +1,23 @@
+{
+  "title": "بيانات تعريف الصورة",
+  "dropCtaTitle": "اسحب وأفلت PNG هنا",
+  "dropCtaSubtitle": "أو انقر للتحميل",
+  "selectButton": "اختر PNG",
+  "statusProcessing": "جارٍ المعالجة...",
+  "previewMeta": "{{name}} ({{size}} كيلوبايت)",
+  "positivePrompt": "المطالبة الإيجابية",
+  "negativePrompt": "المطالبة السلبية",
+  "parameters": "المعاملات",
+  "copy": "نسخ",
+  "copyAll": "نسخ الكل",
+  "copySuccess": "تم النسخ!",
+  "noMetadata": "لم يتم العثور على بيانات تعريف التوليد.",
+  "loadMetadata": "تحميل البيانات التعريفية",
+  "deleteEntry": "حذف الإدخال",
+  "historyTitle": "سجل الصور",
+  "historySearch": "البحث عن اسم الملف، المطالبات، المعاملات...",
+  "previewAlt": "معاينة",
+  "footer": {
+    "metadataNotice": "استخراج بيانات تعريف PNG لكتلة نص \"parameters\"."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Estrattore di Tag Booru",
+    "subtitle": "Estrai tag dalle bacheche di immagini booru",
+    "supported": "Piattaforme supportate:",
+    "urlLabel": "URL Post Booru",
+    "urlPlaceholder": "Incolla qui l'URL del tuo post booru...",
+    "manualButton": "Estrai Manualmente",
+    "resetButton": "Ripristina",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Estrattore di Tag Booru",
+    "heroSubtitle": "Estrai, filtra e copia i tag dai siti booru istantaneamente",
+    "features": {
+      "smart": {
+        "title": "Intelligente",
+        "subtitle": "Auto-estrazione"
+      },
+      "fast": {
+        "title": "Veloce",
+        "subtitle": "Risultati istantanei"
+      },
+      "private": {
+        "title": "Privato",
+        "subtitle": "Lato client"
+      },
+      "copy": {
+        "title": "Copia",
+        "subtitle": "Un clic"
+      }
+    },
+    "cta": {
+      "paste": "Incolla",
+      "extract": "Estrai",
+      "filter": "Filtra",
+      "copy": "Copia"
+    },
+    "supportNotice": "Supporta Danbooru, Gelbooru, Safebooru, Rule34, e621 e altro"
+  },
+  "preview": {
+    "title": "Anteprima"
+  },
+  "status": {
+    "resultLabel": "Risultato per:"
+  },
+  "categories": {
+    "title": "Filtra Categorie",
+    "enableAll": "Tutto",
+    "disableAll": "Nessuno",
+    "items": {
+      "copyright": "Copyright",
+      "character": "Personaggio",
+      "general": "Generale",
+      "meta": "Meta",
+      "other": "Altro"
+    },
+    "count_one": "{{count}} tag",
+    "count_other": "{{count}} tag"
+  },
+  "filteredTags": {
+    "label": "Tag Filtrati",
+    "ariaLabel": "Tag filtrati",
+    "empty": "Nessun tag da visualizzare.",
+    "copy": "Copia Tag",
+    "copied": "Copiato!"
+  },
+  "history": {
+    "extractionTitle": "Cronologia Estrazione",
+    "imageTitle": "Cronologia Immagini",
+    "searchExtraction": "Cerca titolo, url, tag...",
+    "searchImages": "Cerca nome file, prompt, parametri...",
+    "emptySearch": "Nessuna voce corrisponde alla tua ricerca.",
+    "clearTooltip": "Cancella Tutta la Cronologia",
+    "clearAction": "Cancella Cronologia",
+    "confirmMessage": "Cancellare davvero?",
+    "confirmYes": "Sì, Cancella",
+    "confirmCancel": "Annulla",
+    "searchAriaLabel": "Cerca {{context}}",
+    "searchFallback": "cronologia",
+    "clearSearchTooltip": "Cancella Ricerca",
+    "clearSearchAria": "Cancella ricerca"
+  },
+  "mobile": {
+    "historyButton": "Cronologia",
+    "urlLabel": "URL Post Booru",
+    "urlPlaceholder": "Incolla URL o Trascina e Rilascia...",
+    "manualButton": "Estrai Manualmente",
+    "resetButton": "Ripristina"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "backButton": "Booru सूची पर वापस जाएं",
+  "notFoundTitle": "Booru नहीं मिला",
+  "notFoundDescription": "booru डोमेन \"{{domain}}\" हमारे डेटाबेस में नहीं मिला।",
+  "statistics": "सांख्यिकी",
+  "totalImages": "कुल छवियां",
+  "totalMembers": "कुल सदस्य",
+  "shortName": "संक्षिप्त नाम",
+  "owner": "मालिक",
+  "hosted": "booru.org द्वारा होस्ट किया गया",
+  "protocol": "प्रोटोकॉल",
+  "yes": "हां",
+  "no": "नहीं",
+  "visit": "{{name}} पर जाएं",
+  "loading": "लोड हो रहा है..."
+}

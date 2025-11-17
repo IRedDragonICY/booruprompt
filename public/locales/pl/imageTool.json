@@ -1,0 +1,23 @@
+{
+  "title": "Metadane Obrazu",
+  "dropCtaTitle": "Przeciągnij i Upuść PNG Tutaj",
+  "dropCtaSubtitle": "lub kliknij, aby przesłać",
+  "selectButton": "Wybierz PNG",
+  "statusProcessing": "Przetwarzanie...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Pozytywna Podpowiedź",
+  "negativePrompt": "Negatywna Podpowiedź",
+  "parameters": "Parametry",
+  "copy": "Kopiuj",
+  "copyAll": "Kopiuj Wszystko",
+  "copySuccess": "Skopiowano!",
+  "noMetadata": "Nie znaleziono metadanych generowania.",
+  "loadMetadata": "Załaduj Metadane",
+  "deleteEntry": "Usuń Wpis",
+  "historyTitle": "Historia Obrazów",
+  "historySearch": "Szukaj nazwy pliku, podpowiedzi, parametrów...",
+  "previewAlt": "Podgląd",
+  "footer": {
+    "metadataNotice": "Ekstrakcja metadanych PNG dla fragmentu tekstu 'parameters'."
+  }
+}

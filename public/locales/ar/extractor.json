@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "مستخرج علامات Booru",
+    "subtitle": "استخراج العلامات من لوحات صور booru",
+    "supported": "المنصات المدعومة:",
+    "urlLabel": "رابط منشور Booru",
+    "urlPlaceholder": "الصق رابط منشور booru هنا...",
+    "manualButton": "استخراج يدوي",
+    "resetButton": "إعادة تعيين",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "مستخرج علامات Booru",
+    "heroSubtitle": "استخراج وتصفية ونسخ العلامات من مواقع booru فوراً",
+    "features": {
+      "smart": {
+        "title": "ذكي",
+        "subtitle": "استخراج تلقائي"
+      },
+      "fast": {
+        "title": "سريع",
+        "subtitle": "نتائج فورية"
+      },
+      "private": {
+        "title": "خاص",
+        "subtitle": "جانب العميل"
+      },
+      "copy": {
+        "title": "نسخ",
+        "subtitle": "نقرة واحدة"
+      }
+    },
+    "cta": {
+      "paste": "لصق",
+      "extract": "استخراج",
+      "filter": "تصفية",
+      "copy": "نسخ"
+    },
+    "supportNotice": "يدعم Danbooru وGelbooru وSafebooru وRule34 وe621 والمزيد"
+  },
+  "preview": {
+    "title": "معاينة"
+  },
+  "status": {
+    "resultLabel": "النتيجة لـ:"
+  },
+  "categories": {
+    "title": "تصفية الفئات",
+    "enableAll": "الكل",
+    "disableAll": "لا شيء",
+    "items": {
+      "copyright": "حقوق النشر",
+      "character": "الشخصية",
+      "general": "عام",
+      "meta": "ميتا",
+      "other": "أخرى"
+    },
+    "count_one": "{{count}} علامة",
+    "count_other": "{{count}} علامات"
+  },
+  "filteredTags": {
+    "label": "العلامات المصفاة",
+    "ariaLabel": "العلامات المصفاة",
+    "empty": "لا توجد علامات للعرض.",
+    "copy": "نسخ العلامات",
+    "copied": "تم النسخ!"
+  },
+  "history": {
+    "extractionTitle": "سجل الاستخراج",
+    "imageTitle": "سجل الصور",
+    "searchExtraction": "البحث عن العنوان، الرابط، العلامات...",
+    "searchImages": "البحث عن اسم الملف، المطالبات، المعاملات...",
+    "emptySearch": "لا توجد إدخالات تطابق بحثك.",
+    "clearTooltip": "مسح كل السجل",
+    "clearAction": "مسح السجل",
+    "confirmMessage": "هل تريد حقاً المسح؟",
+    "confirmYes": "نعم، امسح",
+    "confirmCancel": "إلغاء",
+    "searchAriaLabel": "البحث في {{context}}",
+    "searchFallback": "السجل",
+    "clearSearchTooltip": "مسح البحث",
+    "clearSearchAria": "مسح البحث"
+  },
+  "mobile": {
+    "historyButton": "السجل",
+    "urlLabel": "رابط منشور Booru",
+    "urlPlaceholder": "الصق الرابط أو اسحب وأفلت...",
+    "manualButton": "استخراج يدوي",
+    "resetButton": "إعادة تعيين"
+  }
+}

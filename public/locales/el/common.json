@@ -1,0 +1,77 @@
+{
+  "appName": "Εξαγωγέας Ετικετών Booru",
+  "language": "Γλώσσα",
+  "english": "Αγγλικά",
+  "indonesian": "Ινδονησιακά",
+  "chinese": "Κινέζικα",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Γλώσσα διεπαφής",
+    "description": "Αποθηκευμένο στον περιηγητή σας. Η προεπιλεγμένη γλώσσα είναι τα Αγγλικά.",
+    "instantNotice": "Οι αλλαγές εφαρμόζονται αμέσως χωρίς επαναφόρτωση.",
+    "searchPlaceholder": "Αναζήτηση γλωσσών...",
+    "noResults": "Δεν βρέθηκαν γλώσσες"
+  },
+  "nav": {
+    "extractor": "Ετικέτες",
+    "image": "Εικόνα",
+    "booruList": "Booru",
+    "settings": "Ρυθμίσεις"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Προσθήκη",
+    "apply": "Εφαρμογή",
+    "back": "Πίσω",
+    "cancel": "Ακύρωση",
+    "clear": "Καθαρισμός",
+    "close": "Κλείσιμο",
+    "confirm": "Επιβεβαίωση",
+    "copy": "Αντιγραφή",
+    "copied": "Αντιγράφηκε!",
+    "delete": "Διαγραφή",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Αποθήκευση",
+    "search": "Αναζήτηση",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Όλα",
+    "none": "Κανένα",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

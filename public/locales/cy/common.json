@@ -1,0 +1,77 @@
+{
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  },
+  "appName": "Echdynnwr tagiau Booru",
+  "language": "Iaith",
+  "english": "Saesneg",
+  "indonesian": "Indoneseg",
+  "chinese": "Tsieineeg",
+  "languageSwitcher": {
+    "title": "Iaith y rhyngwyneb",
+    "description": "Wedi'i gadw yn eich porwr. Saesneg yw'r iaith ddiofyn.",
+    "instantNotice": "Mae newidiadau'n cael eu cymhwyso ar unwaith heb ail-lwytho.",
+    "searchPlaceholder": "Chwilio am ieithoedd...",
+    "noResults": "Dim ieithoedd wedi'u canfod"
+  },
+  "nav": {
+    "extractor": "Tagiau",
+    "image": "Delwedd",
+    "booruList": "Booru",
+    "settings": "Gosodiadau"
+  },
+  "actions": {
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "select": "Select",
+    "submit": "Submit",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next",
+    "add": "Ychwanegu",
+    "apply": "Cymhwyso",
+    "back": "Yn ôl",
+    "cancel": "Canslo",
+    "clear": "Clirio",
+    "close": "Cau",
+    "confirm": "Cadarnhau",
+    "copy": "Copïo",
+    "copied": "Wedi copïo!",
+    "delete": "Dileu",
+    "save": "Cadw",
+    "search": "Chwilio",
+    "all": "Pob un",
+    "none": "Dim"
+  }
+}

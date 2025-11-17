@@ -1,0 +1,10 @@
+{
+  "loading": "미리보기 로드 중...",
+  "error": "미리보기를 로드할 수 없습니다.",
+  "errorDetail": "서버 프록시 오류 또는 유효하지 않은 이미지",
+  "videoUnsupported": "브라우저가 비디오를 지원하지 않습니다.",
+  "openFull": "전체 크기 미리보기 열기",
+  "close": "닫기",
+  "reset": "재설정",
+  "openOriginal": "원본 열기"
+}

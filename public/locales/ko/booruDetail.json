@@ -1,0 +1,16 @@
+{
+  "backButton": "Booru 목록으로 돌아가기",
+  "notFoundTitle": "Booru를 찾을 수 없음",
+  "notFoundDescription": "Booru 도메인 \"{{domain}}\"을 데이터베이스에서 찾을 수 없습니다.",
+  "statistics": "통계",
+  "totalImages": "총 이미지",
+  "totalMembers": "총 회원",
+  "shortName": "짧은 이름",
+  "owner": "소유자",
+  "hosted": "booru.org에서 호스팅",
+  "protocol": "프로토콜",
+  "yes": "예",
+  "no": "아니오",
+  "visit": "{{name}} 방문",
+  "loading": "로드 중..."
+}

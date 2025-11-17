@@ -1,0 +1,77 @@
+{
+  "appName": "Booru Tagg-ekstraktor",
+  "language": "Språk",
+  "english": "Engelsk",
+  "indonesian": "Indonesisk",
+  "chinese": "Kinesisk",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Grensesnittspråk",
+    "description": "Lagres i nettleseren din. Standardspråket er engelsk.",
+    "instantNotice": "Endringer brukes umiddelbart uten oppdatering.",
+    "searchPlaceholder": "Søk språk...",
+    "noResults": "Ingen språk funnet"
+  },
+  "nav": {
+    "extractor": "Tagger",
+    "image": "Bilde",
+    "booruList": "Booru",
+    "settings": "Innstillinger"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Legg til",
+    "apply": "Bruk",
+    "back": "Tilbake",
+    "cancel": "Avbryt",
+    "clear": "Tøm",
+    "close": "Lukk",
+    "confirm": "Bekreft",
+    "copy": "Kopier",
+    "copied": "Kopiert!",
+    "delete": "Slett",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Lagre",
+    "search": "Søk",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Alle",
+    "none": "Ingen",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

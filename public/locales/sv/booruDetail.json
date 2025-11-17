@@ -1,0 +1,16 @@
+{
+  "backButton": "Tillbaka till Boorulista",
+  "notFoundTitle": "Booru Hittades Inte",
+  "notFoundDescription": "Boorudomänen \"{{domain}}\" hittades inte i vår databas.",
+  "statistics": "Statistik",
+  "totalImages": "Totalt Antal Bilder",
+  "totalMembers": "Totalt Antal Medlemmar",
+  "shortName": "Kortnamn",
+  "owner": "Ägare",
+  "hosted": "Hostad av booru.org",
+  "protocol": "Protokoll",
+  "yes": "Ja",
+  "no": "Nej",
+  "visit": "Besök {{name}}",
+  "loading": "Laddar..."
+}

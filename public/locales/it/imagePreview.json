@@ -1,0 +1,10 @@
+{
+  "loading": "Caricamento anteprima...",
+  "error": "Impossibile caricare l'anteprima.",
+  "errorDetail": "Errore proxy server o immagine non valida",
+  "videoUnsupported": "Il tuo browser non supporta i video.",
+  "openFull": "Apri anteprima a grandezza naturale",
+  "close": "Chiudi",
+  "reset": "Ripristina",
+  "openOriginal": "Apri originale"
+}

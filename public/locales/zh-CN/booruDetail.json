@@ -1,0 +1,16 @@
+{
+  "backButton": "返回 Booru 列表",
+  "notFoundTitle": "未找到 Booru",
+  "notFoundDescription": "在数据库中找不到 booru 域名 \"{{domain}}\"。",
+  "statistics": "统计",
+  "totalImages": "图片总数",
+  "totalMembers": "成员总数",
+  "shortName": "简称",
+  "owner": "所有者",
+  "hosted": "由 booru.org 托管",
+  "protocol": "协议",
+  "yes": "是",
+  "no": "否",
+  "visit": "访问 {{name}}",
+  "loading": "加载中..."
+}

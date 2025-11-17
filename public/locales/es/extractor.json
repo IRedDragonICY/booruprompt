@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Extractor de Etiquetas Booru",
+    "subtitle": "Extrae etiquetas de tableros de imágenes booru",
+    "supported": "Plataformas compatibles:",
+    "urlLabel": "URL de Publicación Booru",
+    "urlPlaceholder": "Pega aquí la URL de tu publicación booru...",
+    "manualButton": "Extraer Manualmente",
+    "resetButton": "Restablecer",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Extractor de Etiquetas Booru",
+    "heroSubtitle": "Extrae, filtra y copia etiquetas de sitios booru al instante",
+    "features": {
+      "smart": {
+        "title": "Inteligente",
+        "subtitle": "Extracción automática"
+      },
+      "fast": {
+        "title": "Rápido",
+        "subtitle": "Resultados instantáneos"
+      },
+      "private": {
+        "title": "Privado",
+        "subtitle": "Del lado del cliente"
+      },
+      "copy": {
+        "title": "Copiar",
+        "subtitle": "Un clic"
+      }
+    },
+    "cta": {
+      "paste": "Pegar",
+      "extract": "Extraer",
+      "filter": "Filtrar",
+      "copy": "Copiar"
+    },
+    "supportNotice": "Compatible con Danbooru, Gelbooru, Safebooru, Rule34, e621 y más"
+  },
+  "preview": {
+    "title": "Vista Previa"
+  },
+  "status": {
+    "resultLabel": "Resultado para:"
+  },
+  "categories": {
+    "title": "Categorías de Filtro",
+    "enableAll": "Todo",
+    "disableAll": "Ninguno",
+    "items": {
+      "copyright": "Copyright",
+      "character": "Personaje",
+      "general": "General",
+      "meta": "Meta",
+      "other": "Otro"
+    },
+    "count_one": "{{count}} etiqueta",
+    "count_other": "{{count}} etiquetas"
+  },
+  "filteredTags": {
+    "label": "Etiquetas Filtradas",
+    "ariaLabel": "Etiquetas filtradas",
+    "empty": "No hay etiquetas para mostrar.",
+    "copy": "Copiar Etiquetas",
+    "copied": "¡Copiado!"
+  },
+  "history": {
+    "extractionTitle": "Historial de Extracción",
+    "imageTitle": "Historial de Imágenes",
+    "searchExtraction": "Buscar título, url, etiquetas...",
+    "searchImages": "Buscar nombre de archivo, prompts, parámetros...",
+    "emptySearch": "No hay entradas que coincidan con tu búsqueda.",
+    "clearTooltip": "Limpiar Todo el Historial",
+    "clearAction": "Limpiar Historial",
+    "confirmMessage": "¿Realmente limpiar?",
+    "confirmYes": "Sí, Limpiar",
+    "confirmCancel": "Cancelar",
+    "searchAriaLabel": "Buscar {{context}}",
+    "searchFallback": "historial",
+    "clearSearchTooltip": "Limpiar Búsqueda",
+    "clearSearchAria": "Limpiar búsqueda"
+  },
+  "mobile": {
+    "historyButton": "Historial",
+    "urlLabel": "URL de Publicación Booru",
+    "urlPlaceholder": "Pega URL o Arrastra y Suelta...",
+    "manualButton": "Extraer Manualmente",
+    "resetButton": "Restablecer"
+  }
+}

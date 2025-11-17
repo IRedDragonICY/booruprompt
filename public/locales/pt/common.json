@@ -1,0 +1,77 @@
+{
+  "appName": "Extrator de Tags Booru",
+  "language": "Idioma",
+  "english": "Inglês",
+  "indonesian": "Indonésio",
+  "chinese": "Chinês",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Idioma da interface",
+    "description": "Salvo no seu navegador. O idioma padrão é o inglês.",
+    "instantNotice": "As alterações são aplicadas instantaneamente sem recarregar.",
+    "searchPlaceholder": "Pesquisar idiomas...",
+    "noResults": "Nenhum idioma encontrado"
+  },
+  "nav": {
+    "extractor": "Tags",
+    "image": "Imagem",
+    "booruList": "Boorus",
+    "settings": "Configurações"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Adicionar",
+    "apply": "Aplicar",
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "clear": "Limpar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "copy": "Copiar",
+    "copied": "Copiado!",
+    "delete": "Excluir",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Salvar",
+    "search": "Pesquisar",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Tudo",
+    "none": "Nenhum",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

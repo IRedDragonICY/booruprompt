@@ -78,7 +78,7 @@ export function DesktopAppShell({
                         >
                             <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                 <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8" />
-                                <p className="font-semibold">{t('common.dropOverlay.url')}</p>
+                                <p className="font-semibold">{t('common:dropOverlay.url')}</p>
                             </div>
                         </motion.div>
                     )}
@@ -92,7 +92,7 @@ export function DesktopAppShell({
                         >
                             <div className="rounded-lg bg-[rgb(var(--color-primary-rgb))]/80 px-4 py-2 text-center text-[rgb(var(--color-primary-content-rgb))] shadow-sm">
                                 <ArrowDownTrayIcon className="mx-auto mb-1 h-8 w-8" />
-                                <p className="font-semibold">{t('common.dropOverlay.png')}</p>
+                                <p className="font-semibold">{t('common:dropOverlay.png')}</p>
                             </div>
                         </motion.div>
                     )}

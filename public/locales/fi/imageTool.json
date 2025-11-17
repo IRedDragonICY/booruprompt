@@ -1,0 +1,23 @@
+{
+  "title": "Kuvan Metatiedot",
+  "dropCtaTitle": "Vedä & Pudota PNG Tähän",
+  "dropCtaSubtitle": "tai napsauta ladataksesi",
+  "selectButton": "Valitse PNG",
+  "statusProcessing": "Käsitellään...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positiivinen Kehote",
+  "negativePrompt": "Negatiivinen Kehote",
+  "parameters": "Parametrit",
+  "copy": "Kopioi",
+  "copyAll": "Kopioi Kaikki",
+  "copySuccess": "Kopioitu!",
+  "noMetadata": "Luontimetatietoja ei löytynyt.",
+  "loadMetadata": "Lataa Metatiedot",
+  "deleteEntry": "Poista Merkintä",
+  "historyTitle": "Kuvahistoria",
+  "historySearch": "Hae tiedostonimi, kehotukset, parametrit...",
+  "previewAlt": "Esikatselu",
+  "footer": {
+    "metadataNotice": "PNG-metatietojen purku 'parameters' tekstilohkolle."
+  }
+}

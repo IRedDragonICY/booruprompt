@@ -1,0 +1,16 @@
+{
+  "backButton": "العودة إلى قائمة Booru",
+  "notFoundTitle": "Booru غير موجود",
+  "notFoundDescription": "نطاق booru \"{{domain}}\" غير موجود في قاعدة بياناتنا.",
+  "statistics": "الإحصائيات",
+  "totalImages": "إجمالي الصور",
+  "totalMembers": "إجمالي الأعضاء",
+  "shortName": "الاسم المختصر",
+  "owner": "المالك",
+  "hosted": "مستضاف بواسطة booru.org",
+  "protocol": "البروتوكول",
+  "yes": "نعم",
+  "no": "لا",
+  "visit": "زيارة {{name}}",
+  "loading": "جارٍ التحميل..."
+}

@@ -1,0 +1,77 @@
+{
+  "appName": "Booru екстрактор ознака",
+  "language": "Језик",
+  "english": "Енглески",
+  "indonesian": "Индонежански",
+  "chinese": "Кинески",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Језик интерфејса",
+    "description": "Сачувано у вашем прегледачу. Подразумевани језик је енглески.",
+    "instantNotice": "Промене се примењују тренутно без поновног учитавања.",
+    "searchPlaceholder": "Претражи језике...",
+    "noResults": "Нема пронађених језика"
+  },
+  "nav": {
+    "extractor": "Ознаке",
+    "image": "Слика",
+    "booruList": "Booru",
+    "settings": "Подешавања"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Додај",
+    "apply": "Примени",
+    "back": "Назад",
+    "cancel": "Откажи",
+    "clear": "Обриши",
+    "close": "Затвори",
+    "confirm": "Потврди",
+    "copy": "Копирај",
+    "copied": "Копирано!",
+    "delete": "Избриши",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Сачувај",
+    "search": "Претражи",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Све",
+    "none": "Ништа",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

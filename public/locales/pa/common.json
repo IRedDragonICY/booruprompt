@@ -1,0 +1,77 @@
+{
+  "appName": "Booru ਟੈਗ ਐਕਸਟ੍ਰੈਕਟਰ",
+  "language": "ਭਾਸ਼ਾ",
+  "english": "ਅੰਗਰੇਜ਼ੀ",
+  "indonesian": "ਇੰਡੋਨੇਸ਼ੀਆਈ",
+  "chinese": "ਚੀਨੀ",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "ਇੰਟਰਫੇਸ ਭਾਸ਼ਾ",
+    "description": "ਤੁਹਾਡੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸੁਰੱਖਿਅਤ। ਮੂਲ ਭਾਸ਼ਾ ਅੰਗਰੇਜ਼ੀ ਹੈ।",
+    "instantNotice": "ਬਦਲਾਅ ਰੀਲੋਡ ਕੀਤੇ ਬਿਨਾਂ ਲਾਗੂ ਹੁੰਦੇ ਹਨ।",
+    "searchPlaceholder": "ਭਾਸ਼ਾਵਾਂ ਖੋਜੋ...",
+    "noResults": "ਕੋਈ ਭਾਸ਼ਾ ਨਹੀਂ ਮਿਲੀ"
+  },
+  "nav": {
+    "extractor": "ਟੈਗ",
+    "image": "ਤਸਵੀਰ",
+    "booruList": "Booru",
+    "settings": "ਸੈਟਿੰਗਾਂ"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "ਸ਼ਾਮਲ ਕਰੋ",
+    "apply": "ਲਾਗੂ ਕਰੋ",
+    "back": "ਪਿੱਛੇ",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "clear": "ਸਾਫ਼ ਕਰੋ",
+    "close": "ਬੰਦ ਕਰੋ",
+    "confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
+    "copy": "ਕਾਪੀ ਕਰੋ",
+    "copied": "ਕਾਪੀ ਹੋ ਗਿਆ!",
+    "delete": "ਮਿਟਾਓ",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "ਸੁਰੱਖਿਅਤ ਕਰੋ",
+    "search": "ਖੋਜੋ",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "ਸਾਰੇ",
+    "none": "ਕੋਈ ਨਹੀਂ",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

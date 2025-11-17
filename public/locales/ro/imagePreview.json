@@ -1,0 +1,10 @@
+{
+  "loading": "Se încarcă previzualizarea...",
+  "error": "Nu s-a putut încărca previzualizarea.",
+  "errorDetail": "Eroare proxy server sau imagine invalidă",
+  "videoUnsupported": "Browserul dumneavoastră nu suportă video.",
+  "openFull": "Deschide previzualizare la dimensiune completă",
+  "close": "Închide",
+  "reset": "Resetare",
+  "openOriginal": "Deschide originalul"
+}

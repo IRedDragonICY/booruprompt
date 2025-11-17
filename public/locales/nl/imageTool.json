@@ -1,0 +1,23 @@
+{
+  "title": "Afbeeldingsmetadata",
+  "dropCtaTitle": "Sleep & Zet PNG Hier Neer",
+  "dropCtaSubtitle": "of klik om te uploaden",
+  "selectButton": "Selecteer PNG",
+  "statusProcessing": "Verwerken...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positieve Prompt",
+  "negativePrompt": "Negatieve Prompt",
+  "parameters": "Parameters",
+  "copy": "Kopiëren",
+  "copyAll": "Alles Kopiëren",
+  "copySuccess": "Gekopieerd!",
+  "noMetadata": "Geen generatiemetadata gevonden.",
+  "loadMetadata": "Metadata Laden",
+  "deleteEntry": "Item Verwijderen",
+  "historyTitle": "Afbeeldingsgeschiedenis",
+  "historySearch": "Zoek bestandsnaam, prompts, params...",
+  "previewAlt": "Voorvertoning",
+  "footer": {
+    "metadataNotice": "PNG metadata-extractie voor 'parameters' tekstchunk."
+  }
+}

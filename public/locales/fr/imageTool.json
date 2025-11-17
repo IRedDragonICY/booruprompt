@@ -1,0 +1,23 @@
+{
+  "title": "Métadonnées d'Image",
+  "dropCtaTitle": "Glissez-Déposez un PNG Ici",
+  "dropCtaSubtitle": "ou cliquez pour télécharger",
+  "selectButton": "Sélectionner PNG",
+  "statusProcessing": "Traitement...",
+  "previewMeta": "{{name}} ({{size}} Ko)",
+  "positivePrompt": "Prompt Positif",
+  "negativePrompt": "Prompt Négatif",
+  "parameters": "Paramètres",
+  "copy": "Copier",
+  "copyAll": "Copier Tout",
+  "copySuccess": "Copié !",
+  "noMetadata": "Aucune métadonnée de génération trouvée.",
+  "loadMetadata": "Charger les Métadonnées",
+  "deleteEntry": "Supprimer l'Entrée",
+  "historyTitle": "Historique des Images",
+  "historySearch": "Rechercher nom de fichier, prompts, paramètres...",
+  "previewAlt": "Aperçu",
+  "footer": {
+    "metadataNotice": "Extraction de métadonnées PNG pour le bloc de texte \"parameters\"."
+  }
+}

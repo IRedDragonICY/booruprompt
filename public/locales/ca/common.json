@@ -1,0 +1,77 @@
+{
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  },
+  "appName": "Booru extractor d'etiquetes",
+  "language": "Idioma",
+  "english": "Anglès",
+  "indonesian": "Indonesi",
+  "chinese": "Xinès",
+  "languageSwitcher": {
+    "title": "Idioma de la interfície",
+    "description": "Desat al vostre navegador. L'idioma predeterminat és l'anglès.",
+    "instantNotice": "Els canvis s'apliquen immediatament sense recarregar.",
+    "searchPlaceholder": "Cerca idiomes...",
+    "noResults": "No s'han trobat idiomes"
+  },
+  "nav": {
+    "extractor": "Etiquetes",
+    "image": "Imatge",
+    "booruList": "Booru",
+    "settings": "Configuració"
+  },
+  "actions": {
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "select": "Select",
+    "submit": "Submit",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next",
+    "add": "Afegeix",
+    "apply": "Aplica",
+    "back": "Enrere",
+    "cancel": "Cancel·la",
+    "clear": "Neteja",
+    "close": "Tanca",
+    "confirm": "Confirma",
+    "copy": "Copia",
+    "copied": "Copiat!",
+    "delete": "Suprimeix",
+    "save": "Desa",
+    "search": "Cerca",
+    "all": "Tot",
+    "none": "Cap"
+  }
+}

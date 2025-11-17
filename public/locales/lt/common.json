@@ -1,0 +1,77 @@
+{
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  },
+  "appName": "Booru žymų ekstraktorius",
+  "language": "Kalba",
+  "english": "Anglų",
+  "indonesian": "Indoneziečių",
+  "chinese": "Kinų",
+  "languageSwitcher": {
+    "title": "Sąsajos kalba",
+    "description": "Išsaugota jūsų naršyklėje. Numatytoji kalba yra anglų.",
+    "instantNotice": "Pakeitimai taikomi iš karto be perkrovimo.",
+    "searchPlaceholder": "Ieškoti kalbų...",
+    "noResults": "Kalbų nerasta"
+  },
+  "nav": {
+    "extractor": "Žymos",
+    "image": "Paveikslas",
+    "booruList": "Booru",
+    "settings": "Nustatymai"
+  },
+  "actions": {
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "select": "Select",
+    "submit": "Submit",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next",
+    "add": "Pridėti",
+    "apply": "Taikyti",
+    "back": "Atgal",
+    "cancel": "Atšaukti",
+    "clear": "Išvalyti",
+    "close": "Uždaryti",
+    "confirm": "Patvirtinti",
+    "copy": "Kopijuoti",
+    "copied": "Nukopijuota!",
+    "delete": "Ištrinti",
+    "save": "Išsaugoti",
+    "search": "Ieškoti",
+    "all": "Visi",
+    "none": "Nieko"
+  }
+}

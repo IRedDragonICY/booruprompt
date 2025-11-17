@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Booru-taginpurkaja",
+    "subtitle": "Pura tagit booru-kuvatauluista",
+    "supported": "Tuetut alustat:",
+    "urlLabel": "Booru-julkaisun URL",
+    "urlPlaceholder": "Liitä booru-julkaisun URL tähän...",
+    "manualButton": "Pura Manuaalisesti",
+    "resetButton": "Nollaa",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Booru-taginpurkaja",
+    "heroSubtitle": "Pura, suodata ja kopioi tagit booru-sivustoilta välittömästi",
+    "features": {
+      "smart": {
+        "title": "Älykäs",
+        "subtitle": "Automaattinen purku"
+      },
+      "fast": {
+        "title": "Nopea",
+        "subtitle": "Välittömät tulokset"
+      },
+      "private": {
+        "title": "Yksityinen",
+        "subtitle": "Asiakaspuoli"
+      },
+      "copy": {
+        "title": "Kopioi",
+        "subtitle": "Yhdellä napsautuksella"
+      }
+    },
+    "cta": {
+      "paste": "Liitä",
+      "extract": "Pura",
+      "filter": "Suodata",
+      "copy": "Kopioi"
+    },
+    "supportNotice": "Tukee Danboorua, Gelboorua, Safeboorua, Rule34:ää, e621:tä ja muita"
+  },
+  "preview": {
+    "title": "Esikatselu"
+  },
+  "status": {
+    "resultLabel": "Tulos:"
+  },
+  "categories": {
+    "title": "Suodata Kategoriat",
+    "enableAll": "Kaikki",
+    "disableAll": "Ei mitään",
+    "items": {
+      "copyright": "Tekijänoikeus",
+      "character": "Hahmo",
+      "general": "Yleinen",
+      "meta": "Meta",
+      "other": "Muu"
+    },
+    "count_one": "{{count}} tagi",
+    "count_other": "{{count}} tagia"
+  },
+  "filteredTags": {
+    "label": "Suodatetut Tagit",
+    "ariaLabel": "Suodatetut tagit",
+    "empty": "Ei tageja näytettävänä.",
+    "copy": "Kopioi Tagit",
+    "copied": "Kopioitu!"
+  },
+  "history": {
+    "extractionTitle": "Purkuhistoria",
+    "imageTitle": "Kuvahistoria",
+    "searchExtraction": "Hae otsikko, url, tagit...",
+    "searchImages": "Hae tiedostonimi, kehotukset, parametrit...",
+    "emptySearch": "Ei hakuasi vastaavia merkintöjä.",
+    "clearTooltip": "Tyhjennä Koko Historia",
+    "clearAction": "Tyhjennä Historia",
+    "confirmMessage": "Varmasti tyhjennä?",
+    "confirmYes": "Kyllä, Tyhjennä",
+    "confirmCancel": "Peruuta",
+    "searchAriaLabel": "Hae {{context}}",
+    "searchFallback": "historia",
+    "clearSearchTooltip": "Tyhjennä Haku",
+    "clearSearchAria": "Tyhjennä haku"
+  },
+  "mobile": {
+    "historyButton": "Historia",
+    "urlLabel": "Booru-julkaisun URL",
+    "urlPlaceholder": "Liitä URL tai Vedä & Pudota...",
+    "manualButton": "Pura Manuaalisesti",
+    "resetButton": "Nollaa"
+  }
+}

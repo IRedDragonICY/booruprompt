@@ -1,0 +1,23 @@
+{
+  "title": "Image Metadata",
+  "dropCtaTitle": "Drag & Drop PNG Here",
+  "dropCtaSubtitle": "or click to upload",
+  "selectButton": "Select PNG",
+  "statusProcessing": "Processing...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positive Prompt",
+  "negativePrompt": "Negative Prompt",
+  "parameters": "Parameters",
+  "copy": "Copy",
+  "copyAll": "Copy All",
+  "copySuccess": "Copied!",
+  "noMetadata": "No generation metadata found.",
+  "loadMetadata": "Load Metadata",
+  "deleteEntry": "Delete Entry",
+  "historyTitle": "Image History",
+  "historySearch": "Search filename, prompts, params...",
+  "previewAlt": "Preview",
+  "footer": {
+    "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+  }
+}

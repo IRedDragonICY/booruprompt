@@ -1,0 +1,23 @@
+{
+  "title": "Billedmetadata",
+  "dropCtaTitle": "Træk & Slip PNG Her",
+  "dropCtaSubtitle": "eller klik for at uploade",
+  "selectButton": "Vælg PNG",
+  "statusProcessing": "Behandler...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positiv Prompt",
+  "negativePrompt": "Negativ Prompt",
+  "parameters": "Parametre",
+  "copy": "Kopier",
+  "copyAll": "Kopier Alt",
+  "copySuccess": "Kopieret!",
+  "noMetadata": "Ingen genereringsmetadata fundet.",
+  "loadMetadata": "Indlæs Metadata",
+  "deleteEntry": "Slet Post",
+  "historyTitle": "Billedhistorik",
+  "historySearch": "Søg filnavn, prompts, parametre...",
+  "previewAlt": "Forhåndsvisning",
+  "footer": {
+    "metadataNotice": "PNG-metadataudtrækning for 'parameters' tekstblok."
+  }
+}

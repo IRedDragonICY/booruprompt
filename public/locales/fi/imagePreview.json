@@ -1,0 +1,10 @@
+{
+  "loading": "Ladataan esikatselua...",
+  "error": "Esikatselua ei voitu ladata.",
+  "errorDetail": "Palvelinvälityspalvelinvirhe tai virheellinen kuva",
+  "videoUnsupported": "Selaimesi ei tue videota.",
+  "openFull": "Avaa täysikokoinen esikatselu",
+  "close": "Sulje",
+  "reset": "Nollaa",
+  "openOriginal": "Avaa alkuperäinen"
+}

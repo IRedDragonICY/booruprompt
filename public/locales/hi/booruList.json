@@ -1,0 +1,41 @@
+{
+  "pageTitle": "शीर्ष Booru लीडरबोर्ड",
+  "pageDescriptionShort": "कुल छवियों और गतिविधि के आधार पर शीर्ष booru साइटों का अन्वेषण करें।",
+  "pageDescriptionLong": "वेब से सबसे लोकप्रिय booru साइटों की खोज करें। Booru.org से डेटा के साथ कुल छवियों, सदस्य संख्या और गतिविधि के आधार पर रैंक किया गया।",
+  "searchPlaceholder": "booru साइटें खोजें...",
+  "filter": {
+    "all": "सभी",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "छवियां",
+    "members": "सदस्य",
+    "owner": "मालिक"
+  },
+  "sort": {
+    "label": "इससे क्रमबद्ध करें:",
+    "rank": "रैंक (शीर्ष)",
+    "images": "छवि संख्या",
+    "members": "सदस्य संख्या",
+    "asc": "आरोही",
+    "desc": "अवरोही"
+  },
+  "itemsPerPage": "प्रति पृष्ठ:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> में से {{total}}",
+  "pagination": {
+    "previous": "पिछला",
+    "next": "अगला",
+    "previousShort": "पिछला",
+    "nextShort": "अगला"
+  },
+  "emptyState": "कोई booru साइट नहीं मिली",
+  "loading": "booru डेटा लोड हो रहा है...",
+  "errorTitle": "डेटा लोड करने में त्रुटि",
+  "errors": {
+    "fetchFailed": "booru डेटा प्राप्त करने में विफल।",
+    "unknown": "लीडरबोर्ड लोड करते समय कुछ गलत हो गया।"
+  },
+  "ownerLabel": "मालिक:",
+  "visit": "{{name}} पर जाएं"
+}

@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Booru タグ抽出ツール",
+    "subtitle": "Booru画像ボードからタグを抽出",
+    "supported": "対応プラットフォーム:",
+    "urlLabel": "Booru投稿URL",
+    "urlPlaceholder": "Booru投稿URLをここに貼り付け...",
+    "manualButton": "手動抽出",
+    "resetButton": "リセット",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Booru タグ抽出ツール",
+    "heroSubtitle": "Booruサイトからタグを瞬時に抽出、フィルタ、コピー",
+    "features": {
+      "smart": {
+        "title": "スマート",
+        "subtitle": "自動抽出"
+      },
+      "fast": {
+        "title": "高速",
+        "subtitle": "即座に結果"
+      },
+      "private": {
+        "title": "プライベート",
+        "subtitle": "クライアント側"
+      },
+      "copy": {
+        "title": "コピー",
+        "subtitle": "ワンクリック"
+      }
+    },
+    "cta": {
+      "paste": "貼り付け",
+      "extract": "抽出",
+      "filter": "フィルタ",
+      "copy": "コピー"
+    },
+    "supportNotice": "Danbooru、Gelbooru、Safebooru、Rule34、e621などに対応"
+  },
+  "preview": {
+    "title": "プレビュー"
+  },
+  "status": {
+    "resultLabel": "結果:"
+  },
+  "categories": {
+    "title": "カテゴリをフィルタ",
+    "enableAll": "すべて",
+    "disableAll": "なし",
+    "items": {
+      "copyright": "著作権",
+      "character": "キャラクター",
+      "general": "一般",
+      "meta": "メタ",
+      "other": "その他"
+    },
+    "count_one": "{{count}}個のタグ",
+    "count_other": "{{count}}個のタグ"
+  },
+  "filteredTags": {
+    "label": "フィルタされたタグ",
+    "ariaLabel": "フィルタされたタグ",
+    "empty": "表示するタグがありません。",
+    "copy": "タグをコピー",
+    "copied": "コピーしました！"
+  },
+  "history": {
+    "extractionTitle": "抽出履歴",
+    "imageTitle": "画像履歴",
+    "searchExtraction": "タイトル、URL、タグを検索...",
+    "searchImages": "ファイル名、プロンプト、パラメータを検索...",
+    "emptySearch": "検索に一致するエントリがありません。",
+    "clearTooltip": "すべての履歴をクリア",
+    "clearAction": "履歴をクリア",
+    "confirmMessage": "本当にクリアしますか？",
+    "confirmYes": "はい、クリア",
+    "confirmCancel": "キャンセル",
+    "searchAriaLabel": "{{context}}を検索",
+    "searchFallback": "履歴",
+    "clearSearchTooltip": "検索をクリア",
+    "clearSearchAria": "検索をクリア"
+  },
+  "mobile": {
+    "historyButton": "履歴",
+    "urlLabel": "Booru投稿URL",
+    "urlPlaceholder": "URLを貼り付けるかドラッグ＆ドロップ...",
+    "manualButton": "手動抽出",
+    "resetButton": "リセット"
+  }
+}

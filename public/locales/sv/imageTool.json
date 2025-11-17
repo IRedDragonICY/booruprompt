@@ -1,0 +1,23 @@
+{
+  "title": "Bildmetadata",
+  "dropCtaTitle": "Dra & Släpp PNG Här",
+  "dropCtaSubtitle": "eller klicka för att ladda upp",
+  "selectButton": "Välj PNG",
+  "statusProcessing": "Bearbetar...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Positiv Uppmaning",
+  "negativePrompt": "Negativ Uppmaning",
+  "parameters": "Parametrar",
+  "copy": "Kopiera",
+  "copyAll": "Kopiera Allt",
+  "copySuccess": "Kopierat!",
+  "noMetadata": "Ingen genereringsmetadata hittades.",
+  "loadMetadata": "Ladda Metadata",
+  "deleteEntry": "Radera Post",
+  "historyTitle": "Bildhistorik",
+  "historySearch": "Sök filnamn, uppmaningar, parametrar...",
+  "previewAlt": "Förhandsvisning",
+  "footer": {
+    "metadataNotice": "PNG-metadataextrahering för 'parameters' textchunk."
+  }
+}

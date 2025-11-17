@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Tabla de Clasificación de Top Booru",
+  "pageDescriptionShort": "Explora los mejores sitios booru clasificados por total de imágenes y actividad.",
+  "pageDescriptionLong": "Descubre los sitios booru más populares de la web. Clasificados por total de imágenes, número de miembros y actividad con datos de Booru.org.",
+  "searchPlaceholder": "Buscar sitios booru...",
+  "filter": {
+    "all": "Todo",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Imágenes",
+    "members": "Miembros",
+    "owner": "Propietario"
+  },
+  "sort": {
+    "label": "Ordenar por:",
+    "rank": "Clasificación (Top)",
+    "images": "Cantidad de Imágenes",
+    "members": "Cantidad de Miembros",
+    "asc": "Ascendente",
+    "desc": "Descendente"
+  },
+  "itemsPerPage": "Por página:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> de {{total}}",
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "previousShort": "Ant",
+    "nextShort": "Sig"
+  },
+  "emptyState": "No se encontraron sitios booru",
+  "loading": "Cargando datos booru...",
+  "errorTitle": "Error al Cargar Datos",
+  "errors": {
+    "fetchFailed": "Error al obtener datos booru.",
+    "unknown": "Algo salió mal al cargar la tabla de clasificación."
+  },
+  "ownerLabel": "Propietario:",
+  "visit": "Visitar {{name}}"
+}

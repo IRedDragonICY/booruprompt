@@ -1,0 +1,16 @@
+{
+  "backButton": "Retour à la Liste des Boorus",
+  "notFoundTitle": "Booru Non Trouvé",
+  "notFoundDescription": "Le domaine booru \"{{domain}}\" n'a pas été trouvé dans notre base de données.",
+  "statistics": "Statistiques",
+  "totalImages": "Images Totales",
+  "totalMembers": "Membres Totaux",
+  "shortName": "Nom Court",
+  "owner": "Propriétaire",
+  "hosted": "Hébergé par booru.org",
+  "protocol": "Protocole",
+  "yes": "Oui",
+  "no": "Non",
+  "visit": "Visiter {{name}}",
+  "loading": "Chargement..."
+}

@@ -1,0 +1,16 @@
+{
+  "backButton": "Zpět na Seznam Booru",
+  "notFoundTitle": "Booru Nebylo Nalezeno",
+  "notFoundDescription": "Doména booru \"{{domain}}\" nebyla v naší databázi nalezena.",
+  "statistics": "Statistiky",
+  "totalImages": "Celkový Počet Obrázků",
+  "totalMembers": "Celkový Počet Členů",
+  "shortName": "Krátký Název",
+  "owner": "Vlastník",
+  "hosted": "Hostováno na booru.org",
+  "protocol": "Protokol",
+  "yes": "Ano",
+  "no": "Ne",
+  "visit": "Navštívit {{name}}",
+  "loading": "Načítání..."
+}

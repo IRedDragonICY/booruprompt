@@ -1,0 +1,16 @@
+{
+  "backButton": "Kembali ke daftar booru",
+  "notFoundTitle": "Booru tidak ditemukan",
+  "notFoundDescription": "Domain booru \"{{domain}}\" tidak ditemukan di basis data kami.",
+  "statistics": "Statistik",
+  "totalImages": "Total Gambar",
+  "totalMembers": "Total Anggota",
+  "shortName": "Nama singkat",
+  "owner": "Pemilik",
+  "hosted": "Di-host oleh booru.org",
+  "protocol": "Protokol",
+  "yes": "Ya",
+  "no": "Tidak",
+  "visit": "Kunjungi {{name}}",
+  "loading": "Memuat..."
+}

@@ -1,0 +1,10 @@
+{
+  "loading": "Cargando vista previa...",
+  "error": "No se pudo cargar la vista previa.",
+  "errorDetail": "Error de proxy del servidor o imagen inválida",
+  "videoUnsupported": "Tu navegador no soporta video.",
+  "openFull": "Abrir vista previa a tamaño completo",
+  "close": "Cerrar",
+  "reset": "Restablecer",
+  "openOriginal": "Abrir original"
+}

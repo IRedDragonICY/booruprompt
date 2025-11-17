@@ -1,0 +1,10 @@
+{
+  "loading": "Vorschau wird geladen...",
+  "error": "Vorschau konnte nicht geladen werden.",
+  "errorDetail": "Server-Proxy-Fehler oder ungültiges Bild",
+  "videoUnsupported": "Ihr Browser unterstützt kein Video.",
+  "openFull": "Vollbildvorschau öffnen",
+  "close": "Schließen",
+  "reset": "Zurücksetzen",
+  "openOriginal": "Original öffnen"
+}

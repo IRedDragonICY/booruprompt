@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Booru Tag Extractor",
+    "subtitle": "Ekstrak tag dari papan gambar booru",
+    "supported": "Platform yang didukung:",
+    "urlLabel": "URL Postingan Booru",
+    "urlPlaceholder": "Tempel URL postingan booru di sini...",
+    "manualButton": "Ekstrak Manual",
+    "resetButton": "Atur ulang",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Booru Tag Extractor",
+    "heroSubtitle": "Ekstrak, saring, dan salin tag dari situs booru secara instan",
+    "features": {
+      "smart": {
+        "title": "Cerdas",
+        "subtitle": "Ekstrak otomatis"
+      },
+      "fast": {
+        "title": "Cepat",
+        "subtitle": "Hasil instan"
+      },
+      "private": {
+        "title": "Privat",
+        "subtitle": "Di sisi klien"
+      },
+      "copy": {
+        "title": "Salin",
+        "subtitle": "Sekali klik"
+      }
+    },
+    "cta": {
+      "paste": "Tempel",
+      "extract": "Ekstrak",
+      "filter": "Saring",
+      "copy": "Salin"
+    },
+    "supportNotice": "Mendukung Danbooru, Gelbooru, Safebooru, Rule34, e621, dan lainnya"
+  },
+  "preview": {
+    "title": "Pratinjau"
+  },
+  "status": {
+    "resultLabel": "Hasil untuk:"
+  },
+  "categories": {
+    "title": "Kategori Filter",
+    "enableAll": "Semua",
+    "disableAll": "Tidak ada",
+    "items": {
+      "copyright": "Hak cipta",
+      "character": "Karakter",
+      "general": "Umum",
+      "meta": "Meta",
+      "other": "Lainnya"
+    },
+    "count_one": "{{count}} tag",
+    "count_other": "{{count}} tag"
+  },
+  "filteredTags": {
+    "label": "Tag Terfilter",
+    "ariaLabel": "Tag terfilter",
+    "empty": "Tidak ada tag untuk ditampilkan.",
+    "copy": "Salin Tag",
+    "copied": "Tersalin!"
+  },
+  "history": {
+    "extractionTitle": "Riwayat Ekstraksi",
+    "imageTitle": "Riwayat Gambar",
+    "searchExtraction": "Cari judul, url, tag...",
+    "searchImages": "Cari nama berkas, prompt, parameter...",
+    "emptySearch": "Tidak ada entri yang cocok.",
+    "clearTooltip": "Bersihkan semua riwayat",
+    "clearAction": "Bersihkan Riwayat",
+    "confirmMessage": "Yakin bersihkan?",
+    "confirmYes": "Ya, bersihkan",
+    "confirmCancel": "Batal",
+    "searchAriaLabel": "Cari {{context}}",
+    "searchFallback": "riwayat",
+    "clearSearchTooltip": "Hapus pencarian",
+    "clearSearchAria": "Hapus pencarian"
+  },
+  "mobile": {
+    "historyButton": "Riwayat",
+    "urlLabel": "URL Postingan Booru",
+    "urlPlaceholder": "Tempel URL atau tarik & jatuhkan...",
+    "manualButton": "Ekstrak Manual",
+    "resetButton": "Atur ulang"
+  }
+}

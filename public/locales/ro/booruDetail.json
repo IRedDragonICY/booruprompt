@@ -1,0 +1,16 @@
+{
+  "backButton": "Înapoi la Lista Booru",
+  "notFoundTitle": "Booru Nu a Fost Găsit",
+  "notFoundDescription": "Domeniul booru \"{{domain}}\" nu a fost găsit în baza noastră de date.",
+  "statistics": "Statistici",
+  "totalImages": "Total Imagini",
+  "totalMembers": "Total Membri",
+  "shortName": "Nume Scurt",
+  "owner": "Proprietar",
+  "hosted": "Găzduit de booru.org",
+  "protocol": "Protocol",
+  "yes": "Da",
+  "no": "Nu",
+  "visit": "Vizitează {{name}}",
+  "loading": "Se încarcă..."
+}

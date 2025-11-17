@@ -1,0 +1,77 @@
+{
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  },
+  "appName": "Booru siltide ekstraktor",
+  "language": "Keel",
+  "english": "Inglise",
+  "indonesian": "Indoneesia",
+  "chinese": "Hiina",
+  "languageSwitcher": {
+    "title": "Liidese keel",
+    "description": "Salvestatud teie brauserisse. Vaikekeel on inglise.",
+    "instantNotice": "Muudatused rakenduvad kohe ilma uuesti laadimata.",
+    "searchPlaceholder": "Otsi keeli...",
+    "noResults": "Keeli ei leitud"
+  },
+  "nav": {
+    "extractor": "Sildid",
+    "image": "Pilt",
+    "booruList": "Booru",
+    "settings": "Seaded"
+  },
+  "actions": {
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "select": "Select",
+    "submit": "Submit",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next",
+    "add": "Lisa",
+    "apply": "Rakenda",
+    "back": "Tagasi",
+    "cancel": "Tühista",
+    "clear": "Kustuta",
+    "close": "Sulge",
+    "confirm": "Kinnita",
+    "copy": "Kopeeri",
+    "copied": "Kopeeritud!",
+    "delete": "Kustuta",
+    "save": "Salvesta",
+    "search": "Otsi",
+    "all": "Kõik",
+    "none": "Mitte midagi"
+  }
+}

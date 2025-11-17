@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Topp Booru Rankingstabell",
+  "pageDescriptionShort": "Utforska de bästa boorusajterna rankade efter totalt antal bilder och aktivitet.",
+  "pageDescriptionLong": "Upptäck de mest populära boorusajterna från hela webben. Rankade efter totalt antal bilder, antal medlemmar och aktivitet med data från Booru.org.",
+  "searchPlaceholder": "Sök boorusajter...",
+  "filter": {
+    "all": "Alla",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Bilder",
+    "members": "Medlemmar",
+    "owner": "Ägare"
+  },
+  "sort": {
+    "label": "Sortera efter:",
+    "rank": "Ranking (Topp)",
+    "images": "Antal Bilder",
+    "members": "Antal Medlemmar",
+    "asc": "Stigande",
+    "desc": "Fallande"
+  },
+  "itemsPerPage": "Per sida:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> av {{total}}",
+  "pagination": {
+    "previous": "Föregående",
+    "next": "Nästa",
+    "previousShort": "Föreg",
+    "nextShort": "Nästa"
+  },
+  "emptyState": "Inga boorusajter hittades",
+  "loading": "Laddar boorudata...",
+  "errorTitle": "Fel vid Laddning av Data",
+  "errors": {
+    "fetchFailed": "Misslyckades med att hämta boorudata.",
+    "unknown": "Något gick fel vid laddning av rankingslistan."
+  },
+  "ownerLabel": "Ägare:",
+  "visit": "Besök {{name}}"
+}

@@ -1,0 +1,77 @@
+{
+  "appName": "Booru Tag Extractor",
+  "language": "Bahasa",
+  "english": "Inggris",
+  "indonesian": "Indonesia",
+  "chinese": "Tionghoa",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Ekstrak, saring, dan salin tag dari postingan booru secara instan.",
+  "unknown": "Tidak diketahui",
+  "languageSwitcher": {
+    "title": "Bahasa antarmuka",
+    "description": "Disimpan di peramban Anda. Bahasa awalnya adalah Inggris.",
+    "instantNotice": "Perubahan langsung diterapkan tanpa memuat ulang.",
+    "searchPlaceholder": "Cari bahasa...",
+    "noResults": "Bahasa tidak ditemukan"
+  },
+  "nav": {
+    "extractor": "Tag",
+    "image": "Gambar",
+    "booruList": "Booru",
+    "settings": "Pengaturan"
+  },
+  "navTooltip": {
+    "extractor": "Ekstraktor Tag",
+    "image": "Metadata Gambar",
+    "booruList": "Papan Peringkat Booru",
+    "settings": "Pengaturan"
+  },
+  "dropOverlay": {
+    "url": "Jatuhkan URL",
+    "png": "Jatuhkan PNG"
+  },
+  "actions": {
+    "add": "Tambah",
+    "apply": "Terapkan",
+    "back": "Kembali",
+    "cancel": "Batal",
+    "clear": "Bersihkan",
+    "close": "Tutup",
+    "confirm": "Konfirmasi",
+    "copy": "Salin",
+    "copied": "Tersalin!",
+    "delete": "Hapus",
+    "done": "Selesai",
+    "edit": "Ubah",
+    "next": "Berikutnya",
+    "previous": "Sebelumnya",
+    "refresh": "Muat ulang",
+    "reset": "Atur ulang",
+    "retry": "Coba lagi",
+    "save": "Simpan",
+    "search": "Cari",
+    "select": "Pilih",
+    "submit": "Kirim",
+    "all": "Semua",
+    "none": "Tidak ada",
+    "visit": "Kunjungi",
+    "previousShort": "Sblm",
+    "nextShort": "Brkt"
+  },
+  "status": {
+    "loading": "Memuat...",
+    "processing": "Sedang memproses..."
+  },
+  "footer": {
+    "madeWith": "Dibuat dengan",
+    "by": "oleh"
+  },
+  "statusBar": {
+    "serverProxy": "Proksi Server.",
+    "clientProxy": "Proksi Klien ({{proxy}}).",
+    "historyEnabled": "Riwayat aktif ({{size}}).",
+    "historyDisabled": "Riwayat nonaktif.",
+    "historyUnlimited": "Tak terbatas",
+    "historyEntries": "{{count}} Entri"
+  }
+}

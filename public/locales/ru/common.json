@@ -1,0 +1,77 @@
+{
+  "appName": "Извлечение Тегов Booru",
+  "language": "Язык",
+  "english": "Английский",
+  "indonesian": "Индонезийский",
+  "chinese": "Китайский",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Язык интерфейса",
+    "description": "Сохраняется в вашем браузере. Язык по умолчанию - английский.",
+    "instantNotice": "Изменения применяются мгновенно без перезагрузки.",
+    "searchPlaceholder": "Поиск языков...",
+    "noResults": "Языки не найдены"
+  },
+  "nav": {
+    "extractor": "Теги",
+    "image": "Изображение",
+    "booruList": "Booru",
+    "settings": "Настройки"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Добавить",
+    "apply": "Применить",
+    "back": "Назад",
+    "cancel": "Отмена",
+    "clear": "Очистить",
+    "close": "Закрыть",
+    "confirm": "Подтвердить",
+    "copy": "Копировать",
+    "copied": "Скопировано!",
+    "delete": "Удалить",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Сохранить",
+    "search": "Поиск",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Все",
+    "none": "Нет",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

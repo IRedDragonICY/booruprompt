@@ -1,0 +1,77 @@
+{
+  "appName": "Booru टैग निष्कर्षक",
+  "language": "भाषा",
+  "english": "अंग्रेज़ी",
+  "indonesian": "इंडोनेशियाई",
+  "chinese": "चीनी",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "इंटरफ़ेस भाषा",
+    "description": "आपके ब्राउज़र में सहेजी गई। डिफ़ॉल्ट भाषा अंग्रेज़ी है।",
+    "instantNotice": "परिवर्तन बिना पुनः लोड किए तुरंत लागू होते हैं।",
+    "searchPlaceholder": "भाषाएं खोजें...",
+    "noResults": "कोई भाषा नहीं मिली"
+  },
+  "nav": {
+    "extractor": "टैग",
+    "image": "छवि",
+    "booruList": "Booru",
+    "settings": "सेटिंग्स"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "जोड़ें",
+    "apply": "लागू करें",
+    "back": "वापस",
+    "cancel": "रद्द करें",
+    "clear": "साफ़ करें",
+    "close": "बंद करें",
+    "confirm": "पुष्टि करें",
+    "copy": "कॉपी",
+    "copied": "कॉपी हो गया!",
+    "delete": "हटाएं",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "सहेजें",
+    "search": "खोजें",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "सभी",
+    "none": "कोई नहीं",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Booru Tag Extractor",
+    "subtitle": "Ékstrak tag tina papan gambar booru",
+    "supported": "Platform anu dirojong:",
+    "urlLabel": "URL Postingan Booru",
+    "urlPlaceholder": "Tempelkeun URL postingan booru di dieu...",
+    "manualButton": "Ékstrak Manual",
+    "resetButton": "Reset",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Booru Tag Extractor",
+    "heroSubtitle": "Ékstrak, saring, jeung salin tag tina situs booru sacara instan",
+    "features": {
+      "smart": {
+        "title": "Pinter",
+        "subtitle": "Ékstrak otomatis"
+      },
+      "fast": {
+        "title": "Gancang",
+        "subtitle": "Hasil instan"
+      },
+      "private": {
+        "title": "Pribadi",
+        "subtitle": "Sisi klién"
+      },
+      "copy": {
+        "title": "Salin",
+        "subtitle": "Hiji klik"
+      }
+    },
+    "cta": {
+      "paste": "Tempelkeun",
+      "extract": "Ékstrak",
+      "filter": "Saring",
+      "copy": "Salin"
+    },
+    "supportNotice": "Ngarojong Danbooru, Gelbooru, Safebooru, Rule34, e621, jeung lianna"
+  },
+  "preview": {
+    "title": "Pramidang"
+  },
+  "status": {
+    "resultLabel": "Hasil pikeun:"
+  },
+  "categories": {
+    "title": "Kategori Panyaring",
+    "enableAll": "Sadayana",
+    "disableAll": "Euweuh",
+    "items": {
+      "copyright": "Hak cipta",
+      "character": "Karakter",
+      "general": "Umum",
+      "meta": "Meta",
+      "other": "Lianna"
+    },
+    "count_one": "{{count}} tag",
+    "count_other": "{{count}} tag"
+  },
+  "filteredTags": {
+    "label": "Tag anu Disaring",
+    "ariaLabel": "Tag anu disaring",
+    "empty": "Teu aya tag pikeun ditémbongkeun.",
+    "copy": "Salin Tag",
+    "copied": "Geus disalin!"
+  },
+  "history": {
+    "extractionTitle": "Riwayat Ékstraksi",
+    "imageTitle": "Riwayat Gambar",
+    "searchExtraction": "Paluruh judul, url, tag...",
+    "searchImages": "Paluruh ngaran file, prompt, param...",
+    "emptySearch": "Teu aya éntri anu cocog jeung panyungsi anjeun.",
+    "clearTooltip": "Beresihan Sakabéh Riwayat",
+    "clearAction": "Beresihan Riwayat",
+    "confirmMessage": "Yakin badé diberesihan?",
+    "confirmYes": "Enya, Beresihan",
+    "confirmCancel": "Bolay",
+    "searchAriaLabel": "Paluruh {{context}}",
+    "searchFallback": "riwayat",
+    "clearSearchTooltip": "Beresihan Panyungsi",
+    "clearSearchAria": "Beresihan panyungsi"
+  },
+  "mobile": {
+    "historyButton": "Riwayat",
+    "urlLabel": "URL Postingan Booru",
+    "urlPlaceholder": "Tempelkeun URL atawa Sered & Leupaskeun...",
+    "manualButton": "Ékstrak Manual",
+    "resetButton": "Reset"
+  }
+}

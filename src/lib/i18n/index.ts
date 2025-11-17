@@ -1,78 +1,24 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { en } from './locales/en';
-import { id } from './locales/id';
-import { jv } from './locales/jv';
-import { zh_CN } from './locales/zh-CN';
-import { zh_TW } from './locales/zh-TW';
-import { ja } from './locales/ja';
-import { ko } from './locales/ko';
-import { es } from './locales/es';
-import { fr } from './locales/fr';
-import { de } from './locales/de';
-import { it } from './locales/it';
-import { pt } from './locales/pt';
-import { ru } from './locales/ru';
-import { ar } from './locales/ar';
-import { hi } from './locales/hi';
-import { th } from './locales/th';
-import { vi } from './locales/vi';
-import { tr } from './locales/tr';
-import { pl } from './locales/pl';
-import { nl } from './locales/nl';
-import { sv } from './locales/sv';
-import { no } from './locales/no';
-import { da } from './locales/da';
-import { fi } from './locales/fi';
-import { el } from './locales/el';
-import { cs } from './locales/cs';
-import { hu } from './locales/hu';
-import { ro } from './locales/ro';
-import { uk } from './locales/uk';
-import { he } from './locales/he';
-import { ms } from './locales/ms';
-import { tl } from './locales/tl';
-import { bn } from './locales/bn';
-import { fa } from './locales/fa';
-import { su } from './locales/su';
-import { sw } from './locales/sw';
-import { ta } from './locales/ta';
-import { te } from './locales/te';
-import { ur } from './locales/ur';
-import { my } from './locales/my';
-import { km } from './locales/km';
-import { lo } from './locales/lo';
-import { ne } from './locales/ne';
-import { si } from './locales/si';
-import { kk } from './locales/kk';
-import { ka } from './locales/ka';
-import { hy } from './locales/hy';
-import { am } from './locales/am';
-import { ps } from './locales/ps';
-import { ku } from './locales/ku';
-import { mr } from './locales/mr';
-import { gu } from './locales/gu';
-import { kn } from './locales/kn';
-import { ml } from './locales/ml';
-import { pa } from './locales/pa';
-import { sr } from './locales/sr';
-import { hr } from './locales/hr';
-import { bg } from './locales/bg';
-import { sk } from './locales/sk';
-import { sl } from './locales/sl';
-import { et } from './locales/et';
-import { lv } from './locales/lv';
-import { lt } from './locales/lt';
-import { sq } from './locales/sq';
-import { mk } from './locales/mk';
-import { is } from './locales/is';
-import { ca } from './locales/ca';
-import { eu } from './locales/eu';
-import { cy } from './locales/cy';
-import { af } from './locales/af';
+import HttpBackend from 'i18next-http-backend';
 
 export const LANGUAGE_STORAGE_KEY = 'booruPreferredLanguage';
 export const DEFAULT_LANGUAGE = 'en';
+
+// Available namespaces (JSON files)
+export const NAMESPACES = [
+  'common',
+  'settings',
+  'extractor',
+  'imageTool',
+  'historyItem',
+  'imagePreview',
+  'booruList',
+  'booruDetail'
+] as const;
+
+// Default namespace
+export const DEFAULT_NAMESPACE = 'common';
 
 export const availableLanguages = [
   { code: 'en', label: 'English', nativeName: 'English', region: 'United States, United Kingdom' },
@@ -147,89 +93,47 @@ export const availableLanguages = [
   { code: 'af', label: 'Afrikaans', nativeName: 'Afrikaans', region: 'South Africa, Namibia' }
 ] as const;
 
-const resources = {
-  en: { translation: en },
-  id: { translation: id },
-  jv: { translation: jv },
-  'zh-CN': { translation: zh_CN },
-  'zh-TW': { translation: zh_TW },
-  ja: { translation: ja },
-  ko: { translation: ko },
-  es: { translation: es },
-  fr: { translation: fr },
-  de: { translation: de },
-  it: { translation: it },
-  pt: { translation: pt },
-  ru: { translation: ru },
-  ar: { translation: ar },
-  hi: { translation: hi },
-  th: { translation: th },
-  vi: { translation: vi },
-  tr: { translation: tr },
-  pl: { translation: pl },
-  nl: { translation: nl },
-  sv: { translation: sv },
-  no: { translation: no },
-  da: { translation: da },
-  fi: { translation: fi },
-  el: { translation: el },
-  cs: { translation: cs },
-  hu: { translation: hu },
-  ro: { translation: ro },
-  uk: { translation: uk },
-  he: { translation: he },
-  ms: { translation: ms },
-  tl: { translation: tl },
-  bn: { translation: bn },
-  fa: { translation: fa },
-  su: { translation: su },
-  sw: { translation: sw },
-  ta: { translation: ta },
-  te: { translation: te },
-  ur: { translation: ur },
-  my: { translation: my },
-  km: { translation: km },
-  lo: { translation: lo },
-  ne: { translation: ne },
-  si: { translation: si },
-  kk: { translation: kk },
-  ka: { translation: ka },
-  hy: { translation: hy },
-  am: { translation: am },
-  ps: { translation: ps },
-  ku: { translation: ku },
-  mr: { translation: mr },
-  gu: { translation: gu },
-  kn: { translation: kn },
-  ml: { translation: ml },
-  pa: { translation: pa },
-  sr: { translation: sr },
-  hr: { translation: hr },
-  bg: { translation: bg },
-  sk: { translation: sk },
-  sl: { translation: sl },
-  et: { translation: et },
-  lv: { translation: lv },
-  lt: { translation: lt },
-  sq: { translation: sq },
-  mk: { translation: mk },
-  is: { translation: is },
-  ca: { translation: ca },
-  eu: { translation: eu },
-  cy: { translation: cy },
-  af: { translation: af }
-};
-
 if (!i18n.isInitialized) {
   i18n
+    .use(HttpBackend)
     .use(initReactI18next)
     .init({
-      resources,
       lng: DEFAULT_LANGUAGE,
       fallbackLng: DEFAULT_LANGUAGE,
-      interpolation: { escapeValue: false },
-      defaultNS: 'translation',
-      react: { useSuspense: false }
+      ns: NAMESPACES,
+      defaultNS: DEFAULT_NAMESPACE,
+
+      // Load translations from public/locales
+      backend: {
+        loadPath: '/locales/{{lng}}/{{ns}}.json',
+      },
+
+      // Key and namespace separators
+      keySeparator: '.',
+      nsSeparator: ':',
+
+      // Interpolation settings
+      interpolation: {
+        escapeValue: false, // React already escapes
+      },
+
+      // React-specific settings
+      react: {
+        useSuspense: false, // Disable suspense for better compatibility
+      },
+
+      // Debug mode (only in development)
+      debug: process.env.NODE_ENV === 'development',
+
+      // Load namespaces on demand
+      load: 'currentOnly',
+
+      // Preload common languages
+      preload: ['en'],
+
+      // Support for language variants
+      supportedLngs: availableLanguages.map(({ code }) => code),
+      nonExplicitSupportedLngs: false,
     })
     .catch((err) => {
       console.error('Failed to initialize i18next:', err);

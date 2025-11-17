@@ -1,0 +1,10 @@
+{
+  "loading": "Načítání náhledu...",
+  "error": "Náhled se nepodařilo načíst.",
+  "errorDetail": "Chyba serverové proxy nebo neplatný obrázek",
+  "videoUnsupported": "Váš prohlížeč nepodporuje video.",
+  "openFull": "Otevřít náhled v plné velikosti",
+  "close": "Zavřít",
+  "reset": "Obnovit",
+  "openOriginal": "Otevřít originál"
+}

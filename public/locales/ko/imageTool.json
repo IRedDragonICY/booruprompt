@@ -1,0 +1,23 @@
+{
+  "title": "이미지 메타데이터",
+  "dropCtaTitle": "PNG를 여기에 드래그 앤 드롭",
+  "dropCtaSubtitle": "또는 클릭하여 업로드",
+  "selectButton": "PNG 선택",
+  "statusProcessing": "처리 중...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "긍정 프롬프트",
+  "negativePrompt": "부정 프롬프트",
+  "parameters": "매개변수",
+  "copy": "복사",
+  "copyAll": "모두 복사",
+  "copySuccess": "복사됨!",
+  "noMetadata": "생성 메타데이터를 찾을 수 없습니다.",
+  "loadMetadata": "메타데이터 로드",
+  "deleteEntry": "항목 삭제",
+  "historyTitle": "이미지 기록",
+  "historySearch": "파일명, 프롬프트, 매개변수 검색...",
+  "previewAlt": "미리보기",
+  "footer": {
+    "metadataNotice": "'parameters' 텍스트 청크에 대한 PNG 메타데이터 추출."
+  }
+}

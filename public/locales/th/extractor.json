@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "เครื่องมือแยกแท็ก Booru",
+    "subtitle": "แยกแท็กจากกระดานภาพ booru",
+    "supported": "แพลตฟอร์มที่รองรับ:",
+    "urlLabel": "URL โพสต์ Booru",
+    "urlPlaceholder": "วาง URL โพสต์ booru ของคุณที่นี่...",
+    "manualButton": "แยกด้วยตนเอง",
+    "resetButton": "รีเซ็ต",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "เครื่องมือแยกแท็ก Booru",
+    "heroSubtitle": "แยก กรอง และคัดลอกแท็กจากไซต์ booru ได้ทันที",
+    "features": {
+      "smart": {
+        "title": "ฉลาด",
+        "subtitle": "แยกอัตโนมัติ"
+      },
+      "fast": {
+        "title": "เร็ว",
+        "subtitle": "ผลลัพธ์ทันที"
+      },
+      "private": {
+        "title": "ส่วนตัว",
+        "subtitle": "ฝั่งไคลเอนต์"
+      },
+      "copy": {
+        "title": "คัดลอก",
+        "subtitle": "คลิกเดียว"
+      }
+    },
+    "cta": {
+      "paste": "วาง",
+      "extract": "แยก",
+      "filter": "กรอง",
+      "copy": "คัดลอก"
+    },
+    "supportNotice": "รองรับ Danbooru, Gelbooru, Safebooru, Rule34, e621 และอื่นๆ"
+  },
+  "preview": {
+    "title": "ตัวอย่าง"
+  },
+  "status": {
+    "resultLabel": "ผลลัพธ์สำหรับ:"
+  },
+  "categories": {
+    "title": "กรองหมวดหมู่",
+    "enableAll": "ทั้งหมด",
+    "disableAll": "ไม่มี",
+    "items": {
+      "copyright": "ลิขสิทธิ์",
+      "character": "ตัวละคร",
+      "general": "ทั่วไป",
+      "meta": "เมตา",
+      "other": "อื่นๆ"
+    },
+    "count_one": "{{count}} แท็ก",
+    "count_other": "{{count}} แท็ก"
+  },
+  "filteredTags": {
+    "label": "แท็กที่กรองแล้ว",
+    "ariaLabel": "แท็กที่กรองแล้ว",
+    "empty": "ไม่มีแท็กที่จะแสดง",
+    "copy": "คัดลอกแท็ก",
+    "copied": "คัดลอกแล้ว!"
+  },
+  "history": {
+    "extractionTitle": "ประวัติการแยก",
+    "imageTitle": "ประวัติรูปภาพ",
+    "searchExtraction": "ค้นหาชื่อเรื่อง url แท็ก...",
+    "searchImages": "ค้นหาชื่อไฟล์ พรอมต์ พารามิเตอร์...",
+    "emptySearch": "ไม่มีรายการที่ตรงกับการค้นหาของคุณ",
+    "clearTooltip": "ล้างประวัติทั้งหมด",
+    "clearAction": "ล้างประวัติ",
+    "confirmMessage": "ต้องการล้างจริงหรือ?",
+    "confirmYes": "ใช่ ล้าง",
+    "confirmCancel": "ยกเลิก",
+    "searchAriaLabel": "ค้นหา {{context}}",
+    "searchFallback": "ประวัติ",
+    "clearSearchTooltip": "ล้างการค้นหา",
+    "clearSearchAria": "ล้างการค้นหา"
+  },
+  "mobile": {
+    "historyButton": "ประวัติ",
+    "urlLabel": "URL โพสต์ Booru",
+    "urlPlaceholder": "วาง URL หรือลากแล้ววาง...",
+    "manualButton": "แยกด้วยตนเอง",
+    "resetButton": "รีเซ็ต"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "loading": "Előnézet betöltése...",
+  "error": "Az előnézet betöltése sikertelen.",
+  "errorDetail": "Szerver proxy hiba vagy érvénytelen kép",
+  "videoUnsupported": "A böngésző nem támogatja a videót.",
+  "openFull": "Teljes méretű előnézet megnyitása",
+  "close": "Bezárás",
+  "reset": "Visszaállítás",
+  "openOriginal": "Eredeti megnyitása"
+}

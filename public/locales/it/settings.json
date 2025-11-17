@@ -1,0 +1,98 @@
+{
+  "title": "Impostazioni",
+  "sections": {
+    "appearance": "Aspetto",
+    "colorTheme": "Tema Colore",
+    "dataFetch": "Metodo di Recupero Dati"
+  },
+  "themeOptions": {
+    "system": "Sistema",
+    "light": "Chiaro",
+    "dark": "Scuro"
+  },
+  "colorThemes": {
+    "blue": "Blu",
+    "orange": "Arancione",
+    "teal": "Turchese",
+    "rose": "Rosa",
+    "purple": "Viola",
+    "green": "Verde",
+    "custom": "Colore Personalizzato"
+  },
+  "customColor": {
+    "label": "Colore Personalizzato",
+    "pickerLabel": "Selettore colore personalizzato",
+    "inputLabel": "Codice esadecimale colore personalizzato",
+    "placeholder": "#rrggbb"
+  },
+  "fetchModes": {
+    "server": {
+      "label": "Proxy Server",
+      "description": "Utilizza il server di questa applicazione per recuperare i dati. Consigliato, più affidabile."
+    },
+    "clientProxy": {
+      "label": "Proxy Lato Client",
+      "description": "Utilizza un proxy CORS pubblico nel tuo browser. Può essere meno affidabile o limitato."
+    }
+  },
+  "clientProxy": {
+    "selectLabel": "Seleziona servizio proxy client:",
+    "ariaLabel": "Selettore servizio proxy client",
+    "helper": "Prestazioni e affidabilità variano tra i proxy."
+  },
+  "toggles": {
+    "autoExtract": {
+      "label": "Estrazione Automatica",
+      "description": "Estrae i tag automaticamente dopo aver incollato/digitato un URL valido.",
+      "tooltip": "Abilita o disabilita l'estrazione automatica dei tag quando si incolla/digita un URL valido"
+    },
+    "previews": {
+      "label": "Abilita Anteprime",
+      "description": "Mostra anteprime di immagini/video durante l'estrazione e nella cronologia.",
+      "tooltip": "Abilita o disabilita le anteprime di immagini/video per risparmiare banda o evitare problemi potenziali",
+      "note": "Le immagini vengono sempre recuperate tramite il Proxy Server."
+    },
+    "saveHistory": {
+      "label": "Salva Cronologia",
+      "description": "Memorizza le estrazioni riuscite localmente nel tuo browser.",
+      "tooltip": "Abilita o disabilita il salvataggio della cronologia delle estrazioni nello storage locale del browser"
+    },
+    "unsupportedSites": {
+      "label": "Abilita per Siti Non Supportati",
+      "description": "Prova ad estrarre da siti non supportati usando schemi di siti simili. Potrebbe non funzionare per tutti i siti.",
+      "tooltip": "Abilita l'estrazione per siti web non supportati usando schemi di siti simili"
+    },
+    "blacklist": {
+      "label": "Abilita Lista Nera Parole Chiave",
+      "description": "Inserisci le parole chiave da bloccare, separate da virgole, punto e virgola o a capo.",
+      "tooltip": "Blocca tag indesiderati filtrando parole chiave specifiche",
+      "placeholder": "Inserisci parole chiave da bloccare…",
+      "ariaLabel": "Parole chiave lista nera",
+      "reset": "Ripristina Predefinito"
+    }
+  },
+  "historySize": {
+    "label": "Dimensione Massima Cronologia",
+    "description": "Imposta il numero massimo di voci per la cronologia di estrazione e immagini."
+  },
+  "accessibility": {
+    "themeOption": "Tema {{label}}",
+    "colorThemeOption": "Tema colore {{label}}",
+    "historySizeSelect": "Dimensione massima cronologia"
+  },
+  "historySizeOptions": {
+    "10": "10 Voci",
+    "30": "30 Voci",
+    "50": "50 Voci",
+    "100": "100 Voci",
+    "unlimited": "Illimitato"
+  },
+  "support": {
+    "title": "Supporto e Feedback",
+    "cta": "Segnala un Problema su GitHub",
+    "description": "Hai trovato un bug o hai un suggerimento? Faccelo sapere!"
+  },
+  "modal": {
+    "close": "Chiudi Impostazioni"
+  }
+}

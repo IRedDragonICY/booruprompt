@@ -1,0 +1,77 @@
+{
+  "appName": "מחלץ תגיות Booru",
+  "language": "שפה",
+  "english": "אנגלית",
+  "indonesian": "אינדונזית",
+  "chinese": "סינית",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "שפת הממשק",
+    "description": "נשמר בדפדפן שלך. שפת ברירת המחדל היא אנגלית.",
+    "instantNotice": "השינויים חלים באופן מיידי ללא רענון.",
+    "searchPlaceholder": "חיפוש שפות...",
+    "noResults": "לא נמצאו שפות"
+  },
+  "nav": {
+    "extractor": "תגיות",
+    "image": "תמונה",
+    "booruList": "Booru",
+    "settings": "הגדרות"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "הוסף",
+    "apply": "החל",
+    "back": "חזור",
+    "cancel": "ביטול",
+    "clear": "נקה",
+    "close": "סגור",
+    "confirm": "אישור",
+    "copy": "העתק",
+    "copied": "הועתק!",
+    "delete": "מחק",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "שמור",
+    "search": "חיפוש",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "הכל",
+    "none": "ללא",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

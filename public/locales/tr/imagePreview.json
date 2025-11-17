@@ -1,0 +1,10 @@
+{
+  "loading": "Önizleme yükleniyor...",
+  "error": "Önizleme yüklenemedi.",
+  "errorDetail": "Sunucu proxy hatası veya geçersiz görüntü",
+  "videoUnsupported": "Tarayıcınız videoyu desteklemiyor.",
+  "openFull": "Tam boyutlu önizlemeyi aç",
+  "close": "Kapat",
+  "reset": "Sıfırla",
+  "openOriginal": "Orijinali aç"
+}

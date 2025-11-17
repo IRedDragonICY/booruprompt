@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Top Booru Ranglijst",
+  "pageDescriptionShort": "Verken de top booru sites gerangschikt op totaal aantal afbeeldingen en activiteit.",
+  "pageDescriptionLong": "Ontdek de meest populaire booru sites van het hele web. Gerangschikt op totaal aantal afbeeldingen, aantal leden en activiteit met gegevens van Booru.org.",
+  "searchPlaceholder": "Zoek booru sites...",
+  "filter": {
+    "all": "Alles",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Afbeeldingen",
+    "members": "Leden",
+    "owner": "Eigenaar"
+  },
+  "sort": {
+    "label": "Sorteren op:",
+    "rank": "Rang (Top)",
+    "images": "Aantal Afbeeldingen",
+    "members": "Aantal Leden",
+    "asc": "Oplopend",
+    "desc": "Aflopend"
+  },
+  "itemsPerPage": "Per pagina:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> van {{total}}",
+  "pagination": {
+    "previous": "Vorige",
+    "next": "Volgende",
+    "previousShort": "Vor",
+    "nextShort": "Volg"
+  },
+  "emptyState": "Geen booru sites gevonden",
+  "loading": "Booru gegevens laden...",
+  "errorTitle": "Fout bij Laden van Gegevens",
+  "errors": {
+    "fetchFailed": "Kon booru gegevens niet ophalen.",
+    "unknown": "Er ging iets mis bij het laden van de ranglijst."
+  },
+  "ownerLabel": "Eigenaar:",
+  "visit": "Bezoek {{name}}"
+}

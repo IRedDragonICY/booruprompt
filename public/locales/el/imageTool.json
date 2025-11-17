@@ -1,0 +1,23 @@
+{
+  "title": "Μεταδεδομένα Εικόνας",
+  "dropCtaTitle": "Σύρετε & Αποθέστε PNG Εδώ",
+  "dropCtaSubtitle": "ή κάντε κλικ για μεταφόρτωση",
+  "selectButton": "Επιλογή PNG",
+  "statusProcessing": "Επεξεργασία...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Θετική Προτροπή",
+  "negativePrompt": "Αρνητική Προτροπή",
+  "parameters": "Παράμετροι",
+  "copy": "Αντιγραφή",
+  "copyAll": "Αντιγραφή Όλων",
+  "copySuccess": "Αντιγράφηκε!",
+  "noMetadata": "Δεν βρέθηκαν μεταδεδομένα δημιουργίας.",
+  "loadMetadata": "Φόρτωση Μεταδεδομένων",
+  "deleteEntry": "Διαγραφή Καταχώρησης",
+  "historyTitle": "Ιστορικό Εικόνων",
+  "historySearch": "Αναζήτηση ονόματος αρχείου, προτροπών, παραμέτρων...",
+  "previewAlt": "Προεπισκόπηση",
+  "footer": {
+    "metadataNotice": "Εξαγωγή μεταδεδομένων PNG για κομμάτι κειμένου 'parameters'."
+  }
+}

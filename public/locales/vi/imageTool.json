@@ -1,0 +1,23 @@
+{
+  "title": "Siêu Dữ Liệu Hình Ảnh",
+  "dropCtaTitle": "Kéo & Thả PNG Vào Đây",
+  "dropCtaSubtitle": "hoặc nhấp để tải lên",
+  "selectButton": "Chọn PNG",
+  "statusProcessing": "Đang xử lý...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Lời Nhắc Tích Cực",
+  "negativePrompt": "Lời Nhắc Tiêu Cực",
+  "parameters": "Tham Số",
+  "copy": "Sao Chép",
+  "copyAll": "Sao Chép Tất Cả",
+  "copySuccess": "Đã Sao Chép!",
+  "noMetadata": "Không tìm thấy siêu dữ liệu tạo.",
+  "loadMetadata": "Tải Siêu Dữ Liệu",
+  "deleteEntry": "Xóa Mục",
+  "historyTitle": "Lịch Sử Hình Ảnh",
+  "historySearch": "Tìm tên tệp, lời nhắc, tham số...",
+  "previewAlt": "Xem Trước",
+  "footer": {
+    "metadataNotice": "Trích xuất siêu dữ liệu PNG cho đoạn văn bản 'parameters'."
+  }
+}

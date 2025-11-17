@@ -1,0 +1,10 @@
+{
+  "loading": "Laster forhåndsvisning...",
+  "error": "Kunne ikke laste forhåndsvisning.",
+  "errorDetail": "Serverproxyfeil eller ugyldig bilde",
+  "videoUnsupported": "Nettleseren din støtter ikke video.",
+  "openFull": "Åpne forhåndsvisning i full størrelse",
+  "close": "Lukk",
+  "reset": "Tilbakestill",
+  "openOriginal": "Åpne original"
+}

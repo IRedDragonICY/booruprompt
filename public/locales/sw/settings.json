@@ -1,0 +1,98 @@
+{
+  "title": "Mipangilio",
+  "sections": {
+    "appearance": "Muonekano",
+    "colorTheme": "Mandhari ya Rangi",
+    "dataFetch": "Mbinu ya Kupata Data"
+  },
+  "themeOptions": {
+    "system": "Mfumo",
+    "light": "Nuru",
+    "dark": "Giza"
+  },
+  "colorThemes": {
+    "blue": "Bluu",
+    "orange": "Chungwa",
+    "teal": "Teal",
+    "rose": "Waridi",
+    "purple": "Zambarau",
+    "green": "Kijani",
+    "custom": "Rangi Maalum"
+  },
+  "customColor": {
+    "label": "Rangi Maalum",
+    "pickerLabel": "Kichaguzi cha rangi maalum",
+    "inputLabel": "Msimbo wa hex wa rangi maalum",
+    "placeholder": "#rrggbb"
+  },
+  "fetchModes": {
+    "server": {
+      "label": "Proxy ya Seva",
+      "description": "Hutumia seva ya programu hii kuchukua data. Inashauriwa, ni ya kuaminika zaidi."
+    },
+    "clientProxy": {
+      "label": "Proxy ya Upande wa Mteja",
+      "description": "Hutumia proxy ya CORS ya umma kwenye kivinjari chako. Inaweza kuwa si ya kuaminika au ina kikomo."
+    }
+  },
+  "clientProxy": {
+    "selectLabel": "Chagua Huduma ya Proxy ya Mteja:",
+    "ariaLabel": "Kichaguzi cha Huduma ya Proxy ya Mteja",
+    "helper": "Utendaji na uaminifu hutofautiana kati ya proxies."
+  },
+  "toggles": {
+    "autoExtract": {
+      "label": "Uchomaji wa Kiotomatiki",
+      "description": "Chomoa lebo moja kwa moja baada ya kubandika/kuandika URL halali.",
+      "tooltip": "Washa au zima uchomaji wa lebo wa kiotomatiki wakati wa kubandika/kuandika URL halali"
+    },
+    "previews": {
+      "label": "Washa Maangalizi",
+      "description": "Onyesha maangalizi ya picha/video wakati wa uchomaji na kwenye historia.",
+      "tooltip": "Washa au zima maangalizi ya picha/video ili kuokoa bandwidthi au kuepuka matatizo yanayowezekana",
+      "note": "Picha huletwa kila wakati kupitia Proxy ya Seva."
+    },
+    "saveHistory": {
+      "label": "Hifadhi Historia",
+      "description": "Hifadhi uchomaji uliofanikiwa kienyeji kwenye kivinjari chako.",
+      "tooltip": "Washa au zima kuhifadhi historia ya uchomaji kwenye hifadhi ya ndani ya kivinjari"
+    },
+    "unsupportedSites": {
+      "label": "Washa kwa Tovuti Zisizotumika",
+      "description": "Jaribu kuchomoa kutoka kwa tovuti zisizotumika kwa kutumia mifumo sawa ya tovuti. Inaweza isifanye kazi kwa tovuti zote.",
+      "tooltip": "Washa uchomaji kwa tovuti zisizotumika kwa kutumia mifumo sawa ya tovuti"
+    },
+    "blacklist": {
+      "label": "Washa Orodha Nyeusi ya Maneno Muhimu",
+      "description": "Ingiza maneno muhimu ya kuzuia, tenganisha kwa koma, vikoma, au mistari mipya.",
+      "tooltip": "Zuia lebo zisizotakiwa kwa kuchuja maneno muhimu maalum",
+      "placeholder": "Ingiza maneno muhimu ya kuzuia…",
+      "ariaLabel": "Maneno Muhimu ya Orodha Nyeusi",
+      "reset": "Rudisha kwa Chaguo-msingi"
+    }
+  },
+  "historySize": {
+    "label": "Ukubwa wa Juu wa Historia",
+    "description": "Weka idadi ya juu ya maingizo kwa historia za uchomaji na picha."
+  },
+  "accessibility": {
+    "themeOption": "Mandhari {{label}}",
+    "colorThemeOption": "Mandhari ya rangi {{label}}",
+    "historySizeSelect": "Ukubwa wa juu wa historia"
+  },
+  "historySizeOptions": {
+    "10": "Maingizo 10",
+    "30": "Maingizo 30",
+    "50": "Maingizo 50",
+    "100": "Maingizo 100",
+    "unlimited": "Bila Kikomo"
+  },
+  "support": {
+    "title": "Msaada na Maoni",
+    "cta": "Ripoti Tatizo kwenye GitHub",
+    "description": "Umepata hitilafu au una pendekezo? Tuambie!"
+  },
+  "modal": {
+    "close": "Funga Mipangilio"
+  }
+}

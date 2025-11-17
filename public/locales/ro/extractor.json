@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Extractor de Etichete Booru",
+    "subtitle": "Extrageți etichete din panourile de imagini booru",
+    "supported": "Platforme suportate:",
+    "urlLabel": "URL Postare Booru",
+    "urlPlaceholder": "Lipiți URL-ul postării booru aici...",
+    "manualButton": "Extragere Manuală",
+    "resetButton": "Resetare",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Extractor de Etichete Booru",
+    "heroSubtitle": "Extrageți, filtrați și copiați etichete de pe site-urile booru instant",
+    "features": {
+      "smart": {
+        "title": "Inteligent",
+        "subtitle": "Extragere automată"
+      },
+      "fast": {
+        "title": "Rapid",
+        "subtitle": "Rezultate instantanee"
+      },
+      "private": {
+        "title": "Privat",
+        "subtitle": "Pe partea clientului"
+      },
+      "copy": {
+        "title": "Copiere",
+        "subtitle": "Un clic"
+      }
+    },
+    "cta": {
+      "paste": "Lipire",
+      "extract": "Extragere",
+      "filter": "Filtrare",
+      "copy": "Copiere"
+    },
+    "supportNotice": "Suportă Danbooru, Gelbooru, Safebooru, Rule34, e621 și altele"
+  },
+  "preview": {
+    "title": "Previzualizare"
+  },
+  "status": {
+    "resultLabel": "Rezultat pentru:"
+  },
+  "categories": {
+    "title": "Filtrare Categorii",
+    "enableAll": "Toate",
+    "disableAll": "Niciuna",
+    "items": {
+      "copyright": "Drepturi de Autor",
+      "character": "Personaj",
+      "general": "General",
+      "meta": "Meta",
+      "other": "Altele"
+    },
+    "count_one": "{{count}} etichetă",
+    "count_other": "{{count}} etichete"
+  },
+  "filteredTags": {
+    "label": "Etichete Filtrate",
+    "ariaLabel": "Etichete filtrate",
+    "empty": "Nicio etichetă de afișat.",
+    "copy": "Copiază Etichete",
+    "copied": "Copiat!"
+  },
+  "history": {
+    "extractionTitle": "Istoricul Extragerii",
+    "imageTitle": "Istoricul Imaginilor",
+    "searchExtraction": "Căutare titlu, url, etichete...",
+    "searchImages": "Căutare nume fișier, prompturi, parametri...",
+    "emptySearch": "Nicio intrare nu corespunde căutării dumneavoastră.",
+    "clearTooltip": "Șterge Tot Istoricul",
+    "clearAction": "Șterge Istoricul",
+    "confirmMessage": "Sigur ștergeți?",
+    "confirmYes": "Da, Șterge",
+    "confirmCancel": "Anulează",
+    "searchAriaLabel": "Căutare {{context}}",
+    "searchFallback": "istoric",
+    "clearSearchTooltip": "Șterge Căutarea",
+    "clearSearchAria": "Șterge căutarea"
+  },
+  "mobile": {
+    "historyButton": "Istoric",
+    "urlLabel": "URL Postare Booru",
+    "urlPlaceholder": "Lipește URL sau Trage & Plasează...",
+    "manualButton": "Extragere Manuală",
+    "resetButton": "Resetare"
+  }
+}

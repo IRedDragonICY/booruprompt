@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Huippu Booru -Sijoitus",
+  "pageDescriptionShort": "Tutki parhaita booru-sivustoja kuvien kokonaismäärän ja aktiivisuuden mukaan.",
+  "pageDescriptionLong": "Löydä suosituimmat booru-sivustot koko verkosta. Järjestetty kuvien kokonaismäärän, jäsenmäärän ja aktiivisuuden mukaan Booru.org-tiedoilla.",
+  "searchPlaceholder": "Hae booru-sivustoja...",
+  "filter": {
+    "all": "Kaikki",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Kuvat",
+    "members": "Jäsenet",
+    "owner": "Omistaja"
+  },
+  "sort": {
+    "label": "Järjestä:",
+    "rank": "Sijoitus (Huippu)",
+    "images": "Kuvien Määrä",
+    "members": "Jäsenten Määrä",
+    "asc": "Nouseva",
+    "desc": "Laskeva"
+  },
+  "itemsPerPage": "Sivua kohti:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
+  "pagination": {
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "previousShort": "Edel",
+    "nextShort": "Seur"
+  },
+  "emptyState": "Booru-sivustoja ei löytynyt",
+  "loading": "Ladataan booru-tietoja...",
+  "errorTitle": "Virhe Tietojen Lataamisessa",
+  "errors": {
+    "fetchFailed": "Booru-tietojen haku epäonnistui.",
+    "unknown": "Jokin meni pieleen sijoituksen lataamisessa."
+  },
+  "ownerLabel": "Omistaja:",
+  "visit": "Käy {{name}}"
+}

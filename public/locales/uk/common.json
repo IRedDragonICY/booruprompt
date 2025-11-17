@@ -1,0 +1,77 @@
+{
+  "appName": "Вилучення Тегів Booru",
+  "language": "Мова",
+  "english": "Англійська",
+  "indonesian": "Індонезійська",
+  "chinese": "Китайська",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+  "unknown": "Unknown",
+  "languageSwitcher": {
+    "title": "Мова інтерфейсу",
+    "description": "Зберігається у вашому браузері. Мова за замовчуванням - англійська.",
+    "instantNotice": "Зміни застосовуються миттєво без перезавантаження.",
+    "searchPlaceholder": "Пошук мов...",
+    "noResults": "Мови не знайдено"
+  },
+  "nav": {
+    "extractor": "Теги",
+    "image": "Зображення",
+    "booruList": "Booru",
+    "settings": "Налаштування"
+  },
+  "navTooltip": {
+    "extractor": "Tag Extractor",
+    "image": "Image Metadata",
+    "booruList": "Booru Leaderboard",
+    "settings": "Settings"
+  },
+  "dropOverlay": {
+    "url": "Drop URL",
+    "png": "Drop PNG"
+  },
+  "actions": {
+    "add": "Додати",
+    "apply": "Застосувати",
+    "back": "Назад",
+    "cancel": "Скасувати",
+    "clear": "Очистити",
+    "close": "Закрити",
+    "confirm": "Підтвердити",
+    "copy": "Копіювати",
+    "copied": "Скопійовано!",
+    "delete": "Видалити",
+    "done": "Done",
+    "edit": "Edit",
+    "next": "Next",
+    "previous": "Previous",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Retry",
+    "save": "Зберегти",
+    "search": "Пошук",
+    "select": "Select",
+    "submit": "Submit",
+    "all": "Усе",
+    "none": "Нічого",
+    "visit": "Visit",
+    "previousShort": "Prev",
+    "nextShort": "Next"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "footer": {
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "statusBar": {
+    "serverProxy": "Server Proxy.",
+    "clientProxy": "Client Proxy ({{proxy}}).",
+    "historyEnabled": "History enabled ({{size}}).",
+    "historyDisabled": "History disabled.",
+    "historyUnlimited": "Unlimited",
+    "historyEntries": "{{count}} Entries"
+  }
+}

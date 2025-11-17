@@ -1,0 +1,10 @@
+{
+  "loading": "Đang tải xem trước...",
+  "error": "Không thể tải xem trước.",
+  "errorDetail": "Lỗi proxy máy chủ hoặc hình ảnh không hợp lệ",
+  "videoUnsupported": "Trình duyệt của bạn không hỗ trợ video.",
+  "openFull": "Mở xem trước kích thước đầy đủ",
+  "close": "Đóng",
+  "reset": "Đặt Lại",
+  "openOriginal": "Mở bản gốc"
+}

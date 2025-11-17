@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Top Booru Rangering",
+  "pageDescriptionShort": "Udforsk de bedste boorusites rangeret efter totalt antal billeder og aktivitet.",
+  "pageDescriptionLong": "Opdag de mest populære boorusites fra hele nettet. Rangeret efter totalt antal billeder, antal medlemmer og aktivitet med data fra Booru.org.",
+  "searchPlaceholder": "Søg boorusites...",
+  "filter": {
+    "all": "Alle",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Billeder",
+    "members": "Medlemmer",
+    "owner": "Ejer"
+  },
+  "sort": {
+    "label": "Sorter efter:",
+    "rank": "Rangering (Top)",
+    "images": "Antal Billeder",
+    "members": "Antal Medlemmer",
+    "asc": "Stigende",
+    "desc": "Faldende"
+  },
+  "itemsPerPage": "Per side:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> af {{total}}",
+  "pagination": {
+    "previous": "Forrige",
+    "next": "Næste",
+    "previousShort": "Forr",
+    "nextShort": "Næste"
+  },
+  "emptyState": "Ingen boorusites fundet",
+  "loading": "Indlæser boorudata...",
+  "errorTitle": "Fejl ved Indlæsning af Data",
+  "errors": {
+    "fetchFailed": "Kunne ikke hente boorudata.",
+    "unknown": "Noget gik galt under indlæsning af rangeringen."
+  },
+  "ownerLabel": "Ejer:",
+  "visit": "Besøg {{name}}"
+}

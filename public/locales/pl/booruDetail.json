@@ -1,0 +1,16 @@
+{
+  "backButton": "Wróć do Listy Booru",
+  "notFoundTitle": "Nie Znaleziono Booru",
+  "notFoundDescription": "Domena booru \"{{domain}}\" nie została znaleziona w naszej bazie danych.",
+  "statistics": "Statystyki",
+  "totalImages": "Łączna Liczba Obrazów",
+  "totalMembers": "Łączna Liczba Członków",
+  "shortName": "Krótka Nazwa",
+  "owner": "Właściciel",
+  "hosted": "Hostowane przez booru.org",
+  "protocol": "Protokół",
+  "yes": "Tak",
+  "no": "Nie",
+  "visit": "Odwiedź {{name}}",
+  "loading": "Ładowanie..."
+}

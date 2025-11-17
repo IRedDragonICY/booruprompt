@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Extraktor Tagů Booru",
+    "subtitle": "Extrahujte tagy z obrazových desek booru",
+    "supported": "Podporované platformy:",
+    "urlLabel": "URL Příspěvku Booru",
+    "urlPlaceholder": "Vložte URL svého příspěvku booru zde...",
+    "manualButton": "Extrahovat Ručně",
+    "resetButton": "Obnovit",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Extraktor Tagů Booru",
+    "heroSubtitle": "Extrahujte, filtrujte a kopírujte tagy z webů booru okamžitě",
+    "features": {
+      "smart": {
+        "title": "Chytrý",
+        "subtitle": "Automatická extrakce"
+      },
+      "fast": {
+        "title": "Rychlý",
+        "subtitle": "Okamžité výsledky"
+      },
+      "private": {
+        "title": "Soukromý",
+        "subtitle": "Na straně klienta"
+      },
+      "copy": {
+        "title": "Kopírovat",
+        "subtitle": "Jedním kliknutím"
+      }
+    },
+    "cta": {
+      "paste": "Vložit",
+      "extract": "Extrahovat",
+      "filter": "Filtrovat",
+      "copy": "Kopírovat"
+    },
+    "supportNotice": "Podporuje Danbooru, Gelbooru, Safebooru, Rule34, e621 a další"
+  },
+  "preview": {
+    "title": "Náhled"
+  },
+  "status": {
+    "resultLabel": "Výsledek pro:"
+  },
+  "categories": {
+    "title": "Filtrovat Kategorie",
+    "enableAll": "Vše",
+    "disableAll": "Žádné",
+    "items": {
+      "copyright": "Autorská Práva",
+      "character": "Postava",
+      "general": "Obecné",
+      "meta": "Meta",
+      "other": "Jiné"
+    },
+    "count_one": "{{count}} tag",
+    "count_other": "{{count}} tagů"
+  },
+  "filteredTags": {
+    "label": "Filtrované Tagy",
+    "ariaLabel": "Filtrované tagy",
+    "empty": "Žádné tagy k zobrazení.",
+    "copy": "Kopírovat Tagy",
+    "copied": "Zkopírováno!"
+  },
+  "history": {
+    "extractionTitle": "Historie Extrakce",
+    "imageTitle": "Historie Obrázků",
+    "searchExtraction": "Hledat název, url, tagy...",
+    "searchImages": "Hledat název souboru, výzvy, parametry...",
+    "emptySearch": "Žádné záznamy neodpovídají vašemu vyhledávání.",
+    "clearTooltip": "Vymazat Veškerou Historii",
+    "clearAction": "Vymazat Historii",
+    "confirmMessage": "Opravdu vymazat?",
+    "confirmYes": "Ano, Vymazat",
+    "confirmCancel": "Zrušit",
+    "searchAriaLabel": "Hledat {{context}}",
+    "searchFallback": "historie",
+    "clearSearchTooltip": "Vymazat Vyhledávání",
+    "clearSearchAria": "Vymazat vyhledávání"
+  },
+  "mobile": {
+    "historyButton": "Historie",
+    "urlLabel": "URL Příspěvku Booru",
+    "urlPlaceholder": "Vložit URL nebo Přetáhnout & Pustit...",
+    "manualButton": "Extrahovat Ručně",
+    "resetButton": "Obnovit"
+  }
+}

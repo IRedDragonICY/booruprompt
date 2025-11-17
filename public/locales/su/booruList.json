@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Papan Peringkat Booru Paling Luhur",
+  "pageDescriptionShort": "Jelajah situs booru paling luhur anu dipereuntuk dumasar kana jumlah gambar jeung aktivitas.",
+  "pageDescriptionLong": "Panggihan situs booru paling populér ti sakuliah web. Dipereuntuk dumasar kana jumlah gambar, anggota, jeung aktivitas kalayan data ti Booru.org.",
+  "searchPlaceholder": "Paluruh situs booru...",
+  "filter": {
+    "all": "Sadayana",
+    "sfw": "SFW",
+    "nsfw": "NSFW"
+  },
+  "stats": {
+    "images": "Gambar",
+    "members": "Anggota",
+    "owner": "Pamilik"
+  },
+  "sort": {
+    "label": "Urutkeun dumasar:",
+    "rank": "Peringkat (Paling Luhur)",
+    "images": "Jumlah Gambar",
+    "members": "Jumlah Anggota",
+    "asc": "Naék",
+    "desc": "Turun"
+  },
+  "itemsPerPage": "Per kaca:",
+  "resultsRange": "<strong>{{start}}-{{end}}</strong> tina {{total}}",
+  "pagination": {
+    "previous": "Samemehna",
+    "next": "Salajengna",
+    "previousShort": "Samem",
+    "nextShort": "Salaj"
+  },
+  "emptyState": "Teu aya situs booru anu kapendak",
+  "loading": "Nuju muat data booru...",
+  "errorTitle": "Kasalahan Muat Data",
+  "errors": {
+    "fetchFailed": "Gagal nyokot data booru.",
+    "unknown": "Aya kasalahan nalika muat papan peringkat."
+  },
+  "ownerLabel": "Pamilik:",
+  "visit": "Buka {{name}}"
+}

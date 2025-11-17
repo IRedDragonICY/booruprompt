@@ -215,9 +215,9 @@ export const BooruListPanel: React.FC = () => {
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, endIndex);
   const errorMessage = error === 'fetchFailed'
-    ? t('booruList.errors.fetchFailed')
+    ? t('booruList:errors.fetchFailed')
     : error === 'unknown'
-      ? t('booruList.errors.unknown')
+      ? t('booruList:errors.unknown')
       : error;
 
   // Memoized event handlers for better performance
@@ -340,7 +340,7 @@ export const BooruListPanel: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0"
-              title={t('booruList.visit', { name: booru.booru_title })}
+              title={t('booruList:visit', { name: booru.booru_title })}
               onClick={(e) => e.stopPropagation()}
             >
               <ArrowUpRightIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))] transition-colors" />
@@ -352,7 +352,7 @@ export const BooruListPanel: React.FC = () => {
             <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
               <PhotoIcon className="h-4 w-4 text-[rgb(var(--color-primary-rgb))]" />
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">{t('booruList.stats.images')}</p>
+                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">{t('booruList:stats.images')}</p>
                 <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.images)}</p>
               </div>
             </div>
@@ -360,7 +360,7 @@ export const BooruListPanel: React.FC = () => {
             <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-md bg-[rgb(var(--color-surface-alt-2-rgb))]">
               <UserGroupIcon className="h-4 w-4 text-[rgb(var(--color-secondary-rgb))]" />
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">{t('booruList.stats.members')}</p>
+                <p className="text-[10px] md:text-xs text-[rgb(var(--color-on-surface-muted-rgb))] leading-none mb-0.5">{t('booruList:stats.members')}</p>
                 <p className="text-xs md:text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] truncate">{formatNumber(booru.members)}</p>
               </div>
             </div>
@@ -370,7 +370,7 @@ export const BooruListPanel: React.FC = () => {
           {booru.owner_name && (
             <div className="mt-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
               <p className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                {t('booruList.ownerLabel')} <span className="font-medium text-[rgb(var(--color-on-surface-rgb))]">{booru.owner_name}</span>
+                {t('booruList:ownerLabel')} <span className="font-medium text-[rgb(var(--color-on-surface-rgb))]">{booru.owner_name}</span>
               </p>
             </div>
           )}
@@ -390,7 +390,7 @@ export const BooruListPanel: React.FC = () => {
         <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-[rgb(var(--color-on-surface-muted-rgb))]" />
         <input
           type="text"
-          placeholder={t('booruList.searchPlaceholder')}
+          placeholder={t('booruList:searchPlaceholder')}
           value={searchQuery}
           onChange={handleSearchChange}
           className="w-full pl-9 md:pl-10 pr-3 py-2 md:py-2.5 rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
@@ -407,7 +407,7 @@ export const BooruListPanel: React.FC = () => {
               : 'bg-[rgb(var(--color-surface-alt-2-rgb))] text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
           }`}
         >
-          {t('booruList.filter.all')}
+          {t('booruList:filter.all')}
         </button>
         <button
           onClick={handleFilterSfw}
@@ -418,7 +418,7 @@ export const BooruListPanel: React.FC = () => {
           }`}
         >
           <ShieldCheckIcon className="h-4 w-4" />
-          <span>{t('booruList.filter.sfw')}</span>
+          <span>{t('booruList:filter.sfw')}</span>
         </button>
         <button
           onClick={handleFilterNsfw}
@@ -429,14 +429,14 @@ export const BooruListPanel: React.FC = () => {
           }`}
         >
           <ShieldExclamationIcon className="h-4 w-4" />
-          <span>{t('booruList.filter.nsfw')}</span>
+          <span>{t('booruList:filter.nsfw')}</span>
         </button>
       </div>
 
       {/* Sort Controls */}
       <div className="flex items-center gap-2 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
         <label htmlFor="sort-by" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] whitespace-nowrap">
-          {t('booruList.sort.label')}
+          {t('booruList:sort.label')}
         </label>
         <select
           id="sort-by"
@@ -444,14 +444,14 @@ export const BooruListPanel: React.FC = () => {
           onChange={handleSortFieldChange}
           className="flex-1 md:flex-none px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
         >
-          <option value="rank">{t('booruList.sort.rank')}</option>
-          <option value="images">{t('booruList.sort.images')}</option>
-          <option value="members">{t('booruList.sort.members')}</option>
+          <option value="rank">{t('booruList:sort.rank')}</option>
+          <option value="images">{t('booruList:sort.images')}</option>
+          <option value="members">{t('booruList:sort.members')}</option>
         </select>
         <button
           onClick={handleSortDirectionToggle}
           className="px-2 py-1 rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] transition-all duration-200 flex items-center gap-1"
-          title={sortDirection === 'asc' ? t('booruList.sort.asc') : t('booruList.sort.desc')}
+          title={sortDirection === 'asc' ? t('booruList:sort.asc') : t('booruList:sort.desc')}
         >
           {sortDirection === 'asc' ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -462,7 +462,7 @@ export const BooruListPanel: React.FC = () => {
               <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
             </svg>
           )}
-          <span className="hidden md:inline">{sortDirection === 'asc' ? t('booruList.sort.asc') : t('booruList.sort.desc')}</span>
+          <span className="hidden md:inline">{sortDirection === 'asc' ? t('booruList:sort.asc') : t('booruList:sort.desc')}</span>
         </button>
       </div>
 
@@ -470,7 +470,7 @@ export const BooruListPanel: React.FC = () => {
       <div className="flex items-center justify-between gap-3 pt-2 border-t border-[rgb(var(--color-surface-border-rgb))]">
         <div className="flex items-center gap-2">
           <label htmlFor="items-per-page" className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] whitespace-nowrap">
-            {t('booruList.itemsPerPage')}
+            {t('booruList:itemsPerPage')}
           </label>
           <select
             id="items-per-page"
@@ -508,7 +508,7 @@ export const BooruListPanel: React.FC = () => {
                 : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
             }`}
           >
-            {t('booruList.pagination.previousShort')}
+            {t('booruList:pagination.previousShort')}
           </button>
 
           {/* Page Numbers */}
@@ -585,7 +585,7 @@ export const BooruListPanel: React.FC = () => {
                 : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
             }`}
           >
-            {t('booruList.pagination.nextShort')}
+            {t('booruList:pagination.nextShort')}
           </button>
         </div>
       )}
@@ -597,7 +597,7 @@ export const BooruListPanel: React.FC = () => {
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary-rgb))] mx-auto mb-4"></div>
-          <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">{t('booruList.loading')}</p>
+          <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">{t('booruList:loading')}</p>
         </div>
       </div>
     );
@@ -608,7 +608,7 @@ export const BooruListPanel: React.FC = () => {
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center max-w-md p-6 rounded-lg bg-[rgb(var(--color-error-rgb))]/10 border border-[rgb(var(--color-error-rgb))]/20">
           <ShieldExclamationIcon className="h-12 w-12 text-[rgb(var(--color-error-rgb))] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-2">{t('booruList.errorTitle')}</h3>
+          <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-2">{t('booruList:errorTitle')}</h3>
           <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{errorMessage}</p>
         </div>
       </div>
@@ -631,11 +631,11 @@ export const BooruListPanel: React.FC = () => {
             </div>
             <div className="flex-1">
               <h2 className="text-base md:text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1 md:mb-2">
-                {t('booruList.pageTitle')}
+                {t('booruList:pageTitle')}
               </h2>
               <p className="text-sm md:text-base text-[rgb(var(--color-on-surface-muted-rgb))] leading-snug md:leading-relaxed">
-                <span className="md:hidden">{t('booruList.pageDescriptionShort')}</span>
-                <span className="hidden md:block">{t('booruList.pageDescriptionLong')}</span>
+                <span className="md:hidden">{t('booruList:pageDescriptionShort')}</span>
+                <span className="hidden md:block">{t('booruList:pageDescriptionLong')}</span>
               </p>
             </div>
           </div>
@@ -669,7 +669,7 @@ export const BooruListPanel: React.FC = () => {
               >
                 <div className="text-center">
                   <MagnifyingGlassIcon className="h-12 w-12 text-[rgb(var(--color-on-surface-muted-rgb))] mx-auto mb-4 opacity-50" />
-                  <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">{t('booruList.emptyState')}</p>
+                  <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">{t('booruList:emptyState')}</p>
                 </div>
               </motion.div>
             ) : (
@@ -699,7 +699,7 @@ export const BooruListPanel: React.FC = () => {
                     : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
                 }`}
               >
-                {t('booruList.pagination.previous')}
+                {t('booruList:pagination.previous')}
               </button>
 
               {/* Page Numbers */}
@@ -776,7 +776,7 @@ export const BooruListPanel: React.FC = () => {
                     : 'bg-[rgb(var(--color-primary-rgb))] text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] shadow-sm'
                 }`}
               >
-                {t('booruList.pagination.next')}
+                {t('booruList:pagination.next')}
               </button>
             </div>
           </div>

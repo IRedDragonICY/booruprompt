@@ -1,0 +1,23 @@
+{
+  "title": "Görüntü Meta Verisi",
+  "dropCtaTitle": "PNG'yi Buraya Sürükle Bırak",
+  "dropCtaSubtitle": "veya yüklemek için tıklayın",
+  "selectButton": "PNG Seç",
+  "statusProcessing": "İşleniyor...",
+  "previewMeta": "{{name}} ({{size}} KB)",
+  "positivePrompt": "Pozitif İstem",
+  "negativePrompt": "Negatif İstem",
+  "parameters": "Parametreler",
+  "copy": "Kopyala",
+  "copyAll": "Tümünü Kopyala",
+  "copySuccess": "Kopyalandı!",
+  "noMetadata": "Oluşturma meta verisi bulunamadı.",
+  "loadMetadata": "Meta Veriyi Yükle",
+  "deleteEntry": "Girişi Sil",
+  "historyTitle": "Görüntü Geçmişi",
+  "historySearch": "Dosya adı, istem, parametre ara...",
+  "previewAlt": "Önizleme",
+  "footer": {
+    "metadataNotice": "'parameters' metin parçası için PNG meta veri çıkarımı."
+  }
+}

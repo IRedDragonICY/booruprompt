@@ -1,0 +1,77 @@
+{
+  "appName": "Booru Tag Extractor",
+  "language": "Basa",
+  "english": "Inggris",
+  "indonesian": "Indonesia",
+  "chinese": "Tionghoa",
+  "author": "IRedDragonICY",
+  "defaultDescription": "Ekstrak, saring, lan salin tag saka postingan booru kanthi cepet.",
+  "unknown": "Ora dingerteni",
+  "languageSwitcher": {
+    "title": "Basa antarmuka",
+    "description": "Disimpen ing browser sampeyan. Basa gawan yaiku Inggris.",
+    "instantNotice": "Owah-owahan ditrapake langsung tanpa reload.",
+    "searchPlaceholder": "Goleki basa...",
+    "noResults": "Ora ana basa sing ketemu"
+  },
+  "nav": {
+    "extractor": "Tag",
+    "image": "Gambar",
+    "booruList": "Booru",
+    "settings": "Pangaturan"
+  },
+  "navTooltip": {
+    "extractor": "Ekstraktor Tag",
+    "image": "Metadata Gambar",
+    "booruList": "Papan Peringkat Booru",
+    "settings": "Pangaturan"
+  },
+  "dropOverlay": {
+    "url": "Selehake URL",
+    "png": "Selehake PNG"
+  },
+  "actions": {
+    "add": "Tambah",
+    "apply": "Trapake",
+    "back": "Bali",
+    "cancel": "Batal",
+    "clear": "Resiki",
+    "close": "Tutup",
+    "confirm": "Konfirmasi",
+    "copy": "Salin",
+    "copied": "Wis disalin!",
+    "delete": "Busek",
+    "done": "Rampung",
+    "edit": "Sunting",
+    "next": "Sabanjure",
+    "previous": "Sadurunge",
+    "refresh": "Refresh",
+    "reset": "Reset",
+    "retry": "Coba Maneh",
+    "save": "Simpen",
+    "search": "Goleki",
+    "select": "Pilih",
+    "submit": "Kirim",
+    "all": "Kabeh",
+    "none": "Ora ana",
+    "visit": "Bukak",
+    "previousShort": "Sadur",
+    "nextShort": "Sabanj"
+  },
+  "status": {
+    "loading": "Lagi dimuat...",
+    "processing": "Lagi diproses..."
+  },
+  "footer": {
+    "madeWith": "Digawe nganggo",
+    "by": "dening"
+  },
+  "statusBar": {
+    "serverProxy": "Proxy Server.",
+    "clientProxy": "Proxy Klien ({{proxy}}).",
+    "historyEnabled": "Riwayat aktif ({{size}}).",
+    "historyDisabled": "Riwayat ora aktif.",
+    "historyUnlimited": "Tanpa wates",
+    "historyEntries": "{{count}} Entri"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "title": "圖片中繼資料",
+  "dropCtaTitle": "拖放 PNG 到此處",
+  "dropCtaSubtitle": "或點選上傳",
+  "selectButton": "選擇 PNG",
+  "statusProcessing": "處理中...",
+  "previewMeta": "{{name}}（{{size}} KB）",
+  "positivePrompt": "正向提示詞",
+  "negativePrompt": "負向提示詞",
+  "parameters": "參數",
+  "copy": "複製",
+  "copyAll": "全部複製",
+  "copySuccess": "已複製！",
+  "noMetadata": "未找到生成中繼資料。",
+  "loadMetadata": "載入中繼資料",
+  "deleteEntry": "刪除記錄",
+  "historyTitle": "圖片歷史",
+  "historySearch": "搜尋檔案名稱、提示詞、參數...",
+  "previewAlt": "預覽",
+  "footer": {
+    "metadataNotice": "PNG 中繼資料擷取用於 \"parameters\" 文字片段。"
+  }
+}

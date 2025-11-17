@@ -1,0 +1,91 @@
+{
+  "header": {
+    "title": "Công Cụ Trích Xuất Thẻ Booru",
+    "subtitle": "Trích xuất thẻ từ bảng hình ảnh booru",
+    "supported": "Nền tảng được hỗ trợ:",
+    "urlLabel": "URL Bài Đăng Booru",
+    "urlPlaceholder": "Dán URL bài đăng booru của bạn vào đây...",
+    "manualButton": "Trích Xuất Thủ Công",
+    "resetButton": "Đặt Lại",
+    "activePlaceholder": "—"
+  },
+  "info": {
+    "heroTitle": "Công Cụ Trích Xuất Thẻ Booru",
+    "heroSubtitle": "Trích xuất, lọc và sao chép thẻ từ các trang booru ngay lập tức",
+    "features": {
+      "smart": {
+        "title": "Thông Minh",
+        "subtitle": "Tự động trích xuất"
+      },
+      "fast": {
+        "title": "Nhanh Chóng",
+        "subtitle": "Kết quả tức thì"
+      },
+      "private": {
+        "title": "Riêng Tư",
+        "subtitle": "Phía client"
+      },
+      "copy": {
+        "title": "Sao Chép",
+        "subtitle": "Một cú nhấp"
+      }
+    },
+    "cta": {
+      "paste": "Dán",
+      "extract": "Trích Xuất",
+      "filter": "Lọc",
+      "copy": "Sao Chép"
+    },
+    "supportNotice": "Hỗ trợ Danbooru, Gelbooru, Safebooru, Rule34, e621 và nhiều hơn nữa"
+  },
+  "preview": {
+    "title": "Xem Trước"
+  },
+  "status": {
+    "resultLabel": "Kết quả cho:"
+  },
+  "categories": {
+    "title": "Lọc Danh Mục",
+    "enableAll": "Tất Cả",
+    "disableAll": "Không Có",
+    "items": {
+      "copyright": "Bản Quyền",
+      "character": "Nhân Vật",
+      "general": "Chung",
+      "meta": "Meta",
+      "other": "Khác"
+    },
+    "count_one": "{{count}} thẻ",
+    "count_other": "{{count}} thẻ"
+  },
+  "filteredTags": {
+    "label": "Thẻ Đã Lọc",
+    "ariaLabel": "Thẻ đã lọc",
+    "empty": "Không có thẻ để hiển thị.",
+    "copy": "Sao Chép Thẻ",
+    "copied": "Đã Sao Chép!"
+  },
+  "history": {
+    "extractionTitle": "Lịch Sử Trích Xuất",
+    "imageTitle": "Lịch Sử Hình Ảnh",
+    "searchExtraction": "Tìm tiêu đề, url, thẻ...",
+    "searchImages": "Tìm tên tệp, lời nhắc, tham số...",
+    "emptySearch": "Không có mục nào khớp với tìm kiếm của bạn.",
+    "clearTooltip": "Xóa Tất Cả Lịch Sử",
+    "clearAction": "Xóa Lịch Sử",
+    "confirmMessage": "Thực sự xóa?",
+    "confirmYes": "Có, Xóa",
+    "confirmCancel": "Hủy",
+    "searchAriaLabel": "Tìm {{context}}",
+    "searchFallback": "lịch sử",
+    "clearSearchTooltip": "Xóa Tìm Kiếm",
+    "clearSearchAria": "Xóa tìm kiếm"
+  },
+  "mobile": {
+    "historyButton": "Lịch Sử",
+    "urlLabel": "URL Bài Đăng Booru",
+    "urlPlaceholder": "Dán URL hoặc Kéo & Thả...",
+    "manualButton": "Trích Xuất Thủ Công",
+    "resetButton": "Đặt Lại"
+  }
+}
