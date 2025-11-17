@@ -34,6 +34,22 @@ import { ms } from './locales/ms';
 import { tl } from './locales/tl';
 import { bn } from './locales/bn';
 import { fa } from './locales/fa';
+import { su } from './locales/su';
+import { sw } from './locales/sw';
+import { ta } from './locales/ta';
+import { te } from './locales/te';
+import { ur } from './locales/ur';
+import { my } from './locales/my';
+import { km } from './locales/km';
+import { lo } from './locales/lo';
+import { ne } from './locales/ne';
+import { si } from './locales/si';
+import { kk } from './locales/kk';
+import { ka } from './locales/ka';
+import { hy } from './locales/hy';
+import { am } from './locales/am';
+import { ps } from './locales/ps';
+import { ku } from './locales/ku';
 
 export const LANGUAGE_STORAGE_KEY = 'booruPreferredLanguage';
 export const DEFAULT_LANGUAGE = 'en';
@@ -72,7 +88,23 @@ export const availableLanguages = [
   { code: 'ms', label: 'Malay', nativeName: 'Bahasa Melayu', region: 'Malaysia' },
   { code: 'tl', label: 'Tagalog', nativeName: 'Tagalog', region: 'Philippines' },
   { code: 'bn', label: 'Bengali', nativeName: 'বাংলা', region: 'Bangladesh, India' },
-  { code: 'fa', label: 'Persian', nativeName: 'فارسی', region: 'Iran' }
+  { code: 'fa', label: 'Persian', nativeName: 'فارسی', region: 'Iran' },
+  { code: 'su', label: 'Sundanese', nativeName: 'Basa Sunda', region: 'West Java, Indonesia' },
+  { code: 'sw', label: 'Swahili', nativeName: 'Kiswahili', region: 'East Africa, Tanzania, Kenya' },
+  { code: 'ta', label: 'Tamil', nativeName: 'தமிழ்', region: 'Tamil Nadu, Sri Lanka, Singapore' },
+  { code: 'te', label: 'Telugu', nativeName: 'తెలుగు', region: 'Andhra Pradesh, Telangana, India' },
+  { code: 'ur', label: 'Urdu', nativeName: 'اردو', region: 'Pakistan, India' },
+  { code: 'my', label: 'Burmese', nativeName: 'မြန်မာဘာသာ', region: 'Myanmar' },
+  { code: 'km', label: 'Khmer', nativeName: 'ខ្មែរ', region: 'Cambodia' },
+  { code: 'lo', label: 'Lao', nativeName: 'ລາວ', region: 'Laos' },
+  { code: 'ne', label: 'Nepali', nativeName: 'नेपाली', region: 'Nepal' },
+  { code: 'si', label: 'Sinhala', nativeName: 'සිංහල', region: 'Sri Lanka' },
+  { code: 'kk', label: 'Kazakh', nativeName: 'Қазақ тілі', region: 'Kazakhstan' },
+  { code: 'ka', label: 'Georgian', nativeName: 'ქართული', region: 'Georgia' },
+  { code: 'hy', label: 'Armenian', nativeName: 'Հայերեն', region: 'Armenia' },
+  { code: 'am', label: 'Amharic', nativeName: 'አማርኛ', region: 'Ethiopia' },
+  { code: 'ps', label: 'Pashto', nativeName: 'پښتو', region: 'Afghanistan, Pakistan' },
+  { code: 'ku', label: 'Kurdish', nativeName: 'Kurdî', region: 'Kurdistan, Iraq, Iran, Turkey' }
 ] as const;
 
 const resources = {
@@ -109,7 +141,23 @@ const resources = {
   ms: { translation: ms },
   tl: { translation: tl },
   bn: { translation: bn },
-  fa: { translation: fa }
+  fa: { translation: fa },
+  su: { translation: su },
+  sw: { translation: sw },
+  ta: { translation: ta },
+  te: { translation: te },
+  ur: { translation: ur },
+  my: { translation: my },
+  km: { translation: km },
+  lo: { translation: lo },
+  ne: { translation: ne },
+  si: { translation: si },
+  kk: { translation: kk },
+  ka: { translation: ka },
+  hy: { translation: hy },
+  am: { translation: am },
+  ps: { translation: ps },
+  ku: { translation: ku }
 };
 
 if (!i18n.isInitialized) {
