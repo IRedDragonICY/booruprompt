@@ -50,6 +50,26 @@ import { hy } from './locales/hy';
 import { am } from './locales/am';
 import { ps } from './locales/ps';
 import { ku } from './locales/ku';
+import { mr } from './locales/mr';
+import { gu } from './locales/gu';
+import { kn } from './locales/kn';
+import { ml } from './locales/ml';
+import { pa } from './locales/pa';
+import { sr } from './locales/sr';
+import { hr } from './locales/hr';
+import { bg } from './locales/bg';
+import { sk } from './locales/sk';
+import { sl } from './locales/sl';
+import { et } from './locales/et';
+import { lv } from './locales/lv';
+import { lt } from './locales/lt';
+import { sq } from './locales/sq';
+import { mk } from './locales/mk';
+import { is } from './locales/is';
+import { ca } from './locales/ca';
+import { eu } from './locales/eu';
+import { cy } from './locales/cy';
+import { af } from './locales/af';
 
 export const LANGUAGE_STORAGE_KEY = 'booruPreferredLanguage';
 export const DEFAULT_LANGUAGE = 'en';
@@ -104,7 +124,27 @@ export const availableLanguages = [
   { code: 'hy', label: 'Armenian', nativeName: 'Հայերեն', region: 'Armenia' },
   { code: 'am', label: 'Amharic', nativeName: 'አማርኛ', region: 'Ethiopia' },
   { code: 'ps', label: 'Pashto', nativeName: 'پښتو', region: 'Afghanistan, Pakistan' },
-  { code: 'ku', label: 'Kurdish', nativeName: 'Kurdî', region: 'Kurdistan, Iraq, Iran, Turkey' }
+  { code: 'ku', label: 'Kurdish', nativeName: 'Kurdî', region: 'Kurdistan, Iraq, Iran, Turkey' },
+  { code: 'mr', label: 'Marathi', nativeName: 'मराठी', region: 'Maharashtra, India' },
+  { code: 'gu', label: 'Gujarati', nativeName: 'ગુજરાતી', region: 'Gujarat, India' },
+  { code: 'kn', label: 'Kannada', nativeName: 'ಕನ್ನಡ', region: 'Karnataka, India' },
+  { code: 'ml', label: 'Malayalam', nativeName: 'മലയാളം', region: 'Kerala, India' },
+  { code: 'pa', label: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', region: 'Punjab, India, Pakistan' },
+  { code: 'sr', label: 'Serbian', nativeName: 'Српски', region: 'Serbia' },
+  { code: 'hr', label: 'Croatian', nativeName: 'Hrvatski', region: 'Croatia' },
+  { code: 'bg', label: 'Bulgarian', nativeName: 'Български', region: 'Bulgaria' },
+  { code: 'sk', label: 'Slovak', nativeName: 'Slovenčina', region: 'Slovakia' },
+  { code: 'sl', label: 'Slovenian', nativeName: 'Slovenščina', region: 'Slovenia' },
+  { code: 'et', label: 'Estonian', nativeName: 'Eesti', region: 'Estonia' },
+  { code: 'lv', label: 'Latvian', nativeName: 'Latviešu', region: 'Latvia' },
+  { code: 'lt', label: 'Lithuanian', nativeName: 'Lietuvių', region: 'Lithuania' },
+  { code: 'sq', label: 'Albanian', nativeName: 'Shqip', region: 'Albania, Kosovo' },
+  { code: 'mk', label: 'Macedonian', nativeName: 'Македонски', region: 'North Macedonia' },
+  { code: 'is', label: 'Icelandic', nativeName: 'Íslenska', region: 'Iceland' },
+  { code: 'ca', label: 'Catalan', nativeName: 'Català', region: 'Catalonia, Valencia, Balearic Islands' },
+  { code: 'eu', label: 'Basque', nativeName: 'Euskara', region: 'Basque Country, Spain, France' },
+  { code: 'cy', label: 'Welsh', nativeName: 'Cymraeg', region: 'Wales, United Kingdom' },
+  { code: 'af', label: 'Afrikaans', nativeName: 'Afrikaans', region: 'South Africa, Namibia' }
 ] as const;
 
 const resources = {
@@ -157,7 +197,27 @@ const resources = {
   hy: { translation: hy },
   am: { translation: am },
   ps: { translation: ps },
-  ku: { translation: ku }
+  ku: { translation: ku },
+  mr: { translation: mr },
+  gu: { translation: gu },
+  kn: { translation: kn },
+  ml: { translation: ml },
+  pa: { translation: pa },
+  sr: { translation: sr },
+  hr: { translation: hr },
+  bg: { translation: bg },
+  sk: { translation: sk },
+  sl: { translation: sl },
+  et: { translation: et },
+  lv: { translation: lv },
+  lt: { translation: lt },
+  sq: { translation: sq },
+  mk: { translation: mk },
+  is: { translation: is },
+  ca: { translation: ca },
+  eu: { translation: eu },
+  cy: { translation: cy },
+  af: { translation: af }
 };
 
 if (!i18n.isInitialized) {
