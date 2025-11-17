@@ -12,7 +12,7 @@ interface PreviewSectionProps {
 }
 
 export const PreviewSection: React.FC<PreviewSectionProps> = ({ title, show, imageUrl, imageTitle, loading, error }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['extractor', 'common']);
   const resolvedTitle = title ?? t('extractor:preview.title');
   if (!show) return null;
   return (

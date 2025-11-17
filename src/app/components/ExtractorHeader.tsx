@@ -13,7 +13,7 @@ interface ExtractorHeaderProps {
 }
 
 export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, url, onUrlChange, onExtract, onReset, loading }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['extractor', 'common']);
 
   return (
     <div className="shrink-0 bg-[rgb(var(--color-surface-alt-rgb))] border-b border-[rgb(var(--color-surface-border-rgb))]/50 px-6 py-6">

@@ -200,7 +200,7 @@ const createThumbnail = (file: File, size: number): Promise<string | null> => {
 };
 
 const BooruTagExtractor = () => {
-    const { t } = useTranslation();
+    const { t } = useTranslation(['imageTool', 'historyItem', 'imagePreview', 'common']);
     const translateCategoryLabel = useCallback(
         (categoryId: string, fallback?: string) => t(`extractor.categories.items.${categoryId}`, { defaultValue: fallback ?? categoryId }),
         [t]

@@ -46,7 +46,7 @@ export function MobileAppShell({
     onImageDrop,
     children,
 }: MobileAppShellProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('common');
     const dragHandlers = active === 'extractor'
         ? { onDragOver: onExtractorDragOver, onDragLeave: onExtractorDragLeave, onDrop: onExtractorDrop }
         : active === 'image'

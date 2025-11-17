@@ -13,7 +13,7 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onSelectBooruList, onOpenSettings, highlightSettings = false }: MobileBottomNavProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const navRef = React.useRef<HTMLElement>(null);
   React.useEffect(() => {
     const el = navRef.current;

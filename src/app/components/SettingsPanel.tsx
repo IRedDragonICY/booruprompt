@@ -34,7 +34,7 @@ function useDebounce<T>(value: T, delay: number): T {
 interface SettingsPanelProps { settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 
 export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation(['settings', 'common']);
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
 

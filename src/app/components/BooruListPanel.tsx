@@ -53,7 +53,7 @@ type SortField = 'rank' | 'images' | 'members';
 type SortDirection = 'asc' | 'desc';
 
 export const BooruListPanel: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(['booruList', 'common']);
   const [booruData, setBooruData] = useState<BooruData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<'fetchFailed' | 'unknown' | string | null>(null);

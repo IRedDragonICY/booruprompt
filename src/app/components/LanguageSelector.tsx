@@ -4,7 +4,7 @@ import { useLanguage } from '@/app/providers/LanguageProvider';
 import { GlobeAltIcon, ChevronDownIcon, MagnifyingGlassIcon } from './icons/icons';
 
 export const LanguageSelector: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const { language, changeLanguage, languages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

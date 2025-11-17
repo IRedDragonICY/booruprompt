@@ -17,7 +17,7 @@ export interface BaseHistoryPanelProps<T extends { id: string; timestamp: number
 }
 
 export function HistoryPanelBase<T extends { id: string; timestamp: number }>({ title, history, renderItem, filterPredicate, searchPlaceholder, onClearHistory, noToggle = false, className = '' }: BaseHistoryPanelProps<T>) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['extractor', 'common']);
   const [isOpen, setIsOpen] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

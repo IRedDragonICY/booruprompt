@@ -47,7 +47,7 @@ export function DesktopAppShell({
     onImageDrop,
     children,
 }: DesktopAppShellProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('common');
     const dragHandlers = active === 'extractor'
         ? { onDragOver: onExtractorDragOver, onDragLeave: onExtractorDragLeave, onDrop: onExtractorDrop }
         : { onDragOver: onImageDragOver, onDragLeave: onImageDragLeave, onDrop: onImageDrop };

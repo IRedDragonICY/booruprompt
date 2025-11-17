@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 export function BooruInfoSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['extractor', 'common']);
 
   const features = [
     {
