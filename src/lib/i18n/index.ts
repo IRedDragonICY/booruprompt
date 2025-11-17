@@ -91,6 +91,10 @@ if (!i18n.isInitialized) {
         loadPath: '/locales/{{lng}}.json',
       },
 
+      // Use empty namespace to load all keys directly from JSON root
+      ns: [''],
+      defaultNS: '',
+
       // Key separator for nested keys (e.g., 'settings.title')
       keySeparator: '.',
       nsSeparator: false,
