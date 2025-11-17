@@ -5,21 +5,6 @@ import HttpBackend from 'i18next-http-backend';
 export const LANGUAGE_STORAGE_KEY = 'booruPreferredLanguage';
 export const DEFAULT_LANGUAGE = 'en';
 
-// Available namespaces (JSON files)
-export const NAMESPACES = [
-  'common',
-  'settings',
-  'extractor',
-  'imageTool',
-  'historyItem',
-  'imagePreview',
-  'booruList',
-  'booruDetail'
-] as const;
-
-// Default namespace
-export const DEFAULT_NAMESPACE = 'common';
-
 export const availableLanguages = [
   { code: 'en', label: 'English', nativeName: 'English', region: 'United States, United Kingdom' },
   { code: 'id', label: 'Indonesian', nativeName: 'Bahasa Indonesia', region: 'Indonesia' },
@@ -100,45 +85,36 @@ if (!i18n.isInitialized) {
     .init({
       lng: DEFAULT_LANGUAGE,
       fallbackLng: DEFAULT_LANGUAGE,
-      ns: NAMESPACES as unknown as string[],
-      defaultNS: DEFAULT_NAMESPACE,
 
-      // Load translations from public/locales
+      // Single JSON file per language - no namespaces
       backend: {
-        loadPath: '/locales/{{lng}}/{{ns}}.json',
-        crossDomain: false,
-        withCredentials: false,
+        loadPath: '/locales/{{lng}}.json',
       },
 
-      // Key and namespace separators
+      // No namespaces
+      ns: ['translation'],
+      defaultNS: 'translation',
+
+      // Key separator only, no namespace separator
       keySeparator: '.',
-      nsSeparator: ':',
+      nsSeparator: false,
 
       // Interpolation settings
       interpolation: {
-        escapeValue: false, // React already escapes
+        escapeValue: false,
       },
 
-      // React-specific settings
+      // React settings
       react: {
-        useSuspense: false, // Disable suspense for better compatibility
+        useSuspense: false,
       },
-
-      // Partitioned resources to reduce initial bundle
-      partialBundledLanguages: true,
-
-      // Debug mode (only in development)
-      debug: false,
 
       // Load current language only
       load: 'currentOnly',
 
-      // Support for language variants
+      // Supported languages
       supportedLngs: availableLanguages.map(({ code }) => code),
       nonExplicitSupportedLngs: false,
-
-      // Preload all namespaces for better UX
-      preload: ['en'],
     })
     .catch((err) => {
       console.error('Failed to initialize i18next:', err);

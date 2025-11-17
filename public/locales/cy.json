@@ -1,0 +1,363 @@
+{
+  "common": {
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    },
+    "appName": "Echdynnwr tagiau Booru",
+    "language": "Iaith",
+    "english": "Saesneg",
+    "indonesian": "Indoneseg",
+    "chinese": "Tsieineeg",
+    "languageSwitcher": {
+      "title": "Iaith y rhyngwyneb",
+      "description": "Wedi'i gadw yn eich porwr. Saesneg yw'r iaith ddiofyn.",
+      "instantNotice": "Mae newidiadau'n cael eu cymhwyso ar unwaith heb ail-lwytho.",
+      "searchPlaceholder": "Chwilio am ieithoedd...",
+      "noResults": "Dim ieithoedd wedi'u canfod"
+    },
+    "nav": {
+      "extractor": "Tagiau",
+      "image": "Delwedd",
+      "booruList": "Booru",
+      "settings": "Gosodiadau"
+    },
+    "actions": {
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "select": "Select",
+      "submit": "Submit",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next",
+      "add": "Ychwanegu",
+      "apply": "Cymhwyso",
+      "back": "Yn ôl",
+      "cancel": "Canslo",
+      "clear": "Clirio",
+      "close": "Cau",
+      "confirm": "Cadarnhau",
+      "copy": "Copïo",
+      "copied": "Wedi copïo!",
+      "delete": "Dileu",
+      "save": "Cadw",
+      "search": "Chwilio",
+      "all": "Pob un",
+      "none": "Dim"
+    }
+  },
+  "settings": {
+    "title": "Gosodiadau",
+    "sections": {
+      "appearance": "Ymddangosiad",
+      "colorTheme": "Thema lliw",
+      "dataFetch": "Dull nôl data"
+    },
+    "themeOptions": {
+      "system": "System",
+      "light": "Golau",
+      "dark": "Tywyll"
+    },
+    "colorThemes": {
+      "blue": "Glas",
+      "orange": "Oren",
+      "teal": "Glaswyrdd",
+      "rose": "Rhosyn",
+      "purple": "Porffor",
+      "green": "Gwyrdd",
+      "custom": "Lliw wedi'i addasu"
+    },
+    "customColor": {
+      "label": "Lliw wedi'i addasu",
+      "pickerLabel": "Dewisydd lliw wedi'i addasu",
+      "inputLabel": "Cod hecs lliw wedi'i addasu",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Dirprwy gweinydd",
+        "description": "Yn defnyddio gweinydd y rhaglen hon i nôl data. Argymellir, mwy dibynadwy."
+      },
+      "clientProxy": {
+        "label": "Dirprwy ochr y cleient",
+        "description": "Yn defnyddio dirprwy CORS cyhoeddus yn eich porwr. Gall fod yn llai dibynadwy neu gyfyngedig."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Dewis gwasanaeth dirprwy cleient:",
+      "ariaLabel": "Dewisydd gwasanaeth dirprwy cleient",
+      "helper": "Mae perfformiad a dibynadwyedd yn amrywio rhwng dirprwyon."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Echdynnu awtomatig",
+        "description": "Echdynnu tagiau yn awtomatig ar ôl gludo/teipio URL dilys.",
+        "tooltip": "Galluogi neu analluogi echdynnu tagiau awtomatig wrth ludo/teipio URL dilys"
+      },
+      "previews": {
+        "label": "Galluogi rhagolygon",
+        "description": "Dangos rhagolygon delwedd/fideo yn ystod echdynnu ac yn yr hanes.",
+        "tooltip": "Galluogi neu analluogi rhagolygon delwedd/fideo i arbed lled band neu osgoi problemau posibl",
+        "note": "Caiff delweddau eu nôl bob amser trwy'r dirprwy gweinydd."
+      },
+      "saveHistory": {
+        "label": "Cadw hanes",
+        "description": "Storio echdynniadau llwyddiannus yn lleol yn eich porwr.",
+        "tooltip": "Galluogi neu analluogi cadw hanes echdynnu i storfa leol eich porwr"
+      },
+      "unsupportedSites": {
+        "label": "Galluogi ar gyfer safleoedd heb eu cefnogi",
+        "description": "Ceisio echdynnu o safleoedd heb eu cefnogi gan ddefnyddio patrymau safleoedd tebyg. Efallai na fydd yn gweithio ar gyfer pob safle.",
+        "tooltip": "Galluogi echdynnu ar gyfer gwefannau heb eu cefnogi gan ddefnyddio patrymau safleoedd tebyg"
+      },
+      "blacklist": {
+        "label": "Galluogi rhestr ddu geiriau allweddol",
+        "description": "Rhowch eiriau allweddol i'w rhwystro, wedi'u gwahanu gan gomas, hanner colons neu linellau newydd.",
+        "tooltip": "Rhwystro tagiau diangen trwy hidlo geiriau allweddol penodol",
+        "placeholder": "Rhowch eiriau allweddol i'w rhwystro…",
+        "ariaLabel": "Geiriau allweddol rhestr ddu",
+        "reset": "Ailosod i'r rhagosodiad"
+      }
+    },
+    "historySize": {
+      "label": "Maint hanes uchaf",
+      "description": "Gosod uchafswm nifer y cofnodion ar gyfer hanes echdynnu a delweddau."
+    },
+    "accessibility": {
+      "themeOption": "Thema {{label}}",
+      "colorThemeOption": "Thema lliw {{label}}",
+      "historySizeSelect": "Maint hanes uchaf"
+    },
+    "historySizeOptions": {
+      "10": "10 cofnod",
+      "30": "30 cofnod",
+      "50": "50 cofnod",
+      "100": "100 cofnod",
+      "unlimited": "Diderfyn"
+    },
+    "support": {
+      "title": "Cymorth ac adborth",
+      "cta": "Adrodd problem ar GitHub",
+      "description": "Wedi dod o hyd i nam neu awgrym? Rhowch wybod i ni!"
+    },
+    "modal": {
+      "close": "Cau gosodiadau"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}

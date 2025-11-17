@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Extractor de Etichete Booru",
+    "language": "Limbă",
+    "english": "Engleză",
+    "indonesian": "Indoneziană",
+    "chinese": "Chineză",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "Limba interfeței",
+      "description": "Salvată în browser. Limba implicită este engleza.",
+      "instantNotice": "Modificările se aplică instant fără reîncărcare.",
+      "searchPlaceholder": "Caută limbi...",
+      "noResults": "Nu s-au găsit limbi"
+    },
+    "nav": {
+      "extractor": "Etichete",
+      "image": "Imagine",
+      "booruList": "Booru",
+      "settings": "Setări"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "Adaugă",
+      "apply": "Aplică",
+      "back": "Înapoi",
+      "cancel": "Anulează",
+      "clear": "Șterge",
+      "close": "Închide",
+      "confirm": "Confirmă",
+      "copy": "Copiază",
+      "copied": "Copiat!",
+      "delete": "Șterge",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "Salvează",
+      "search": "Caută",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "Toate",
+      "none": "Niciuna",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "Setări",
+    "sections": {
+      "appearance": "Aspect",
+      "colorTheme": "Temă de Culoare",
+      "dataFetch": "Metodă de Obținere a Datelor"
+    },
+    "themeOptions": {
+      "system": "Sistem",
+      "light": "Luminos",
+      "dark": "Întunecat"
+    },
+    "colorThemes": {
+      "blue": "Albastru",
+      "orange": "Portocaliu",
+      "teal": "Turcoaz",
+      "rose": "Roz",
+      "purple": "Violet",
+      "green": "Verde",
+      "custom": "Culoare Personalizată"
+    },
+    "customColor": {
+      "label": "Culoare Personalizată",
+      "pickerLabel": "Selector culoare personalizată",
+      "inputLabel": "Cod hex culoare personalizată",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Proxy Server",
+        "description": "Folosește serverul acestei aplicații pentru a prelua date. Recomandat, mai fiabil."
+      },
+      "clientProxy": {
+        "label": "Proxy Client",
+        "description": "Folosește un proxy CORS public în browser. Poate fi mai puțin fiabil sau limitat."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Selectați serviciul proxy client:",
+      "ariaLabel": "Selector serviciu proxy client",
+      "helper": "Performanța și fiabilitatea variază între proxy-uri."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Extracție Automată",
+        "description": "Extrage etichete automat după lipirea/introducerea unui URL valid.",
+        "tooltip": "Activează sau dezactivează extracția automată a etichetelor la lipirea/introducerea unui URL valid"
+      },
+      "previews": {
+        "label": "Activează Previzualizări",
+        "description": "Afișează previzualizări imagine/video în timpul extracției și în istoric.",
+        "tooltip": "Activează sau dezactivează previzualizările imagine/video pentru a economisi lățime de bandă sau a evita probleme potențiale",
+        "note": "Imaginile sunt întotdeauna preluate prin Proxy Server."
+      },
+      "saveHistory": {
+        "label": "Salvează Istoric",
+        "description": "Stochează extracțiile reușite local în browser.",
+        "tooltip": "Activează sau dezactivează salvarea istoricului extracțiilor în stocarea locală a browserului"
+      },
+      "unsupportedSites": {
+        "label": "Activează pentru Site-uri Nesuportate",
+        "description": "Încercați să extrageți de pe site-uri nesuportate folosind modele de site-uri similare. Poate să nu funcționeze pentru toate site-urile.",
+        "tooltip": "Activează extracția pentru site-uri web nesuportate folosind modele de site-uri similare"
+      },
+      "blacklist": {
+        "label": "Activează Listă Neagră Cuvinte Cheie",
+        "description": "Introduceți cuvinte cheie de blocat, separate prin virgule, punct și virgulă sau linii noi.",
+        "tooltip": "Blochează etichete nedorite prin filtrarea cuvintelor cheie specifice",
+        "placeholder": "Introduceți cuvinte cheie de blocat…",
+        "ariaLabel": "Cuvinte cheie listă neagră",
+        "reset": "Resetare la Implicit"
+      }
+    },
+    "historySize": {
+      "label": "Dimensiune Maximă Istoric",
+      "description": "Setați numărul maxim de intrări pentru istoricul extracțiilor și imaginilor."
+    },
+    "accessibility": {
+      "themeOption": "Temă {{label}}",
+      "colorThemeOption": "Temă culoare {{label}}",
+      "historySizeSelect": "Dimensiune maximă istoric"
+    },
+    "historySizeOptions": {
+      "10": "10 Intrări",
+      "30": "30 Intrări",
+      "50": "50 Intrări",
+      "100": "100 Intrări",
+      "unlimited": "Nelimitat"
+    },
+    "support": {
+      "title": "Suport și Feedback",
+      "cta": "Raportați o Problemă pe GitHub",
+      "description": "Ați găsit un bug sau aveți o sugestie? Anunțați-ne!"
+    },
+    "modal": {
+      "close": "Închide Setări"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Extractor de Etichete Booru",
+      "subtitle": "Extrageți etichete din panourile de imagini booru",
+      "supported": "Platforme suportate:",
+      "urlLabel": "URL Postare Booru",
+      "urlPlaceholder": "Lipiți URL-ul postării booru aici...",
+      "manualButton": "Extragere Manuală",
+      "resetButton": "Resetare",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Extractor de Etichete Booru",
+      "heroSubtitle": "Extrageți, filtrați și copiați etichete de pe site-urile booru instant",
+      "features": {
+        "smart": {
+          "title": "Inteligent",
+          "subtitle": "Extragere automată"
+        },
+        "fast": {
+          "title": "Rapid",
+          "subtitle": "Rezultate instantanee"
+        },
+        "private": {
+          "title": "Privat",
+          "subtitle": "Pe partea clientului"
+        },
+        "copy": {
+          "title": "Copiere",
+          "subtitle": "Un clic"
+        }
+      },
+      "cta": {
+        "paste": "Lipire",
+        "extract": "Extragere",
+        "filter": "Filtrare",
+        "copy": "Copiere"
+      },
+      "supportNotice": "Suportă Danbooru, Gelbooru, Safebooru, Rule34, e621 și altele"
+    },
+    "preview": {
+      "title": "Previzualizare"
+    },
+    "status": {
+      "resultLabel": "Rezultat pentru:"
+    },
+    "categories": {
+      "title": "Filtrare Categorii",
+      "enableAll": "Toate",
+      "disableAll": "Niciuna",
+      "items": {
+        "copyright": "Drepturi de Autor",
+        "character": "Personaj",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Altele"
+      },
+      "count_one": "{{count}} etichetă",
+      "count_other": "{{count}} etichete"
+    },
+    "filteredTags": {
+      "label": "Etichete Filtrate",
+      "ariaLabel": "Etichete filtrate",
+      "empty": "Nicio etichetă de afișat.",
+      "copy": "Copiază Etichete",
+      "copied": "Copiat!"
+    },
+    "history": {
+      "extractionTitle": "Istoricul Extragerii",
+      "imageTitle": "Istoricul Imaginilor",
+      "searchExtraction": "Căutare titlu, url, etichete...",
+      "searchImages": "Căutare nume fișier, prompturi, parametri...",
+      "emptySearch": "Nicio intrare nu corespunde căutării dumneavoastră.",
+      "clearTooltip": "Șterge Tot Istoricul",
+      "clearAction": "Șterge Istoricul",
+      "confirmMessage": "Sigur ștergeți?",
+      "confirmYes": "Da, Șterge",
+      "confirmCancel": "Anulează",
+      "searchAriaLabel": "Căutare {{context}}",
+      "searchFallback": "istoric",
+      "clearSearchTooltip": "Șterge Căutarea",
+      "clearSearchAria": "Șterge căutarea"
+    },
+    "mobile": {
+      "historyButton": "Istoric",
+      "urlLabel": "URL Postare Booru",
+      "urlPlaceholder": "Lipește URL sau Trage & Plasează...",
+      "manualButton": "Extragere Manuală",
+      "resetButton": "Resetare"
+    }
+  },
+  "imageTool": {
+    "title": "Metadate Imagine",
+    "dropCtaTitle": "Trageți & Plasați PNG Aici",
+    "dropCtaSubtitle": "sau faceți clic pentru a încărca",
+    "selectButton": "Selectare PNG",
+    "statusProcessing": "Procesare...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Prompt Pozitiv",
+    "negativePrompt": "Prompt Negativ",
+    "parameters": "Parametri",
+    "copy": "Copiere",
+    "copyAll": "Copiază Tot",
+    "copySuccess": "Copiat!",
+    "noMetadata": "Nu s-au găsit metadate de generare.",
+    "loadMetadata": "Încarcă Metadate",
+    "deleteEntry": "Șterge Intrarea",
+    "historyTitle": "Istoricul Imaginilor",
+    "historySearch": "Căutare nume fișier, prompturi, parametri...",
+    "previewAlt": "Previzualizare",
+    "footer": {
+      "metadataNotice": "Extragere metadate PNG pentru fragmentul de text 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "Încarcă această intrare din istoric",
+    "delete": "Șterge această intrare din istoric",
+    "previewAlt": "Previzualizare"
+  },
+  "imagePreview": {
+    "loading": "Se încarcă previzualizarea...",
+    "error": "Nu s-a putut încărca previzualizarea.",
+    "errorDetail": "Eroare proxy server sau imagine invalidă",
+    "videoUnsupported": "Browserul dumneavoastră nu suportă video.",
+    "openFull": "Deschide previzualizare la dimensiune completă",
+    "close": "Închide",
+    "reset": "Resetare",
+    "openOriginal": "Deschide originalul"
+  },
+  "booruList": {
+    "pageTitle": "Clasament Top Booru",
+    "pageDescriptionShort": "Explorați site-urile booru de top clasate după numărul total de imagini și activitate.",
+    "pageDescriptionLong": "Descoperă cele mai populare site-uri booru de pe web. Clasate după numărul total de imagini, număr de membri și activitate cu date de la Booru.org.",
+    "searchPlaceholder": "Căutare site-uri booru...",
+    "filter": {
+      "all": "Toate",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Imagini",
+      "members": "Membri",
+      "owner": "Proprietar"
+    },
+    "sort": {
+      "label": "Sortare după:",
+      "rank": "Clasament (Top)",
+      "images": "Număr Imagini",
+      "members": "Număr Membri",
+      "asc": "Crescător",
+      "desc": "Descrescător"
+    },
+    "itemsPerPage": "Pe pagină:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> din {{total}}",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Următor",
+      "previousShort": "Ant",
+      "nextShort": "Urm"
+    },
+    "emptyState": "Nu s-au găsit site-uri booru",
+    "loading": "Se încarcă date booru...",
+    "errorTitle": "Eroare la Încărcarea Datelor",
+    "errors": {
+      "fetchFailed": "Eșec la preluarea datelor booru.",
+      "unknown": "Ceva nu a mers bine la încărcarea clasamentului."
+    },
+    "ownerLabel": "Proprietar:",
+    "visit": "Vizitează {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Înapoi la Lista Booru",
+    "notFoundTitle": "Booru Nu a Fost Găsit",
+    "notFoundDescription": "Domeniul booru \"{{domain}}\" nu a fost găsit în baza noastră de date.",
+    "statistics": "Statistici",
+    "totalImages": "Total Imagini",
+    "totalMembers": "Total Membri",
+    "shortName": "Nume Scurt",
+    "owner": "Proprietar",
+    "hosted": "Găzduit de booru.org",
+    "protocol": "Protocol",
+    "yes": "Da",
+    "no": "Nu",
+    "visit": "Vizitează {{name}}",
+    "loading": "Se încarcă..."
+  }
+}

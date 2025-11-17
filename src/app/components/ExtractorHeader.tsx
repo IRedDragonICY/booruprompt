@@ -13,7 +13,7 @@ interface ExtractorHeaderProps {
 }
 
 export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, url, onUrlChange, onExtract, onReset, loading }) => {
-  const { t } = useTranslation(['extractor', 'common']);
+  const { t } = useTranslation();
 
   return (
     <div className="shrink-0 bg-[rgb(var(--color-surface-alt-rgb))] border-b border-[rgb(var(--color-surface-border-rgb))]/50 px-6 py-6">
@@ -26,19 +26,19 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[rgb(var(--color-on-surface-rgb))]">{t('extractor:header.title')}</h1>
-            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('extractor:header.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-[rgb(var(--color-on-surface-rgb))]">{t('extractor.header.title')}</h1>
+            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('extractor.header.subtitle')}</p>
           </div>
         </div>
         <span className="inline-flex items-center rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-1.5 text-sm font-medium text-[rgb(var(--color-on-surface-muted-rgb))] md:hidden">
-          {activeSite || t('extractor:header.activePlaceholder')}
+          {activeSite || t('extractor.header.activePlaceholder')}
         </span>
       </div>
 
       {/* Supported Sites */}
       <div className="mb-6 hidden md:block">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">{t('extractor:header.supported')}</span>
+          <span className="text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">{t('extractor.header.supported')}</span>
           <div className="flex flex-wrap gap-2">
             {BOORU_SITES.map(s => (
               <span
@@ -60,17 +60,17 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
       <div className="hidden md:block space-y-4">
         <div className="relative">
           <label htmlFor="url" className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] mb-2">
-            {t('extractor:header.urlLabel')}
+            {t('extractor.header.urlLabel')}
           </label>
           <div className="relative">
             <input 
               id="url" 
               type="url" 
               className="w-full h-12 px-4 pr-12 text-base bg-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-xl transition-all duration-200 placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-[rgb(var(--color-primary-rgb))] focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]/20 focus:outline-none" 
-              placeholder={t('extractor:header.urlPlaceholder')} 
+              placeholder={t('extractor.header.urlPlaceholder')} 
               value={url} 
               onChange={onUrlChange} 
-              aria-label={t('extractor:header.urlLabel')} 
+              aria-label={t('extractor.header.urlLabel')} 
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
               <svg className="h-5 w-5 text-[rgb(var(--color-on-surface-faint-rgb))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                 </svg>
-                {t('extractor:header.manualButton')}
+                {t('extractor.header.manualButton')}
               </>
             )}
           </button>
@@ -103,7 +103,7 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {t('extractor:header.resetButton')}
+            {t('extractor.header.resetButton')}
           </button>
         </div>
       </div>

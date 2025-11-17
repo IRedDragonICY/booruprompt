@@ -1,0 +1,363 @@
+{
+  "common": {
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    },
+    "appName": "Booru extractor d'etiquetes",
+    "language": "Idioma",
+    "english": "Anglès",
+    "indonesian": "Indonesi",
+    "chinese": "Xinès",
+    "languageSwitcher": {
+      "title": "Idioma de la interfície",
+      "description": "Desat al vostre navegador. L'idioma predeterminat és l'anglès.",
+      "instantNotice": "Els canvis s'apliquen immediatament sense recarregar.",
+      "searchPlaceholder": "Cerca idiomes...",
+      "noResults": "No s'han trobat idiomes"
+    },
+    "nav": {
+      "extractor": "Etiquetes",
+      "image": "Imatge",
+      "booruList": "Booru",
+      "settings": "Configuració"
+    },
+    "actions": {
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "select": "Select",
+      "submit": "Submit",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next",
+      "add": "Afegeix",
+      "apply": "Aplica",
+      "back": "Enrere",
+      "cancel": "Cancel·la",
+      "clear": "Neteja",
+      "close": "Tanca",
+      "confirm": "Confirma",
+      "copy": "Copia",
+      "copied": "Copiat!",
+      "delete": "Suprimeix",
+      "save": "Desa",
+      "search": "Cerca",
+      "all": "Tot",
+      "none": "Cap"
+    }
+  },
+  "settings": {
+    "title": "Configuració",
+    "sections": {
+      "appearance": "Aparença",
+      "colorTheme": "Tema de color",
+      "dataFetch": "Mètode d'obtenció de dades"
+    },
+    "themeOptions": {
+      "system": "Sistema",
+      "light": "Clar",
+      "dark": "Fosc"
+    },
+    "colorThemes": {
+      "blue": "Blau",
+      "orange": "Taronja",
+      "teal": "Verd blavós",
+      "rose": "Rosa",
+      "purple": "Porpra",
+      "green": "Verd",
+      "custom": "Color personalitzat"
+    },
+    "customColor": {
+      "label": "Color personalitzat",
+      "pickerLabel": "Selector de color personalitzat",
+      "inputLabel": "Codi hex del color personalitzat",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Servidor intermediari",
+        "description": "Utilitza el servidor d'aquesta aplicació per obtenir dades. Recomanat, més fiable."
+      },
+      "clientProxy": {
+        "label": "Intermediari del costat del client",
+        "description": "Utilitza un servidor intermediari CORS públic al navegador. Pot ser menys fiable o tenir limitacions."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Selecciona el servei d'intermediari del client:",
+      "ariaLabel": "Selector del servei d'intermediari del client",
+      "helper": "El rendiment i la fiabilitat varien entre intermediaris."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Extracció automàtica",
+        "description": "Extreu etiquetes automàticament després d'enganxar/escriure un URL vàlid.",
+        "tooltip": "Activa o desactiva l'extracció automàtica d'etiquetes en enganxar/escriure un URL vàlid"
+      },
+      "previews": {
+        "label": "Activa les previsualitzacions",
+        "description": "Mostra previsualitzacions d'imatges/vídeos durant l'extracció i a l'historial.",
+        "tooltip": "Activa o desactiva les previsualitzacions d'imatges/vídeos per estalviar ample de banda o evitar possibles problemes",
+        "note": "Les imatges sempre s'obtenen mitjançant el servidor intermediari."
+      },
+      "saveHistory": {
+        "label": "Desa l'historial",
+        "description": "Emmagatzema les extraccions reeixides localment al navegador.",
+        "tooltip": "Activa o desactiva el desament de l'historial d'extraccions a l'emmagatzematge local del navegador"
+      },
+      "unsupportedSites": {
+        "label": "Activa per a llocs no compatibles",
+        "description": "Intenta extreure de llocs no compatibles utilitzant patrons de llocs similars. Pot no funcionar per a tots els llocs.",
+        "tooltip": "Activa l'extracció per a llocs web no compatibles utilitzant patrons de llocs similars"
+      },
+      "blacklist": {
+        "label": "Activa la llista negra de paraules clau",
+        "description": "Introdueix paraules clau per bloquejar, separades per comes, punts i comes o línies noves.",
+        "tooltip": "Bloqueja etiquetes no desitjades filtrant paraules clau específiques",
+        "placeholder": "Introdueix paraules clau per bloquejar…",
+        "ariaLabel": "Paraules clau de la llista negra",
+        "reset": "Restaura als valors per defecte"
+      }
+    },
+    "historySize": {
+      "label": "Mida màxima de l'historial",
+      "description": "Estableix el nombre màxim d'entrades per a l'historial d'extracció i d'imatges."
+    },
+    "accessibility": {
+      "themeOption": "Tema {{label}}",
+      "colorThemeOption": "Tema de color {{label}}",
+      "historySizeSelect": "Mida màxima de l'historial"
+    },
+    "historySizeOptions": {
+      "10": "10 entrades",
+      "30": "30 entrades",
+      "50": "50 entrades",
+      "100": "100 entrades",
+      "unlimited": "Il·limitades"
+    },
+    "support": {
+      "title": "Suport i comentaris",
+      "cta": "Informa d'un problema a GitHub",
+      "description": "Has trobat un error o tens un suggeriment? Fes-nos-ho saber!"
+    },
+    "modal": {
+      "close": "Tanca la configuració"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}

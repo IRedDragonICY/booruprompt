@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Εξαγωγέας Ετικετών Booru",
+    "language": "Γλώσσα",
+    "english": "Αγγλικά",
+    "indonesian": "Ινδονησιακά",
+    "chinese": "Κινέζικα",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "Γλώσσα διεπαφής",
+      "description": "Αποθηκευμένο στον περιηγητή σας. Η προεπιλεγμένη γλώσσα είναι τα Αγγλικά.",
+      "instantNotice": "Οι αλλαγές εφαρμόζονται αμέσως χωρίς επαναφόρτωση.",
+      "searchPlaceholder": "Αναζήτηση γλωσσών...",
+      "noResults": "Δεν βρέθηκαν γλώσσες"
+    },
+    "nav": {
+      "extractor": "Ετικέτες",
+      "image": "Εικόνα",
+      "booruList": "Booru",
+      "settings": "Ρυθμίσεις"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "Προσθήκη",
+      "apply": "Εφαρμογή",
+      "back": "Πίσω",
+      "cancel": "Ακύρωση",
+      "clear": "Καθαρισμός",
+      "close": "Κλείσιμο",
+      "confirm": "Επιβεβαίωση",
+      "copy": "Αντιγραφή",
+      "copied": "Αντιγράφηκε!",
+      "delete": "Διαγραφή",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "Αποθήκευση",
+      "search": "Αναζήτηση",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "Όλα",
+      "none": "Κανένα",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "Ρυθμίσεις",
+    "sections": {
+      "appearance": "Εμφάνιση",
+      "colorTheme": "Θέμα Χρώματος",
+      "dataFetch": "Μέθοδος Λήψης Δεδομένων"
+    },
+    "themeOptions": {
+      "system": "Σύστημα",
+      "light": "Φωτεινό",
+      "dark": "Σκοτεινό"
+    },
+    "colorThemes": {
+      "blue": "Μπλε",
+      "orange": "Πορτοκαλί",
+      "teal": "Γαλαζοπράσινο",
+      "rose": "Ροζ",
+      "purple": "Μωβ",
+      "green": "Πράσινο",
+      "custom": "Προσαρμοσμένο Χρώμα"
+    },
+    "customColor": {
+      "label": "Προσαρμοσμένο Χρώμα",
+      "pickerLabel": "Επιλογέας προσαρμοσμένου χρώματος",
+      "inputLabel": "Κωδικός hex προσαρμοσμένου χρώματος",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Διακομιστής Proxy",
+        "description": "Χρησιμοποιεί τον διακομιστή αυτής της εφαρμογής για τη λήψη δεδομένων. Συνιστάται, πιο αξιόπιστο."
+      },
+      "clientProxy": {
+        "label": "Πληρεξούσιος Πελάτη",
+        "description": "Χρησιμοποιεί δημόσιο CORS proxy στο πρόγραμμα περιήγησής σας. Μπορεί να είναι λιγότερο αξιόπιστο ή περιορισμένο."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Επιλέξτε υπηρεσία πληρεξούσιου πελάτη:",
+      "ariaLabel": "Επιλογέας υπηρεσίας πληρεξούσιου πελάτη",
+      "helper": "Η απόδοση και η αξιοπιστία διαφέρουν μεταξύ των διακομιστών μεσολάβησης."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Αυτόματη Εξαγωγή",
+        "description": "Αυτόματη εξαγωγή ετικετών μετά την επικόλληση/πληκτρολόγηση έγκυρου URL.",
+        "tooltip": "Ενεργοποίηση ή απενεργοποίηση αυτόματης εξαγωγής ετικετών κατά την επικόλληση/πληκτρολόγηση έγκυρου URL"
+      },
+      "previews": {
+        "label": "Ενεργοποίηση Προεπισκοπήσεων",
+        "description": "Εμφάνιση προεπισκοπήσεων εικόνας/βίντεο κατά την εξαγωγή και στο ιστορικό.",
+        "tooltip": "Ενεργοποίηση ή απενεργοποίηση προεπισκοπήσεων εικόνας/βίντεο για εξοικονόμηση εύρους ζώνης ή αποφυγή πιθανών προβλημάτων",
+        "note": "Οι εικόνες λαμβάνονται πάντα μέσω του Διακομιστή Proxy."
+      },
+      "saveHistory": {
+        "label": "Αποθήκευση Ιστορικού",
+        "description": "Αποθήκευση επιτυχημένων εξαγωγών τοπικά στο πρόγραμμα περιήγησής σας.",
+        "tooltip": "Ενεργοποίηση ή απενεργοποίηση αποθήκευσης ιστορικού εξαγωγών στον τοπικό χώρο αποθήκευσης του προγράμματος περιήγησης"
+      },
+      "unsupportedSites": {
+        "label": "Ενεργοποίηση για Μη Υποστηριζόμενους Ιστότοπους",
+        "description": "Δοκιμάστε να εξαγάγετε από μη υποστηριζόμενους ιστότοπους χρησιμοποιώντας παρόμοια μοτίβα ιστότοπων. Ενδέχεται να μην λειτουργεί για όλους τους ιστότοπους.",
+        "tooltip": "Ενεργοποίηση εξαγωγής για μη υποστηριζόμενους ιστότοπους χρησιμοποιώντας παρόμοια μοτίβα ιστότοπων"
+      },
+      "blacklist": {
+        "label": "Ενεργοποίηση Μαύρης Λίστας Λέξεων-Κλειδιών",
+        "description": "Εισαγάγετε λέξεις-κλειδιά για αποκλεισμό, διαχωρισμένες με κόμματα, ερωτηματικά ή νέες γραμμές.",
+        "tooltip": "Αποκλείστε ανεπιθύμητες ετικέτες φιλτράροντας συγκεκριμένες λέξεις-κλειδιά",
+        "placeholder": "Εισαγάγετε λέξεις-κλειδιά για αποκλεισμό…",
+        "ariaLabel": "Λέξεις-κλειδιά μαύρης λίστας",
+        "reset": "Επαναφορά στην Προεπιλογή"
+      }
+    },
+    "historySize": {
+      "label": "Μέγιστο Μέγεθος Ιστορικού",
+      "description": "Ορίστε τον μέγιστο αριθμό καταχωρήσεων για το ιστορικό εξαγωγής και εικόνων."
+    },
+    "accessibility": {
+      "themeOption": "Θέμα {{label}}",
+      "colorThemeOption": "Χρωματικό θέμα {{label}}",
+      "historySizeSelect": "Μέγιστο μέγεθος ιστορικού"
+    },
+    "historySizeOptions": {
+      "10": "10 Καταχωρήσεις",
+      "30": "30 Καταχωρήσεις",
+      "50": "50 Καταχωρήσεις",
+      "100": "100 Καταχωρήσεις",
+      "unlimited": "Απεριόριστο"
+    },
+    "support": {
+      "title": "Υποστήριξη & Σχόλια",
+      "cta": "Αναφορά Προβλήματος στο GitHub",
+      "description": "Βρήκατε σφάλμα ή έχετε πρόταση; Ενημερώστε μας!"
+    },
+    "modal": {
+      "close": "Κλείσιμο Ρυθμίσεων"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Εξαγωγέας Ετικετών Booru",
+      "subtitle": "Εξαγωγή ετικετών από πίνακες εικόνων booru",
+      "supported": "Υποστηριζόμενες πλατφόρμες:",
+      "urlLabel": "URL Ανάρτησης Booru",
+      "urlPlaceholder": "Επικολλήστε το URL ανάρτησης booru εδώ...",
+      "manualButton": "Χειροκίνητη Εξαγωγή",
+      "resetButton": "Επαναφορά",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Εξαγωγέας Ετικετών Booru",
+      "heroSubtitle": "Εξάγετε, φιλτράρετε και αντιγράψτε ετικέτες από ιστότοπους booru αμέσως",
+      "features": {
+        "smart": {
+          "title": "Έξυπνο",
+          "subtitle": "Αυτόματη εξαγωγή"
+        },
+        "fast": {
+          "title": "Γρήγορο",
+          "subtitle": "Άμεσα αποτελέσματα"
+        },
+        "private": {
+          "title": "Ιδιωτικό",
+          "subtitle": "Πλευρά πελάτη"
+        },
+        "copy": {
+          "title": "Αντιγραφή",
+          "subtitle": "Ένα κλικ"
+        }
+      },
+      "cta": {
+        "paste": "Επικόλληση",
+        "extract": "Εξαγωγή",
+        "filter": "Φιλτράρισμα",
+        "copy": "Αντιγραφή"
+      },
+      "supportNotice": "Υποστηρίζει Danbooru, Gelbooru, Safebooru, Rule34, e621 και άλλα"
+    },
+    "preview": {
+      "title": "Προεπισκόπηση"
+    },
+    "status": {
+      "resultLabel": "Αποτέλεσμα για:"
+    },
+    "categories": {
+      "title": "Φιλτράρισμα Κατηγοριών",
+      "enableAll": "Όλα",
+      "disableAll": "Κανένα",
+      "items": {
+        "copyright": "Πνευματικά Δικαιώματα",
+        "character": "Χαρακτήρας",
+        "general": "Γενικά",
+        "meta": "Meta",
+        "other": "Άλλο"
+      },
+      "count_one": "{{count}} ετικέτα",
+      "count_other": "{{count}} ετικέτες"
+    },
+    "filteredTags": {
+      "label": "Φιλτραρισμένες Ετικέτες",
+      "ariaLabel": "Φιλτραρισμένες ετικέτες",
+      "empty": "Δεν υπάρχουν ετικέτες προς εμφάνιση.",
+      "copy": "Αντιγραφή Ετικετών",
+      "copied": "Αντιγράφηκε!"
+    },
+    "history": {
+      "extractionTitle": "Ιστορικό Εξαγωγής",
+      "imageTitle": "Ιστορικό Εικόνων",
+      "searchExtraction": "Αναζήτηση τίτλου, url, ετικετών...",
+      "searchImages": "Αναζήτηση ονόματος αρχείου, προτροπών, παραμέτρων...",
+      "emptySearch": "Δεν βρέθηκαν καταχωρήσεις που να ταιριάζουν στην αναζήτησή σας.",
+      "clearTooltip": "Εκκαθάριση Όλου του Ιστορικού",
+      "clearAction": "Εκκαθάριση Ιστορικού",
+      "confirmMessage": "Πραγματικά εκκαθάριση;",
+      "confirmYes": "Ναι, Εκκαθάριση",
+      "confirmCancel": "Ακύρωση",
+      "searchAriaLabel": "Αναζήτηση {{context}}",
+      "searchFallback": "ιστορικό",
+      "clearSearchTooltip": "Εκκαθάριση Αναζήτησης",
+      "clearSearchAria": "Εκκαθάριση αναζήτησης"
+    },
+    "mobile": {
+      "historyButton": "Ιστορικό",
+      "urlLabel": "URL Ανάρτησης Booru",
+      "urlPlaceholder": "Επικόλληση URL ή Σύρσιμο & Απόθεση...",
+      "manualButton": "Χειροκίνητη Εξαγωγή",
+      "resetButton": "Επαναφορά"
+    }
+  },
+  "imageTool": {
+    "title": "Μεταδεδομένα Εικόνας",
+    "dropCtaTitle": "Σύρετε & Αποθέστε PNG Εδώ",
+    "dropCtaSubtitle": "ή κάντε κλικ για μεταφόρτωση",
+    "selectButton": "Επιλογή PNG",
+    "statusProcessing": "Επεξεργασία...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Θετική Προτροπή",
+    "negativePrompt": "Αρνητική Προτροπή",
+    "parameters": "Παράμετροι",
+    "copy": "Αντιγραφή",
+    "copyAll": "Αντιγραφή Όλων",
+    "copySuccess": "Αντιγράφηκε!",
+    "noMetadata": "Δεν βρέθηκαν μεταδεδομένα δημιουργίας.",
+    "loadMetadata": "Φόρτωση Μεταδεδομένων",
+    "deleteEntry": "Διαγραφή Καταχώρησης",
+    "historyTitle": "Ιστορικό Εικόνων",
+    "historySearch": "Αναζήτηση ονόματος αρχείου, προτροπών, παραμέτρων...",
+    "previewAlt": "Προεπισκόπηση",
+    "footer": {
+      "metadataNotice": "Εξαγωγή μεταδεδομένων PNG για κομμάτι κειμένου 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "Φόρτωση αυτής της καταχώρησης ιστορικού",
+    "delete": "Διαγραφή αυτής της καταχώρησης ιστορικού",
+    "previewAlt": "Προεπισκόπηση"
+  },
+  "imagePreview": {
+    "loading": "Φόρτωση προεπισκόπησης...",
+    "error": "Δεν ήταν δυνατή η φόρτωση προεπισκόπησης.",
+    "errorDetail": "Σφάλμα διακομιστή μεσολάβησης ή μη έγκυρη εικόνα",
+    "videoUnsupported": "Το πρόγραμμα περιήγησής σας δεν υποστηρίζει βίντεο.",
+    "openFull": "Άνοιγμα προεπισκόπησης πλήρους μεγέθους",
+    "close": "Κλείσιμο",
+    "reset": "Επαναφορά",
+    "openOriginal": "Άνοιγμα πρωτότυπου"
+  },
+  "booruList": {
+    "pageTitle": "Κορυφαία Κατάταξη Booru",
+    "pageDescriptionShort": "Εξερευνήστε τους κορυφαίους ιστότοπους booru κατατασμένους κατά συνολικές εικόνες και δραστηριότητα.",
+    "pageDescriptionLong": "Ανακαλύψτε τους πιο δημοφιλείς ιστότοπους booru από όλο τον ιστό. Κατατασμένοι κατά συνολικές εικόνες, αριθμό μελών και δραστηριότητα με δεδομένα από το Booru.org.",
+    "searchPlaceholder": "Αναζήτηση ιστότοπων booru...",
+    "filter": {
+      "all": "Όλα",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Εικόνες",
+      "members": "Μέλη",
+      "owner": "Ιδιοκτήτης"
+    },
+    "sort": {
+      "label": "Ταξινόμηση κατά:",
+      "rank": "Κατάταξη (Κορυφή)",
+      "images": "Αριθμός Εικόνων",
+      "members": "Αριθμός Μελών",
+      "asc": "Αύξουσα",
+      "desc": "Φθίνουσα"
+    },
+    "itemsPerPage": "Ανά σελίδα:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> από {{total}}",
+    "pagination": {
+      "previous": "Προηγούμενο",
+      "next": "Επόμενο",
+      "previousShort": "Προηγ",
+      "nextShort": "Επόμ"
+    },
+    "emptyState": "Δεν βρέθηκαν ιστότοποι booru",
+    "loading": "Φόρτωση δεδομένων booru...",
+    "errorTitle": "Σφάλμα Φόρτωσης Δεδομένων",
+    "errors": {
+      "fetchFailed": "Αποτυχία λήψης δεδομένων booru.",
+      "unknown": "Κάτι πήγε στραβά κατά τη φόρτωση της κατάταξης."
+    },
+    "ownerLabel": "Ιδιοκτήτης:",
+    "visit": "Επίσκεψη {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Επιστροφή στη Λίστα Booru",
+    "notFoundTitle": "Δεν Βρέθηκε Booru",
+    "notFoundDescription": "Ο τομέας booru \"{{domain}}\" δεν βρέθηκε στη βάση δεδομένων μας.",
+    "statistics": "Στατιστικά",
+    "totalImages": "Συνολικές Εικόνες",
+    "totalMembers": "Συνολικά Μέλη",
+    "shortName": "Σύντομο Όνομα",
+    "owner": "Ιδιοκτήτης",
+    "hosted": "Φιλοξενείται από το booru.org",
+    "protocol": "Πρωτόκολλο",
+    "yes": "Ναι",
+    "no": "Όχι",
+    "visit": "Επίσκεψη {{name}}",
+    "loading": "Φόρτωση..."
+  }
+}

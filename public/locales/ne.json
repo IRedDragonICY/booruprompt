@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "language": "भाषा",
+    "english": "अङ्ग्रेजी",
+    "indonesian": "इन्डोनेसियाली",
+    "chinese": "चिनियाँ",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "इन्टरफेस भाषा",
+      "description": "तपाईंको ब्राउजरमा बचत गरिएको। पूर्वनिर्धारित भाषा अङ्ग्रेजी हो।",
+      "instantNotice": "परिवर्तनहरू पुन: लोड नगरी तुरुन्तै लागू हुन्छन्।",
+      "searchPlaceholder": "भाषाहरू खोज्नुहोस्...",
+      "noResults": "कुनै भाषा फेला परेन"
+    },
+    "nav": {
+      "extractor": "ट्यागहरू",
+      "image": "तस्बिर",
+      "booruList": "Booru",
+      "settings": "सेटिङहरू"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "थप्नुहोस्",
+      "apply": "लागू गर्नुहोस्",
+      "back": "फिर्ता",
+      "cancel": "रद्द गर्नुहोस्",
+      "clear": "खाली गर्नुहोस्",
+      "close": "बन्द गर्नुहोस्",
+      "confirm": "पुष्टि गर्नुहोस्",
+      "copy": "प्रतिलिपि",
+      "copied": "प्रतिलिपि गरियो!",
+      "delete": "मेटाउनुहोस्",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "बचत गर्नुहोस्",
+      "search": "खोज्नुहोस्",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "सबै",
+      "none": "कुनै पनि होइन",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "सेटिङहरू",
+    "sections": {
+      "appearance": "उपस्थिति",
+      "colorTheme": "रङ थिम",
+      "dataFetch": "डेटा प्राप्ति विधि"
+    },
+    "themeOptions": {
+      "system": "प्रणाली",
+      "light": "उज्यालो",
+      "dark": "अँध्यारो"
+    },
+    "colorThemes": {
+      "blue": "नीलो",
+      "orange": "सुन्तला",
+      "teal": "टिल",
+      "rose": "गुलाब",
+      "purple": "बैजनी",
+      "green": "हरियो",
+      "custom": "अनुकूलित रङ"
+    },
+    "customColor": {
+      "label": "अनुकूलित रङ",
+      "pickerLabel": "अनुकूलित रङ चयनकर्ता",
+      "inputLabel": "अनुकूलित रङ हेक्स कोड",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "सर्भर प्रोक्सी",
+        "description": "डेटा प्राप्त गर्न यो अनुप्रयोगको सर्भर प्रयोग गर्छ। सिफारिस गरिएको, अधिक विश्वसनीय।"
+      },
+      "clientProxy": {
+        "label": "क्लाइन्ट-साइड प्रोक्सी",
+        "description": "तपाईंको ब्राउजरमा सार्वजनिक CORS प्रोक्सी प्रयोग गर्छ। कम विश्वसनीय वा दर-सीमित हुन सक्छ।"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "क्लाइन्ट प्रोक्सी सेवा चयन गर्नुहोस्:",
+      "ariaLabel": "क्लाइन्ट प्रोक्सी सेवा चयनकर्ता",
+      "helper": "प्रदर्शन र विश्वसनीयता प्रोक्सीहरू बीच भिन्न हुन्छ।"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "स्वचालित निकासी",
+        "description": "मान्य URL टाँस्दा/टाइप गरेपछि स्वचालित रूपमा ट्यागहरू निकाल्नुहोस्।",
+        "tooltip": "मान्य URL टाँस्दा/टाइप गर्दा स्वचालित ट्याग निकासी सक्षम वा असक्षम गर्नुहोस्"
+      },
+      "previews": {
+        "label": "पूर्वावलोकनहरू सक्षम गर्नुहोस्",
+        "description": "निकासी र इतिहासमा छवि/भिडियो पूर्वावलोकनहरू देखाउनुहोस्।",
+        "tooltip": "ब्यान्डविड्थ बचत गर्न वा सम्भावित समस्याहरूबाट बच्न छवि/भिडियो पूर्वावलोकनहरू सक्षम वा असक्षम गर्नुहोस्",
+        "note": "छविहरू सधैं सर्भर प्रोक्सी मार्फत प्राप्त गरिन्छ।"
+      },
+      "saveHistory": {
+        "label": "इतिहास बचत गर्नुहोस्",
+        "description": "तपाईंको ब्राउजरमा स्थानीय रूपमा सफल निकासीहरू भण्डारण गर्नुहोस्।",
+        "tooltip": "तपाईंको ब्राउजरको स्थानीय भण्डारणमा निकासी इतिहास बचत सक्षम वा असक्षम गर्नुहोस्"
+      },
+      "unsupportedSites": {
+        "label": "असमर्थित साइटहरूका लागि सक्षम गर्नुहोस्",
+        "description": "समान साइट ढाँचाहरू प्रयोग गरेर असमर्थित साइटहरूबाट निकाल्ने प्रयास गर्नुहोस्। सबै साइटहरूमा काम नगर्न सक्छ।",
+        "tooltip": "समान साइट ढाँचाहरू प्रयोग गरेर असमर्थित वेबसाइटहरूका लागि निकासी सक्षम गर्नुहोस्"
+      },
+      "blacklist": {
+        "label": "मुख्य शब्द कालोसूची सक्षम गर्नुहोस्",
+        "description": "अवरुद्ध गर्न मुख्य शब्दहरू प्रविष्ट गर्नुहोस्, अल्पविराम, अर्धविराम, वा नयाँ रेखाद्वारा विभाजित।",
+        "tooltip": "विशिष्ट मुख्य शब्दहरू फिल्टर गरेर अनावश्यक ट्यागहरू अवरुद्ध गर्नुहोस्",
+        "placeholder": "अवरुद्ध गर्न मुख्य शब्दहरू प्रविष्ट गर्नुहोस्…",
+        "ariaLabel": "कालोसूची मुख्य शब्दहरू",
+        "reset": "पूर्वनिर्धारितमा रिसेट गर्नुहोस्"
+      }
+    },
+    "historySize": {
+      "label": "अधिकतम इतिहास आकार",
+      "description": "निकासी र छवि इतिहास दुवैका लागि अधिकतम प्रविष्टिहरूको सङ्ख्या सेट गर्नुहोस्।"
+    },
+    "accessibility": {
+      "themeOption": "थिम {{label}}",
+      "colorThemeOption": "रङ थिम {{label}}",
+      "historySizeSelect": "अधिकतम इतिहास आकार"
+    },
+    "historySizeOptions": {
+      "10": "१० प्रविष्टिहरू",
+      "30": "३० प्रविष्टिहरू",
+      "50": "५० प्रविष्टिहरू",
+      "100": "१०० प्रविष्टिहरू",
+      "unlimited": "असीमित"
+    },
+    "support": {
+      "title": "समर्थन र प्रतिक्रिया",
+      "cta": "GitHub मा समस्या रिपोर्ट गर्नुहोस्",
+      "description": "बग भेट्टाउनुभयो वा सुझाव छ? हामीलाई थाहा दिनुहोस्!"
+    },
+    "modal": {
+      "close": "सेटिङहरू बन्द गर्नुहोस्"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}

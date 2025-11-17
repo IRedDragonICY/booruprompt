@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "language": "ဘာသာစကား",
+    "english": "အင်္ဂလိပ်",
+    "indonesian": "အင်ဒိုနီးရှား",
+    "chinese": "တရုတ်",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "အင်တာဖေ့စ် ဘာသာစကား",
+      "description": "သင့်ဘရောက်ဇာတွင် သိမ်းဆည်းထားသည်။ ပုံမှန်ဘာသာစကားမှာ အင်္ဂလိပ်ဖြစ်သည်။",
+      "instantNotice": "ပြောင်းလဲမှုများကို ပြန်လည်တင်ရန် မလိုအပ်ဘဲ ချက်ချင်းအသုံးချသည်။",
+      "searchPlaceholder": "ဘာသာစကားများကို ရှာဖွေပါ...",
+      "noResults": "ဘာသာစကားများ မတွေ့ပါ"
+    },
+    "nav": {
+      "extractor": "တဂ်များ",
+      "image": "ရုပ်ပုံ",
+      "booruList": "Booru",
+      "settings": "ဆက်တင်များ"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "ထည့်ပါ",
+      "apply": "အသုံးချပါ",
+      "back": "နောက်သို့",
+      "cancel": "မလုပ်တော့",
+      "clear": "ရှင်းလင်းပါ",
+      "close": "ပိတ်ပါ",
+      "confirm": "အတည်ပြုပါ",
+      "copy": "ကူးယူပါ",
+      "copied": "ကူးယူပြီးပါပြီ!",
+      "delete": "ဖျက်ပါ",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "သိမ်းပါ",
+      "search": "ရှာဖွေပါ",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "အားလုံး",
+      "none": "မရှိ",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "ဆက်တင်များ",
+    "sections": {
+      "appearance": "အသွင်အပြင်",
+      "colorTheme": "အရောင်သီမ်",
+      "dataFetch": "ဒေတာရယူခြင်းနည်းလမ်း"
+    },
+    "themeOptions": {
+      "system": "စနစ်",
+      "light": "အလင်း",
+      "dark": "အမှောင်"
+    },
+    "colorThemes": {
+      "blue": "အပြာ",
+      "orange": "လိမ္မော်ရောင်",
+      "teal": "မြစိမ်း",
+      "rose": "နှင်းဆီ",
+      "purple": "ခရမ်း",
+      "green": "အစိမ်း",
+      "custom": "စိတ်ကြိုက်အရောင်"
+    },
+    "customColor": {
+      "label": "စိတ်ကြိုက်အရောင်",
+      "pickerLabel": "စိတ်ကြိုက်အရောင်ရွေးချယ်ရေး",
+      "inputLabel": "စိတ်ကြိုက်အရောင် hex ကုဒ်",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "ဆာဗာ ပရောက်ဆီ",
+        "description": "ဒေတာရယူရန် ဤအက်ပ်၏ဆာဗာကို အသုံးပြုသည်။ အကြံပြုထားပြီး ပို၍ယုံကြည်စိတ်ချရသည်။"
+      },
+      "clientProxy": {
+        "label": "ကလိုင်းယင့်ဘက် ပရောက်ဆီ",
+        "description": "သင့်ဘရောက်ဇာတွင် အများသုံး CORS ပရောက်ဆီကို အသုံးပြုသည်။ ယုံကြည်စိတ်ချမှု နည်းနိုင်ပြီး နှုန်းကန့်သတ်ချက် ရှိနိုင်သည်။"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "ကလိုင်းယင့် ပရောက်ဆီ ဝန်ဆောင်မှုကို ရွေးချယ်ပါ:",
+      "ariaLabel": "ကလိုင်းယင့် ပရောက်ဆီ ဝန်ဆောင်မှုရွေးချယ်ရေး",
+      "helper": "ပရောက်ဆီများအလိုက် စွမ်းဆောင်ရည်နှင့် ယုံကြည်စိတ်ချမှု ကွဲပြားနိုင်သည်။"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "အလိုအလျောက် ထုတ်ယူခြင်း",
+        "description": "တရားဝင် URL ကို ကူးချ/ရိုက်ထည့်ပြီးနောက် တဂ်များကို အလိုအလျောက် ထုတ်ယူပါ။",
+        "tooltip": "တရားဝင် URL ကူးချ/ရိုက်ထည့်သည့်အခါ တဂ်အလိုအလျောက်ထုတ်ယူမှုကို ဖွင့်ရန် သို့မဟုတ် ပိတ်ရန်"
+      },
+      "previews": {
+        "label": "အကြိုကြည့်ရှုခြင်းကို ဖွင့်ရန်",
+        "description": "ထုတ်ယူစဉ်နှင့် မှတ်တမ်းတွင် ရုပ်ပုံ/ဗီဒီယို အကြိုကြည့်ရှုခြင်းကို ပြသသည်။",
+        "tooltip": "ဒေတာသုံးစွဲမှုကို ချွေတာရန် သို့မဟုတ် ပြဿနာများကို ရှောင်ရှားရန် ရုပ်ပုံ/ဗီဒီယို အကြိုကြည့်ရှုခြင်းကို ဖွင့်ရန် သို့မဟုတ် ပိတ်ရန်",
+        "note": "ရုပ်ပုံများကို ဆာဗာ ပရောက်ဆီမှတစ်ဆင့် အမြဲရယူသည်။"
+      },
+      "saveHistory": {
+        "label": "မှတ်တမ်းသိမ်းဆည်းပါ",
+        "description": "အောင်မြင်သောထုတ်ယူမှုများကို သင့်ဘရောက်ဇာတွင် ဒေသတွင်းသိမ်းဆည်းပါ။",
+        "tooltip": "ထုတ်ယူမှုမှတ်တမ်းကို သင့်ဘရောက်ဇာ၏ ဒေသတွင်းသိမ်းဆည်းမှုတွင် သိမ်းဆည်းခြင်းကို ဖွင့်ရန် သို့မဟုတ် ပိတ်ရန်"
+      },
+      "unsupportedSites": {
+        "label": "မပံ့ပိုးသောဝဘ်ဆိုက်များအတွက် ဖွင့်ရန်",
+        "description": "မပံ့ပိုးသောဝဘ်ဆိုက်များမှ ဆင်တူဝဘ်ဆိုက်ပုံစံများကို အသုံးပြု၍ ထုတ်ယူရန် ကြိုးစားပါ။ ဝဘ်ဆိုက်အားလုံးတွင် အလုပ်မလုပ်နိုင်ပါ။",
+        "tooltip": "ဆင်တူဝဘ်ဆိုက်ပုံစံများကို အသုံးပြု၍ မပံ့ပိုးသောဝဘ်ဆိုက်များအတွက် ထုတ်ယူခြင်းကို ဖွင့်ရန်"
+      },
+      "blacklist": {
+        "label": "သော့ချက်စာလုံးစာရင်းမည်းကို ဖွင့်ရန်",
+        "description": "ပိတ်ဆို့လိုသောသော့ချက်စာလုံးများကို ရိုက်ထည့်ပါ၊ ကော်မာ၊ ခြင်းမှတ်၊ သို့မဟုတ် စာကြောင်းအသစ်ဖြင့် ခွဲခြားပါ။",
+        "tooltip": "သတ်မှတ်ထားသောသော့ချက်စာလုံးများကို စစ်ထုတ်ခြင်းဖြင့် မလိုလားသောတဂ်များကို ပိတ်ဆို့ပါ",
+        "placeholder": "ပိတ်ဆို့ရန်သော့ချက်စာလုံးများ ရိုက်ထည့်ပါ…",
+        "ariaLabel": "စာရင်းမည်းသော့ချက်စာလုံးများ",
+        "reset": "မူလအတိုင်း ပြန်လည်သတ်မှတ်ပါ"
+      }
+    },
+    "historySize": {
+      "label": "အများဆုံးမှတ်တမ်းအရွယ်အစား",
+      "description": "ထုတ်ယူမှုနှင့် ရုပ်ပုံမှတ်တမ်း နှစ်ခုလုံးအတွက် အများဆုံးမှတ်တမ်းအရေအတွက်ကို သတ်မှတ်ပါ။"
+    },
+    "accessibility": {
+      "themeOption": "သီမ် {{label}}",
+      "colorThemeOption": "အရောင်သီမ် {{label}}",
+      "historySizeSelect": "အများဆုံးမှတ်တမ်းအရွယ်အစား"
+    },
+    "historySizeOptions": {
+      "10": "၁၀ မှတ်တမ်း",
+      "30": "၃၀ မှတ်တမ်း",
+      "50": "၅၀ မှတ်တမ်း",
+      "100": "၁၀၀ မှတ်တမ်း",
+      "unlimited": "ကန့်သတ်ချက်မရှိ"
+    },
+    "support": {
+      "title": "ပံ့ပိုးမှုနှင့် တုံ့ပြန်ချက်",
+      "cta": "GitHub တွင် ပြဿနာတင်ပြပါ",
+      "description": "အမှားရှာတွေ့ခဲ့ရသလား သို့မဟုတ် အကြံပြုချက်ရှိသလား? ကျွန်ုပ်တို့ကို အသိပေးပါ!"
+    },
+    "modal": {
+      "close": "ဆက်တင်များကို ပိတ်ပါ"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}

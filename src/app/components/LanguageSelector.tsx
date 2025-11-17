@@ -4,7 +4,7 @@ import { useLanguage } from '@/app/providers/LanguageProvider';
 import { GlobeAltIcon, ChevronDownIcon, MagnifyingGlassIcon } from './icons/icons';
 
 export const LanguageSelector: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
   const { language, changeLanguage, languages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,10 +93,10 @@ export const LanguageSelector: React.FC = () => {
     <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3" ref={containerRef}>
       <label className="mb-1.5 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
         <GlobeAltIcon className="mr-2 h-5 w-5" />
-        <span>{t('common:languageSwitcher.title')}</span>
+        <span>{t('common.languageSwitcher.title')}</span>
       </label>
       <p className="mb-3 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-        {t('common:languageSwitcher.description')}
+        {t('common.languageSwitcher.description')}
       </p>
       <div className="relative">
         <button
@@ -105,7 +105,7 @@ export const LanguageSelector: React.FC = () => {
           className="flex w-full items-center justify-between rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] transition hover:border-[rgb(var(--color-primary-rgb))]/50 hover:text-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]/40"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
-          aria-label={t('common:languageSwitcher.title')}
+          aria-label={t('common.languageSwitcher.title')}
         >
           <span>{languages.find(l => l.code === language)?.nativeName || language}</span>
           <span className={`text-[rgb(var(--color-on-surface-muted-rgb))] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
@@ -126,8 +126,8 @@ export const LanguageSelector: React.FC = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder={t('common:languageSwitcher.searchPlaceholder')}
-                aria-label={t('common:languageSwitcher.searchPlaceholder')}
+                placeholder={t('common.languageSwitcher.searchPlaceholder')}
+                aria-label={t('common.languageSwitcher.searchPlaceholder')}
                 className="w-full rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] py-2 pl-9 pr-3 text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
               />
             </div>
@@ -135,7 +135,7 @@ export const LanguageSelector: React.FC = () => {
             <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
               {filteredLanguages.length === 0 && (
                 <p className="py-2 text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">
-                  {t('common:languageSwitcher.noResults')}
+                  {t('common.languageSwitcher.noResults')}
                 </p>
               )}
 
@@ -172,7 +172,7 @@ export const LanguageSelector: React.FC = () => {
         )}
       </div>
       <p className="mt-2 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">
-        {t('common:languageSwitcher.instantNotice')}
+        {t('common.languageSwitcher.instantNotice')}
       </p>
     </div>
   );

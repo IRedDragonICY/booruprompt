@@ -12,8 +12,8 @@ interface PreviewSectionProps {
 }
 
 export const PreviewSection: React.FC<PreviewSectionProps> = ({ title, show, imageUrl, imageTitle, loading, error }) => {
-  const { t } = useTranslation(['extractor', 'common']);
-  const resolvedTitle = title ?? t('extractor:preview.title');
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('extractor.preview.title');
   if (!show) return null;
   return (
     <div className="space-y-2">

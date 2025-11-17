@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "language": "Ziman",
+    "english": "Îngilîzî",
+    "indonesian": "Endonezî",
+    "chinese": "Çînî",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "Zimana navberîyê",
+      "description": "Di geroka we de hatiye tomarkirin. Zimana bingehîn Îngilîzî ye.",
+      "instantNotice": "Guhertin bêyî nûkirina rûpelê bi serfêkî tê sepandin.",
+      "searchPlaceholder": "Li zimanan bigere...",
+      "noResults": "Tu ziman nehate dîtin"
+    },
+    "nav": {
+      "extractor": "Tag",
+      "image": "Wêne",
+      "booruList": "Booru",
+      "settings": "Mîhengên"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "Lê zêde bike",
+      "apply": "Bisepîne",
+      "back": "Vegere",
+      "cancel": "Betal bike",
+      "clear": "Paqij bike",
+      "close": "Bigire",
+      "confirm": "Piştrast bike",
+      "copy": "Kopî bike",
+      "copied": "Kopî kir!",
+      "delete": "Jê bibe",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "Tomar bike",
+      "search": "Lêgerîn",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "Hemû",
+      "none": "Tu yek",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "Mîhengên",
+    "sections": {
+      "appearance": "Xuyang",
+      "colorTheme": "Mijarê Rengî",
+      "dataFetch": "Rêbaza Wergirtina Daneyan"
+    },
+    "themeOptions": {
+      "system": "Sîstem",
+      "light": "Ronî",
+      "dark": "Tarî"
+    },
+    "colorThemes": {
+      "blue": "Şîn",
+      "orange": "Pirteqalî",
+      "teal": "Şînzebeş",
+      "rose": "Pembe",
+      "purple": "Mor",
+      "green": "Kesk",
+      "custom": "Renga Taybet"
+    },
+    "customColor": {
+      "label": "Renga Taybet",
+      "pickerLabel": "Hilbijêrê renga taybet",
+      "inputLabel": "Koda hex ya renga taybet",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Proxy ya Server",
+        "description": "Ji bo wergirtina daneyan servera vê sepanê bi kar tîne. Pêşniyar tê kirin, ewledar e."
+      },
+      "clientProxy": {
+        "label": "Proxy ya Aliyê Muwekîl",
+        "description": "Di geroka we de proxy ya CORS a giştî bi kar tîne. Dibe ku kêmtir ewledar an sînordar be."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Karûbarê Proxy yê Muwekîl hilbijêre:",
+      "ariaLabel": "Hilbijêrê Karûbarê Proxy yê Muwekîl",
+      "helper": "Performans û pêbawerî di navbera proxiyan de cuda ye."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Derxistina Xweber",
+        "description": "Piştî nivîsandina/pêşkêşkirina URL-yek derbasdar, tag bi awayekî xweber derxe.",
+        "tooltip": "Derxistina xweber a tagan di dema nivîsandina/pêşkêşkirina URL-yek derbasdar de çalak an neçalak bike"
+      },
+      "previews": {
+        "label": "Pêşdîtinê çalak bike",
+        "description": "Di dema derxistinê û di dîrokê de pêşdîtinên wêne/vîdyoyê nîşan bide.",
+        "tooltip": "Pêşdîtinên wêne/vîdyoyê çalak an neçalak bike da ku firehiya bandê xilas bike an ji pirsgirêkên gengaz dûr bikeve",
+        "note": "Wêne her gav bi rêya Proxy ya Server tên standin."
+      },
+      "saveHistory": {
+        "label": "Dîrokê tomar bike",
+        "description": "Derxistinên serkeftî di geroka we de bi awayekî herêmî tomar bike.",
+        "tooltip": "Tomarkirina dîroka derxistinê di bîra herêmî ya geroka we de çalak an neçalak bike"
+      },
+      "unsupportedSites": {
+        "label": "Ji bo malperên nepiştevanî çalak bike",
+        "description": "Hewl bide ku ji malperên nepiştevanî bi karanîna şablonên malperên hevçiqas derxînî. Dibe ku ji bo hemû malpera neke.",
+        "tooltip": "Derxistinê ji bo malperên nepiştevanî bi karanîna şablonên malperên hevçiqas çalak bike"
+      },
+      "blacklist": {
+        "label": "Lîsteya Reş a Peyvên Sereke çalak bike",
+        "description": "Peyvên sereke yên ku divê asteng bikin binivîse, bi vîrgul, nîvxal an rêzên nû veqetandî.",
+        "tooltip": "Bi parzûnkirina peyvên sereke yên diyarkirî tagan yên naxwazî asteng bike",
+        "placeholder": "Peyvên sereke yên ku divê asteng bikin binivîse…",
+        "ariaLabel": "Peyvên Sereke yên Lîsteya Reş",
+        "reset": "Vegerîne Bingehîn"
+      }
+    },
+    "historySize": {
+      "label": "Mezinahiya Herî Zêde ya Dîrokê",
+      "description": "Ji bo her du dîroka derxistinê û wêneyan hejmara herî zêde ya têketinê bicîh bike."
+    },
+    "accessibility": {
+      "themeOption": "Mijar {{label}}",
+      "colorThemeOption": "Mijara rengî {{label}}",
+      "historySizeSelect": "Mezinahiya herî zêde ya dîrokê"
+    },
+    "historySizeOptions": {
+      "10": "10 têketin",
+      "30": "30 têketin",
+      "50": "50 têketin",
+      "100": "100 têketin",
+      "unlimited": "Bêsînor"
+    },
+    "support": {
+      "title": "Piştgirî û Şîrove",
+      "cta": "Li ser GitHub pirsgirêkekê ragihandin",
+      "description": "Çewtiyekê dît an pêşniyarekî heye? Ji me re bêje!"
+    },
+    "modal": {
+      "close": "Mîhengan bigire"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}

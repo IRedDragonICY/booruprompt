@@ -1,0 +1,363 @@
+{
+  "common": {
+    "appName": "Booru-taginpurkaja",
+    "language": "Kieli",
+    "english": "Englanti",
+    "indonesian": "Indonesia",
+    "chinese": "Kiina",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "languageSwitcher": {
+      "title": "Käyttöliittymän kieli",
+      "description": "Tallennettu selaimeesi. Oletuskieli on englanti.",
+      "instantNotice": "Muutokset otetaan käyttöön heti ilman uudelleenlatausta.",
+      "searchPlaceholder": "Hae kieliä...",
+      "noResults": "Kieliä ei löytynyt"
+    },
+    "nav": {
+      "extractor": "Tagit",
+      "image": "Kuva",
+      "booruList": "Booru",
+      "settings": "Asetukset"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "actions": {
+      "add": "Lisää",
+      "apply": "Käytä",
+      "back": "Takaisin",
+      "cancel": "Peruuta",
+      "clear": "Tyhjennä",
+      "close": "Sulje",
+      "confirm": "Vahvista",
+      "copy": "Kopioi",
+      "copied": "Kopioitu!",
+      "delete": "Poista",
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "save": "Tallenna",
+      "search": "Hae",
+      "select": "Select",
+      "submit": "Submit",
+      "all": "Kaikki",
+      "none": "Ei mitään",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    }
+  },
+  "settings": {
+    "title": "Asetukset",
+    "sections": {
+      "appearance": "Ulkoasu",
+      "colorTheme": "Väriteema",
+      "dataFetch": "Tietojen Hakumenetelmä"
+    },
+    "themeOptions": {
+      "system": "Järjestelmä",
+      "light": "Vaalea",
+      "dark": "Tumma"
+    },
+    "colorThemes": {
+      "blue": "Sininen",
+      "orange": "Oranssi",
+      "teal": "Turkoosi",
+      "rose": "Ruusu",
+      "purple": "Violetti",
+      "green": "Vihreä",
+      "custom": "Mukautettu Väri"
+    },
+    "customColor": {
+      "label": "Mukautettu Väri",
+      "pickerLabel": "Mukautettu värivalitsin",
+      "inputLabel": "Mukautettu väri hex-koodi",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Palvelin Proxy",
+        "description": "Käyttää tämän sovelluksen palvelinta tietojen hakemiseen. Suositeltu, luotettavampi."
+      },
+      "clientProxy": {
+        "label": "Asiakaspuolen Proxy",
+        "description": "Käyttää julkista CORS-välityspalvelinta selaimessasi. Voi olla vähemmän luotettava tai nopeusrajoitettu."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Valitse asiakasproxypalvelu:",
+      "ariaLabel": "Asiakasproxypalvelun valitsin",
+      "helper": "Suorituskyky ja luotettavuus vaihtelevat välityspalvelimien välillä."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Automaattinen Purku",
+        "description": "Pura tagit automaattisesti kelvollisen URL-osoitteen liittämisen/kirjoittamisen jälkeen.",
+        "tooltip": "Ota käyttöön tai poista käytöstä automaattinen tagien purku kelvollisen URL-osoitteen liittämisen/kirjoittamisen yhteydessä"
+      },
+      "previews": {
+        "label": "Ota Esikatselut Käyttöön",
+        "description": "Näytä kuva-/videoesikatselut purun aikana ja historiassa.",
+        "tooltip": "Ota käyttöön tai poista käytöstä kuva-/videoesikatselut kaistanleveyden säästämiseksi tai mahdollisten ongelmien välttämiseksi",
+        "note": "Kuvat haetaan aina Palvelin Proxyn kautta."
+      },
+      "saveHistory": {
+        "label": "Tallenna Historia",
+        "description": "Tallenna onnistuneet purkamiset paikallisesti selaimeesi.",
+        "tooltip": "Ota käyttöön tai poista käytöstä purkuhistorian tallentaminen selaimen paikalliseen tallennustilaan"
+      },
+      "unsupportedSites": {
+        "label": "Ota Käyttöön Ei-tuetuille Sivustoille",
+        "description": "Yritä purkaa ei-tuetuista sivustoista käyttämällä samankaltaisia sivustomalleja. Ei välttämättä toimi kaikilla sivustoilla.",
+        "tooltip": "Ota käyttöön purku ei-tuetuille verkkosivustoille käyttämällä samankaltaisia sivustomalleja"
+      },
+      "blacklist": {
+        "label": "Ota Avainsana Mustalistaus Käyttöön",
+        "description": "Syötä estettävät avainsanat erotettuna pilkuilla, puolipisteillä tai uusilla riveillä.",
+        "tooltip": "Estä ei-toivotut tagit suodattamalla tiettyjä avainsanoja",
+        "placeholder": "Syötä estettävät avainsanat…",
+        "ariaLabel": "Mustalistauksen avainsanat",
+        "reset": "Palauta Oletusarvot"
+      }
+    },
+    "historySize": {
+      "label": "Suurin Historiakoko",
+      "description": "Aseta merkintöjen enimmäismäärä sekä purku- että kuvahistorialle."
+    },
+    "accessibility": {
+      "themeOption": "Teema {{label}}",
+      "colorThemeOption": "Väriteema {{label}}",
+      "historySizeSelect": "Suurin historiakoko"
+    },
+    "historySizeOptions": {
+      "10": "10 Merkintää",
+      "30": "30 Merkintää",
+      "50": "50 Merkintää",
+      "100": "100 Merkintää",
+      "unlimited": "Rajoittamaton"
+    },
+    "support": {
+      "title": "Tuki & Palaute",
+      "cta": "Ilmoita Ongelmasta GitHubissa",
+      "description": "Löysitkö virheen tai onko sinulla ehdotus? Kerro meille!"
+    },
+    "modal": {
+      "close": "Sulje Asetukset"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru-taginpurkaja",
+      "subtitle": "Pura tagit booru-kuvatauluista",
+      "supported": "Tuetut alustat:",
+      "urlLabel": "Booru-julkaisun URL",
+      "urlPlaceholder": "Liitä booru-julkaisun URL tähän...",
+      "manualButton": "Pura Manuaalisesti",
+      "resetButton": "Nollaa",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru-taginpurkaja",
+      "heroSubtitle": "Pura, suodata ja kopioi tagit booru-sivustoilta välittömästi",
+      "features": {
+        "smart": {
+          "title": "Älykäs",
+          "subtitle": "Automaattinen purku"
+        },
+        "fast": {
+          "title": "Nopea",
+          "subtitle": "Välittömät tulokset"
+        },
+        "private": {
+          "title": "Yksityinen",
+          "subtitle": "Asiakaspuoli"
+        },
+        "copy": {
+          "title": "Kopioi",
+          "subtitle": "Yhdellä napsautuksella"
+        }
+      },
+      "cta": {
+        "paste": "Liitä",
+        "extract": "Pura",
+        "filter": "Suodata",
+        "copy": "Kopioi"
+      },
+      "supportNotice": "Tukee Danboorua, Gelboorua, Safeboorua, Rule34:ää, e621:tä ja muita"
+    },
+    "preview": {
+      "title": "Esikatselu"
+    },
+    "status": {
+      "resultLabel": "Tulos:"
+    },
+    "categories": {
+      "title": "Suodata Kategoriat",
+      "enableAll": "Kaikki",
+      "disableAll": "Ei mitään",
+      "items": {
+        "copyright": "Tekijänoikeus",
+        "character": "Hahmo",
+        "general": "Yleinen",
+        "meta": "Meta",
+        "other": "Muu"
+      },
+      "count_one": "{{count}} tagi",
+      "count_other": "{{count}} tagia"
+    },
+    "filteredTags": {
+      "label": "Suodatetut Tagit",
+      "ariaLabel": "Suodatetut tagit",
+      "empty": "Ei tageja näytettävänä.",
+      "copy": "Kopioi Tagit",
+      "copied": "Kopioitu!"
+    },
+    "history": {
+      "extractionTitle": "Purkuhistoria",
+      "imageTitle": "Kuvahistoria",
+      "searchExtraction": "Hae otsikko, url, tagit...",
+      "searchImages": "Hae tiedostonimi, kehotukset, parametrit...",
+      "emptySearch": "Ei hakuasi vastaavia merkintöjä.",
+      "clearTooltip": "Tyhjennä Koko Historia",
+      "clearAction": "Tyhjennä Historia",
+      "confirmMessage": "Varmasti tyhjennä?",
+      "confirmYes": "Kyllä, Tyhjennä",
+      "confirmCancel": "Peruuta",
+      "searchAriaLabel": "Hae {{context}}",
+      "searchFallback": "historia",
+      "clearSearchTooltip": "Tyhjennä Haku",
+      "clearSearchAria": "Tyhjennä haku"
+    },
+    "mobile": {
+      "historyButton": "Historia",
+      "urlLabel": "Booru-julkaisun URL",
+      "urlPlaceholder": "Liitä URL tai Vedä & Pudota...",
+      "manualButton": "Pura Manuaalisesti",
+      "resetButton": "Nollaa"
+    }
+  },
+  "imageTool": {
+    "title": "Kuvan Metatiedot",
+    "dropCtaTitle": "Vedä & Pudota PNG Tähän",
+    "dropCtaSubtitle": "tai napsauta ladataksesi",
+    "selectButton": "Valitse PNG",
+    "statusProcessing": "Käsitellään...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positiivinen Kehote",
+    "negativePrompt": "Negatiivinen Kehote",
+    "parameters": "Parametrit",
+    "copy": "Kopioi",
+    "copyAll": "Kopioi Kaikki",
+    "copySuccess": "Kopioitu!",
+    "noMetadata": "Luontimetatietoja ei löytynyt.",
+    "loadMetadata": "Lataa Metatiedot",
+    "deleteEntry": "Poista Merkintä",
+    "historyTitle": "Kuvahistoria",
+    "historySearch": "Hae tiedostonimi, kehotukset, parametrit...",
+    "previewAlt": "Esikatselu",
+    "footer": {
+      "metadataNotice": "PNG-metatietojen purku 'parameters' tekstilohkolle."
+    }
+  },
+  "historyItem": {
+    "load": "Lataa tämä historiamerkintä",
+    "delete": "Poista tämä historiamerkintä",
+    "previewAlt": "Esikatselu"
+  },
+  "imagePreview": {
+    "loading": "Ladataan esikatselua...",
+    "error": "Esikatselua ei voitu ladata.",
+    "errorDetail": "Palvelinvälityspalvelinvirhe tai virheellinen kuva",
+    "videoUnsupported": "Selaimesi ei tue videota.",
+    "openFull": "Avaa täysikokoinen esikatselu",
+    "close": "Sulje",
+    "reset": "Nollaa",
+    "openOriginal": "Avaa alkuperäinen"
+  },
+  "booruList": {
+    "pageTitle": "Huippu Booru -Sijoitus",
+    "pageDescriptionShort": "Tutki parhaita booru-sivustoja kuvien kokonaismäärän ja aktiivisuuden mukaan.",
+    "pageDescriptionLong": "Löydä suosituimmat booru-sivustot koko verkosta. Järjestetty kuvien kokonaismäärän, jäsenmäärän ja aktiivisuuden mukaan Booru.org-tiedoilla.",
+    "searchPlaceholder": "Hae booru-sivustoja...",
+    "filter": {
+      "all": "Kaikki",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Kuvat",
+      "members": "Jäsenet",
+      "owner": "Omistaja"
+    },
+    "sort": {
+      "label": "Järjestä:",
+      "rank": "Sijoitus (Huippu)",
+      "images": "Kuvien Määrä",
+      "members": "Jäsenten Määrä",
+      "asc": "Nouseva",
+      "desc": "Laskeva"
+    },
+    "itemsPerPage": "Sivua kohti:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
+    "pagination": {
+      "previous": "Edellinen",
+      "next": "Seuraava",
+      "previousShort": "Edel",
+      "nextShort": "Seur"
+    },
+    "emptyState": "Booru-sivustoja ei löytynyt",
+    "loading": "Ladataan booru-tietoja...",
+    "errorTitle": "Virhe Tietojen Lataamisessa",
+    "errors": {
+      "fetchFailed": "Booru-tietojen haku epäonnistui.",
+      "unknown": "Jokin meni pieleen sijoituksen lataamisessa."
+    },
+    "ownerLabel": "Omistaja:",
+    "visit": "Käy {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Takaisin Booru-Listaan",
+    "notFoundTitle": "Boorua Ei Löytynyt",
+    "notFoundDescription": "Booru-verkkotunnusta \"{{domain}}\" ei löytynyt tietokannastamme.",
+    "statistics": "Tilastot",
+    "totalImages": "Kuvien Kokonaismäärä",
+    "totalMembers": "Jäsenten Kokonaismäärä",
+    "shortName": "Lyhyt Nimi",
+    "owner": "Omistaja",
+    "hosted": "Isännöi booru.org",
+    "protocol": "Protokolla",
+    "yes": "Kyllä",
+    "no": "Ei",
+    "visit": "Käy {{name}}",
+    "loading": "Ladataan..."
+  }
+}

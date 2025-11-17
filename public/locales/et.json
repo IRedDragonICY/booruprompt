@@ -1,0 +1,363 @@
+{
+  "common": {
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "unknown": "Unknown",
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Image Metadata",
+      "booruList": "Booru Leaderboard",
+      "settings": "Settings"
+    },
+    "dropOverlay": {
+      "url": "Drop URL",
+      "png": "Drop PNG"
+    },
+    "status": {
+      "loading": "Loading...",
+      "processing": "Processing..."
+    },
+    "footer": {
+      "madeWith": "Made with",
+      "by": "by"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "History enabled ({{size}}).",
+      "historyDisabled": "History disabled.",
+      "historyUnlimited": "Unlimited",
+      "historyEntries": "{{count}} Entries"
+    },
+    "appName": "Booru siltide ekstraktor",
+    "language": "Keel",
+    "english": "Inglise",
+    "indonesian": "Indoneesia",
+    "chinese": "Hiina",
+    "languageSwitcher": {
+      "title": "Liidese keel",
+      "description": "Salvestatud teie brauserisse. Vaikekeel on inglise.",
+      "instantNotice": "Muudatused rakenduvad kohe ilma uuesti laadimata.",
+      "searchPlaceholder": "Otsi keeli...",
+      "noResults": "Keeli ei leitud"
+    },
+    "nav": {
+      "extractor": "Sildid",
+      "image": "Pilt",
+      "booruList": "Booru",
+      "settings": "Seaded"
+    },
+    "actions": {
+      "done": "Done",
+      "edit": "Edit",
+      "next": "Next",
+      "previous": "Previous",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "retry": "Retry",
+      "select": "Select",
+      "submit": "Submit",
+      "visit": "Visit",
+      "previousShort": "Prev",
+      "nextShort": "Next",
+      "add": "Lisa",
+      "apply": "Rakenda",
+      "back": "Tagasi",
+      "cancel": "Tühista",
+      "clear": "Kustuta",
+      "close": "Sulge",
+      "confirm": "Kinnita",
+      "copy": "Kopeeri",
+      "copied": "Kopeeritud!",
+      "delete": "Kustuta",
+      "save": "Salvesta",
+      "search": "Otsi",
+      "all": "Kõik",
+      "none": "Mitte midagi"
+    }
+  },
+  "settings": {
+    "title": "Seaded",
+    "sections": {
+      "appearance": "Välimus",
+      "colorTheme": "Värviteema",
+      "dataFetch": "Andmete hankimise meetod"
+    },
+    "themeOptions": {
+      "system": "Süsteem",
+      "light": "Hele",
+      "dark": "Tume"
+    },
+    "colorThemes": {
+      "blue": "Sinine",
+      "orange": "Oranž",
+      "teal": "Sinakasroheline",
+      "rose": "Roosa",
+      "purple": "Lilla",
+      "green": "Roheline",
+      "custom": "Kohandatud värv"
+    },
+    "customColor": {
+      "label": "Kohandatud Värv",
+      "pickerLabel": "Kohandatud värvi valija",
+      "inputLabel": "Kohandatud värvi hex-kood",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Serveri Proxy",
+        "description": "Kasutab selle rakenduse serverit andmete toomiseks. Soovitatav, usaldusväärsem."
+      },
+      "clientProxy": {
+        "label": "Kliendipoolne Proxy",
+        "description": "Kasutab teie brauseris avalikku CORS proksit. Võib olla vähem usaldusväärne või piiratud."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Valige kliendi proksi teenus:",
+      "ariaLabel": "Kliendi proksi teenuse valija",
+      "helper": "Jõudlus ja usaldusväärsus varieeruvad proksidel."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Automaatne Väljavõtmine",
+        "description": "Võtke sildid automaatselt välja pärast kehtiva URL-i kleepimist/sisestamist.",
+        "tooltip": "Luba või keela automaatne siltide väljavõtmine kehtiva URL-i kleepimise/sisestamise korral"
+      },
+      "previews": {
+        "label": "Luba Eelvaated",
+        "description": "Kuva pildi/video eelvaated väljavõtmise ajal ja ajaloos.",
+        "tooltip": "Luba või keela pildi/video eelvaated ribalaiu säästmiseks või võimalike probleemide vältimiseks",
+        "note": "Pildid tuuakse alati läbi Serveri Proksi."
+      },
+      "saveHistory": {
+        "label": "Salvesta Ajalugu",
+        "description": "Salvesta edukad väljavõtmised kohalikult oma brauserisse.",
+        "tooltip": "Luba või keela väljavõtmise ajaloo salvestamine brauseri kohalikku salvestusruumi"
+      },
+      "unsupportedSites": {
+        "label": "Luba Toetamata Saitidel",
+        "description": "Proovige võtta välja toetamata saitidelt, kasutades sarnaseid saidi mustreid. Ei pruugi kõikidel saitidel töötada.",
+        "tooltip": "Luba väljavõtmine toetamata veebisaitidel, kasutades sarnaseid saidi mustreid"
+      },
+      "blacklist": {
+        "label": "Luba Võtmesõnade Must Nimekiri",
+        "description": "Sisestage blokeerimiseks võtmesõnad, eraldatuna komade, semikoolonite või uute ridadega.",
+        "tooltip": "Blokeeri soovimatud sildid, filtreerides konkreetseid võtmesõnu",
+        "placeholder": "Sisestage blokeerimiseks võtmesõnad…",
+        "ariaLabel": "Musta nimekirja võtmesõnad",
+        "reset": "Lähtesta Vaikimisi"
+      }
+    },
+    "historySize": {
+      "label": "Maksimaalne Ajaloo Suurus",
+      "description": "Määrake kirjete maksimaalne arv väljavõtmise ja piltide ajaloo jaoks."
+    },
+    "accessibility": {
+      "themeOption": "Teema {{label}}",
+      "colorThemeOption": "Värviteema {{label}}",
+      "historySizeSelect": "Maksimaalne ajaloo suurus"
+    },
+    "historySizeOptions": {
+      "10": "10 Kirjet",
+      "30": "30 Kirjet",
+      "50": "50 Kirjet",
+      "100": "100 Kirjet",
+      "unlimited": "Piiramatu"
+    },
+    "support": {
+      "title": "Tugi ja Tagasiside",
+      "cta": "Teata Probleemist GitHubis",
+      "description": "Leidsite vea või teil on soovitus? Andke meile teada!"
+    },
+    "modal": {
+      "close": "Sulge Seaded"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Extract tags from booru image boards",
+      "supported": "Supported platforms:",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste your booru post URL here...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "features": {
+        "smart": {
+          "title": "Smart",
+          "subtitle": "Auto-extract"
+        },
+        "fast": {
+          "title": "Fast",
+          "subtitle": "Instant results"
+        },
+        "private": {
+          "title": "Private",
+          "subtitle": "Client-side"
+        },
+        "copy": {
+          "title": "Copy",
+          "subtitle": "One-click"
+        }
+      },
+      "cta": {
+        "paste": "Paste",
+        "extract": "Extract",
+        "filter": "Filter",
+        "copy": "Copy"
+      },
+      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "status": {
+      "resultLabel": "Result for:"
+    },
+    "categories": {
+      "title": "Filter Categories",
+      "enableAll": "All",
+      "disableAll": "None",
+      "items": {
+        "copyright": "Copyright",
+        "character": "Character",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Other"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tags"
+    },
+    "filteredTags": {
+      "label": "Filtered Tags",
+      "ariaLabel": "Filtered tags",
+      "empty": "No tags to display.",
+      "copy": "Copy Tags",
+      "copied": "Copied!"
+    },
+    "history": {
+      "extractionTitle": "Extraction History",
+      "imageTitle": "Image History",
+      "searchExtraction": "Search title, url, tags...",
+      "searchImages": "Search filename, prompts, params...",
+      "emptySearch": "No entries match your search.",
+      "clearTooltip": "Clear All History",
+      "clearAction": "Clear History",
+      "confirmMessage": "Really clear?",
+      "confirmYes": "Yes, Clear",
+      "confirmCancel": "Cancel",
+      "searchAriaLabel": "Search {{context}}",
+      "searchFallback": "history",
+      "clearSearchTooltip": "Clear Search",
+      "clearSearchAria": "Clear search"
+    },
+    "mobile": {
+      "historyButton": "History",
+      "urlLabel": "Booru Post URL",
+      "urlPlaceholder": "Paste URL or Drag & Drop...",
+      "manualButton": "Extract Manually",
+      "resetButton": "Reset"
+    }
+  },
+  "imageTool": {
+    "title": "Image Metadata",
+    "dropCtaTitle": "Drag & Drop PNG Here",
+    "dropCtaSubtitle": "or click to upload",
+    "selectButton": "Select PNG",
+    "statusProcessing": "Processing...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Positive Prompt",
+    "negativePrompt": "Negative Prompt",
+    "parameters": "Parameters",
+    "copy": "Copy",
+    "copyAll": "Copy All",
+    "copySuccess": "Copied!",
+    "noMetadata": "No generation metadata found.",
+    "loadMetadata": "Load Metadata",
+    "deleteEntry": "Delete Entry",
+    "historyTitle": "Image History",
+    "historySearch": "Search filename, prompts, params...",
+    "previewAlt": "Preview",
+    "footer": {
+      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+    }
+  },
+  "historyItem": {
+    "load": "Load this history entry",
+    "delete": "Delete this history entry",
+    "previewAlt": "Preview"
+  },
+  "imagePreview": {
+    "loading": "Loading preview...",
+    "error": "Could not load preview.",
+    "errorDetail": "Server proxy error or invalid image",
+    "videoUnsupported": "Your browser does not support video.",
+    "openFull": "Open full-size preview",
+    "close": "Close",
+    "reset": "Reset",
+    "openOriginal": "Open original"
+  },
+  "booruList": {
+    "pageTitle": "Top Booru Leaderboard",
+    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
+    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
+    "searchPlaceholder": "Search booru sites...",
+    "filter": {
+      "all": "All",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Images",
+      "members": "Members",
+      "owner": "Owner"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "rank": "Rank (Top)",
+      "images": "Images Count",
+      "members": "Members Count",
+      "asc": "Asc",
+      "desc": "Desc"
+    },
+    "itemsPerPage": "Per page:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousShort": "Prev",
+      "nextShort": "Next"
+    },
+    "emptyState": "No booru sites found",
+    "loading": "Loading booru data...",
+    "errorTitle": "Error Loading Data",
+    "errors": {
+      "fetchFailed": "Failed to fetch booru data.",
+      "unknown": "Something went wrong while loading the leaderboard."
+    },
+    "ownerLabel": "Owner:",
+    "visit": "Visit {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Back to Booru List",
+    "notFoundTitle": "Booru Not Found",
+    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
+    "statistics": "Statistics",
+    "totalImages": "Total Images",
+    "totalMembers": "Total Members",
+    "shortName": "Short Name",
+    "owner": "Owner",
+    "hosted": "Hosted by booru.org",
+    "protocol": "Protocol",
+    "yes": "Yes",
+    "no": "No",
+    "visit": "Visit {{name}}",
+    "loading": "Loading..."
+  }
+}
