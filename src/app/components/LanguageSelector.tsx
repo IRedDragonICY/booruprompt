@@ -12,7 +12,12 @@ export const LanguageSelector: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const localizedLanguages = useMemo(
-    () => languages.map(({ code, nativeName }) => ({ code, label: nativeName })),
+    () => languages.map(({ code, nativeName, label, region }) => ({
+      code,
+      label: nativeName,
+      englishLabel: label,
+      region
+    })),
     [languages]
   );
 
@@ -21,8 +26,8 @@ export const LanguageSelector: React.FC = () => {
     if (!query) {
       return localizedLanguages;
     }
-    return localizedLanguages.filter(({ label, code }) =>
-      `${label} ${code}`.toLowerCase().includes(query)
+    return localizedLanguages.filter(({ label, code, englishLabel, region }) =>
+      `${label} ${code} ${englishLabel} ${region}`.toLowerCase().includes(query)
     );
   }, [localizedLanguages, searchTerm]);
 
