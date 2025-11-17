@@ -2,7 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import i18n, { availableLanguages, DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY } from '@/lib/i18n';
+import i18n, { availableLanguages, DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, NAMESPACES } from '@/lib/i18n';
 
 type LanguageCode = (typeof availableLanguages)[number]['code'];
 
@@ -33,27 +33,48 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     if (typeof window === 'undefined') {
       return;
     }
-    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY) as LanguageCode | null;
-    const initialLanguage = stored && availableLanguages.some(({ code }) => code === stored) ? stored : DEFAULT_LANGUAGE;
 
-    i18n.changeLanguage(initialLanguage).catch(console.error);
-    setLanguage(initialLanguage);
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = initialLanguage;
-    }
+    const initializeLanguage = async () => {
+      const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY) as LanguageCode | null;
+      const initialLanguage = stored && availableLanguages.some(({ code }) => code === stored) ? stored : DEFAULT_LANGUAGE;
+
+      try {
+        await i18n.changeLanguage(initialLanguage);
+        // Preload all namespaces for immediate availability
+        await i18n.loadNamespaces(NAMESPACES as unknown as string[]);
+
+        setLanguage(initialLanguage);
+        if (typeof document !== 'undefined') {
+          document.documentElement.lang = initialLanguage;
+        }
+      } catch (error) {
+        console.error('Failed to initialize language:', error);
+      }
+    };
+
+    initializeLanguage();
   }, []);
 
-  const changeLanguage = useCallback((lang: LanguageCode) => {
+  const changeLanguage = useCallback(async (lang: LanguageCode) => {
     if (!availableLanguages.some(({ code }) => code === lang)) {
       return;
     }
-    i18n.changeLanguage(lang).catch(console.error);
-    setLanguage(lang);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-    }
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = lang;
+
+    try {
+      // Load all namespaces for the language to ensure complete translations
+      await i18n.changeLanguage(lang);
+      await i18n.loadNamespaces(NAMESPACES as unknown as string[]);
+
+      setLanguage(lang);
+
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+      }
+      if (typeof document !== 'undefined') {
+        document.documentElement.lang = lang;
+      }
+    } catch (error) {
+      console.error('Failed to change language:', error);
     }
   }, []);
 

@@ -100,12 +100,14 @@ if (!i18n.isInitialized) {
     .init({
       lng: DEFAULT_LANGUAGE,
       fallbackLng: DEFAULT_LANGUAGE,
-      ns: NAMESPACES,
+      ns: NAMESPACES as unknown as string[],
       defaultNS: DEFAULT_NAMESPACE,
 
       // Load translations from public/locales
       backend: {
         loadPath: '/locales/{{lng}}/{{ns}}.json',
+        crossDomain: false,
+        withCredentials: false,
       },
 
       // Key and namespace separators
@@ -122,18 +124,21 @@ if (!i18n.isInitialized) {
         useSuspense: false, // Disable suspense for better compatibility
       },
 
+      // Partitioned resources to reduce initial bundle
+      partialBundledLanguages: true,
+
       // Debug mode (only in development)
-      debug: process.env.NODE_ENV === 'development',
+      debug: false,
 
-      // Load namespaces on demand
+      // Load current language only
       load: 'currentOnly',
-
-      // Preload common languages
-      preload: ['en'],
 
       // Support for language variants
       supportedLngs: availableLanguages.map(({ code }) => code),
       nonExplicitSupportedLngs: false,
+
+      // Preload all namespaces for better UX
+      preload: ['en'],
     })
     .catch((err) => {
       console.error('Failed to initialize i18next:', err);
