@@ -42,12 +42,6 @@ export const vi: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Cài đặt',
-    themeOptions: {
-      system: 'Hệ thống',
-      light: 'Sáng',
-      dark: 'Tối'
-    }
+    ...en.settings
   }
 };

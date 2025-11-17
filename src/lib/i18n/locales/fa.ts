@@ -42,12 +42,6 @@ export const fa: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'تنظیمات',
-    themeOptions: {
-      system: 'سیستم',
-      light: 'روشن',
-      dark: 'تیره'
-    }
+    ...en.settings
   }
 };

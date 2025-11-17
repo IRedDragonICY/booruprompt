@@ -42,12 +42,6 @@ export const el: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Ρυθμίσεις',
-    themeOptions: {
-      system: 'Σύστημα',
-      light: 'Φωτεινό',
-      dark: 'Σκοτεινό'
-    }
+    ...en.settings
   }
 };

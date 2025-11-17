@@ -42,12 +42,6 @@ export const tr: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Ayarlar',
-    themeOptions: {
-      system: 'Sistem',
-      light: 'Açık',
-      dark: 'Koyu'
-    }
+    ...en.settings
   }
 };

@@ -42,12 +42,6 @@ export const ru: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Настройки',
-    themeOptions: {
-      system: 'Системная',
-      light: 'Светлая',
-      dark: 'Тёмная'
-    }
+    ...en.settings
   }
 };

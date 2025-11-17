@@ -42,12 +42,6 @@ export const ku: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Mîhengên',
-    themeOptions: {
-      system: 'Pergal',
-      light: 'Ronahî',
-      dark: 'Tarî'
-    }
+    ...en.settings
   }
 };

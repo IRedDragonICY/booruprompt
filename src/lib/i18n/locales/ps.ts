@@ -42,12 +42,6 @@ export const ps: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'تنظیمات',
-    themeOptions: {
-      system: 'سیسټم',
-      light: 'روښانه',
-      dark: 'تیاره'
-    }
+    ...en.settings
   }
 };

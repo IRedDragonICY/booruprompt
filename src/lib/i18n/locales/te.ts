@@ -42,12 +42,6 @@ export const te: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'సెట్టింగ్‌లు',
-    themeOptions: {
-      system: 'సిస్టమ్',
-      light: 'లైట్',
-      dark: 'డార్క్'
-    }
+    ...en.settings
   }
 };

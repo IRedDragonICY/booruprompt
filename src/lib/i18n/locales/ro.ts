@@ -42,12 +42,6 @@ export const ro: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Setări',
-    themeOptions: {
-      system: 'Sistem',
-      light: 'Luminos',
-      dark: 'Întunecat'
-    }
+    ...en.settings
   }
 };

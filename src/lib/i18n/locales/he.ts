@@ -42,12 +42,6 @@ export const he: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'הגדרות',
-    themeOptions: {
-      system: 'מערכת',
-      light: 'בהיר',
-      dark: 'כהה'
-    }
+    ...en.settings
   }
 };

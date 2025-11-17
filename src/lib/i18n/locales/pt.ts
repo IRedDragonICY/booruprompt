@@ -42,12 +42,6 @@ export const pt: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Configurações',
-    themeOptions: {
-      system: 'Sistema',
-      light: 'Claro',
-      dark: 'Escuro'
-    }
+    ...en.settings
   }
 };

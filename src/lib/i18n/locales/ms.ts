@@ -42,12 +42,6 @@ export const ms: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Tetapan',
-    themeOptions: {
-      system: 'Sistem',
-      light: 'Cerah',
-      dark: 'Gelap'
-    }
+    ...en.settings
   }
 };

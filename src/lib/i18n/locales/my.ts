@@ -42,12 +42,6 @@ export const my: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'ဆက်တင်များ',
-    themeOptions: {
-      system: 'စနစ်',
-      light: 'အလင်း',
-      dark: 'အမှောင်'
-    }
+    ...en.settings
   }
 };

@@ -42,12 +42,6 @@ export const kk: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Параметрлер',
-    themeOptions: {
-      system: 'Жүйе',
-      light: 'Ашық',
-      dark: 'Қараңғы'
-    }
+    ...en.settings
   }
 };

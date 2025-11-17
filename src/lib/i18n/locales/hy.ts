@@ -42,12 +42,6 @@ export const hy: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Կարգավորումներ',
-    themeOptions: {
-      system: 'Համակարգ',
-      light: 'Լուսավոր',
-      dark: 'Մութ'
-    }
+    ...en.settings
   }
 };

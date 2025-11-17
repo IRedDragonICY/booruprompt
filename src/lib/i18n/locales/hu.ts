@@ -42,12 +42,6 @@ export const hu: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Beállítások',
-    themeOptions: {
-      system: 'Rendszer',
-      light: 'Világos',
-      dark: 'Sötét'
-    }
+    ...en.settings
   }
 };

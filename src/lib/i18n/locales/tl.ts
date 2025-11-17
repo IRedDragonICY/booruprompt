@@ -42,12 +42,6 @@ export const tl: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Mga Setting',
-    themeOptions: {
-      system: 'Sistema',
-      light: 'Maliwanag',
-      dark: 'Madilim'
-    }
+    ...en.settings
   }
 };

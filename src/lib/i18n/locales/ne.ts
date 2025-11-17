@@ -42,12 +42,6 @@ export const ne: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'सेटिङहरू',
-    themeOptions: {
-      system: 'प्रणाली',
-      light: 'उज्यालो',
-      dark: 'अँध्यारो'
-    }
+    ...en.settings
   }
 };

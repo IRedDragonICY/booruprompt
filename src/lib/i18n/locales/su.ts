@@ -42,12 +42,6 @@ export const su: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Setélan',
-    themeOptions: {
-      system: 'Sistem',
-      light: 'Caang',
-      dark: 'Poék'
-    }
+    ...en.settings
   }
 };

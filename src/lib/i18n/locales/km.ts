@@ -42,12 +42,6 @@ export const km: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'ការកំណត់',
-    themeOptions: {
-      system: 'ប្រព័ន្ធ',
-      light: 'ភ្លឺ',
-      dark: 'ងងឹត'
-    }
+    ...en.settings
   }
 };

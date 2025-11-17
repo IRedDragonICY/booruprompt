@@ -42,12 +42,6 @@ export const am: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'ቅንብሮች',
-    themeOptions: {
-      system: 'ስርዓት',
-      light: 'ብርሃን',
-      dark: 'ጨለማ'
-    }
+    ...en.settings
   }
 };

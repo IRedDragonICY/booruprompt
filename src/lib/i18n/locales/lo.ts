@@ -42,12 +42,6 @@ export const lo: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'ການຕັ້ງຄ່າ',
-    themeOptions: {
-      system: 'ລະບົບ',
-      light: 'ສະຫວ່າງ',
-      dark: 'ມືດ'
-    }
+    ...en.settings
   }
 };

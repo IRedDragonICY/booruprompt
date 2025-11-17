@@ -42,12 +42,6 @@ export const ko: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: '설정',
-    themeOptions: {
-      system: '시스템',
-      light: '밝게',
-      dark: '어둡게'
-    }
+    ...en.settings
   }
 };

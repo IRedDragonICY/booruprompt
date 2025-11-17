@@ -42,12 +42,6 @@ export const ta: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'அமைப்புகள்',
-    themeOptions: {
-      system: 'கணினி',
-      light: 'வெளிச்சம்',
-      dark: 'இருள்'
-    }
+    ...en.settings
   }
 };

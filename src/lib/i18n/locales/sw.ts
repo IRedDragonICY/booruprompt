@@ -42,12 +42,6 @@ export const sw: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Mipangilio',
-    themeOptions: {
-      system: 'Mfumo',
-      light: 'Nuru',
-      dark: 'Giza'
-    }
+    ...en.settings
   }
 };

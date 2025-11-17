@@ -42,12 +42,6 @@ export const ka: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'პარამეტრები',
-    themeOptions: {
-      system: 'სისტემური',
-      light: 'ღია',
-      dark: 'მუქი'
-    }
+    ...en.settings
   }
 };

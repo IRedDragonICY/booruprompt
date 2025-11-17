@@ -42,12 +42,6 @@ export const ar: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'الإعدادات',
-    themeOptions: {
-      system: 'النظام',
-      light: 'فاتح',
-      dark: 'داكن'
-    }
+    ...en.settings
   }
 };

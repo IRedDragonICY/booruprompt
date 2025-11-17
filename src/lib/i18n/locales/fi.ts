@@ -42,12 +42,6 @@ export const fi: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'Asetukset',
-    themeOptions: {
-      system: 'Järjestelmä',
-      light: 'Vaalea',
-      dark: 'Tumma'
-    }
+    ...en.settings
   }
 };

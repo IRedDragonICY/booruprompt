@@ -42,12 +42,6 @@ export const th: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'การตั้งค่า',
-    themeOptions: {
-      system: 'ระบบ',
-      light: 'สว่าง',
-      dark: 'มืด'
-    }
+    ...en.settings
   }
 };

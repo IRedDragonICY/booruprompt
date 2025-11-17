@@ -42,12 +42,6 @@ export const si: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'සැකසීම්',
-    themeOptions: {
-      system: 'පද්ධතිය',
-      light: 'එළිය',
-      dark: 'අඳුර'
-    }
+    ...en.settings
   }
 };

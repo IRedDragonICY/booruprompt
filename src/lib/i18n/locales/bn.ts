@@ -42,12 +42,6 @@ export const bn: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'সেটিংস',
-    themeOptions: {
-      system: 'সিস্টেম',
-      light: 'হালকা',
-      dark: 'গাঢ়'
-    }
+    ...en.settings
   }
 };

@@ -42,12 +42,6 @@ export const ja: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: '設定',
-    themeOptions: {
-      system: 'システム',
-      light: 'ライト',
-      dark: 'ダーク'
-    }
+    ...en.settings
   }
 };

@@ -42,12 +42,6 @@ export const ur: TranslationSchema = {
     }
   },
   settings: {
-    ...en.settings,
-    title: 'ترتیبات',
-    themeOptions: {
-      system: 'سسٹم',
-      light: 'روشن',
-      dark: 'تاریک'
-    }
+    ...en.settings
   }
 };
