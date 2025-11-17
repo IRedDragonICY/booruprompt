@@ -86,16 +86,12 @@ if (!i18n.isInitialized) {
       lng: DEFAULT_LANGUAGE,
       fallbackLng: DEFAULT_LANGUAGE,
 
-      // Single JSON file per language - no namespaces
+      // Single JSON file per language
       backend: {
         loadPath: '/locales/{{lng}}.json',
       },
 
-      // No namespaces
-      ns: ['translation'],
-      defaultNS: 'translation',
-
-      // Key separator only, no namespace separator
+      // Key separator for nested keys (e.g., 'settings.title')
       keySeparator: '.',
       nsSeparator: false,
 
