@@ -33,8 +33,8 @@ function useDebounce<T>(value: T, delay: number): T {
 interface SettingsPanelProps { settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 
 export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
-    const { t } = useTranslation();
-    const defaultBlacklistKeywords = useMemo(() => t('settings.toggles.blacklist.defaultKeywords'), [t]);
+    const { t, i18n } = useTranslation();
+    const defaultBlacklistKeywords = useMemo(() => i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords'), [i18n]);
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || defaultBlacklistKeywords);
 

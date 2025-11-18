@@ -294,7 +294,7 @@ const BooruTagExtractor = () => {
             maxHistorySize: loadStoredItem<number>(MAX_HISTORY_SIZE_STORAGE_KEY, DEFAULT_MAX_HISTORY_SIZE, isValidMaxHistorySize),
              enableUnsupportedSites: loadStoredItem<boolean>(UNSUPPORTED_SITES_STORAGE_KEY, false),
              enableBlacklist: loadStoredItem<boolean>(BLACKLIST_ENABLED_STORAGE_KEY, DEFAULT_BLACKLIST_ENABLED),
-             blacklistKeywords: loadStoredItem<string>(BLACKLIST_KEYWORDS_STORAGE_KEY, i18n.t('settings.toggles.blacklist.defaultKeywords')),
+             blacklistKeywords: loadStoredItem<string>(BLACKLIST_KEYWORDS_STORAGE_KEY, i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords')),
         });
         setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
         setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
@@ -319,7 +319,7 @@ const BooruTagExtractor = () => {
              .map(k => k.trim().toLowerCase())
              .filter(Boolean);
 
-         const keywords = settings.enableBlacklist ? parseKeywords(settings.blacklistKeywords || i18n.t('settings.toggles.blacklist.defaultKeywords')) : [];
+         const keywords = settings.enableBlacklist ? parseKeywords(settings.blacklistKeywords || i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords')) : [];
 
          const isBlacklisted = (tag: string): boolean => {
              if (!keywords.length) return false;
