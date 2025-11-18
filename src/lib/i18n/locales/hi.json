@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Booru टैग एक्सट्रैक्टर",
+    "language": "भाषा",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Booru पोस्ट से टैग तुरंत निकालें, फ़िल्टर करें और कॉपी करें।",
+    "unknown": "अज्ञात",
+    "languageSwitcher": {
+      "title": "इंटरफ़ेस भाषा",
+      "description": "आपके ब्राउज़र में संग्रहीत। डिफ़ॉल्ट भाषा अंग्रेज़ी है।",
+      "instantNotice": "परिवर्तन बिना पुनः लोड किए तुरंत लागू होते हैं।",
+      "searchPlaceholder": "भाषाएँ खोजें...",
+      "noResults": "कोई भाषा नहीं मिली"
+    },
+    "nav": {
+      "extractor": "टैग",
+      "image": "छवि",
+      "booruList": "Booru",
+      "settings": "सेटिंग्स"
+    },
+    "navTooltip": {
+      "extractor": "टैग एक्सट्रैक्टर",
+      "image": "छवि मेटाडेटा",
+      "booruList": "Booru लीडरबोर्ड",
+      "settings": "सेटिंग्स"
+    },
+    "dropOverlay": {
+      "url": "URL छोड़ें",
+      "png": "PNG छोड़ें"
+    },
+    "actions": {
+      "add": "जोड़ें",
+      "apply": "लागू करें",
+      "back": "वापस",
+      "cancel": "रद्द करें",
+      "clear": "साफ़ करें",
+      "close": "बंद करें",
+      "confirm": "पुष्टि करें",
+      "copy": "कॉपी करें",
+      "copied": "कॉपी किया गया!",
+      "delete": "हटाएं",
+      "done": "पूर्ण",
+      "edit": "संपादित करें",
+      "next": "अगला",
+      "previous": "पिछला",
+      "refresh": "ताज़ा करें",
+      "reset": "रीसेट करें",
+      "retry": "पुनः प्रयास करें",
+      "save": "सहेजें",
+      "search": "खोजें",
+      "select": "चुनें",
+      "submit": "सबमिट करें",
+      "all": "सभी",
+      "none": "कोई नहीं",
+      "visit": "विज़िट करें",
+      "previousShort": "पिछला",
+      "nextShort": "अगला"
+    },
+    "status": {
+      "loading": "लोड हो रहा है...",
+      "processing": "प्रोसेस हो रहा है..."
+    },
+    "footer": {
+      "madeWith": "के साथ बनाया गया",
+      "by": "द्वारा"
+    },
+    "statusBar": {
+      "serverProxy": "सर्वर प्रॉक्सी।",
+      "clientProxy": "क्लाइंट प्रॉक्सी ({{proxy}})।",
+      "historyEnabled": "इतिहास सक्षम ({{size}})।",
+      "historyDisabled": "इतिहास अक्षम।",
+      "historyUnlimited": "असीमित",
+      "historyEntries": "{{count}} प्रविष्टियां"
+    }
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "sections": {
+      "appearance": "दिखावट",
+      "colorTheme": "रंग थीम",
+      "dataFetch": "डेटा प्राप्ति विधि"
+    },
+    "themeOptions": {
+      "system": "सिस्टम",
+      "light": "हल्का",
+      "dark": "गहरा"
+    },
+    "colorThemes": {
+      "blue": "नीला",
+      "orange": "नारंगी",
+      "teal": "टील",
+      "rose": "गुलाबी",
+      "purple": "बैंगनी",
+      "green": "हरा",
+      "custom": "कस्टम रंग"
+    },
+    "customColor": {
+      "label": "कस्टम रंग",
+      "pickerLabel": "कस्टम रंग चयनकर्ता",
+      "inputLabel": "कस्टम रंग हेक्स कोड",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "सर्वर प्रॉक्सी",
+        "description": "डेटा प्राप्त करने के लिए इस एप्लिकेशन के सर्वर का उपयोग करता है। अनुशंसित, अधिक विश्वसनीय।"
+      },
+      "clientProxy": {
+        "label": "क्लाइंट-साइड प्रॉक्सी",
+        "description": "आपके ब्राउज़र में सार्वजनिक CORS प्रॉक्सी का उपयोग करता है। कम विश्वसनीय हो सकता है या दर सीमित।"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "क्लाइंट प्रॉक्सी सेवा चुनें:",
+      "ariaLabel": "क्लाइंट प्रॉक्सी सेवा चयनकर्ता",
+      "helper": "प्रॉक्सी के बीच प्रदर्शन और विश्वसनीयता भिन्न होती है।"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "स्वचालित निष्कर्षण",
+        "description": "मान्य URL पेस्ट/टाइप करने के बाद स्वचालित रूप से टैग निकालें।",
+        "tooltip": "मान्य URL पेस्ट/टाइप करने पर स्वचालित टैग निष्कर्षण सक्षम या अक्षम करें"
+      },
+      "previews": {
+        "label": "पूर्वावलोकन सक्षम करें",
+        "description": "निष्कर्षण के दौरान और इतिहास में छवि/वीडियो पूर्वावलोकन दिखाएं।",
+        "tooltip": "बैंडविड्थ बचाने या संभावित समस्याओं से बचने के लिए छवि/वीडियो पूर्वावलोकन सक्षम या अक्षम करें",
+        "note": "छवियां हमेशा सर्वर प्रॉक्सी के माध्यम से प्राप्त की जाती हैं।"
+      },
+      "saveHistory": {
+        "label": "इतिहास सहेजें",
+        "description": "सफल निष्कर्षणों को अपने ब्राउज़र में स्थानीय रूप से संग्रहीत करें।",
+        "tooltip": "अपने ब्राउज़र के स्थानीय संग्रहण में निष्कर्षण इतिहास सहेजना सक्षम या अक्षम करें"
+      },
+      "unsupportedSites": {
+        "label": "असमर्थित साइटों के लिए सक्षम करें",
+        "description": "समान साइट पैटर्न का उपयोग करके असमर्थित साइटों से निष्कर्षण का प्रयास करें। सभी साइटों के लिए काम नहीं कर सकता है।",
+        "tooltip": "समान साइट पैटर्न का उपयोग करके असमर्थित वेबसाइटों के लिए निष्कर्षण सक्षम करें"
+      },
+      "blacklist": {
+        "label": "कीवर्ड ब्लैकलिस्ट सक्षम करें",
+        "description": "अवरोधित करने के लिए कीवर्ड दर्ज करें, अल्पविराम, अर्धविराम या नई पंक्तियों से अलग किए गए।",
+        "tooltip": "विशिष्ट कीवर्ड को फ़िल्टर करके अवांछित टैग अवरोधित करें",
+        "placeholder": "अवरोधित करने के लिए कीवर्ड दर्ज करें...",
+        "ariaLabel": "ब्लैकलिस्ट कीवर्ड",
+        "reset": "डिफ़ॉल्ट पर रीसेट करें"
+      }
+    },
+    "historySize": {
+      "label": "अधिकतम इतिहास आकार",
+      "description": "निष्कर्षण और छवि इतिहास दोनों के लिए अधिकतम प्रविष्टियों की संख्या निर्धारित करें।"
+    },
+    "accessibility": {
+      "themeOption": "थीम {{label}}",
+      "colorThemeOption": "रंग थीम {{label}}",
+      "historySizeSelect": "अधिकतम इतिहास आकार"
+    },
+    "historySizeOptions": {
+      "10": "10 प्रविष्टियां",
+      "30": "30 प्रविष्टियां",
+      "50": "50 प्रविष्टियां",
+      "100": "100 प्रविष्टियां",
+      "unlimited": "असीमित"
+    },
+    "support": {
+      "title": "समर्थन और फ़ीडबैक",
+      "cta": "GitHub पर समस्या रिपोर्ट करें",
+      "description": "कोई बग मिला या कोई सुझाव है? हमें बताएं!"
+    },
+    "modal": {
+      "close": "सेटिंग्स बंद करें"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru टैग एक्सट्रैक्टर",
+      "subtitle": "Booru छवि बोर्ड से टैग निकालें",
+      "supported": "समर्थित प्लेटफ़ॉर्म:",
+      "urlLabel": "Booru पोस्ट URL",
+      "urlPlaceholder": "अपना booru पोस्ट URL यहां पेस्ट करें...",
+      "manualButton": "मैन्युअल रूप से निकालें",
+      "resetButton": "रीसेट करें",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru टैग एक्सट्रैक्टर",
+      "heroSubtitle": "booru साइटों से टैग तुरंत निकालें, फ़िल्टर करें और कॉपी करें",
+      "features": {
+        "smart": {
+          "title": "स्मार्ट",
+          "subtitle": "स्वतः निष्कर्षण"
+        },
+        "fast": {
+          "title": "तेज़",
+          "subtitle": "तत्काल परिणाम"
+        },
+        "private": {
+          "title": "निजी",
+          "subtitle": "क्लाइंट-साइड"
+        },
+        "copy": {
+          "title": "कॉपी",
+          "subtitle": "एक-क्लिक"
+        }
+      },
+      "cta": {
+        "paste": "पेस्ट करें",
+        "extract": "निकालें",
+        "filter": "फ़िल्टर करें",
+        "copy": "कॉपी करें"
+      },
+      "supportNotice": "Danbooru, Gelbooru, Safebooru, Rule34, e621 और अधिक का समर्थन करता है"
+    },
+    "preview": {
+      "title": "पूर्वावलोकन"
+    },
+    "status": {
+      "resultLabel": "परिणाम के लिए:"
+    },
+    "categories": {
+      "title": "श्रेणियां फ़िल्टर करें",
+      "enableAll": "सभी",
+      "disableAll": "कोई नहीं",
+      "items": {
+        "copyright": "कॉपीराइट",
+        "character": "चरित्र",
+        "general": "सामान्य",
+        "meta": "मेटा",
+        "other": "अन्य"
+      },
+      "count_one": "{{count}} टैग",
+      "count_other": "{{count}} टैग"
+    },
+    "filteredTags": {
+      "label": "फ़िल्टर किए गए टैग",
+      "ariaLabel": "फ़िल्टर किए गए टैग",
+      "empty": "प्रदर्शित करने के लिए कोई टैग नहीं।",
+      "copy": "टैग कॉपी करें",
+      "copied": "कॉपी किया गया!"
+    },
+    "history": {
+      "extractionTitle": "निष्कर्षण इतिहास",
+      "imageTitle": "छवि इतिहास",
+      "searchExtraction": "शीर्षक, url, टैग खोजें...",
+      "searchImages": "फ़ाइल नाम, प्रॉम्प्ट, पैरामीटर खोजें...",
+      "emptySearch": "आपकी खोज से मेल खाने वाली कोई प्रविष्टि नहीं।",
+      "clearTooltip": "सभी इतिहास साफ़ करें",
+      "clearAction": "इतिहास साफ़ करें",
+      "confirmMessage": "वाकई साफ़ करें?",
+      "confirmYes": "हां, साफ़ करें",
+      "confirmCancel": "रद्द करें",
+      "searchAriaLabel": "{{context}} खोजें",
+      "searchFallback": "इतिहास",
+      "clearSearchTooltip": "खोज साफ़ करें",
+      "clearSearchAria": "खोज साफ़ करें"
+    },
+    "mobile": {
+      "historyButton": "इतिहास",
+      "urlLabel": "Booru पोस्ट URL",
+      "urlPlaceholder": "URL पेस्ट करें या ड्रैग एंड ड्रॉप करें...",
+      "manualButton": "मैन्युअल रूप से निकालें",
+      "resetButton": "रीसेट करें"
+    }
+  },
+  "imageTool": {
+    "title": "छवि मेटाडेटा",
+    "dropCtaTitle": "यहां PNG ड्रैग और ड्रॉप करें",
+    "dropCtaSubtitle": "या अपलोड करने के लिए क्लिक करें",
+    "selectButton": "PNG चुनें",
+    "statusProcessing": "प्रोसेस हो रहा है...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "सकारात्मक प्रॉम्प्ट",
+    "negativePrompt": "नकारात्मक प्रॉम्प्ट",
+    "parameters": "पैरामीटर",
+    "copy": "कॉपी करें",
+    "copyAll": "सभी कॉपी करें",
+    "copySuccess": "कॉपी किया गया!",
+    "noMetadata": "कोई जनरेशन मेटाडेटा नहीं मिला।",
+    "loadMetadata": "मेटाडेटा लोड करें",
+    "deleteEntry": "प्रविष्टि हटाएं",
+    "historyTitle": "छवि इतिहास",
+    "historySearch": "फ़ाइल नाम, प्रॉम्प्ट, पैरामीटर खोजें...",
+    "previewAlt": "पूर्वावलोकन",
+    "footer": {
+      "metadataNotice": "'parameters' टेक्स्ट चंक के लिए PNG मेटाडेटा निष्कर्षण।"
+    }
+  },
+  "historyItem": {
+    "load": "यह इतिहास प्रविष्टि लोड करें",
+    "delete": "यह इतिहास प्रविष्टि हटाएं",
+    "previewAlt": "पूर्वावलोकन"
+  },
+  "imagePreview": {
+    "loading": "पूर्वावलोकन लोड हो रहा है...",
+    "error": "पूर्वावलोकन लोड नहीं हो सका।",
+    "errorDetail": "सर्वर प्रॉक्सी त्रुटि या अमान्य छवि",
+    "videoUnsupported": "आपका ब्राउज़र वीडियो का समर्थन नहीं करता है।",
+    "openFull": "पूर्ण आकार पूर्वावलोकन खोलें",
+    "close": "बंद करें",
+    "reset": "रीसेट करें",
+    "openOriginal": "मूल खोलें"
+  },
+  "booruList": {
+    "pageTitle": "शीर्ष Booru लीडरबोर्ड",
+    "pageDescriptionShort": "कुल छवियों और गतिविधि के आधार पर रैंक किए गए शीर्ष booru साइटों का अन्वेषण करें।",
+    "pageDescriptionLong": "वेब भर से सबसे लोकप्रिय booru साइटों की खोज करें। Booru.org से डेटा के साथ कुल छवियों, सदस्य संख्या और गतिविधि के अनुसार रैंक किया गया।",
+    "searchPlaceholder": "booru साइटें खोजें...",
+    "filter": {
+      "all": "सभी",
+      "sfw": "सुरक्षित",
+      "nsfw": "वयस्क"
+    },
+    "stats": {
+      "images": "छवियां",
+      "members": "सदस्य",
+      "owner": "स्वामी"
+    },
+    "sort": {
+      "label": "इसके अनुसार क्रमबद्ध करें:",
+      "rank": "रैंक (शीर्ष)",
+      "images": "छवियों की संख्या",
+      "members": "सदस्यों की संख्या",
+      "asc": "आरोही",
+      "desc": "अवरोही"
+    },
+    "itemsPerPage": "प्रति पृष्ठ:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> में से {{total}}",
+    "pagination": {
+      "previous": "पिछला",
+      "next": "अगला",
+      "previousShort": "पिछला",
+      "nextShort": "अगला"
+    },
+    "emptyState": "कोई booru साइट नहीं मिली",
+    "loading": "booru डेटा लोड हो रहा है...",
+    "errorTitle": "डेटा लोड करने में त्रुटि",
+    "errors": {
+      "fetchFailed": "booru डेटा प्राप्त करने में विफल।",
+      "unknown": "लीडरबोर्ड लोड करते समय कुछ गड़बड़ हो गई।"
+    },
+    "ownerLabel": "स्वामी:",
+    "visit": "{{name}} विज़िट करें"
+  },
+  "booruDetail": {
+    "backButton": "Booru सूची पर वापस जाएं",
+    "notFoundTitle": "Booru नहीं मिला",
+    "notFoundDescription": "booru डोमेन \"{{domain}}\" हमारे डेटाबेस में नहीं मिला।",
+    "statistics": "सांख्यिकी",
+    "totalImages": "कुल छवियां",
+    "totalMembers": "कुल सदस्य",
+    "shortName": "संक्षिप्त नाम",
+    "owner": "स्वामी",
+    "hosted": "booru.org द्वारा होस्ट किया गया",
+    "protocol": "प्रोटोकॉल",
+    "yes": "हां",
+    "no": "नहीं",
+    "visit": "{{name}} विज़िट करें",
+    "loading": "लोड हो रहा है..."
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Booru Tag Extractor",
+    "language": "Bahasa",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Ekstrak, saring, dan salin tag dari postingan booru secara instan.",
+    "unknown": "Tidak diketahui",
+    "languageSwitcher": {
+      "title": "Bahasa antarmuka",
+      "description": "Disimpan di peramban Anda. Bahasa awalnya adalah Inggris.",
+      "instantNotice": "Perubahan langsung diterapkan tanpa memuat ulang.",
+      "searchPlaceholder": "Cari bahasa...",
+      "noResults": "Bahasa tidak ditemukan"
+    },
+    "nav": {
+      "extractor": "Tag",
+      "image": "Gambar",
+      "booruList": "Booru",
+      "settings": "Pengaturan"
+    },
+    "navTooltip": {
+      "extractor": "Ekstraktor Tag",
+      "image": "Metadata Gambar",
+      "booruList": "Papan Peringkat Booru",
+      "settings": "Pengaturan"
+    },
+    "dropOverlay": {
+      "url": "Jatuhkan URL",
+      "png": "Jatuhkan PNG"
+    },
+    "actions": {
+      "add": "Tambah",
+      "apply": "Terapkan",
+      "back": "Kembali",
+      "cancel": "Batal",
+      "clear": "Bersihkan",
+      "close": "Tutup",
+      "confirm": "Konfirmasi",
+      "copy": "Salin",
+      "copied": "Tersalin!",
+      "delete": "Hapus",
+      "done": "Selesai",
+      "edit": "Ubah",
+      "next": "Berikutnya",
+      "previous": "Sebelumnya",
+      "refresh": "Muat ulang",
+      "reset": "Atur ulang",
+      "retry": "Coba lagi",
+      "save": "Simpan",
+      "search": "Cari",
+      "select": "Pilih",
+      "submit": "Kirim",
+      "all": "Semua",
+      "none": "Tidak ada",
+      "visit": "Kunjungi",
+      "previousShort": "Sblm",
+      "nextShort": "Brkt"
+    },
+    "status": {
+      "loading": "Memuat...",
+      "processing": "Sedang memproses..."
+    },
+    "footer": {
+      "madeWith": "Dibuat dengan",
+      "by": "oleh"
+    },
+    "statusBar": {
+      "serverProxy": "Proksi Server.",
+      "clientProxy": "Proksi Klien ({{proxy}}).",
+      "historyEnabled": "Riwayat aktif ({{size}}).",
+      "historyDisabled": "Riwayat nonaktif.",
+      "historyUnlimited": "Tak terbatas",
+      "historyEntries": "{{count}} Entri"
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "sections": {
+      "appearance": "Tampilan",
+      "colorTheme": "Tema Warna",
+      "dataFetch": "Metode Pengambilan Data"
+    },
+    "themeOptions": {
+      "system": "Sistem",
+      "light": "Terang",
+      "dark": "Gelap"
+    },
+    "colorThemes": {
+      "blue": "Biru",
+      "orange": "Oranye",
+      "teal": "Hijau Toska",
+      "rose": "Merah Muda",
+      "purple": "Ungu",
+      "green": "Hijau",
+      "custom": "Warna Kustom"
+    },
+    "customColor": {
+      "label": "Warna Kustom",
+      "pickerLabel": "Pemilih warna kustom",
+      "inputLabel": "Kode hex warna kustom",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Proksi Server",
+        "description": "Menggunakan server aplikasi ini untuk mengambil data. Direkomendasikan dan lebih stabil."
+      },
+      "clientProxy": {
+        "label": "Proksi di Sisi Klien",
+        "description": "Menggunakan proksi CORS publik di peramban Anda. Bisa kurang stabil atau dibatasi."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Pilih layanan proksi klien:",
+      "ariaLabel": "Pemilih layanan proksi klien",
+      "helper": "Performa dan keandalannya berbeda-beda tiap proksi."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Ekstraksi Otomatis",
+        "description": "Ekstrak tag secara otomatis setelah menempel/mengetik URL valid.",
+        "tooltip": "Aktifkan atau nonaktifkan ekstraksi tag otomatis saat menempel/mengetik URL valid"
+      },
+      "previews": {
+        "label": "Aktifkan Pratinjau",
+        "description": "Tampilkan pratinjau gambar/video saat ekstraksi dan di riwayat.",
+        "tooltip": "Aktifkan atau nonaktifkan pratinjau gambar/video untuk menghemat data atau menghindari masalah",
+        "note": "Gambar selalu diambil melalui Proksi Server."
+      },
+      "saveHistory": {
+        "label": "Simpan Riwayat",
+        "description": "Simpan hasil ekstraksi yang berhasil di peramban Anda.",
+        "tooltip": "Aktifkan atau nonaktifkan penyimpanan riwayat ekstraksi di penyimpanan lokal peramban"
+      },
+      "unsupportedSites": {
+        "label": "Aktifkan untuk Situs Tidak Didukung",
+        "description": "Coba ekstrak dari situs yang belum didukung menggunakan pola situs serupa. Mungkin tidak selalu berhasil.",
+        "tooltip": "Aktifkan ekstraksi untuk situs yang belum didukung dengan memakai pola situs serupa"
+      },
+      "blacklist": {
+        "label": "Aktifkan Daftar Hitam Kata Kunci",
+        "description": "Masukkan kata kunci yang ingin diblokir, pisahkan dengan koma, titik koma, atau baris baru.",
+        "tooltip": "Blokir tag yang tidak diinginkan dengan memfilter kata kunci tertentu",
+        "placeholder": "Masukkan kata kunci untuk diblokir…",
+        "ariaLabel": "Kata kunci daftar hitam",
+        "reset": "Atur ke Default"
+      }
+    },
+    "historySize": {
+      "label": "Batas Riwayat Maksimum",
+      "description": "Atur jumlah entri maksimum untuk riwayat ekstraksi dan gambar."
+    },
+    "accessibility": {
+      "themeOption": "Tema {{label}}",
+      "colorThemeOption": "Tema warna {{label}}",
+      "historySizeSelect": "Batas riwayat maksimum"
+    },
+    "historySizeOptions": {
+      "10": "10 Entri",
+      "30": "30 Entri",
+      "50": "50 Entri",
+      "100": "100 Entri",
+      "unlimited": "Tak terbatas"
+    },
+    "support": {
+      "title": "Dukungan & Masukan",
+      "cta": "Laporkan masalah di GitHub",
+      "description": "Menemukan bug atau punya saran? Beri tahu kami!"
+    },
+    "modal": {
+      "close": "Tutup Pengaturan"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru Tag Extractor",
+      "subtitle": "Ekstrak tag dari papan gambar booru",
+      "supported": "Platform yang didukung:",
+      "urlLabel": "URL Postingan Booru",
+      "urlPlaceholder": "Tempel URL postingan booru di sini...",
+      "manualButton": "Ekstrak Manual",
+      "resetButton": "Atur ulang",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru Tag Extractor",
+      "heroSubtitle": "Ekstrak, saring, dan salin tag dari situs booru secara instan",
+      "features": {
+        "smart": {
+          "title": "Cerdas",
+          "subtitle": "Ekstrak otomatis"
+        },
+        "fast": {
+          "title": "Cepat",
+          "subtitle": "Hasil instan"
+        },
+        "private": {
+          "title": "Privat",
+          "subtitle": "Di sisi klien"
+        },
+        "copy": {
+          "title": "Salin",
+          "subtitle": "Sekali klik"
+        }
+      },
+      "cta": {
+        "paste": "Tempel",
+        "extract": "Ekstrak",
+        "filter": "Saring",
+        "copy": "Salin"
+      },
+      "supportNotice": "Mendukung Danbooru, Gelbooru, Safebooru, Rule34, e621, dan lainnya"
+    },
+    "preview": {
+      "title": "Pratinjau"
+    },
+    "status": {
+      "resultLabel": "Hasil untuk:"
+    },
+    "categories": {
+      "title": "Kategori Filter",
+      "enableAll": "Semua",
+      "disableAll": "Tidak ada",
+      "items": {
+        "copyright": "Hak cipta",
+        "character": "Karakter",
+        "general": "Umum",
+        "meta": "Meta",
+        "other": "Lainnya"
+      },
+      "count_one": "{{count}} tag",
+      "count_other": "{{count}} tag"
+    },
+    "filteredTags": {
+      "label": "Tag Terfilter",
+      "ariaLabel": "Tag terfilter",
+      "empty": "Tidak ada tag untuk ditampilkan.",
+      "copy": "Salin Tag",
+      "copied": "Tersalin!"
+    },
+    "history": {
+      "extractionTitle": "Riwayat Ekstraksi",
+      "imageTitle": "Riwayat Gambar",
+      "searchExtraction": "Cari judul, url, tag...",
+      "searchImages": "Cari nama berkas, prompt, parameter...",
+      "emptySearch": "Tidak ada entri yang cocok.",
+      "clearTooltip": "Bersihkan semua riwayat",
+      "clearAction": "Bersihkan Riwayat",
+      "confirmMessage": "Yakin bersihkan?",
+      "confirmYes": "Ya, bersihkan",
+      "confirmCancel": "Batal",
+      "searchAriaLabel": "Cari {{context}}",
+      "searchFallback": "riwayat",
+      "clearSearchTooltip": "Hapus pencarian",
+      "clearSearchAria": "Hapus pencarian"
+    },
+    "mobile": {
+      "historyButton": "Riwayat",
+      "urlLabel": "URL Postingan Booru",
+      "urlPlaceholder": "Tempel URL atau tarik & jatuhkan...",
+      "manualButton": "Ekstrak Manual",
+      "resetButton": "Atur ulang"
+    }
+  },
+  "imageTool": {
+    "title": "Metadata Gambar",
+    "dropCtaTitle": "Seret & jatuhkan PNG di sini",
+    "dropCtaSubtitle": "atau klik untuk unggah",
+    "selectButton": "Pilih PNG",
+    "statusProcessing": "Sedang memproses...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Prompt Positif",
+    "negativePrompt": "Prompt Negatif",
+    "parameters": "Parameter",
+    "copy": "Salin",
+    "copyAll": "Salin Semua",
+    "copySuccess": "Tersalin!",
+    "noMetadata": "Tidak ada metadata pembuatan.",
+    "loadMetadata": "Muat Metadata",
+    "deleteEntry": "Hapus Entri",
+    "historyTitle": "Riwayat Gambar",
+    "historySearch": "Cari nama berkas, prompt, parameter...",
+    "previewAlt": "Pratinjau",
+    "footer": {
+      "metadataNotice": "Ekstraksi metadata PNG untuk potongan teks 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "Muat entri riwayat ini",
+    "delete": "Hapus entri riwayat ini",
+    "previewAlt": "Pratinjau"
+  },
+  "imagePreview": {
+    "loading": "Memuat pratinjau...",
+    "error": "Tidak dapat memuat pratinjau.",
+    "errorDetail": "Galat proksi server atau gambar tidak valid",
+    "videoUnsupported": "Peramban Anda tidak mendukung video.",
+    "openFull": "Buka pratinjau ukuran penuh",
+    "close": "Tutup",
+    "reset": "Atur ulang",
+    "openOriginal": "Buka asli"
+  },
+  "booruList": {
+    "pageTitle": "Papan Peringkat Booru Teratas",
+    "pageDescriptionShort": "Jelajahi situs booru teratas berdasarkan jumlah gambar dan aktivitas.",
+    "pageDescriptionLong": "Temukan situs booru paling populer di seluruh web. Diperingkat berdasarkan jumlah gambar, anggota, dan aktivitas dengan data dari Booru.org.",
+    "searchPlaceholder": "Cari situs booru...",
+    "filter": {
+      "all": "Semua",
+      "sfw": "SFW",
+      "nsfw": "NSFW"
+    },
+    "stats": {
+      "images": "Gambar",
+      "members": "Anggota",
+      "owner": "Pemilik"
+    },
+    "sort": {
+      "label": "Urutkan:",
+      "rank": "Peringkat (Teratas)",
+      "images": "Jumlah Gambar",
+      "members": "Jumlah Anggota",
+      "asc": "Naik",
+      "desc": "Turun"
+    },
+    "itemsPerPage": "Per halaman:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> dari {{total}}",
+    "pagination": {
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "previousShort": "Sblm",
+      "nextShort": "Brkt"
+    },
+    "emptyState": "Tidak ada situs booru yang ditemukan",
+    "loading": "Memuat data booru...",
+    "errorTitle": "Gagal memuat data",
+    "errors": {
+      "fetchFailed": "Gagal mengambil data booru.",
+      "unknown": "Terjadi kesalahan saat memuat papan peringkat."
+    },
+    "ownerLabel": "Pemilik:",
+    "visit": "Kunjungi {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Kembali ke daftar booru",
+    "notFoundTitle": "Booru tidak ditemukan",
+    "notFoundDescription": "Domain booru \"{{domain}}\" tidak ditemukan di basis data kami.",
+    "statistics": "Statistik",
+    "totalImages": "Total Gambar",
+    "totalMembers": "Total Anggota",
+    "shortName": "Nama singkat",
+    "owner": "Pemilik",
+    "hosted": "Di-host oleh booru.org",
+    "protocol": "Protokol",
+    "yes": "Ya",
+    "no": "Tidak",
+    "visit": "Kunjungi {{name}}",
+    "loading": "Memuat..."
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "أداة استخراج وسوم Booru",
+    "language": "اللغة",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "author": "IRedDragonICY",
+    "defaultDescription": "استخراج وتصفية ونسخ الوسوم من منشورات Booru على الفور.",
+    "unknown": "غير معروف",
+    "languageSwitcher": {
+      "title": "لغة الواجهة",
+      "description": "محفوظ في متصفحك. اللغة الافتراضية هي الإنجليزية.",
+      "instantNotice": "يتم تطبيق التغييرات على الفور دون إعادة التحميل.",
+      "searchPlaceholder": "البحث عن اللغات...",
+      "noResults": "لم يتم العثور على لغات"
+    },
+    "nav": {
+      "extractor": "الوسوم",
+      "image": "الصورة",
+      "booruList": "Boorus",
+      "settings": "الإعدادات"
+    },
+    "navTooltip": {
+      "extractor": "أداة استخراج الوسوم",
+      "image": "بيانات تعريف الصورة",
+      "booruList": "قائمة Booru الرائدة",
+      "settings": "الإعدادات"
+    },
+    "dropOverlay": {
+      "url": "إسقاط URL",
+      "png": "إسقاط PNG"
+    },
+    "actions": {
+      "add": "إضافة",
+      "apply": "تطبيق",
+      "back": "رجوع",
+      "cancel": "إلغاء",
+      "clear": "مسح",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "copy": "نسخ",
+      "copied": "تم النسخ!",
+      "delete": "حذف",
+      "done": "تم",
+      "edit": "تحرير",
+      "next": "التالي",
+      "previous": "السابق",
+      "refresh": "تحديث",
+      "reset": "إعادة تعيين",
+      "retry": "إعادة المحاولة",
+      "save": "حفظ",
+      "search": "بحث",
+      "select": "اختيار",
+      "submit": "إرسال",
+      "all": "الكل",
+      "none": "لا شيء",
+      "visit": "زيارة",
+      "previousShort": "السابق",
+      "nextShort": "التالي"
+    },
+    "status": {
+      "loading": "جاري التحميل...",
+      "processing": "جاري المعالجة..."
+    },
+    "footer": {
+      "madeWith": "صنع بـ",
+      "by": "بواسطة"
+    },
+    "statusBar": {
+      "serverProxy": "وكيل الخادم.",
+      "clientProxy": "وكيل العميل ({{proxy}}).",
+      "historyEnabled": "السجل مفعّل ({{size}}).",
+      "historyDisabled": "السجل معطّل.",
+      "historyUnlimited": "غير محدود",
+      "historyEntries": "{{count}} إدخالات"
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "sections": {
+      "appearance": "المظهر",
+      "colorTheme": "سمة الألوان",
+      "dataFetch": "طريقة جلب البيانات"
+    },
+    "themeOptions": {
+      "system": "النظام",
+      "light": "فاتح",
+      "dark": "داكن"
+    },
+    "colorThemes": {
+      "blue": "أزرق",
+      "orange": "برتقالي",
+      "teal": "تركواز",
+      "rose": "وردي",
+      "purple": "بنفسجي",
+      "green": "أخضر",
+      "custom": "لون مخصص"
+    },
+    "customColor": {
+      "label": "لون مخصص",
+      "pickerLabel": "منتقي الألوان المخصص",
+      "inputLabel": "كود اللون السداسي المخصص",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "وكيل الخادم",
+        "description": "يستخدم خادم هذا التطبيق لجلب البيانات. موصى به، أكثر موثوقية."
+      },
+      "clientProxy": {
+        "label": "وكيل جانب العميل",
+        "description": "يستخدم وكيل CORS عام في متصفحك. قد يكون أقل موثوقية أو محدود المعدل."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "اختر خدمة وكيل العميل:",
+      "ariaLabel": "محدد خدمة وكيل العميل",
+      "helper": "تختلف الأداء والموثوقية بين الوكلاء."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "الاستخراج التلقائي",
+        "description": "استخراج الوسوم تلقائيًا بعد لصق/كتابة عنوان URL صالح.",
+        "tooltip": "تمكين أو تعطيل استخراج الوسوم التلقائي عند لصق/كتابة عنوان URL صالح"
+      },
+      "previews": {
+        "label": "تمكين المعاينات",
+        "description": "عرض معاينات الصور/الفيديو أثناء الاستخراج وفي السجل.",
+        "tooltip": "تمكين أو تعطيل معاينات الصور/الفيديو لتوفير النطاق الترددي أو تجنب المشاكل المحتملة",
+        "note": "يتم دائمًا جلب الصور عبر وكيل الخادم."
+      },
+      "saveHistory": {
+        "label": "حفظ السجل",
+        "description": "تخزين الاستخراجات الناجحة محليًا في متصفحك.",
+        "tooltip": "تمكين أو تعطيل حفظ سجل الاستخراج إلى التخزين المحلي للمتصفح"
+      },
+      "unsupportedSites": {
+        "label": "تمكين للمواقع غير المدعومة",
+        "description": "حاول الاستخراج من المواقع غير المدعومة باستخدام أنماط مواقع مماثلة. قد لا يعمل لجميع المواقع.",
+        "tooltip": "تمكين الاستخراج للمواقع غير المدعومة باستخدام أنماط مواقع مماثلة"
+      },
+      "blacklist": {
+        "label": "تمكين القائمة السوداء للكلمات الرئيسية",
+        "description": "أدخل الكلمات الرئيسية المراد حظرها، مفصولة بفواصل أو فواصل منقوطة أو أسطر جديدة.",
+        "tooltip": "حظر الوسوم غير المرغوب فيها عن طريق تصفية كلمات رئيسية محددة",
+        "placeholder": "أدخل الكلمات الرئيسية المراد حظرها...",
+        "ariaLabel": "الكلمات الرئيسية في القائمة السوداء",
+        "reset": "إعادة تعيين إلى الافتراضي"
+      }
+    },
+    "historySize": {
+      "label": "الحد الأقصى لحجم السجل",
+      "description": "تعيين الحد الأقصى لعدد الإدخالات لكل من سجل الاستخراج والصور."
+    },
+    "accessibility": {
+      "themeOption": "سمة {{label}}",
+      "colorThemeOption": "سمة الألوان {{label}}",
+      "historySizeSelect": "الحد الأقصى لحجم السجل"
+    },
+    "historySizeOptions": {
+      "10": "10 إدخالات",
+      "30": "30 إدخال",
+      "50": "50 إدخال",
+      "100": "100 إدخال",
+      "unlimited": "غير محدود"
+    },
+    "support": {
+      "title": "الدعم والملاحظات",
+      "cta": "الإبلاغ عن مشكلة على GitHub",
+      "description": "وجدت خطأ أو لديك اقتراح؟ أخبرنا!"
+    },
+    "modal": {
+      "close": "إغلاق الإعدادات"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "أداة استخراج وسوم Booru",
+      "subtitle": "استخراج الوسوم من لوحات صور Booru",
+      "supported": "المنصات المدعومة:",
+      "urlLabel": "عنوان URL لمنشور Booru",
+      "urlPlaceholder": "الصق عنوان URL لمنشور Booru هنا...",
+      "manualButton": "الاستخراج يدويًا",
+      "resetButton": "إعادة تعيين",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "أداة استخراج وسوم Booru",
+      "heroSubtitle": "استخراج وتصفية ونسخ الوسوم من مواقع Booru على الفور",
+      "features": {
+        "smart": {
+          "title": "ذكي",
+          "subtitle": "استخراج تلقائي"
+        },
+        "fast": {
+          "title": "سريع",
+          "subtitle": "نتائج فورية"
+        },
+        "private": {
+          "title": "خاص",
+          "subtitle": "جانب العميل"
+        },
+        "copy": {
+          "title": "نسخ",
+          "subtitle": "نقرة واحدة"
+        }
+      },
+      "cta": {
+        "paste": "لصق",
+        "extract": "استخراج",
+        "filter": "تصفية",
+        "copy": "نسخ"
+      },
+      "supportNotice": "يدعم Danbooru و Gelbooru و Safebooru و Rule34 و e621 والمزيد"
+    },
+    "preview": {
+      "title": "معاينة"
+    },
+    "status": {
+      "resultLabel": "النتيجة لـ:"
+    },
+    "categories": {
+      "title": "تصفية الفئات",
+      "enableAll": "الكل",
+      "disableAll": "لا شيء",
+      "items": {
+        "copyright": "حقوق النشر",
+        "character": "الشخصية",
+        "general": "عام",
+        "meta": "ميتا",
+        "other": "أخرى"
+      },
+      "count_one": "{{count}} وسم",
+      "count_other": "{{count}} وسوم"
+    },
+    "filteredTags": {
+      "label": "الوسوم المصفاة",
+      "ariaLabel": "الوسوم المصفاة",
+      "empty": "لا توجد وسوم لعرضها.",
+      "copy": "نسخ الوسوم",
+      "copied": "تم النسخ!"
+    },
+    "history": {
+      "extractionTitle": "سجل الاستخراج",
+      "imageTitle": "سجل الصور",
+      "searchExtraction": "البحث عن العنوان، URL، الوسوم...",
+      "searchImages": "البحث عن اسم الملف، المطالبات، المعلمات...",
+      "emptySearch": "لا توجد إدخالات تطابق بحثك.",
+      "clearTooltip": "مسح كل السجل",
+      "clearAction": "مسح السجل",
+      "confirmMessage": "هل تريد المسح حقًا؟",
+      "confirmYes": "نعم، امسح",
+      "confirmCancel": "إلغاء",
+      "searchAriaLabel": "البحث عن {{context}}",
+      "searchFallback": "السجل",
+      "clearSearchTooltip": "مسح البحث",
+      "clearSearchAria": "مسح البحث"
+    },
+    "mobile": {
+      "historyButton": "السجل",
+      "urlLabel": "عنوان URL لمنشور Booru",
+      "urlPlaceholder": "الصق URL أو اسحب وأفلت...",
+      "manualButton": "الاستخراج يدويًا",
+      "resetButton": "إعادة تعيين"
+    }
+  },
+  "imageTool": {
+    "title": "بيانات تعريف الصورة",
+    "dropCtaTitle": "اسحب وأفلت PNG هنا",
+    "dropCtaSubtitle": "أو انقر للتحميل",
+    "selectButton": "اختر PNG",
+    "statusProcessing": "جاري المعالجة...",
+    "previewMeta": "{{name}} ({{size}} كيلوبايت)",
+    "positivePrompt": "المطالبة الإيجابية",
+    "negativePrompt": "المطالبة السلبية",
+    "parameters": "المعلمات",
+    "copy": "نسخ",
+    "copyAll": "نسخ الكل",
+    "copySuccess": "تم النسخ!",
+    "noMetadata": "لم يتم العثور على بيانات تعريف الإنشاء.",
+    "loadMetadata": "تحميل بيانات التعريف",
+    "deleteEntry": "حذف الإدخال",
+    "historyTitle": "سجل الصور",
+    "historySearch": "البحث عن اسم الملف، المطالبات، المعلمات...",
+    "previewAlt": "معاينة",
+    "footer": {
+      "metadataNotice": "استخراج بيانات تعريف PNG لكتلة نص 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "تحميل إدخال السجل هذا",
+    "delete": "حذف إدخال السجل هذا",
+    "previewAlt": "معاينة"
+  },
+  "imagePreview": {
+    "loading": "جاري تحميل المعاينة...",
+    "error": "تعذر تحميل المعاينة.",
+    "errorDetail": "خطأ في وكيل الخادم أو صورة غير صالحة",
+    "videoUnsupported": "متصفحك لا يدعم الفيديو.",
+    "openFull": "فتح معاينة بالحجم الكامل",
+    "close": "إغلاق",
+    "reset": "إعادة تعيين",
+    "openOriginal": "فتح الأصل"
+  },
+  "booruList": {
+    "pageTitle": "قائمة Booru الرائدة",
+    "pageDescriptionShort": "استكشف أفضل مواقع Booru مصنفة حسب إجمالي الصور والنشاط.",
+    "pageDescriptionLong": "اكتشف أكثر مواقع Booru شعبية من جميع أنحاء الويب. مصنفة حسب إجمالي الصور وعدد الأعضاء والنشاط مع بيانات من Booru.org.",
+    "searchPlaceholder": "البحث عن مواقع Booru...",
+    "filter": {
+      "all": "الكل",
+      "sfw": "آمن",
+      "nsfw": "للبالغين"
+    },
+    "stats": {
+      "images": "الصور",
+      "members": "الأعضاء",
+      "owner": "المالك"
+    },
+    "sort": {
+      "label": "الترتيب حسب:",
+      "rank": "الترتيب (الأفضل)",
+      "images": "عدد الصور",
+      "members": "عدد الأعضاء",
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "itemsPerPage": "لكل صفحة:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> من {{total}}",
+    "pagination": {
+      "previous": "السابق",
+      "next": "التالي",
+      "previousShort": "السابق",
+      "nextShort": "التالي"
+    },
+    "emptyState": "لم يتم العثور على مواقع Booru",
+    "loading": "جاري تحميل بيانات Booru...",
+    "errorTitle": "خطأ في تحميل البيانات",
+    "errors": {
+      "fetchFailed": "فشل جلب بيانات Booru.",
+      "unknown": "حدث خطأ أثناء تحميل القائمة الرائدة."
+    },
+    "ownerLabel": "المالك:",
+    "visit": "زيارة {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "العودة إلى قائمة Booru",
+    "notFoundTitle": "لم يتم العثور على Booru",
+    "notFoundDescription": "لم يتم العثور على نطاق Booru \"{{domain}}\" في قاعدة بياناتنا.",
+    "statistics": "الإحصائيات",
+    "totalImages": "إجمالي الصور",
+    "totalMembers": "إجمالي الأعضاء",
+    "shortName": "الاسم المختصر",
+    "owner": "المالك",
+    "hosted": "مستضاف بواسطة booru.org",
+    "protocol": "البروتوكول",
+    "yes": "نعم",
+    "no": "لا",
+    "visit": "زيارة {{name}}",
+    "loading": "جاري التحميل..."
+  }
+}

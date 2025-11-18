@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Công Cụ Trích Xuất Thẻ Booru",
+    "language": "Ngôn ngữ",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Trích xuất, lọc và sao chép thẻ từ bài đăng booru ngay lập tức.",
+    "unknown": "Không xác định",
+    "languageSwitcher": {
+      "title": "Ngôn ngữ giao diện",
+      "description": "Được lưu trữ trong trình duyệt của bạn. Ngôn ngữ mặc định là tiếng Anh.",
+      "instantNotice": "Thay đổi được áp dụng ngay lập tức mà không cần tải lại.",
+      "searchPlaceholder": "Tìm kiếm ngôn ngữ...",
+      "noResults": "Không tìm thấy ngôn ngữ"
+    },
+    "nav": {
+      "extractor": "Thẻ",
+      "image": "Hình ảnh",
+      "booruList": "Booru",
+      "settings": "Cài đặt"
+    },
+    "navTooltip": {
+      "extractor": "Công Cụ Trích Xuất Thẻ",
+      "image": "Siêu Dữ Liệu Hình Ảnh",
+      "booruList": "Bảng Xếp Hạng Booru",
+      "settings": "Cài đặt"
+    },
+    "dropOverlay": {
+      "url": "Thả URL",
+      "png": "Thả PNG"
+    },
+    "actions": {
+      "add": "Thêm",
+      "apply": "Áp dụng",
+      "back": "Quay lại",
+      "cancel": "Hủy",
+      "clear": "Xóa",
+      "close": "Đóng",
+      "confirm": "Xác nhận",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép!",
+      "delete": "Xóa",
+      "done": "Xong",
+      "edit": "Chỉnh sửa",
+      "next": "Tiếp theo",
+      "previous": "Trước đó",
+      "refresh": "Làm mới",
+      "reset": "Đặt lại",
+      "retry": "Thử lại",
+      "save": "Lưu",
+      "search": "Tìm kiếm",
+      "select": "Chọn",
+      "submit": "Gửi",
+      "all": "Tất cả",
+      "none": "Không có",
+      "visit": "Truy cập",
+      "previousShort": "Trước",
+      "nextShort": "Tiếp"
+    },
+    "status": {
+      "loading": "Đang tải...",
+      "processing": "Đang xử lý..."
+    },
+    "footer": {
+      "madeWith": "Được tạo với",
+      "by": "bởi"
+    },
+    "statusBar": {
+      "serverProxy": "Proxy máy chủ.",
+      "clientProxy": "Proxy máy khách ({{proxy}}).",
+      "historyEnabled": "Lịch sử được bật ({{size}}).",
+      "historyDisabled": "Lịch sử bị tắt.",
+      "historyUnlimited": "Không giới hạn",
+      "historyEntries": "{{count}} mục"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "sections": {
+      "appearance": "Giao diện",
+      "colorTheme": "Chủ Đề Màu",
+      "dataFetch": "Phương Thức Lấy Dữ Liệu"
+    },
+    "themeOptions": {
+      "system": "Hệ thống",
+      "light": "Sáng",
+      "dark": "Tối"
+    },
+    "colorThemes": {
+      "blue": "Xanh dương",
+      "orange": "Cam",
+      "teal": "Xanh lục lam",
+      "rose": "Hồng",
+      "purple": "Tím",
+      "green": "Xanh lá",
+      "custom": "Màu Tùy Chỉnh"
+    },
+    "customColor": {
+      "label": "Màu Tùy Chỉnh",
+      "pickerLabel": "Bộ chọn màu tùy chỉnh",
+      "inputLabel": "Mã hex màu tùy chỉnh",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Proxy Máy Chủ",
+        "description": "Sử dụng máy chủ của ứng dụng này để lấy dữ liệu. Được khuyến nghị, đáng tin cậy hơn."
+      },
+      "clientProxy": {
+        "label": "Proxy Phía Máy Khách",
+        "description": "Sử dụng proxy CORS công khai trong trình duyệt của bạn. Có thể kém tin cậy hơn hoặc bị giới hạn tốc độ."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Chọn Dịch Vụ Proxy Máy Khách:",
+      "ariaLabel": "Bộ chọn Dịch Vụ Proxy Máy Khách",
+      "helper": "Hiệu suất và độ tin cậy khác nhau giữa các proxy."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Trích Xuất Tự Động",
+        "description": "Tự động trích xuất thẻ sau khi dán/nhập URL hợp lệ.",
+        "tooltip": "Bật hoặc tắt trích xuất thẻ tự động khi dán/nhập URL hợp lệ"
+      },
+      "previews": {
+        "label": "Bật Xem Trước",
+        "description": "Hiển thị xem trước hình ảnh/video trong quá trình trích xuất và trong lịch sử.",
+        "tooltip": "Bật hoặc tắt xem trước hình ảnh/video để tiết kiệm băng thông hoặc tránh các vấn đề tiềm ẩn",
+        "note": "Hình ảnh luôn được lấy qua Proxy Máy Chủ."
+      },
+      "saveHistory": {
+        "label": "Lưu Lịch Sử",
+        "description": "Lưu trữ các trích xuất thành công cục bộ trong trình duyệt của bạn.",
+        "tooltip": "Bật hoặc tắt lưu lịch sử trích xuất vào bộ nhớ cục bộ của trình duyệt"
+      },
+      "unsupportedSites": {
+        "label": "Bật cho Trang Không Được Hỗ Trợ",
+        "description": "Thử trích xuất từ các trang không được hỗ trợ bằng cách sử dụng mẫu trang tương tự. Có thể không hoạt động cho tất cả các trang.",
+        "tooltip": "Bật trích xuất cho các trang web không được hỗ trợ bằng cách sử dụng mẫu trang tương tự"
+      },
+      "blacklist": {
+        "label": "Bật Danh Sách Đen Từ Khóa",
+        "description": "Nhập các từ khóa để chặn, được phân tách bằng dấu phẩy, dấu chấm phẩy hoặc dòng mới.",
+        "tooltip": "Chặn các thẻ không mong muốn bằng cách lọc các từ khóa cụ thể",
+        "placeholder": "Nhập từ khóa để chặn...",
+        "ariaLabel": "Từ Khóa Danh Sách Đen",
+        "reset": "Đặt Lại Về Mặc Định"
+      }
+    },
+    "historySize": {
+      "label": "Kích Thước Lịch Sử Tối Đa",
+      "description": "Đặt số lượng mục tối đa cho cả lịch sử trích xuất và hình ảnh."
+    },
+    "accessibility": {
+      "themeOption": "Chủ đề {{label}}",
+      "colorThemeOption": "Chủ đề màu {{label}}",
+      "historySizeSelect": "Kích thước lịch sử tối đa"
+    },
+    "historySizeOptions": {
+      "10": "10 Mục",
+      "30": "30 Mục",
+      "50": "50 Mục",
+      "100": "100 Mục",
+      "unlimited": "Không giới hạn"
+    },
+    "support": {
+      "title": "Hỗ Trợ & Phản Hồi",
+      "cta": "Báo Cáo Vấn Đề trên GitHub",
+      "description": "Tìm thấy lỗi hoặc có đề xuất? Hãy cho chúng tôi biết!"
+    },
+    "modal": {
+      "close": "Đóng Cài Đặt"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Công Cụ Trích Xuất Thẻ Booru",
+      "subtitle": "Trích xuất thẻ từ bảng hình ảnh booru",
+      "supported": "Nền tảng được hỗ trợ:",
+      "urlLabel": "URL Bài Đăng Booru",
+      "urlPlaceholder": "Dán URL bài đăng booru của bạn vào đây...",
+      "manualButton": "Trích Xuất Thủ Công",
+      "resetButton": "Đặt lại",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Công Cụ Trích Xuất Thẻ Booru",
+      "heroSubtitle": "Trích xuất, lọc và sao chép thẻ từ các trang booru ngay lập tức",
+      "features": {
+        "smart": {
+          "title": "Thông minh",
+          "subtitle": "Tự động trích xuất"
+        },
+        "fast": {
+          "title": "Nhanh",
+          "subtitle": "Kết quả tức thì"
+        },
+        "private": {
+          "title": "Riêng tư",
+          "subtitle": "Phía máy khách"
+        },
+        "copy": {
+          "title": "Sao chép",
+          "subtitle": "Một cú nhấp"
+        }
+      },
+      "cta": {
+        "paste": "Dán",
+        "extract": "Trích xuất",
+        "filter": "Lọc",
+        "copy": "Sao chép"
+      },
+      "supportNotice": "Hỗ trợ Danbooru, Gelbooru, Safebooru, Rule34, e621 và hơn thế nữa"
+    },
+    "preview": {
+      "title": "Xem trước"
+    },
+    "status": {
+      "resultLabel": "Kết quả cho:"
+    },
+    "categories": {
+      "title": "Lọc Danh Mục",
+      "enableAll": "Tất cả",
+      "disableAll": "Không có",
+      "items": {
+        "copyright": "Bản quyền",
+        "character": "Nhân vật",
+        "general": "Chung",
+        "meta": "Meta",
+        "other": "Khác"
+      },
+      "count_one": "{{count}} thẻ",
+      "count_other": "{{count}} thẻ"
+    },
+    "filteredTags": {
+      "label": "Thẻ Đã Lọc",
+      "ariaLabel": "Thẻ đã lọc",
+      "empty": "Không có thẻ để hiển thị.",
+      "copy": "Sao Chép Thẻ",
+      "copied": "Đã sao chép!"
+    },
+    "history": {
+      "extractionTitle": "Lịch Sử Trích Xuất",
+      "imageTitle": "Lịch Sử Hình Ảnh",
+      "searchExtraction": "Tìm kiếm tiêu đề, url, thẻ...",
+      "searchImages": "Tìm kiếm tên tệp, lời nhắc, tham số...",
+      "emptySearch": "Không có mục nào khớp với tìm kiếm của bạn.",
+      "clearTooltip": "Xóa Toàn Bộ Lịch Sử",
+      "clearAction": "Xóa Lịch Sử",
+      "confirmMessage": "Thực sự xóa?",
+      "confirmYes": "Có, Xóa",
+      "confirmCancel": "Hủy",
+      "searchAriaLabel": "Tìm kiếm {{context}}",
+      "searchFallback": "lịch sử",
+      "clearSearchTooltip": "Xóa Tìm Kiếm",
+      "clearSearchAria": "Xóa tìm kiếm"
+    },
+    "mobile": {
+      "historyButton": "Lịch sử",
+      "urlLabel": "URL Bài Đăng Booru",
+      "urlPlaceholder": "Dán URL hoặc Kéo & Thả...",
+      "manualButton": "Trích Xuất Thủ Công",
+      "resetButton": "Đặt lại"
+    }
+  },
+  "imageTool": {
+    "title": "Siêu Dữ Liệu Hình Ảnh",
+    "dropCtaTitle": "Kéo & Thả PNG Vào Đây",
+    "dropCtaSubtitle": "hoặc nhấp để tải lên",
+    "selectButton": "Chọn PNG",
+    "statusProcessing": "Đang xử lý...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Lời Nhắc Tích Cực",
+    "negativePrompt": "Lời Nhắc Tiêu Cực",
+    "parameters": "Tham Số",
+    "copy": "Sao chép",
+    "copyAll": "Sao Chép Tất Cả",
+    "copySuccess": "Đã sao chép!",
+    "noMetadata": "Không tìm thấy siêu dữ liệu tạo.",
+    "loadMetadata": "Tải Siêu Dữ Liệu",
+    "deleteEntry": "Xóa Mục",
+    "historyTitle": "Lịch Sử Hình Ảnh",
+    "historySearch": "Tìm kiếm tên tệp, lời nhắc, tham số...",
+    "previewAlt": "Xem trước",
+    "footer": {
+      "metadataNotice": "Trích xuất siêu dữ liệu PNG cho đoạn văn bản 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "Tải mục lịch sử này",
+    "delete": "Xóa mục lịch sử này",
+    "previewAlt": "Xem trước"
+  },
+  "imagePreview": {
+    "loading": "Đang tải xem trước...",
+    "error": "Không thể tải xem trước.",
+    "errorDetail": "Lỗi proxy máy chủ hoặc hình ảnh không hợp lệ",
+    "videoUnsupported": "Trình duyệt của bạn không hỗ trợ video.",
+    "openFull": "Mở xem trước kích thước đầy đủ",
+    "close": "Đóng",
+    "reset": "Đặt lại",
+    "openOriginal": "Mở bản gốc"
+  },
+  "booruList": {
+    "pageTitle": "Bảng Xếp Hạng Booru Hàng Đầu",
+    "pageDescriptionShort": "Khám phá các trang booru hàng đầu được xếp hạng theo tổng số hình ảnh và hoạt động.",
+    "pageDescriptionLong": "Khám phá các trang booru phổ biến nhất trên web. Được xếp hạng theo tổng số hình ảnh, số lượng thành viên và hoạt động với dữ liệu từ Booru.org.",
+    "searchPlaceholder": "Tìm kiếm trang booru...",
+    "filter": {
+      "all": "Tất cả",
+      "sfw": "An toàn",
+      "nsfw": "Người lớn"
+    },
+    "stats": {
+      "images": "Hình ảnh",
+      "members": "Thành viên",
+      "owner": "Chủ sở hữu"
+    },
+    "sort": {
+      "label": "Sắp xếp theo:",
+      "rank": "Xếp hạng (Hàng đầu)",
+      "images": "Số Lượng Hình Ảnh",
+      "members": "Số Lượng Thành Viên",
+      "asc": "Tăng dần",
+      "desc": "Giảm dần"
+    },
+    "itemsPerPage": "Mỗi trang:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> trên {{total}}",
+    "pagination": {
+      "previous": "Trước đó",
+      "next": "Tiếp theo",
+      "previousShort": "Trước",
+      "nextShort": "Tiếp"
+    },
+    "emptyState": "Không tìm thấy trang booru",
+    "loading": "Đang tải dữ liệu booru...",
+    "errorTitle": "Lỗi Tải Dữ Liệu",
+    "errors": {
+      "fetchFailed": "Không thể lấy dữ liệu booru.",
+      "unknown": "Đã xảy ra lỗi khi tải bảng xếp hạng."
+    },
+    "ownerLabel": "Chủ sở hữu:",
+    "visit": "Truy cập {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Quay Lại Danh Sách Booru",
+    "notFoundTitle": "Không Tìm Thấy Booru",
+    "notFoundDescription": "Tên miền booru \"{{domain}}\" không được tìm thấy trong cơ sở dữ liệu của chúng tôi.",
+    "statistics": "Thống kê",
+    "totalImages": "Tổng Số Hình Ảnh",
+    "totalMembers": "Tổng Số Thành Viên",
+    "shortName": "Tên Ngắn",
+    "owner": "Chủ sở hữu",
+    "hosted": "Được lưu trữ bởi booru.org",
+    "protocol": "Giao thức",
+    "yes": "Có",
+    "no": "Không",
+    "visit": "Truy cập {{name}}",
+    "loading": "Đang tải..."
+  }
+}

@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 const DEFAULT_MAX_HISTORY_SIZE = 30;
-const DEFAULT_BLACKLIST_KEYWORDS = 'english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters, text';
 
 interface ClientProxyOption { id: string; label: string; value: string; }
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
@@ -34,9 +33,10 @@ function useDebounce<T>(value: T, delay: number): T {
 interface SettingsPanelProps { settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 
 export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsChange }: SettingsPanelProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const defaultBlacklistKeywords = useMemo(() => i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords'), [i18n]);
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-    const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
+    const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || defaultBlacklistKeywords);
 
     useEffect(() => { setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX); }, [settings.customColorHex]);
 
@@ -84,7 +84,7 @@ export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsC
     const handleUnsupportedSitesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableUnsupportedSites: e.target.checked }), [onSettingsChange]);
     const handleBlacklistToggle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableBlacklist: e.target.checked }), [onSettingsChange]);
     const handleBlacklistChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => { setLocalBlacklist(e.target.value); onSettingsChange({ blacklistKeywords: e.target.value }); }, [onSettingsChange]);
-    const handleBlacklistReset = useCallback(() => { setLocalBlacklist(DEFAULT_BLACKLIST_KEYWORDS); onSettingsChange({ blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS }); }, [onSettingsChange]);
+    const handleBlacklistReset = useCallback(() => { setLocalBlacklist(defaultBlacklistKeywords); onSettingsChange({ blacklistKeywords: defaultBlacklistKeywords }); }, [onSettingsChange, defaultBlacklistKeywords]);
     const handleMaxHistoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => { const value = parseInt(e.target.value, 10); onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value }); }, [onSettingsChange]);
 
     const themeOptions = useMemo(() => [

@@ -3,6 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/app/providers/LanguageProvider';
 import { GlobeAltIcon, ChevronDownIcon, MagnifyingGlassIcon } from './icons/icons';
 
+// English names for search functionality
+const LANGUAGE_ENGLISH_NAMES: Record<string, string> = {
+  'en': 'English',
+  'id': 'Indonesian',
+  'zh': 'Chinese Simplified',
+  'zh-TW': 'Chinese Traditional',
+  'ja': 'Japanese',
+  'ar': 'Arabic',
+  'ru': 'Russian',
+  'es': 'Spanish',
+  'fr': 'French',
+  'de': 'German',
+  'pt': 'Portuguese',
+  'ko': 'Korean',
+  'it': 'Italian',
+  'nl': 'Dutch',
+  'tr': 'Turkish',
+  'pl': 'Polish',
+  'vi': 'Vietnamese',
+  'th': 'Thai',
+  'hi': 'Hindi',
+  'uk': 'Ukrainian'
+};
+
 export const LanguageSelector: React.FC = () => {
   const { t } = useTranslation();
   const { language, changeLanguage, languages } = useLanguage();
@@ -18,6 +42,40 @@ export const LanguageSelector: React.FC = () => {
           return t('common.indonesian');
         case 'zh':
           return t('common.chinese');
+        case 'zh-TW':
+          return t('common.chineseTraditional');
+        case 'ja':
+          return t('common.japanese');
+        case 'ar':
+          return t('common.arabic');
+        case 'ru':
+          return t('common.russian');
+        case 'es':
+          return t('common.spanish');
+        case 'fr':
+          return t('common.french');
+        case 'de':
+          return t('common.german');
+        case 'pt':
+          return t('common.portuguese');
+        case 'ko':
+          return t('common.korean');
+        case 'it':
+          return t('common.italian');
+        case 'nl':
+          return t('common.dutch');
+        case 'tr':
+          return t('common.turkish');
+        case 'pl':
+          return t('common.polish');
+        case 'vi':
+          return t('common.vietnamese');
+        case 'th':
+          return t('common.thai');
+        case 'hi':
+          return t('common.hindi');
+        case 'uk':
+          return t('common.ukrainian');
         case 'en':
         default:
           return t('common.english');
@@ -27,7 +85,11 @@ export const LanguageSelector: React.FC = () => {
   );
 
   const localizedLanguages = useMemo(
-    () => languages.map(({ code }) => ({ code, label: resolveLabel(code) })),
+    () => languages.map(({ code }) => ({
+      code,
+      label: resolveLabel(code),
+      englishName: LANGUAGE_ENGLISH_NAMES[code] || code
+    })),
     [languages, resolveLabel]
   );
 
@@ -36,8 +98,8 @@ export const LanguageSelector: React.FC = () => {
     if (!query) {
       return localizedLanguages;
     }
-    return localizedLanguages.filter(({ label, code }) =>
-      `${label} ${code}`.toLowerCase().includes(query)
+    return localizedLanguages.filter(({ label, code, englishName }) =>
+      `${label} ${code} ${englishName}`.toLowerCase().includes(query)
     );
   }, [localizedLanguages, searchTerm]);
 

@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "เครื่องมือแยกแท็ก Booru",
+    "language": "ภาษา",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "แยก กรอง และคัดลอกแท็กจากโพสต์ booru ได้ทันที",
+    "unknown": "ไม่ทราบ",
+    "languageSwitcher": {
+      "title": "ภาษาอินเทอร์เฟซ",
+      "description": "บันทึกในเบราว์เซอร์ของคุณ ภาษาเริ่มต้นคือภาษาอังกฤษ",
+      "instantNotice": "การเปลี่ยนแปลงจะมีผลทันทีโดยไม่ต้องโหลดใหม่",
+      "searchPlaceholder": "ค้นหาภาษา...",
+      "noResults": "ไม่พบภาษา"
+    },
+    "nav": {
+      "extractor": "แท็ก",
+      "image": "รูปภาพ",
+      "booruList": "Booru",
+      "settings": "การตั้งค่า"
+    },
+    "navTooltip": {
+      "extractor": "เครื่องมือแยกแท็ก",
+      "image": "ข้อมูลเมตาของรูปภาพ",
+      "booruList": "กระดานอันดับ Booru",
+      "settings": "การตั้งค่า"
+    },
+    "dropOverlay": {
+      "url": "วาง URL",
+      "png": "วาง PNG"
+    },
+    "actions": {
+      "add": "เพิ่ม",
+      "apply": "ใช้",
+      "back": "กลับ",
+      "cancel": "ยกเลิก",
+      "clear": "ล้าง",
+      "close": "ปิด",
+      "confirm": "ยืนยัน",
+      "copy": "คัดลอก",
+      "copied": "คัดลอกแล้ว!",
+      "delete": "ลบ",
+      "done": "เสร็จสิ้น",
+      "edit": "แก้ไข",
+      "next": "ถัดไป",
+      "previous": "ก่อนหน้า",
+      "refresh": "รีเฟรช",
+      "reset": "รีเซ็ต",
+      "retry": "ลองอีกครั้ง",
+      "save": "บันทึก",
+      "search": "ค้นหา",
+      "select": "เลือก",
+      "submit": "ส่ง",
+      "all": "ทั้งหมด",
+      "none": "ไม่มี",
+      "visit": "เยี่ยมชม",
+      "previousShort": "ก่อน",
+      "nextShort": "ถัดไป"
+    },
+    "status": {
+      "loading": "กำลังโหลด...",
+      "processing": "กำลังประมวลผล..."
+    },
+    "footer": {
+      "madeWith": "สร้างด้วย",
+      "by": "โดย"
+    },
+    "statusBar": {
+      "serverProxy": "พร็อกซีเซิร์ฟเวอร์",
+      "clientProxy": "พร็อกซีไคลเอนต์ ({{proxy}})",
+      "historyEnabled": "เปิดใช้งานประวัติ ({{size}})",
+      "historyDisabled": "ปิดใช้งานประวัติ",
+      "historyUnlimited": "ไม่จำกัด",
+      "historyEntries": "{{count}} รายการ"
+    }
+  },
+  "settings": {
+    "title": "การตั้งค่า",
+    "sections": {
+      "appearance": "รูปลักษณ์",
+      "colorTheme": "ธีมสี",
+      "dataFetch": "วิธีการดึงข้อมูล"
+    },
+    "themeOptions": {
+      "system": "ระบบ",
+      "light": "สว่าง",
+      "dark": "มืด"
+    },
+    "colorThemes": {
+      "blue": "น้ำเงิน",
+      "orange": "ส้ม",
+      "teal": "น้ำเงินอมเขียว",
+      "rose": "กุหลาบ",
+      "purple": "ม่วง",
+      "green": "เขียว",
+      "custom": "สีที่กำหนดเอง"
+    },
+    "customColor": {
+      "label": "สีที่กำหนดเอง",
+      "pickerLabel": "ตัวเลือกสีที่กำหนดเอง",
+      "inputLabel": "รหัสสี hex ที่กำหนดเอง",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "พร็อกซีเซิร์ฟเวอร์",
+        "description": "ใช้เซิร์ฟเวอร์ของแอปพลิเคชันนี้เพื่อดึงข้อมูล แนะนำ เชื่อถือได้มากกว่า"
+      },
+      "clientProxy": {
+        "label": "พร็อกซีฝั่งไคลเอนต์",
+        "description": "ใช้พร็อกซี CORS สาธารณะในเบราว์เซอร์ของคุณ อาจมีความน่าเชื่อถือน้อยกว่าหรือถูกจำกัดอัตรา"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "เลือกบริการพร็อกซีไคลเอนต์:",
+      "ariaLabel": "ตัวเลือกบริการพร็อกซีไคลเอนต์",
+      "helper": "ประสิทธิภาพและความน่าเชื่อถือแตกต่างกันระหว่างพร็อกซี"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "การแยกอัตโนมัติ",
+        "description": "แยกแท็กโดยอัตโนมัติหลังจากวาง/พิมพ์ URL ที่ถูกต้อง",
+        "tooltip": "เปิดหรือปิดการแยกแท็กอัตโนมัติเมื่อวาง/พิมพ์ URL ที่ถูกต้อง"
+      },
+      "previews": {
+        "label": "เปิดใช้งานตัวอย่าง",
+        "description": "แสดงตัวอย่างรูปภาพ/วิดีโอระหว่างการแยกและในประวัติ",
+        "tooltip": "เปิดหรือปิดตัวอย่างรูปภาพ/วิดีโอเพื่อประหยัดแบนด์วิดท์หรือหลีกเลี่ยงปัญหาที่อาจเกิดขึ้น",
+        "note": "รูปภาพจะถูกดึงผ่านพร็อกซีเซิร์ฟเวอร์เสมอ"
+      },
+      "saveHistory": {
+        "label": "บันทึกประวัติ",
+        "description": "จัดเก็บการแยกที่สำเร็จในเครื่องในเบราว์เซอร์ของคุณ",
+        "tooltip": "เปิดหรือปิดการบันทึกประวัติการแยกลงในที่เก็บข้อมูลในเครื่องของเบราว์เซอร์"
+      },
+      "unsupportedSites": {
+        "label": "เปิดใช้งานสำหรับไซต์ที่ไม่รองรับ",
+        "description": "พยายามแยกจากไซต์ที่ไม่รองรับโดยใช้รูปแบบไซต์ที่คล้ายกัน อาจไม่ทำงานกับทุกไซต์",
+        "tooltip": "เปิดใช้งานการแยกสำหรับเว็บไซต์ที่ไม่รองรับโดยใช้รูปแบบไซต์ที่คล้ายกัน"
+      },
+      "blacklist": {
+        "label": "เปิดใช้งานบัญชีดำคำหลัก",
+        "description": "ป้อนคำหลักที่จะบล็อก คั่นด้วยเครื่องหมายจุลภาค เซมิโคลอน หรือบรรทัดใหม่",
+        "tooltip": "บล็อกแท็กที่ไม่ต้องการโดยการกรองคำหลักเฉพาะ",
+        "placeholder": "ป้อนคำหลักที่จะบล็อก...",
+        "ariaLabel": "คำหลักบัญชีดำ",
+        "reset": "รีเซ็ตเป็นค่าเริ่มต้น"
+      }
+    },
+    "historySize": {
+      "label": "ขนาดประวัติสูงสุด",
+      "description": "ตั้งค่าจำนวนรายการสูงสุดสำหรับทั้งประวัติการแยกและรูปภาพ"
+    },
+    "accessibility": {
+      "themeOption": "ธีม {{label}}",
+      "colorThemeOption": "ธีมสี {{label}}",
+      "historySizeSelect": "ขนาดประวัติสูงสุด"
+    },
+    "historySizeOptions": {
+      "10": "10 รายการ",
+      "30": "30 รายการ",
+      "50": "50 รายการ",
+      "100": "100 รายการ",
+      "unlimited": "ไม่จำกัด"
+    },
+    "support": {
+      "title": "การสนับสนุนและความคิดเห็น",
+      "cta": "รายงานปัญหาบน GitHub",
+      "description": "พบบั๊กหรือมีข้อเสนอแนะ? แจ้งให้เราทราบ!"
+    },
+    "modal": {
+      "close": "ปิดการตั้งค่า"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "เครื่องมือแยกแท็ก Booru",
+      "subtitle": "แยกแท็กจากบอร์ดรูปภาพ booru",
+      "supported": "แพลตฟอร์มที่รองรับ:",
+      "urlLabel": "URL โพสต์ Booru",
+      "urlPlaceholder": "วาง URL โพสต์ booru ของคุณที่นี่...",
+      "manualButton": "แยกด้วยตนเอง",
+      "resetButton": "รีเซ็ต",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "เครื่องมือแยกแท็ก Booru",
+      "heroSubtitle": "แยก กรอง และคัดลอกแท็กจากไซต์ booru ได้ทันที",
+      "features": {
+        "smart": {
+          "title": "ฉลาด",
+          "subtitle": "แยกอัตโนมัติ"
+        },
+        "fast": {
+          "title": "รวดเร็ว",
+          "subtitle": "ผลลัพธ์ทันที"
+        },
+        "private": {
+          "title": "ส่วนตัว",
+          "subtitle": "ฝั่งไคลเอนต์"
+        },
+        "copy": {
+          "title": "คัดลอก",
+          "subtitle": "คลิกเดียว"
+        }
+      },
+      "cta": {
+        "paste": "วาง",
+        "extract": "แยก",
+        "filter": "กรอง",
+        "copy": "คัดลอก"
+      },
+      "supportNotice": "รองรับ Danbooru, Gelbooru, Safebooru, Rule34, e621 และอื่นๆ"
+    },
+    "preview": {
+      "title": "ตัวอย่าง"
+    },
+    "status": {
+      "resultLabel": "ผลลัพธ์สำหรับ:"
+    },
+    "categories": {
+      "title": "กรองหมวดหมู่",
+      "enableAll": "ทั้งหมด",
+      "disableAll": "ไม่มี",
+      "items": {
+        "copyright": "ลิขสิทธิ์",
+        "character": "ตัวละคร",
+        "general": "ทั่วไป",
+        "meta": "เมตา",
+        "other": "อื่นๆ"
+      },
+      "count_one": "{{count}} แท็ก",
+      "count_other": "{{count}} แท็ก"
+    },
+    "filteredTags": {
+      "label": "แท็กที่กรองแล้ว",
+      "ariaLabel": "แท็กที่กรองแล้ว",
+      "empty": "ไม่มีแท็กที่จะแสดง",
+      "copy": "คัดลอกแท็ก",
+      "copied": "คัดลอกแล้ว!"
+    },
+    "history": {
+      "extractionTitle": "ประวัติการแยก",
+      "imageTitle": "ประวัติรูปภาพ",
+      "searchExtraction": "ค้นหาชื่อเรื่อง, url, แท็ก...",
+      "searchImages": "ค้นหาชื่อไฟล์, พรอมต์, พารามิเตอร์...",
+      "emptySearch": "ไม่มีรายการที่ตรงกับการค้นหาของคุณ",
+      "clearTooltip": "ล้างประวัติทั้งหมด",
+      "clearAction": "ล้างประวัติ",
+      "confirmMessage": "ล้างจริงๆ หรือ?",
+      "confirmYes": "ใช่ ล้าง",
+      "confirmCancel": "ยกเลิก",
+      "searchAriaLabel": "ค้นหา {{context}}",
+      "searchFallback": "ประวัติ",
+      "clearSearchTooltip": "ล้างการค้นหา",
+      "clearSearchAria": "ล้างการค้นหา"
+    },
+    "mobile": {
+      "historyButton": "ประวัติ",
+      "urlLabel": "URL โพสต์ Booru",
+      "urlPlaceholder": "วาง URL หรือลากและวาง...",
+      "manualButton": "แยกด้วยตนเอง",
+      "resetButton": "รีเซ็ต"
+    }
+  },
+  "imageTool": {
+    "title": "ข้อมูลเมตาของรูปภาพ",
+    "dropCtaTitle": "ลากและวาง PNG ที่นี่",
+    "dropCtaSubtitle": "หรือคลิกเพื่ออัปโหลด",
+    "selectButton": "เลือก PNG",
+    "statusProcessing": "กำลังประมวลผล...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "พรอมต์เชิงบวก",
+    "negativePrompt": "พรอมต์เชิงลบ",
+    "parameters": "พารามิเตอร์",
+    "copy": "คัดลอก",
+    "copyAll": "คัดลอกทั้งหมด",
+    "copySuccess": "คัดลอกแล้ว!",
+    "noMetadata": "ไม่พบข้อมูลเมตาการสร้าง",
+    "loadMetadata": "โหลดข้อมูลเมตา",
+    "deleteEntry": "ลบรายการ",
+    "historyTitle": "ประวัติรูปภาพ",
+    "historySearch": "ค้นหาชื่อไฟล์, พรอมต์, พารามิเตอร์...",
+    "previewAlt": "ตัวอย่าง",
+    "footer": {
+      "metadataNotice": "การแยกข้อมูลเมตา PNG สำหรับส่วนข้อความ 'parameters'"
+    }
+  },
+  "historyItem": {
+    "load": "โหลดรายการประวัตินี้",
+    "delete": "ลบรายการประวัตินี้",
+    "previewAlt": "ตัวอย่าง"
+  },
+  "imagePreview": {
+    "loading": "กำลังโหลดตัวอย่าง...",
+    "error": "ไม่สามารถโหลดตัวอย่างได้",
+    "errorDetail": "ข้อผิดพลาดพร็อกซีเซิร์ฟเวอร์หรือรูปภาพไม่ถูกต้อง",
+    "videoUnsupported": "เบราว์เซอร์ของคุณไม่รองรับวิดีโอ",
+    "openFull": "เปิดตัวอย่างขนาดเต็ม",
+    "close": "ปิด",
+    "reset": "รีเซ็ต",
+    "openOriginal": "เปิดต้นฉบับ"
+  },
+  "booruList": {
+    "pageTitle": "กระดานอันดับ Booru ชั้นนำ",
+    "pageDescriptionShort": "สำรวจไซต์ booru ชั้นนำที่จัดอันดับตามรูปภาพทั้งหมดและกิจกรรม",
+    "pageDescriptionLong": "ค้นพบไซต์ booru ที่ได้รับความนิยมมากที่สุดจากทั่วเว็บ จัดอันดับตามรูปภาพทั้งหมด จำนวนสมาชิก และกิจกรรมด้วยข้อมูลจาก Booru.org",
+    "searchPlaceholder": "ค้นหาไซต์ booru...",
+    "filter": {
+      "all": "ทั้งหมด",
+      "sfw": "ปลอดภัย",
+      "nsfw": "ผู้ใหญ่"
+    },
+    "stats": {
+      "images": "รูปภาพ",
+      "members": "สมาชิก",
+      "owner": "เจ้าของ"
+    },
+    "sort": {
+      "label": "เรียงตาม:",
+      "rank": "อันดับ (ชั้นนำ)",
+      "images": "จำนวนรูปภาพ",
+      "members": "จำนวนสมาชิก",
+      "asc": "น้อยไปมาก",
+      "desc": "มากไปน้อย"
+    },
+    "itemsPerPage": "ต่อหน้า:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> จาก {{total}}",
+    "pagination": {
+      "previous": "ก่อนหน้า",
+      "next": "ถัดไป",
+      "previousShort": "ก่อน",
+      "nextShort": "ถัดไป"
+    },
+    "emptyState": "ไม่พบไซต์ booru",
+    "loading": "กำลังโหลดข้อมูล booru...",
+    "errorTitle": "ข้อผิดพลาดในการโหลดข้อมูล",
+    "errors": {
+      "fetchFailed": "ไม่สามารถดึงข้อมูล booru ได้",
+      "unknown": "เกิดข้อผิดพลาดขณะโหลดกระดานอันดับ"
+    },
+    "ownerLabel": "เจ้าของ:",
+    "visit": "เยี่ยมชม {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "กลับไปที่รายการ Booru",
+    "notFoundTitle": "ไม่พบ Booru",
+    "notFoundDescription": "ไม่พบโดเมน booru \"{{domain}}\" ในฐานข้อมูลของเรา",
+    "statistics": "สถิติ",
+    "totalImages": "รูปภาพทั้งหมด",
+    "totalMembers": "สมาชิกทั้งหมด",
+    "shortName": "ชื่อย่อ",
+    "owner": "เจ้าของ",
+    "hosted": "โฮสต์โดย booru.org",
+    "protocol": "โปรโตคอล",
+    "yes": "ใช่",
+    "no": "ไม่ใช่",
+    "visit": "เยี่ยมชม {{name}}",
+    "loading": "กำลังโหลด..."
+  }
+}

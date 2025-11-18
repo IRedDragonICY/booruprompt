@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Booru 標籤提取器",
+    "language": "語言",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "author": "IRedDragonICY",
+    "defaultDescription": "即時從 Booru 貼文中提取、過濾和複製標籤。",
+    "unknown": "未知",
+    "languageSwitcher": {
+      "title": "介面語言",
+      "description": "儲存在您的瀏覽器中。預設語言為英語。",
+      "instantNotice": "變更即時生效，無需重新載入。",
+      "searchPlaceholder": "搜尋語言...",
+      "noResults": "找不到語言"
+    },
+    "nav": {
+      "extractor": "標籤",
+      "image": "圖片",
+      "booruList": "Boorus",
+      "settings": "設定"
+    },
+    "navTooltip": {
+      "extractor": "標籤提取器",
+      "image": "圖片後設資料",
+      "booruList": "Booru 排行榜",
+      "settings": "設定"
+    },
+    "dropOverlay": {
+      "url": "拖放 URL",
+      "png": "拖放 PNG"
+    },
+    "actions": {
+      "add": "新增",
+      "apply": "套用",
+      "back": "返回",
+      "cancel": "取消",
+      "clear": "清除",
+      "close": "關閉",
+      "confirm": "確認",
+      "copy": "複製",
+      "copied": "已複製！",
+      "delete": "刪除",
+      "done": "完成",
+      "edit": "編輯",
+      "next": "下一個",
+      "previous": "上一個",
+      "refresh": "重新整理",
+      "reset": "重設",
+      "retry": "重試",
+      "save": "儲存",
+      "search": "搜尋",
+      "select": "選擇",
+      "submit": "提交",
+      "all": "全部",
+      "none": "無",
+      "visit": "造訪",
+      "previousShort": "上一個",
+      "nextShort": "下一個"
+    },
+    "status": {
+      "loading": "載入中...",
+      "processing": "處理中..."
+    },
+    "footer": {
+      "madeWith": "製作使用",
+      "by": "作者"
+    },
+    "statusBar": {
+      "serverProxy": "伺服器代理。",
+      "clientProxy": "客戶端代理（{{proxy}}）。",
+      "historyEnabled": "已啟用歷史記錄（{{size}}）。",
+      "historyDisabled": "已停用歷史記錄。",
+      "historyUnlimited": "無限制",
+      "historyEntries": "{{count}} 個項目"
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
+  },
+  "settings": {
+    "title": "設定",
+    "sections": {
+      "appearance": "外觀",
+      "colorTheme": "色彩主題",
+      "dataFetch": "資料擷取方式"
+    },
+    "themeOptions": {
+      "system": "系統",
+      "light": "淺色",
+      "dark": "深色"
+    },
+    "colorThemes": {
+      "blue": "藍色",
+      "orange": "橙色",
+      "teal": "青色",
+      "rose": "玫瑰色",
+      "purple": "紫色",
+      "green": "綠色",
+      "custom": "自訂顏色"
+    },
+    "customColor": {
+      "label": "自訂顏色",
+      "pickerLabel": "自訂顏色選擇器",
+      "inputLabel": "自訂顏色十六進位代碼",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "伺服器代理",
+        "description": "使用此應用程式的伺服器擷取資料。建議使用，更可靠。"
+      },
+      "clientProxy": {
+        "label": "客戶端代理",
+        "description": "在您的瀏覽器中使用公共 CORS 代理。可能較不可靠或受速率限制。"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "選擇客戶端代理服務：",
+      "ariaLabel": "客戶端代理服務選擇器",
+      "helper": "不同代理的效能和可靠性各有差異。"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "自動提取",
+        "description": "貼上/輸入有效 URL 後自動提取標籤。",
+        "tooltip": "啟用或停用在貼上/輸入有效 URL 時自動提取標籤"
+      },
+      "previews": {
+        "label": "啟用預覽",
+        "description": "在提取和歷史記錄中顯示圖片/影片預覽。",
+        "tooltip": "啟用或停用圖片/影片預覽以節省頻寬或避免潛在問題",
+        "note": "圖片始終透過伺服器代理擷取。"
+      },
+      "saveHistory": {
+        "label": "儲存歷史記錄",
+        "description": "在您的瀏覽器中本機儲存成功的提取。",
+        "tooltip": "啟用或停用將提取歷史記錄儲存到瀏覽器的本機儲存空間"
+      },
+      "unsupportedSites": {
+        "label": "啟用不支援的網站",
+        "description": "嘗試使用類似網站模式從不支援的網站提取。可能不適用於所有網站。",
+        "tooltip": "使用類似網站模式為不支援的網站啟用提取"
+      },
+      "blacklist": {
+        "label": "啟用關鍵字黑名單",
+        "description": "輸入要封鎖的關鍵字，以逗號、分號或換行符號分隔。",
+        "tooltip": "透過過濾特定關鍵字封鎖不想要的標籤",
+        "placeholder": "輸入要封鎖的關鍵字...",
+        "ariaLabel": "黑名單關鍵字",
+        "reset": "重設為預設值"
+      }
+    },
+    "historySize": {
+      "label": "最大歷史記錄大小",
+      "description": "為提取和圖片歷史記錄設定最大項目數。"
+    },
+    "accessibility": {
+      "themeOption": "主題 {{label}}",
+      "colorThemeOption": "色彩主題 {{label}}",
+      "historySizeSelect": "最大歷史記錄大小"
+    },
+    "historySizeOptions": {
+      "10": "10 個項目",
+      "30": "30 個項目",
+      "50": "50 個項目",
+      "100": "100 個項目",
+      "unlimited": "無限制"
+    },
+    "support": {
+      "title": "支援與回饋",
+      "cta": "在 GitHub 上回報問題",
+      "description": "發現錯誤或有建議嗎？請告訴我們！"
+    },
+    "modal": {
+      "close": "關閉設定"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru 標籤提取器",
+      "subtitle": "從 Booru 圖片板提取標籤",
+      "supported": "支援的平台：",
+      "urlLabel": "Booru 貼文 URL",
+      "urlPlaceholder": "在此貼上您的 Booru 貼文 URL...",
+      "manualButton": "手動提取",
+      "resetButton": "重設",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru 標籤提取器",
+      "heroSubtitle": "即時從 Booru 網站提取、過濾和複製標籤",
+      "features": {
+        "smart": {
+          "title": "智慧",
+          "subtitle": "自動提取"
+        },
+        "fast": {
+          "title": "快速",
+          "subtitle": "即時結果"
+        },
+        "private": {
+          "title": "隱私",
+          "subtitle": "客戶端"
+        },
+        "copy": {
+          "title": "複製",
+          "subtitle": "一鍵完成"
+        }
+      },
+      "cta": {
+        "paste": "貼上",
+        "extract": "提取",
+        "filter": "過濾",
+        "copy": "複製"
+      },
+      "supportNotice": "支援 Danbooru、Gelbooru、Safebooru、Rule34、e621 等"
+    },
+    "preview": {
+      "title": "預覽"
+    },
+    "status": {
+      "resultLabel": "結果："
+    },
+    "categories": {
+      "title": "過濾類別",
+      "enableAll": "全部",
+      "disableAll": "無",
+      "items": {
+        "copyright": "版權",
+        "character": "角色",
+        "general": "一般",
+        "meta": "中繼",
+        "other": "其他"
+      },
+      "count_one": "{{count}} 個標籤",
+      "count_other": "{{count}} 個標籤"
+    },
+    "filteredTags": {
+      "label": "已過濾的標籤",
+      "ariaLabel": "已過濾的標籤",
+      "empty": "沒有要顯示的標籤。",
+      "copy": "複製標籤",
+      "copied": "已複製！"
+    },
+    "history": {
+      "extractionTitle": "提取歷史記錄",
+      "imageTitle": "圖片歷史記錄",
+      "searchExtraction": "搜尋標題、URL、標籤...",
+      "searchImages": "搜尋檔名、提示、參數...",
+      "emptySearch": "沒有符合您搜尋的項目。",
+      "clearTooltip": "清除所有歷史記錄",
+      "clearAction": "清除歷史記錄",
+      "confirmMessage": "確定要清除嗎？",
+      "confirmYes": "是，清除",
+      "confirmCancel": "取消",
+      "searchAriaLabel": "搜尋 {{context}}",
+      "searchFallback": "歷史記錄",
+      "clearSearchTooltip": "清除搜尋",
+      "clearSearchAria": "清除搜尋"
+    },
+    "mobile": {
+      "historyButton": "歷史記錄",
+      "urlLabel": "Booru 貼文 URL",
+      "urlPlaceholder": "貼上 URL 或拖放...",
+      "manualButton": "手動提取",
+      "resetButton": "重設"
+    }
+  },
+  "imageTool": {
+    "title": "圖片後設資料",
+    "dropCtaTitle": "在此拖放 PNG",
+    "dropCtaSubtitle": "或點擊上傳",
+    "selectButton": "選擇 PNG",
+    "statusProcessing": "處理中...",
+    "previewMeta": "{{name}}（{{size}} KB）",
+    "positivePrompt": "正面提示",
+    "negativePrompt": "負面提示",
+    "parameters": "參數",
+    "copy": "複製",
+    "copyAll": "全部複製",
+    "copySuccess": "已複製！",
+    "noMetadata": "找不到生成後設資料。",
+    "loadMetadata": "載入後設資料",
+    "deleteEntry": "刪除項目",
+    "historyTitle": "圖片歷史記錄",
+    "historySearch": "搜尋檔名、提示、參數...",
+    "previewAlt": "預覽",
+    "footer": {
+      "metadataNotice": "PNG 後設資料提取「參數」文字區塊。"
+    }
+  },
+  "historyItem": {
+    "load": "載入此歷史記錄項目",
+    "delete": "刪除此歷史記錄項目",
+    "previewAlt": "預覽"
+  },
+  "imagePreview": {
+    "loading": "載入預覽中...",
+    "error": "無法載入預覽。",
+    "errorDetail": "伺服器代理錯誤或無效的圖片",
+    "videoUnsupported": "您的瀏覽器不支援影片。",
+    "openFull": "開啟完整大小預覽",
+    "close": "關閉",
+    "reset": "重設",
+    "openOriginal": "開啟原始檔"
+  },
+  "booruList": {
+    "pageTitle": "頂級 Booru 排行榜",
+    "pageDescriptionShort": "探索按總圖片和活動排名的頂級 Booru 網站。",
+    "pageDescriptionLong": "發現來自網路各地最受歡迎的 Booru 網站。按總圖片、成員數和活動排名，資料來自 Booru.org。",
+    "searchPlaceholder": "搜尋 Booru 網站...",
+    "filter": {
+      "all": "全部",
+      "sfw": "安全",
+      "nsfw": "限制級"
+    },
+    "stats": {
+      "images": "圖片",
+      "members": "成員",
+      "owner": "擁有者"
+    },
+    "sort": {
+      "label": "排序方式：",
+      "rank": "排名（最高）",
+      "images": "圖片數量",
+      "members": "成員數量",
+      "asc": "遞增",
+      "desc": "遞減"
+    },
+    "itemsPerPage": "每頁：",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
+    "pagination": {
+      "previous": "上一個",
+      "next": "下一個",
+      "previousShort": "上一個",
+      "nextShort": "下一個"
+    },
+    "emptyState": "找不到 Booru 網站",
+    "loading": "載入 Booru 資料中...",
+    "errorTitle": "載入資料時發生錯誤",
+    "errors": {
+      "fetchFailed": "無法擷取 Booru 資料。",
+      "unknown": "載入排行榜時發生問題。"
+    },
+    "ownerLabel": "擁有者：",
+    "visit": "造訪 {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "返回 Booru 列表",
+    "notFoundTitle": "找不到 Booru",
+    "notFoundDescription": "在我們的資料庫中找不到 Booru 網域「{{domain}}」。",
+    "statistics": "統計資料",
+    "totalImages": "總圖片數",
+    "totalMembers": "總成員數",
+    "shortName": "簡稱",
+    "owner": "擁有者",
+    "hosted": "由 booru.org 託管",
+    "protocol": "協定",
+    "yes": "是",
+    "no": "否",
+    "visit": "造訪 {{name}}",
+    "loading": "載入中..."
+  }
+}

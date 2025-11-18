@@ -28,6 +28,7 @@ import MobileAppShell from './layouts/MobileAppShell';
 import SettingsPanel from './components/SettingsPanel';
 import { HistoryItem as HistoryItemComponent } from './components/HistoryList';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18n';
 import type { Settings, ThemePreference, ColorTheme, FetchMode, ActiveView } from './types/settings';
 import type { ImageMetadata } from './utils/imageMetadata';
 import { MAX_IMAGE_SIZE_BYTES } from './utils/imageMetadata';
@@ -63,26 +64,6 @@ const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const DEFAULT_FETCH_MODE: FetchMode = 'server';
  const DEFAULT_MAX_HISTORY_SIZE = 30;
  const DEFAULT_BLACKLIST_ENABLED = true;
- const DEFAULT_BLACKLIST_KEYWORDS = [
-   'text',
-   'english text',
-   'japanese text',
-   'chinese text',
-   'korean text',
-   'copyright',
-   'copyright name',
-   'character name',
-   'signature',
-   'watermark',
-   'logo',
-   'subtitle',
-   'subtitles',
-   'caption',
-   'captions',
-   'speech bubble',
-   'words',
-   'letters'
- ].join(', ');
 const FETCH_TIMEOUT_MS = 25000;
 const THUMBNAIL_SIZE = 40;
 
@@ -224,7 +205,7 @@ const BooruTagExtractor = () => {
     const retryCountRef = useRef<number>(0);
     const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [showSettings, setShowSettings] = useState(false);
- const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS });
+ const [settings, setSettings] = useState<Settings>({ theme: 'system', autoExtract: true, colorTheme: DEFAULT_COLOR_THEME, customColorHex: DEFAULT_CUSTOM_COLOR_HEX, enableImagePreviews: true, fetchMode: DEFAULT_FETCH_MODE, clientProxyUrl: DEFAULT_CLIENT_PROXY_URL, saveHistory: false, maxHistorySize: DEFAULT_MAX_HISTORY_SIZE, enableUnsupportedSites: false, enableBlacklist: DEFAULT_BLACKLIST_ENABLED, blacklistKeywords: '' });
     const [history, setHistory] = useState<HistoryEntry[]>([]);
     const [imageHistory, setImageHistory] = useState<ImageHistoryEntry[]>([]);
     const cardBodyRef = useRef<HTMLDivElement>(null);
@@ -313,7 +294,7 @@ const BooruTagExtractor = () => {
             maxHistorySize: loadStoredItem<number>(MAX_HISTORY_SIZE_STORAGE_KEY, DEFAULT_MAX_HISTORY_SIZE, isValidMaxHistorySize),
              enableUnsupportedSites: loadStoredItem<boolean>(UNSUPPORTED_SITES_STORAGE_KEY, false),
              enableBlacklist: loadStoredItem<boolean>(BLACKLIST_ENABLED_STORAGE_KEY, DEFAULT_BLACKLIST_ENABLED),
-             blacklistKeywords: loadStoredItem<string>(BLACKLIST_KEYWORDS_STORAGE_KEY, DEFAULT_BLACKLIST_KEYWORDS),
+             blacklistKeywords: loadStoredItem<string>(BLACKLIST_KEYWORDS_STORAGE_KEY, i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords')),
         });
         setHistory(loadStoredItem<HistoryEntry[]>(HISTORY_STORAGE_KEY, [], isValidHistory).map(i => ({ ...i, tags: i.tags ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
         setImageHistory(loadStoredItem<ImageHistoryEntry[]>(IMAGE_HISTORY_STORAGE_KEY, [], isValidImageHistory).map(i => ({ ...i, imageData: i.imageData ?? {} })).sort((a, b) => b.timestamp - a.timestamp));
@@ -338,7 +319,7 @@ const BooruTagExtractor = () => {
              .map(k => k.trim().toLowerCase())
              .filter(Boolean);
 
-         const keywords = settings.enableBlacklist ? parseKeywords(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS) : [];
+         const keywords = settings.enableBlacklist ? parseKeywords(settings.blacklistKeywords || i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords')) : [];
 
          const isBlacklisted = (tag: string): boolean => {
              if (!keywords.length) return false;

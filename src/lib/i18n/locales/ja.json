@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Booru タグ抽出ツール",
+    "language": "言語",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Booru 投稿からタグを即座に抽出、フィルタリング、コピーします。",
+    "unknown": "不明",
+    "languageSwitcher": {
+      "title": "インターフェース言語",
+      "description": "ブラウザに保存されます。デフォルト言語は英語です。",
+      "instantNotice": "変更は再読み込みなしで即座に適用されます。",
+      "searchPlaceholder": "言語を検索...",
+      "noResults": "言語が見つかりません"
+    },
+    "nav": {
+      "extractor": "タグ",
+      "image": "画像",
+      "booruList": "Boorus",
+      "settings": "設定"
+    },
+    "navTooltip": {
+      "extractor": "タグ抽出ツール",
+      "image": "画像メタデータ",
+      "booruList": "Booru ランキング",
+      "settings": "設定"
+    },
+    "dropOverlay": {
+      "url": "URL をドロップ",
+      "png": "PNG をドロップ"
+    },
+    "actions": {
+      "add": "追加",
+      "apply": "適用",
+      "back": "戻る",
+      "cancel": "キャンセル",
+      "clear": "クリア",
+      "close": "閉じる",
+      "confirm": "確認",
+      "copy": "コピー",
+      "copied": "コピーしました！",
+      "delete": "削除",
+      "done": "完了",
+      "edit": "編集",
+      "next": "次へ",
+      "previous": "前へ",
+      "refresh": "更新",
+      "reset": "リセット",
+      "retry": "再試行",
+      "save": "保存",
+      "search": "検索",
+      "select": "選択",
+      "submit": "送信",
+      "all": "すべて",
+      "none": "なし",
+      "visit": "訪問",
+      "previousShort": "前へ",
+      "nextShort": "次へ"
+    },
+    "status": {
+      "loading": "読み込み中...",
+      "processing": "処理中..."
+    },
+    "footer": {
+      "madeWith": "制作",
+      "by": "作成者"
+    },
+    "statusBar": {
+      "serverProxy": "サーバープロキシ。",
+      "clientProxy": "クライアントプロキシ（{{proxy}}）。",
+      "historyEnabled": "履歴が有効（{{size}}）。",
+      "historyDisabled": "履歴が無効。",
+      "historyUnlimited": "無制限",
+      "historyEntries": "{{count}} 件"
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
+  },
+  "settings": {
+    "title": "設定",
+    "sections": {
+      "appearance": "外観",
+      "colorTheme": "カラーテーマ",
+      "dataFetch": "データ取得方法"
+    },
+    "themeOptions": {
+      "system": "システム",
+      "light": "ライト",
+      "dark": "ダーク"
+    },
+    "colorThemes": {
+      "blue": "ブルー",
+      "orange": "オレンジ",
+      "teal": "ティール",
+      "rose": "ローズ",
+      "purple": "パープル",
+      "green": "グリーン",
+      "custom": "カスタムカラー"
+    },
+    "customColor": {
+      "label": "カスタムカラー",
+      "pickerLabel": "カスタムカラーピッカー",
+      "inputLabel": "カスタムカラー16進数コード",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "サーバープロキシ",
+        "description": "このアプリケーションのサーバーを使用してデータを取得します。推奨、より信頼性が高い。"
+      },
+      "clientProxy": {
+        "label": "クライアント側プロキシ",
+        "description": "ブラウザで公開 CORS プロキシを使用します。信頼性が低い場合やレート制限がかかる場合があります。"
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "クライアントプロキシサービスを選択：",
+      "ariaLabel": "クライアントプロキシサービスセレクター",
+      "helper": "プロキシによってパフォーマンスと信頼性が異なります。"
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "自動抽出",
+        "description": "有効な URL を貼り付け/入力した後、自動的にタグを抽出します。",
+        "tooltip": "有効な URL を貼り付け/入力したときの自動タグ抽出を有効または無効にする"
+      },
+      "previews": {
+        "label": "プレビューを有効にする",
+        "description": "抽出中および履歴で画像/動画のプレビューを表示します。",
+        "tooltip": "帯域幅を節約したり、潜在的な問題を回避するために画像/動画プレビューを有効または無効にする",
+        "note": "画像は常にサーバープロキシ経由で取得されます。"
+      },
+      "saveHistory": {
+        "label": "履歴を保存",
+        "description": "成功した抽出をブラウザにローカル保存します。",
+        "tooltip": "抽出履歴をブラウザのローカルストレージに保存することを有効または無効にする"
+      },
+      "unsupportedSites": {
+        "label": "サポートされていないサイトを有効にする",
+        "description": "類似サイトパターンを使用して、サポートされていないサイトから抽出を試みます。すべてのサイトで機能するとは限りません。",
+        "tooltip": "類似サイトパターンを使用して、サポートされていないウェブサイトの抽出を有効にする"
+      },
+      "blacklist": {
+        "label": "キーワードブラックリストを有効にする",
+        "description": "ブロックするキーワードをカンマ、セミコロン、または改行で区切って入力します。",
+        "tooltip": "特定のキーワードをフィルタリングして不要なタグをブロックする",
+        "placeholder": "ブロックするキーワードを入力...",
+        "ariaLabel": "ブラックリストキーワード",
+        "reset": "デフォルトにリセット"
+      }
+    },
+    "historySize": {
+      "label": "最大履歴サイズ",
+      "description": "抽出および画像履歴の最大エントリ数を設定します。"
+    },
+    "accessibility": {
+      "themeOption": "テーマ {{label}}",
+      "colorThemeOption": "カラーテーマ {{label}}",
+      "historySizeSelect": "最大履歴サイズ"
+    },
+    "historySizeOptions": {
+      "10": "10 件",
+      "30": "30 件",
+      "50": "50 件",
+      "100": "100 件",
+      "unlimited": "無制限"
+    },
+    "support": {
+      "title": "サポートとフィードバック",
+      "cta": "GitHub で問題を報告",
+      "description": "バグを見つけたり、提案がありますか？お知らせください！"
+    },
+    "modal": {
+      "close": "設定を閉じる"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Booru タグ抽出ツール",
+      "subtitle": "Booru 画像掲示板からタグを抽出",
+      "supported": "サポートされているプラットフォーム：",
+      "urlLabel": "Booru 投稿 URL",
+      "urlPlaceholder": "Booru 投稿 URL をここに貼り付け...",
+      "manualButton": "手動で抽出",
+      "resetButton": "リセット",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Booru タグ抽出ツール",
+      "heroSubtitle": "Booru サイトからタグを即座に抽出、フィルタリング、コピー",
+      "features": {
+        "smart": {
+          "title": "スマート",
+          "subtitle": "自動抽出"
+        },
+        "fast": {
+          "title": "高速",
+          "subtitle": "即座に結果"
+        },
+        "private": {
+          "title": "プライベート",
+          "subtitle": "クライアント側"
+        },
+        "copy": {
+          "title": "コピー",
+          "subtitle": "ワンクリック"
+        }
+      },
+      "cta": {
+        "paste": "貼り付け",
+        "extract": "抽出",
+        "filter": "フィルター",
+        "copy": "コピー"
+      },
+      "supportNotice": "Danbooru、Gelbooru、Safebooru、Rule34、e621 などをサポート"
+    },
+    "preview": {
+      "title": "プレビュー"
+    },
+    "status": {
+      "resultLabel": "結果："
+    },
+    "categories": {
+      "title": "カテゴリフィルター",
+      "enableAll": "すべて",
+      "disableAll": "なし",
+      "items": {
+        "copyright": "著作権",
+        "character": "キャラクター",
+        "general": "一般",
+        "meta": "メタ",
+        "other": "その他"
+      },
+      "count_one": "{{count}} タグ",
+      "count_other": "{{count}} タグ"
+    },
+    "filteredTags": {
+      "label": "フィルタリングされたタグ",
+      "ariaLabel": "フィルタリングされたタグ",
+      "empty": "表示するタグがありません。",
+      "copy": "タグをコピー",
+      "copied": "コピーしました！"
+    },
+    "history": {
+      "extractionTitle": "抽出履歴",
+      "imageTitle": "画像履歴",
+      "searchExtraction": "タイトル、URL、タグを検索...",
+      "searchImages": "ファイル名、プロンプト、パラメータを検索...",
+      "emptySearch": "検索に一致するエントリがありません。",
+      "clearTooltip": "すべての履歴をクリア",
+      "clearAction": "履歴をクリア",
+      "confirmMessage": "本当にクリアしますか？",
+      "confirmYes": "はい、クリア",
+      "confirmCancel": "キャンセル",
+      "searchAriaLabel": "{{context}} を検索",
+      "searchFallback": "履歴",
+      "clearSearchTooltip": "検索をクリア",
+      "clearSearchAria": "検索をクリア"
+    },
+    "mobile": {
+      "historyButton": "履歴",
+      "urlLabel": "Booru 投稿 URL",
+      "urlPlaceholder": "URL を貼り付けまたはドラッグ＆ドロップ...",
+      "manualButton": "手動で抽出",
+      "resetButton": "リセット"
+    }
+  },
+  "imageTool": {
+    "title": "画像メタデータ",
+    "dropCtaTitle": "ここに PNG をドラッグ＆ドロップ",
+    "dropCtaSubtitle": "またはクリックしてアップロード",
+    "selectButton": "PNG を選択",
+    "statusProcessing": "処理中...",
+    "previewMeta": "{{name}}（{{size}} KB）",
+    "positivePrompt": "ポジティブプロンプト",
+    "negativePrompt": "ネガティブプロンプト",
+    "parameters": "パラメータ",
+    "copy": "コピー",
+    "copyAll": "すべてコピー",
+    "copySuccess": "コピーしました！",
+    "noMetadata": "生成メタデータが見つかりません。",
+    "loadMetadata": "メタデータを読み込む",
+    "deleteEntry": "エントリを削除",
+    "historyTitle": "画像履歴",
+    "historySearch": "ファイル名、プロンプト、パラメータを検索...",
+    "previewAlt": "プレビュー",
+    "footer": {
+      "metadataNotice": "「パラメータ」テキストチャンクの PNG メタデータ抽出。"
+    }
+  },
+  "historyItem": {
+    "load": "この履歴エントリを読み込む",
+    "delete": "この履歴エントリを削除",
+    "previewAlt": "プレビュー"
+  },
+  "imagePreview": {
+    "loading": "プレビューを読み込み中...",
+    "error": "プレビューを読み込めませんでした。",
+    "errorDetail": "サーバープロキシエラーまたは無効な画像",
+    "videoUnsupported": "お使いのブラウザは動画をサポートしていません。",
+    "openFull": "フルサイズのプレビューを開く",
+    "close": "閉じる",
+    "reset": "リセット",
+    "openOriginal": "オリジナルを開く"
+  },
+  "booruList": {
+    "pageTitle": "トップ Booru ランキング",
+    "pageDescriptionShort": "総画像数とアクティビティでランク付けされたトップ Booru サイトを探索。",
+    "pageDescriptionLong": "ウェブ全体で最も人気のある Booru サイトを発見。Booru.org からのデータで、総画像数、メンバー数、アクティビティでランク付け。",
+    "searchPlaceholder": "Booru サイトを検索...",
+    "filter": {
+      "all": "すべて",
+      "sfw": "安全",
+      "nsfw": "成人向け"
+    },
+    "stats": {
+      "images": "画像",
+      "members": "メンバー",
+      "owner": "所有者"
+    },
+    "sort": {
+      "label": "並べ替え：",
+      "rank": "ランク（トップ）",
+      "images": "画像数",
+      "members": "メンバー数",
+      "asc": "昇順",
+      "desc": "降順"
+    },
+    "itemsPerPage": "ページごと：",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
+    "pagination": {
+      "previous": "前へ",
+      "next": "次へ",
+      "previousShort": "前へ",
+      "nextShort": "次へ"
+    },
+    "emptyState": "Booru サイトが見つかりません",
+    "loading": "Booru データを読み込み中...",
+    "errorTitle": "データの読み込みエラー",
+    "errors": {
+      "fetchFailed": "Booru データの取得に失敗しました。",
+      "unknown": "ランキングの読み込み中に問題が発生しました。"
+    },
+    "ownerLabel": "所有者：",
+    "visit": "{{name}} を訪問"
+  },
+  "booruDetail": {
+    "backButton": "Booru リストに戻る",
+    "notFoundTitle": "Booru が見つかりません",
+    "notFoundDescription": "Booru ドメイン「{{domain}}」はデータベースに見つかりませんでした。",
+    "statistics": "統計",
+    "totalImages": "総画像数",
+    "totalMembers": "総メンバー数",
+    "shortName": "短縮名",
+    "owner": "所有者",
+    "hosted": "booru.org でホスト",
+    "protocol": "プロトコル",
+    "yes": "はい",
+    "no": "いいえ",
+    "visit": "{{name}} を訪問",
+    "loading": "読み込み中..."
+  }
+}

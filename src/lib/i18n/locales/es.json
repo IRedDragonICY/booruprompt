@@ -1,0 +1,380 @@
+{
+  "common": {
+    "appName": "Extractor de Etiquetas Booru",
+    "language": "Idioma",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extrae, filtra y copia etiquetas de publicaciones booru al instante.",
+    "unknown": "Desconocido",
+    "languageSwitcher": {
+      "title": "Idioma de la interfaz",
+      "description": "Guardado en tu navegador. El idioma predeterminado es inglés.",
+      "instantNotice": "Los cambios se aplican instantáneamente sin recargar.",
+      "searchPlaceholder": "Buscar idiomas...",
+      "noResults": "No se encontraron idiomas"
+    },
+    "nav": {
+      "extractor": "Etiquetas",
+      "image": "Imagen",
+      "booruList": "Boorus",
+      "settings": "Configuración"
+    },
+    "navTooltip": {
+      "extractor": "Extractor de Etiquetas",
+      "image": "Metadatos de Imagen",
+      "booruList": "Clasificación Booru",
+      "settings": "Configuración"
+    },
+    "dropOverlay": {
+      "url": "Soltar URL",
+      "png": "Soltar PNG"
+    },
+    "actions": {
+      "add": "Añadir",
+      "apply": "Aplicar",
+      "back": "Volver",
+      "cancel": "Cancelar",
+      "clear": "Limpiar",
+      "close": "Cerrar",
+      "confirm": "Confirmar",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "delete": "Eliminar",
+      "done": "Hecho",
+      "edit": "Editar",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "refresh": "Actualizar",
+      "reset": "Restablecer",
+      "retry": "Reintentar",
+      "save": "Guardar",
+      "search": "Buscar",
+      "select": "Seleccionar",
+      "submit": "Enviar",
+      "all": "Todos",
+      "none": "Ninguno",
+      "visit": "Visitar",
+      "previousShort": "Ant",
+      "nextShort": "Sig"
+    },
+    "status": {
+      "loading": "Cargando...",
+      "processing": "Procesando..."
+    },
+    "footer": {
+      "madeWith": "Hecho con",
+      "by": "por"
+    },
+    "statusBar": {
+      "serverProxy": "Proxy del servidor.",
+      "clientProxy": "Proxy del cliente ({{proxy}}).",
+      "historyEnabled": "Historial habilitado ({{size}}).",
+      "historyDisabled": "Historial deshabilitado.",
+      "historyUnlimited": "Ilimitado",
+      "historyEntries": "{{count}} entradas"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "sections": {
+      "appearance": "Apariencia",
+      "colorTheme": "Tema de Color",
+      "dataFetch": "Método de Obtención de Datos"
+    },
+    "themeOptions": {
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    },
+    "colorThemes": {
+      "blue": "Azul",
+      "orange": "Naranja",
+      "teal": "Verde Azulado",
+      "rose": "Rosa",
+      "purple": "Púrpura",
+      "green": "Verde",
+      "custom": "Color Personalizado"
+    },
+    "customColor": {
+      "label": "Color Personalizado",
+      "pickerLabel": "Selector de color personalizado",
+      "inputLabel": "Código hexadecimal de color personalizado",
+      "placeholder": "#rrggbb"
+    },
+    "fetchModes": {
+      "server": {
+        "label": "Proxy del Servidor",
+        "description": "Utiliza el servidor de esta aplicación para obtener datos. Recomendado, más confiable."
+      },
+      "clientProxy": {
+        "label": "Proxy del Cliente",
+        "description": "Utiliza un proxy CORS público en tu navegador. Puede ser menos confiable o limitado por velocidad."
+      }
+    },
+    "clientProxy": {
+      "selectLabel": "Seleccionar servicio de proxy del cliente:",
+      "ariaLabel": "Selector de servicio de proxy del cliente",
+      "helper": "El rendimiento y la confiabilidad varían entre proxies."
+    },
+    "toggles": {
+      "autoExtract": {
+        "label": "Extracción Automática",
+        "description": "Extraer etiquetas automáticamente después de pegar/escribir una URL válida.",
+        "tooltip": "Habilitar o deshabilitar la extracción automática de etiquetas al pegar/escribir una URL válida"
+      },
+      "previews": {
+        "label": "Habilitar Vistas Previas",
+        "description": "Mostrar vistas previas de imágenes/videos durante la extracción y en el historial.",
+        "tooltip": "Habilitar o deshabilitar vistas previas de imágenes/videos para ahorrar ancho de banda o evitar problemas potenciales",
+        "note": "Las imágenes siempre se obtienen a través del Proxy del Servidor."
+      },
+      "saveHistory": {
+        "label": "Guardar Historial",
+        "description": "Almacenar extracciones exitosas localmente en tu navegador.",
+        "tooltip": "Habilitar o deshabilitar el guardado del historial de extracción en el almacenamiento local del navegador"
+      },
+      "unsupportedSites": {
+        "label": "Habilitar para Sitios No Compatibles",
+        "description": "Intentar extraer de sitios no compatibles usando patrones de sitios similares. Puede no funcionar para todos los sitios.",
+        "tooltip": "Habilitar extracción para sitios web no compatibles usando patrones de sitios similares"
+      },
+      "blacklist": {
+        "label": "Habilitar Lista Negra de Palabras Clave",
+        "description": "Ingrese palabras clave para bloquear, separadas por comas, punto y coma o líneas nuevas.",
+        "tooltip": "Bloquear etiquetas no deseadas filtrando palabras clave específicas",
+        "placeholder": "Ingrese palabras clave para bloquear...",
+        "ariaLabel": "Palabras clave de la lista negra",
+        "reset": "Restablecer a Predeterminado"
+      }
+    },
+    "historySize": {
+      "label": "Tamaño Máximo del Historial",
+      "description": "Establezca el número máximo de entradas tanto para el historial de extracción como para el de imágenes."
+    },
+    "accessibility": {
+      "themeOption": "Tema {{label}}",
+      "colorThemeOption": "Tema de color {{label}}",
+      "historySizeSelect": "Tamaño máximo del historial"
+    },
+    "historySizeOptions": {
+      "10": "10 Entradas",
+      "30": "30 Entradas",
+      "50": "50 Entradas",
+      "100": "100 Entradas",
+      "unlimited": "Ilimitado"
+    },
+    "support": {
+      "title": "Soporte y Comentarios",
+      "cta": "Informar un Problema en GitHub",
+      "description": "¿Encontraste un error o tienes una sugerencia? ¡Háznoslo saber!"
+    },
+    "modal": {
+      "close": "Cerrar Configuración"
+    }
+  },
+  "extractor": {
+    "header": {
+      "title": "Extractor de Etiquetas Booru",
+      "subtitle": "Extraer etiquetas de tableros de imágenes booru",
+      "supported": "Plataformas compatibles:",
+      "urlLabel": "URL de Publicación Booru",
+      "urlPlaceholder": "Pega tu URL de publicación booru aquí...",
+      "manualButton": "Extraer Manualmente",
+      "resetButton": "Restablecer",
+      "activePlaceholder": "—"
+    },
+    "info": {
+      "heroTitle": "Extractor de Etiquetas Booru",
+      "heroSubtitle": "Extrae, filtra y copia etiquetas de sitios booru al instante",
+      "features": {
+        "smart": {
+          "title": "Inteligente",
+          "subtitle": "Autoextracción"
+        },
+        "fast": {
+          "title": "Rápido",
+          "subtitle": "Resultados instantáneos"
+        },
+        "private": {
+          "title": "Privado",
+          "subtitle": "Del lado del cliente"
+        },
+        "copy": {
+          "title": "Copiar",
+          "subtitle": "Un clic"
+        }
+      },
+      "cta": {
+        "paste": "Pegar",
+        "extract": "Extraer",
+        "filter": "Filtrar",
+        "copy": "Copiar"
+      },
+      "supportNotice": "Compatible con Danbooru, Gelbooru, Safebooru, Rule34, e621 y más"
+    },
+    "preview": {
+      "title": "Vista Previa"
+    },
+    "status": {
+      "resultLabel": "Resultado para:"
+    },
+    "categories": {
+      "title": "Filtrar Categorías",
+      "enableAll": "Todos",
+      "disableAll": "Ninguno",
+      "items": {
+        "copyright": "Derechos de Autor",
+        "character": "Personaje",
+        "general": "General",
+        "meta": "Meta",
+        "other": "Otro"
+      },
+      "count_one": "{{count}} etiqueta",
+      "count_other": "{{count}} etiquetas"
+    },
+    "filteredTags": {
+      "label": "Etiquetas Filtradas",
+      "ariaLabel": "Etiquetas filtradas",
+      "empty": "No hay etiquetas para mostrar.",
+      "copy": "Copiar Etiquetas",
+      "copied": "¡Copiado!"
+    },
+    "history": {
+      "extractionTitle": "Historial de Extracción",
+      "imageTitle": "Historial de Imágenes",
+      "searchExtraction": "Buscar título, url, etiquetas...",
+      "searchImages": "Buscar nombre de archivo, prompts, parámetros...",
+      "emptySearch": "No hay entradas que coincidan con tu búsqueda.",
+      "clearTooltip": "Limpiar Todo el Historial",
+      "clearAction": "Limpiar Historial",
+      "confirmMessage": "¿Realmente limpiar?",
+      "confirmYes": "Sí, Limpiar",
+      "confirmCancel": "Cancelar",
+      "searchAriaLabel": "Buscar {{context}}",
+      "searchFallback": "historial",
+      "clearSearchTooltip": "Limpiar Búsqueda",
+      "clearSearchAria": "Limpiar búsqueda"
+    },
+    "mobile": {
+      "historyButton": "Historial",
+      "urlLabel": "URL de Publicación Booru",
+      "urlPlaceholder": "Pegar URL o Arrastrar y Soltar...",
+      "manualButton": "Extraer Manualmente",
+      "resetButton": "Restablecer"
+    }
+  },
+  "imageTool": {
+    "title": "Metadatos de Imagen",
+    "dropCtaTitle": "Arrastra y Suelta PNG Aquí",
+    "dropCtaSubtitle": "o haz clic para subir",
+    "selectButton": "Seleccionar PNG",
+    "statusProcessing": "Procesando...",
+    "previewMeta": "{{name}} ({{size}} KB)",
+    "positivePrompt": "Prompt Positivo",
+    "negativePrompt": "Prompt Negativo",
+    "parameters": "Parámetros",
+    "copy": "Copiar",
+    "copyAll": "Copiar Todo",
+    "copySuccess": "¡Copiado!",
+    "noMetadata": "No se encontraron metadatos de generación.",
+    "loadMetadata": "Cargar Metadatos",
+    "deleteEntry": "Eliminar Entrada",
+    "historyTitle": "Historial de Imágenes",
+    "historySearch": "Buscar nombre de archivo, prompts, parámetros...",
+    "previewAlt": "Vista Previa",
+    "footer": {
+      "metadataNotice": "Extracción de metadatos PNG para el fragmento de texto 'parameters'."
+    }
+  },
+  "historyItem": {
+    "load": "Cargar esta entrada del historial",
+    "delete": "Eliminar esta entrada del historial",
+    "previewAlt": "Vista Previa"
+  },
+  "imagePreview": {
+    "loading": "Cargando vista previa...",
+    "error": "No se pudo cargar la vista previa.",
+    "errorDetail": "Error del proxy del servidor o imagen no válida",
+    "videoUnsupported": "Tu navegador no admite video.",
+    "openFull": "Abrir vista previa de tamaño completo",
+    "close": "Cerrar",
+    "reset": "Restablecer",
+    "openOriginal": "Abrir original"
+  },
+  "booruList": {
+    "pageTitle": "Clasificación de los Mejores Booru",
+    "pageDescriptionShort": "Explora los mejores sitios booru clasificados por imágenes totales y actividad.",
+    "pageDescriptionLong": "Descubre los sitios booru más populares de toda la web. Clasificados por imágenes totales, número de miembros y actividad con datos de Booru.org.",
+    "searchPlaceholder": "Buscar sitios booru...",
+    "filter": {
+      "all": "Todos",
+      "sfw": "Seguro",
+      "nsfw": "Adultos"
+    },
+    "stats": {
+      "images": "Imágenes",
+      "members": "Miembros",
+      "owner": "Propietario"
+    },
+    "sort": {
+      "label": "Ordenar por:",
+      "rank": "Clasificación (Top)",
+      "images": "Número de Imágenes",
+      "members": "Número de Miembros",
+      "asc": "Ascendente",
+      "desc": "Descendente"
+    },
+    "itemsPerPage": "Por página:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> de {{total}}",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "previousShort": "Ant",
+      "nextShort": "Sig"
+    },
+    "emptyState": "No se encontraron sitios booru",
+    "loading": "Cargando datos booru...",
+    "errorTitle": "Error al Cargar Datos",
+    "errors": {
+      "fetchFailed": "No se pudieron obtener los datos booru.",
+      "unknown": "Algo salió mal al cargar la clasificación."
+    },
+    "ownerLabel": "Propietario:",
+    "visit": "Visitar {{name}}"
+  },
+  "booruDetail": {
+    "backButton": "Volver a la Lista de Booru",
+    "notFoundTitle": "Booru No Encontrado",
+    "notFoundDescription": "El dominio booru \"{{domain}}\" no se encontró en nuestra base de datos.",
+    "statistics": "Estadísticas",
+    "totalImages": "Total de Imágenes",
+    "totalMembers": "Total de Miembros",
+    "shortName": "Nombre Corto",
+    "owner": "Propietario",
+    "hosted": "Alojado por booru.org",
+    "protocol": "Protocolo",
+    "yes": "Sí",
+    "no": "No",
+    "visit": "Visitar {{name}}",
+    "loading": "Cargando..."
+  }
+}

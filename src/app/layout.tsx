@@ -4,6 +4,9 @@ import "./globals.css";
 import React from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { LanguageProvider } from "./providers/LanguageProvider";
+import { StructuredData } from "@/components/StructuredData";
+import { LanguageHtmlWrapper } from "@/components/LanguageHtmlWrapper";
+import { generateMetadata as generateSeoMetadata } from "@/lib/seo/metadata";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -15,93 +18,22 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
-const siteConfig = {
-    name: "Booru Tag Extractor",
-    description:
-        "Easily extract and manage tags from popular booru image board posts (Danbooru, Gelbooru, Safebooru, Rule34, e621). Copy tags, filter by category, and view image previews.",
-    url: "https://booruprompt.vercel.app",
-    ogImage: "https://booruprompt.vercel.app/og-image.png",
-    author: "IRedDragonICY",
-    keywords: [
-        "booru",
-        "tags",
-        "extractor",
-        "danbooru",
-        "gelbooru",
-        "safebooru",
-        "rule34",
-        "e621",
-        "image tags",
-        "tag management",
-        "copy tags",
-        "tag filter",
-        "anime art",
-        "illustration",
-        "metadata",
-    ],
-};
-
 export const metadata: Metadata = {
-    metadataBase: new URL(siteConfig.url),
-
+    ...generateSeoMetadata('en', { path: '/' }),
     title: {
-        default: siteConfig.name,
-        template: `%s | ${siteConfig.name}`,
+        default: "Booru Tag Extractor",
+        template: `%s | Booru Tag Extractor`,
     },
-    description: siteConfig.description,
-    keywords: siteConfig.keywords,
-    authors: [{ name: siteConfig.author, url: "https://x.com/ireddragonicy" }],
-    creator: siteConfig.author,
-
-    openGraph: {
-        type: "website",
-        locale: "en_US",
-        url: siteConfig.url,
-        title: siteConfig.name,
-        description: siteConfig.description,
-        siteName: siteConfig.name,
-        images: [
-            {
-                url: siteConfig.ogImage,
-                width: 1200,
-                height: 630,
-                alt: `${siteConfig.name} - OG Image`,
-            },
+    icons: {
+        icon: [
+            { url: "/icon.svg", type: "image/svg+xml" },
         ],
+        shortcut: "/icon.svg",
+        apple: "/icon.svg",
     },
-
-    twitter: {
-        card: "summary_large_image",
-        title: siteConfig.name,
-        description: siteConfig.description,
-        images: [siteConfig.ogImage],
-        creator: `@${siteConfig.author}`,
-    },
-
- icons: {
-    icon: [
-        { url: "/icon.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
-},
     manifest: '/manifest.webmanifest',
-
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-            index: true,
-            follow: true,
-            "max-video-preview": -1,
-            "max-image-preview": "large",
-            "max-snippet": -1,
-        },
-    },
-
-    applicationName: siteConfig.name,
+    applicationName: "Booru Tag Extractor",
     referrer: "origin-when-cross-origin",
-    alternates: { canonical: '/' },
     other: {
         'google-site-verification': 'SeU7j1p_RghwijQK39HcGyU9L5su7-xhodHrPXhE2Xs'
     }
@@ -121,10 +53,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
+        <head>
+            <StructuredData locale="en" type="webApplication" />
+        </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface text-on-surface`}
         >
         <LanguageProvider>
+            <LanguageHtmlWrapper />
             {children}
             <Analytics />
         </LanguageProvider>
