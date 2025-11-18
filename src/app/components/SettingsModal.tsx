@@ -41,36 +41,66 @@ const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
 ];
 
+// Animation variants as constants for better performance
+const BACKDROP_VARIANTS = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
+const MODAL_VARIANTS = {
+    initial: { scale: 0.98, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0.98, opacity: 0 }
+};
+const MODAL_TRANSITION = { type: "spring", damping: 18, stiffness: 200 };
+const CHECKMARK_VARIANTS = {
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0, opacity: 0 }
+};
+const EXPAND_VARIANTS = {
+    initial: { opacity: 0, height: 0 },
+    animate: { opacity: 1, height: 'auto' },
+    exit: { opacity: 0, height: 0 }
+};
 
-// Debounce hook for performance
+// Optimized debounce hook using useRef for better performance
 function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    const timerRef = React.useRef<NodeJS.Timeout>();
+
     useEffect(() => {
-        const handler = setTimeout(() => setDebouncedValue(value), delay);
-        return () => clearTimeout(handler);
+        timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
     }, [value, delay]);
+
     return debouncedValue;
 }
 
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
+    // Destructure settings to reduce re-render sensitivity
+    const {
+        theme, autoExtract, colorTheme, customColorHex, enableImagePreviews,
+        fetchMode, clientProxyUrl, saveHistory, maxHistorySize,
+        enableUnsupportedSites, enableBlacklist, blacklistKeywords
+    } = settings;
+
     const { t, i18n } = useTranslation();
     const defaultBlacklistKeywords = useMemo(() => i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords'), [i18n]);
-    const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || defaultBlacklistKeywords);
+    const [currentCustomHex, setCurrentCustomHex] = useState(customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
+    const [localBlacklist, setLocalBlacklist] = useState<string>(blacklistKeywords || defaultBlacklistKeywords);
 
     useEffect(() => {
-        setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-    }, [settings.customColorHex]);
+        setCurrentCustomHex(customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
+    }, [customColorHex]);
 
     // Debounce custom color to prevent excessive updates
     const debouncedCustomHex = useDebounce(currentCustomHex, 300);
 
     useEffect(() => {
-        if (/^#[0-9a-fA-F]{6}$/.test(debouncedCustomHex) && settings.colorTheme === 'custom') {
+        if (/^#[0-9a-fA-F]{6}$/.test(debouncedCustomHex) && colorTheme === 'custom') {
             onSettingsChange({ customColorHex: debouncedCustomHex });
         }
-    }, [debouncedCustomHex, onSettingsChange, settings.colorTheme]);
+    }, [debouncedCustomHex, onSettingsChange, colorTheme]);
 
     // Lock background scroll when modal is open
     useEffect(() => {
@@ -104,19 +134,19 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
     const handleCustomColorInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         setCurrentCustomHex(newHex);
-        if (settings.colorTheme !== 'custom') {
+        if (colorTheme !== 'custom') {
             onSettingsChange({ colorTheme: 'custom' });
         }
-    }, [onSettingsChange, settings.colorTheme]);
+    }, [onSettingsChange, colorTheme]);
 
     const handleCustomColorTextChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newHex = event.target.value;
         const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
         setCurrentCustomHex(cleanHex);
-        if (settings.colorTheme !== 'custom') {
+        if (colorTheme !== 'custom') {
             onSettingsChange({ colorTheme: 'custom' });
         }
-    }, [onSettingsChange, settings.colorTheme]);
+    }, [onSettingsChange, colorTheme]);
 
     const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
     const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
@@ -166,8 +196,8 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-                    <motion.div className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden" initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.98, opacity: 0 }} transition={{ type: "spring", damping: 18, stiffness: 200 }} onClick={(e) => e.stopPropagation()}>
+                <motion.div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" {...BACKDROP_VARIANTS} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+                    <motion.div className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden" {...MODAL_VARIANTS} transition={MODAL_TRANSITION} onClick={(e) => e.stopPropagation()}>
                       <div className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <div className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
                             <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">{t('settings.title')}</h2>
@@ -189,9 +219,9 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                 </label>
                                 <div className="flex items-center space-x-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
                                     {themeOptions.map(({ value, label, icon, animation }) => (
-                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${settings.theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                            <input type="radio" name="theme" value={value} checked={settings.theme === value} onChange={handleThemeChange} className="sr-only" aria-label={t('settings.accessibility.themeOption', { label })} />
-                                            <AnimatedIcon isActive={settings.theme === value} animation={animation}>
+                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <input type="radio" name="theme" value={value} checked={theme === value} onChange={handleThemeChange} className="sr-only" aria-label={t('settings.accessibility.themeOption', { label })} />
+                                            <AnimatedIcon isActive={theme === value} animation={animation}>
                                                 {icon}
                                             </AnimatedIcon>
                                             <span>{label}</span>
@@ -207,12 +237,12 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                 <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {colorThemeOptions.map(({ value, label, colorClass }) => (
                                         <TooltipWrapper key={value} tipContent={label}>
-                                            <label className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                                <input type="radio" name="colorTheme" value={value} checked={settings.colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.accessibility.colorThemeOption', { label })} />
+                                            <label className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-[1.02] ${colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                                <input type="radio" name="colorTheme" value={value} checked={colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.accessibility.colorThemeOption', { label })} />
                                                 <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
                                                 <AnimatePresence>
-                                                    {settings.colorTheme === value && (
-                                                        <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }} >
+                                                    {colorTheme === value && (
+                                                        <motion.div className="absolute inset-0 flex items-center justify-center" {...CHECKMARK_VARIANTS} transition={{ duration: 0.15 }} >
                                                             <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                         </motion.div>
                                                     )}
@@ -222,12 +252,12 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </TooltipWrapper>
                                     ))}
                                     <TooltipWrapper tipContent={t('settings.customColor.label')}>
-                                        <label className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-[1.02] ${settings.colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                            <input type="radio" name="colorTheme" value="custom" checked={settings.colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.customColor.label')} />
+                                        <label className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-[1.02] ${colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                            <input type="radio" name="colorTheme" value="custom" checked={colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.customColor.label')} />
                                             <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: isValidHex ? currentCustomHex : '#ffffff' }}></span>
                                             <AnimatePresence>
-                                                {settings.colorTheme === 'custom' && (
-                                                    <motion.div className="absolute inset-0 flex items-center justify-center" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ duration: 0.15 }} >
+                                                {colorTheme === 'custom' && (
+                                                    <motion.div className="absolute inset-0 flex items-center justify-center" {...CHECKMARK_VARIANTS} transition={{ duration: 0.15 }} >
                                                         <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                                     </motion.div>
                                                 )}
@@ -236,11 +266,9 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </label>
                                     </TooltipWrapper>
                                 </div>
-                                {settings.colorTheme === 'custom' && (
+                                {colorTheme === 'custom' && (
                                     <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
+                                        {...EXPAND_VARIANTS}
                                         className="mt-3 flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3"
                                     >
                                         <input
@@ -274,18 +302,18 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                 <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
                                     {fetchModeOptions.map(({ value, label, icon, description }) => (
                                         <div key={value}>
-                                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${settings.fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                                <input type="radio" name="fetchMode" value={value} checked={settings.fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
-                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${settings.fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                                <input type="radio" name="fetchMode" value={value} checked={fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
+                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
                                                     {icon}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <span className={`block text-sm font-medium ${settings.fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                                    <span className={`block text-sm font-medium ${fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
                                                     <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
                                                 </div>
                                                 <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
                                                     <AnimatePresence>
-                                                        {settings.fetchMode === value && (
+                                                        {fetchMode === value && (
                                                             <motion.div
                                                                 initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
                                                                 className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
@@ -294,7 +322,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                                     </AnimatePresence>
                                                 </div>
                                             </label>
-                                            {value === 'clientProxy' && settings.fetchMode === 'clientProxy' && (
+                                            {value === 'clientProxy' && fetchMode === 'clientProxy' && (
                                                 <motion.div
                                                     initial={{ opacity: 0, height: 0, marginTop: 0 }}
                                                     animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
@@ -305,7 +333,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                                     <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.clientProxy.selectLabel')}</label>
                                                     <select
                                                         id="clientProxySelect"
-                                                        value={settings.clientProxyUrl}
+                                                        value={clientProxyUrl}
                                                         onChange={handleClientProxyChange}
                                                         className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                                         aria-label={t('settings.clientProxy.ariaLabel')}
@@ -333,14 +361,14 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="autoExtractToggle" className="peer sr-only" checked={settings.autoExtract} onChange={handleAutoExtractChange} />
+                                        <input type="checkbox" id="autoExtractToggle" className="peer sr-only" checked={autoExtract} onChange={handleAutoExtractChange} />
                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
-                                            animate={{ x: settings.autoExtract ? 20 : 0 }}
+                                            animate={{ x: autoExtract ? 20 : 0 }}
                                         ></motion.div>
                                     </div>
                                 </label>
@@ -355,14 +383,14 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="imagePreviewsToggle" className="peer sr-only" checked={settings.enableImagePreviews} onChange={handleImagePreviewsChange} />
+                                        <input type="checkbox" id="imagePreviewsToggle" className="peer sr-only" checked={enableImagePreviews} onChange={handleImagePreviewsChange} />
                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
-                                            animate={{ x: settings.enableImagePreviews ? 20 : 0 }}
+                                            animate={{ x: enableImagePreviews ? 20 : 0 }}
                                         ></motion.div>
                                     </div>
                                 </label>
@@ -377,14 +405,14 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="saveHistoryToggle" className="peer sr-only" checked={settings.saveHistory} onChange={handleSaveHistoryChange} />
+                                        <input type="checkbox" id="saveHistoryToggle" className="peer sr-only" checked={saveHistory} onChange={handleSaveHistoryChange} />
                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
-                                            animate={{ x: settings.saveHistory ? 20 : 0 }}
+                                            animate={{ x: saveHistory ? 20 : 0 }}
                                         ></motion.div>
                                     </div>
                                 </label>
@@ -400,14 +428,14 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         </span>
                                     </TooltipWrapper>
                                     <div className="relative">
-                                        <input type="checkbox" id="unsupportedSitesToggle" className="peer sr-only" checked={settings.enableUnsupportedSites} onChange={handleUnsupportedSitesChange} />
+                                        <input type="checkbox" id="unsupportedSitesToggle" className="peer sr-only" checked={enableUnsupportedSites} onChange={handleUnsupportedSitesChange} />
                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                         <motion.div
                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                             layout
                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                             initial={false}
-                                            animate={{ x: settings.enableUnsupportedSites ? 20 : 0 }}
+                                            animate={{ x: enableUnsupportedSites ? 20 : 0 }}
                                         ></motion.div>
                                     </div>
                                 </label>
@@ -423,22 +451,22 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                          </span>
                                      </TooltipWrapper>
                                      <div className="relative">
-                                         <input type="checkbox" id="blacklistToggle" className="peer sr-only" checked={settings.enableBlacklist} onChange={handleBlacklistToggle} />
+                                         <input type="checkbox" id="blacklistToggle" className="peer sr-only" checked={enableBlacklist} onChange={handleBlacklistToggle} />
                                          <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
                                          <motion.div
                                              className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
                                              layout
                                              transition={{ type: "spring", stiffness: 700, damping: 30 }}
                                              initial={false}
-                                             animate={{ x: settings.enableBlacklist ? 20 : 0 }}
+                                             animate={{ x: enableBlacklist ? 20 : 0 }}
                                          ></motion.div>
                                      </div>
                                  </label>
                                  <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.blacklist.description')}</p>
                                   <motion.div
                                       initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: settings.enableBlacklist ? 1 : 0, height: settings.enableBlacklist ? 'auto' : 0 }}
-                                      className={`mt-2 space-y-2 overflow-hidden ${settings.enableBlacklist ? '' : 'pointer-events-none'}`}
+                                      animate={{ opacity: enableBlacklist ? 1 : 0, height: enableBlacklist ? 'auto' : 0 }}
+                                      className={`mt-2 space-y-2 overflow-hidden ${enableBlacklist ? '' : 'pointer-events-none'}`}
                                   >
                                      <textarea
                                          value={localBlacklist}
@@ -455,11 +483,9 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                              </div>
 
                             <AnimatePresence>
-                                {settings.saveHistory && (
+                                {saveHistory && (
                                     <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
+                                        {...EXPAND_VARIANTS}
                                         transition={{ duration: 0.2 }}
                                     >
                                         <label htmlFor="maxHistorySizeSelect" className="mb-1.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
@@ -469,7 +495,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                         <div className="relative">
                                             <select
                                                 id="maxHistorySizeSelect"
-                                                value={settings.maxHistorySize}
+                                                value={maxHistorySize}
                                                 onChange={handleMaxHistoryChange}
                                                 className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                                 aria-label={t('settings.accessibility.historySizeSelect')}
