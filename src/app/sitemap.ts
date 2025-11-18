@@ -1,7 +1,7 @@
 import type {MetadataRoute} from 'next';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { availableLanguages } from '@/lib/i18n';
+import { SUPPORTED_LOCALES } from '@/lib/i18n/constants';
 import { SITE_URL } from '@/lib/seo/metadata';
 
 // Ensure static generation for Next.js `output: export`
@@ -19,7 +19,7 @@ interface BooruData {
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
   const now = new Date().toISOString();
-  const locales = availableLanguages.map((lang) => lang.code);
+  const locales = SUPPORTED_LOCALES;
 
   // Define all routes
   const routes = [
