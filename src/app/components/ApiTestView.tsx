@@ -36,10 +36,24 @@ export default function ApiTestView() {
     const [copiedSection, setCopiedSection] = useState<string | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState<Language>('curl');
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
 
     const baseUrl = typeof window !== 'undefined'
         ? window.location.origin
         : 'https://booruprompt.vercel.app';
+
+    // Auto-focus search input when dropdown opens
+    React.useEffect(() => {
+        if (showLanguageDropdown && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [showLanguageDropdown]);
+
+    // Filter languages based on search query
+    const filteredLanguages = LANGUAGES.filter(lang =>
+        lang.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleTest = async () => {
         if (!testUrl.trim()) {
@@ -546,7 +560,10 @@ print_r($response);
                     {/* Language selector */}
                     <div className="relative">
                         <button
-                            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+                            onClick={() => {
+                                setShowLanguageDropdown(!showLanguageDropdown);
+                                setSearchQuery(''); // Reset search when opening dropdown
+                            }}
                             className="flex items-center gap-2 text-sm text-[rgb(var(--color-on-surface-rgb))] hover:text-[rgb(var(--color-primary-rgb))] transition-colors"
                         >
                             <span className="font-medium">{LANGUAGES.find(l => l.id === selectedLanguage)?.label}</span>
@@ -558,25 +575,51 @@ print_r($response);
                             <>
                                 <div
                                     className="fixed inset-0 z-10"
-                                    onClick={() => setShowLanguageDropdown(false)}
+                                    onClick={() => {
+                                        setShowLanguageDropdown(false);
+                                        setSearchQuery(''); // Reset search when closing
+                                    }}
                                 />
-                                <div className="absolute top-full left-0 mt-1 z-20 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg shadow-lg py-1 min-w-[120px]">
-                                    {LANGUAGES.map((lang) => (
-                                        <button
-                                            key={lang.id}
-                                            onClick={() => {
-                                                setSelectedLanguage(lang.id);
-                                                setShowLanguageDropdown(false);
-                                            }}
-                                            className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                                                selectedLanguage === lang.id
-                                                    ? 'bg-[rgb(var(--color-primary-rgb))] text-white'
-                                                    : 'text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
-                                            }`}
-                                        >
-                                            {lang.label}
-                                        </button>
-                                    ))}
+                                <div className="absolute top-full left-0 mt-1 z-20 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg shadow-lg overflow-hidden min-w-[220px]">
+                                    {/* Search input */}
+                                    <div className="p-2 border-b border-[rgb(var(--color-surface-border-rgb))]">
+                                        <input
+                                            ref={searchInputRef}
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search languages..."
+                                            className="w-full px-3 py-1.5 text-sm bg-[rgb(var(--color-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                            onClick={(e) => e.stopPropagation()} // Prevent closing dropdown when clicking input
+                                        />
+                                    </div>
+
+                                    {/* Language list */}
+                                    <div className="max-h-64 overflow-y-auto py-1">
+                                        {filteredLanguages.length > 0 ? (
+                                            filteredLanguages.map((lang) => (
+                                                <button
+                                                    key={lang.id}
+                                                    onClick={() => {
+                                                        setSelectedLanguage(lang.id);
+                                                        setShowLanguageDropdown(false);
+                                                        setSearchQuery('');
+                                                    }}
+                                                    className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                                                        selectedLanguage === lang.id
+                                                            ? 'bg-[rgb(var(--color-primary-rgb))] text-white'
+                                                            : 'text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
+                                                    }`}
+                                                >
+                                                    {lang.label}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="px-4 py-3 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] text-center">
+                                                No languages found
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </>
                         )}
