@@ -1,22 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
-import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIcon, CloudArrowDownIcon, PaletteIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, HistorySizeIcon } from './icons/icons';
+import React, { useCallback, useEffect, useMemo, memo } from 'react';
+import { XMarkIcon, BugAntIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
-import { AnimatedIcon } from './AnimatedIcon';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { ThemeSection } from './settings/ThemeSection';
+import { ColorThemeSection } from './settings/ColorThemeSection';
+import { FetchModeSection } from './settings/FetchModeSection';
+import { ToggleSetting } from './settings/ToggleSetting';
+import { BlacklistSection } from './settings/BlacklistSection';
+import { HistorySizeSection } from './settings/HistorySizeSection';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
- type FetchMode = 'server' | 'clientProxy';
+type FetchMode = 'server' | 'clientProxy';
 
-interface ClientProxyOption {
-    id: string;
-    label: string;
-    value: string;
-}
-
- interface Settings {
+interface Settings {
     theme: ThemePreference;
     autoExtract: boolean;
     colorTheme: ColorTheme;
@@ -26,81 +25,32 @@ interface ClientProxyOption {
     clientProxyUrl: string;
     saveHistory: boolean;
     maxHistorySize: number;
-     enableUnsupportedSites: boolean;
-     enableBlacklist: boolean;
-     blacklistKeywords: string;
+    enableUnsupportedSites: boolean;
+    enableBlacklist: boolean;
+    blacklistKeywords: string;
 }
 
-const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
-const DEFAULT_MAX_HISTORY_SIZE = 30;
 
-const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
-    { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
-    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
-    { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
-];
-
-// Animation variants as constants for better performance
+// Animation variants
 const BACKDROP_VARIANTS = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } };
-const MODAL_VARIANTS = {
-    initial: { scale: 0.98, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
-    exit: { scale: 0.98, opacity: 0 }
-};
-const MODAL_TRANSITION = { type: "spring", damping: 18, stiffness: 200 };
-const CHECKMARK_VARIANTS = {
-    initial: { scale: 0, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
-    exit: { scale: 0, opacity: 0 }
-};
-const EXPAND_VARIANTS = {
-    initial: { opacity: 0, height: 0 },
-    animate: { opacity: 1, height: 'auto' },
-    exit: { opacity: 0, height: 0 }
-};
+const MODAL_VARIANTS = { initial: { scale: 0.98, opacity: 0 }, animate: { scale: 1, opacity: 1 }, exit: { scale: 0.98, opacity: 0 } };
+const MODAL_TRANSITION = { type: "spring", damping: 18, stiffness: 200 } as const;
 
-// Optimized debounce hook using useRef for better performance
-function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
-    const timerRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
-
-    useEffect(() => {
-        timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, [value, delay]);
-
-    return debouncedValue;
+interface SettingsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    settings: Settings;
+    onSettingsChange: (newSettings: Partial<Settings>) => void;
 }
 
-interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
-    // Destructure settings to reduce re-render sensitivity
-    const {
-        theme, autoExtract, colorTheme, customColorHex, enableImagePreviews,
-        fetchMode, clientProxyUrl, saveHistory, maxHistorySize,
-        enableUnsupportedSites, enableBlacklist, blacklistKeywords
-    } = settings;
-
     const { t, i18n } = useTranslation();
-    const defaultBlacklistKeywords = useMemo(() => i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords'), [i18n]);
-    const [currentCustomHex, setCurrentCustomHex] = useState(customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-    const [localBlacklist, setLocalBlacklist] = useState<string>(blacklistKeywords || defaultBlacklistKeywords);
 
-    useEffect(() => {
-        setCurrentCustomHex(customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-    }, [customColorHex]);
-
-    // Debounce custom color to prevent excessive updates
-    const debouncedCustomHex = useDebounce(currentCustomHex, 300);
-
-    useEffect(() => {
-        if (/^#[0-9a-fA-F]{6}$/.test(debouncedCustomHex) && colorTheme === 'custom') {
-            onSettingsChange({ customColorHex: debouncedCustomHex });
-        }
-    }, [debouncedCustomHex, onSettingsChange, colorTheme]);
+    const defaultBlacklistKeywords = useMemo(
+        () => i18n.getFixedT('en')('settings.toggles.blacklist.defaultKeywords'),
+        [i18n]
+    );
 
     // Lock background scroll when modal is open
     useEffect(() => {
@@ -115,425 +65,210 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                 document.body.style.overflow = prevBodyOverflow;
             };
         }
-        return;
     }, [isOpen]);
 
-    const handleThemeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ theme: event.target.value as ThemePreference }), [onSettingsChange]);
+    // Optimized callbacks
+    const handleThemeChange = useCallback(
+        (theme: ThemePreference) => onSettingsChange({ theme }),
+        [onSettingsChange]
+    );
 
-    const handleColorThemeRadioChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value as ColorTheme;
-        if (value === 'custom') {
-            const validHex = /^#[0-9a-fA-F]{6}$/.test(currentCustomHex) ? currentCustomHex : DEFAULT_CUSTOM_COLOR_HEX;
-            onSettingsChange({ colorTheme: 'custom', customColorHex: validHex });
-            setCurrentCustomHex(validHex);
-        } else {
-            onSettingsChange({ colorTheme: value });
-        }
-    }, [onSettingsChange, currentCustomHex]);
+    const handleColorThemeChange = useCallback(
+        (colorTheme: ColorTheme, customColorHex?: string) => {
+            onSettingsChange({ colorTheme, ...(customColorHex && { customColorHex }) });
+        },
+        [onSettingsChange]
+    );
 
-    const handleCustomColorInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const newHex = event.target.value;
-        setCurrentCustomHex(newHex);
-        if (colorTheme !== 'custom') {
-            onSettingsChange({ colorTheme: 'custom' });
-        }
-    }, [onSettingsChange, colorTheme]);
+    const handleFetchModeChange = useCallback(
+        (fetchMode: FetchMode) => onSettingsChange({ fetchMode }),
+        [onSettingsChange]
+    );
 
-    const handleCustomColorTextChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const newHex = event.target.value;
-        const cleanHex = newHex.startsWith('#') ? newHex : `#${newHex}`;
-        setCurrentCustomHex(cleanHex);
-        if (colorTheme !== 'custom') {
-            onSettingsChange({ colorTheme: 'custom' });
-        }
-    }, [onSettingsChange, colorTheme]);
+    const handleClientProxyUrlChange = useCallback(
+        (clientProxyUrl: string) => onSettingsChange({ clientProxyUrl }),
+        [onSettingsChange]
+    );
 
-    const handleAutoExtractChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ autoExtract: event.target.checked }), [onSettingsChange]);
-    const handleImagePreviewsChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableImagePreviews: event.target.checked }), [onSettingsChange]);
-    const handleFetchModeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ fetchMode: event.target.value as FetchMode }), [onSettingsChange]);
-    const handleClientProxyChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => onSettingsChange({ clientProxyUrl: event.target.value }), [onSettingsChange]);
-    const handleSaveHistoryChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ saveHistory: event.target.checked }), [onSettingsChange]);
-    const handleUnsupportedSitesChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableUnsupportedSites: event.target.checked }), [onSettingsChange]);
-     const handleBlacklistToggle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableBlacklist: event.target.checked }), [onSettingsChange]);
-     const handleBlacklistChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => { setLocalBlacklist(event.target.value); onSettingsChange({ blacklistKeywords: event.target.value }); }, [onSettingsChange]);
-     const handleBlacklistReset = useCallback(() => { setLocalBlacklist(defaultBlacklistKeywords); onSettingsChange({ blacklistKeywords: defaultBlacklistKeywords }); }, [onSettingsChange, defaultBlacklistKeywords]);
-    const handleMaxHistoryChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = parseInt(event.target.value, 10);
-        onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value });
-    }, [onSettingsChange]);
+    const handleAutoExtractChange = useCallback(
+        (autoExtract: boolean) => onSettingsChange({ autoExtract }),
+        [onSettingsChange]
+    );
 
+    const handleImagePreviewsChange = useCallback(
+        (enableImagePreviews: boolean) => onSettingsChange({ enableImagePreviews }),
+        [onSettingsChange]
+    );
 
-    const themeOptions = useMemo(() => [
-        { value: 'system' as ThemePreference, label: t('settings.themeOptions.system'), icon: <ComputerDesktopIcon />, animation: "gentle" as const },
-        { value: 'light' as ThemePreference, label: t('settings.themeOptions.light'), icon: <SunIcon />, animation: "spin" as const },
-        { value: 'dark' as ThemePreference, label: t('settings.themeOptions.dark'), icon: <MoonIcon />, animation: "default" as const },
-    ], [t]);
+    const handleSaveHistoryChange = useCallback(
+        (saveHistory: boolean) => onSettingsChange({ saveHistory }),
+        [onSettingsChange]
+    );
 
-    const colorThemeOptions = useMemo(() => [
-        { value: 'blue' as ColorTheme, label: t('settings.colorThemes.blue'), colorClass: 'bg-[#3B82F6] dark:bg-[#60A5FA]' },
-        { value: 'orange' as ColorTheme, label: t('settings.colorThemes.orange'), colorClass: 'bg-[#F97316] dark:bg-[#FB923C]' },
-        { value: 'teal' as ColorTheme, label: t('settings.colorThemes.teal'), colorClass: 'bg-[#0D9488] dark:bg-[#2DD4BF]' },
-        { value: 'rose' as ColorTheme, label: t('settings.colorThemes.rose'), colorClass: 'bg-[#E11D48] dark:bg-[#FB7185]' },
-        { value: 'purple' as ColorTheme, label: t('settings.colorThemes.purple'), colorClass: 'bg-[#8B5CF6] dark:bg-[#A78BFA]' },
-        { value: 'green' as ColorTheme, label: t('settings.colorThemes.green'), colorClass: 'bg-[#16A34A] dark:bg-[#4ADE80]' },
-    ], [t]);
+    const handleUnsupportedSitesChange = useCallback(
+        (enableUnsupportedSites: boolean) => onSettingsChange({ enableUnsupportedSites }),
+        [onSettingsChange]
+    );
 
-    const fetchModeOptions = useMemo(() => [
-        { value: 'server' as FetchMode, label: t('settings.fetchModes.server.label'), icon: <ServerIcon />, description: t('settings.fetchModes.server.description') },
-        { value: 'clientProxy' as FetchMode, label: t('settings.fetchModes.clientProxy.label'), icon: <CloudArrowDownIcon />, description: t('settings.fetchModes.clientProxy.description') },
-    ], [t]);
+    const handleBlacklistEnabledChange = useCallback(
+        (enableBlacklist: boolean) => onSettingsChange({ enableBlacklist }),
+        [onSettingsChange]
+    );
 
-    const historySizeOptions = useMemo(() => [
-        { value: 10, label: t('settings.historySizeOptions.10') },
-        { value: 30, label: t('settings.historySizeOptions.30') },
-        { value: 50, label: t('settings.historySizeOptions.50') },
-        { value: 100, label: t('settings.historySizeOptions.100') },
-        { value: -1, label: t('settings.historySizeOptions.unlimited') },
-    ], [t]);
+    const handleBlacklistKeywordsChange = useCallback(
+        (blacklistKeywords: string) => onSettingsChange({ blacklistKeywords }),
+        [onSettingsChange]
+    );
 
-    const isValidHex = useMemo(() => /^#[0-9a-fA-F]{6}$/.test(currentCustomHex), [currentCustomHex]);
+    const handleHistorySizeChange = useCallback(
+        (maxHistorySize: number) => onSettingsChange({ maxHistorySize }),
+        [onSettingsChange]
+    );
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden" {...BACKDROP_VARIANTS} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-title">
-                    <motion.div className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden" {...MODAL_VARIANTS} transition={MODAL_TRANSITION} onClick={(e) => e.stopPropagation()}>
-                      <div className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <div className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-                            <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">{t('settings.title')}</h2>
-                            <TooltipWrapper tipContent={t('settings.modal.close')}>
-                                <button onClick={onClose} className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-all hover:text-[rgb(var(--color-on-surface-rgb))] hover:rotate-90 active:scale-90 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]" aria-label={t('settings.modal.close')}>
-                                    <XMarkIcon className="h-6 w-6" />
-                                </button>
-                            </TooltipWrapper>
-                        </div>
-                        <div className="space-y-6 px-4 md:px-0 pb-4 md:pb-0">
-                            <LanguageSelector />
-
-                            <div>
-                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-                                    </svg>
-                                    <span>{t('settings.sections.appearance')}</span>
-                                </label>
-                                <div className="flex items-center space-x-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
-                                    {themeOptions.map(({ value, label, icon, animation }) => (
-                                        <label key={value} className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${theme === value ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                            <input type="radio" name="theme" value={value} checked={theme === value} onChange={handleThemeChange} className="sr-only" aria-label={t('settings.accessibility.themeOption', { label })} />
-                                            <AnimatedIcon isActive={theme === value} animation={animation}>
-                                                {icon}
-                                            </AnimatedIcon>
-                                            <span>{label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
-                                    <span className="mr-2"><PaletteIcon /></span>
-                                    <span>{t('settings.sections.colorTheme')}</span>
-                                </label>
-                                <div className="grid grid-cols-3 gap-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
-                                    {colorThemeOptions.map(({ value, label, colorClass }) => (
-                                        <TooltipWrapper key={value} tipContent={label}>
-                                            <label className={`relative flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-[1.02] ${colorTheme === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                                <input type="radio" name="colorTheme" value={value} checked={colorTheme === value} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.accessibility.colorThemeOption', { label })} />
-                                                <span className={`block h-5 w-5 rounded-full ${colorClass}`}></span>
-                                                <AnimatePresence>
-                                                    {colorTheme === value && (
-                                                        <motion.div className="absolute inset-0 flex items-center justify-center" {...CHECKMARK_VARIANTS} transition={{ duration: 0.15 }} >
-                                                            <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                                <span className="sr-only">{label}</span>
-                                            </label>
-                                        </TooltipWrapper>
-                                    ))}
-                                    <TooltipWrapper tipContent={t('settings.customColor.label')}>
-                                        <label className={`relative flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-[1.02] ${colorTheme === 'custom' ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-2 ring-[rgb(var(--color-primary-rgb))] ring-offset-1 ring-offset-[rgb(var(--color-surface-alt-2-rgb))]' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                            <input type="radio" name="colorTheme" value="custom" checked={colorTheme === 'custom'} onChange={handleColorThemeRadioChange} className="sr-only" aria-label={t('settings.customColor.label')} />
-                                            <span className="block h-5 w-5 rounded-full border border-gray-400 dark:border-gray-600" style={{ backgroundColor: isValidHex ? currentCustomHex : '#ffffff' }}></span>
-                                            <AnimatePresence>
-                                                {colorTheme === 'custom' && (
-                                                    <motion.div className="absolute inset-0 flex items-center justify-center" {...CHECKMARK_VARIANTS} transition={{ duration: 0.15 }} >
-                                                        <svg className="h-3 w-3 text-[rgb(var(--color-primary-content-rgb))] dark:text-gray-900" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                            <span className="sr-only">{t('settings.customColor.label')}</span>
-                                        </label>
-                                    </TooltipWrapper>
-                                </div>
-                                {colorTheme === 'custom' && (
-                                    <motion.div
-                                        {...EXPAND_VARIANTS}
-                                        className="mt-3 flex items-center space-x-3 rounded-lg bg-[rgb(var(--color-surface-alt-2-rgb))] p-3"
-                                    >
-                                        <input
-                                            type="color"
-                                            value={isValidHex ? currentCustomHex : '#ffffff'}
-                                            onChange={handleCustomColorInputChange}
-                                            className="h-8 w-8 cursor-pointer appearance-none rounded-sm border border-[rgb(var(--color-surface-border-rgb))] bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-sm [&::-webkit-color-swatch]:border-none"
-                                            aria-label={t('settings.customColor.pickerLabel')}
-                                        />
-                                        <input
-                                            type="text"
-                                            value={currentCustomHex}
-                                            onChange={handleCustomColorTextChange}
-                                            maxLength={7}
-                                            className="flex-1 appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-2 py-1 font-mono text-sm text-[rgb(var(--color-on-surface-rgb))] placeholder:text-[rgb(var(--color-on-surface-faint-rgb))] transition duration-200 focus:border-transparent focus:outline-hidden focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                            placeholder={t('settings.customColor.placeholder')}
-                                            aria-label={t('settings.customColor.inputLabel')}
-                                            pattern="^#?([a-fA-F0-9]{6})$"
-                                        />
-                                    </motion.div>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-                                    </svg>
-                                    <span>{t('settings.sections.dataFetch')}</span>
-                                </label>
-                                <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
-                                    {fetchModeOptions.map(({ value, label, icon, description }) => (
-                                        <div key={value}>
-                                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                                <input type="radio" name="fetchMode" value={value} checked={fetchMode === value} onChange={handleFetchModeChange} className="peer sr-only" aria-label={label} />
-                                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                                    {icon}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <span className={`block text-sm font-medium ${fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
-                                                </div>
-                                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
-                                                    <AnimatePresence>
-                                                        {fetchMode === value && (
-                                                            <motion.div
-                                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                                                                className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]"
-                                                            />
-                                                        )}
-                                                    </AnimatePresence>
-                                                </div>
-                                            </label>
-                                            {value === 'clientProxy' && fetchMode === 'clientProxy' && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                                    animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
-                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="pl-12 pr-3"
-                                                >
-                                                    <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.clientProxy.selectLabel')}</label>
-                                                    <select
-                                                        id="clientProxySelect"
-                                                        value={clientProxyUrl}
-                                                        onChange={handleClientProxyChange}
-                                                        className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                                        aria-label={t('settings.clientProxy.ariaLabel')}
-                                                    >
-                                                        {CLIENT_PROXY_OPTIONS.map(option => (
-                                                            <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{t('settings.clientProxy.helper')}</p>
-                                                </motion.div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                             <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-                                <label className="flex cursor-pointer select-none items-center justify-between">
-                                    <TooltipWrapper tipContent={t('settings.toggles.autoExtract.tooltip')}>
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                            <AutomaticIcon />
-                                            <span className="ml-2">{t('settings.toggles.autoExtract.label')}</span>
-                                        </span>
-                                    </TooltipWrapper>
-                                    <div className="relative">
-                                        <input type="checkbox" id="autoExtractToggle" className="peer sr-only" checked={autoExtract} onChange={handleAutoExtractChange} />
-                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
-                                        <motion.div
-                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
-                                            layout
-                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                                            initial={false}
-                                            animate={{ x: autoExtract ? 20 : 0 }}
-                                        ></motion.div>
-                                    </div>
-                                </label>
-                                <p id="autoExtractHelp" className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.autoExtract.description')}</p>
-                            </div>
-                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-                                <label className="flex cursor-pointer select-none items-center justify-between">
-                                    <TooltipWrapper tipContent={t('settings.toggles.previews.tooltip')}>
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                            <PreviewIcon />
-                                            <span className="ml-2">{t('settings.toggles.previews.label')}</span>
-                                        </span>
-                                    </TooltipWrapper>
-                                    <div className="relative">
-                                        <input type="checkbox" id="imagePreviewsToggle" className="peer sr-only" checked={enableImagePreviews} onChange={handleImagePreviewsChange} />
-                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
-                                        <motion.div
-                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
-                                            layout
-                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                                            initial={false}
-                                            animate={{ x: enableImagePreviews ? 20 : 0 }}
-                                        ></motion.div>
-                                    </div>
-                                </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.previews.description')} <span className="block">{t('settings.toggles.previews.note')}</span></p>
-                            </div>
-                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-                                <label className="flex cursor-pointer select-none items-center justify-between">
-                                    <TooltipWrapper tipContent={t('settings.toggles.saveHistory.tooltip')}>
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                            <HistorySaveIcon />
-                                            <span className="ml-2">{t('settings.toggles.saveHistory.label')}</span>
-                                        </span>
-                                    </TooltipWrapper>
-                                    <div className="relative">
-                                        <input type="checkbox" id="saveHistoryToggle" className="peer sr-only" checked={saveHistory} onChange={handleSaveHistoryChange} />
-                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
-                                        <motion.div
-                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
-                                            layout
-                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                                            initial={false}
-                                            animate={{ x: saveHistory ? 20 : 0 }}
-                                        ></motion.div>
-                                    </div>
-                                </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.saveHistory.description')}</p>
-                            </div>
-
-                            <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-                                <label className="flex cursor-pointer select-none items-center justify-between">
-                                    <TooltipWrapper tipContent={t('settings.toggles.unsupportedSites.tooltip')}>
-                                        <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                            <UnsupportedSitesIcon />
-                                            <span className="ml-2">{t('settings.toggles.unsupportedSites.label')}</span>
-                                        </span>
-                                    </TooltipWrapper>
-                                    <div className="relative">
-                                        <input type="checkbox" id="unsupportedSitesToggle" className="peer sr-only" checked={enableUnsupportedSites} onChange={handleUnsupportedSitesChange} />
-                                        <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
-                                        <motion.div
-                                            className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
-                                            layout
-                                            transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                                            initial={false}
-                                            animate={{ x: enableUnsupportedSites ? 20 : 0 }}
-                                        ></motion.div>
-                                    </div>
-                                </label>
-                                <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.unsupportedSites.description')}</p>
-                            </div>
-
-                             <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-                                 <label className="flex cursor-pointer select-none items-center justify-between">
-                                     <TooltipWrapper tipContent={t('settings.toggles.blacklist.tooltip')}>
-                                         <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M12 22.5a10.5 10.5 0 1 0 0-21 10.5 10.5 0 0 0 0 21ZM7.06 6l10.88 10.88A8.999 8.999 0 0 1 7.06 6Zm9.88 12L6.06 7.12A8.999 8.999 0 0 1 16.94 18Z"/></svg>
-                                             <span className="ml-2">{t('settings.toggles.blacklist.label')}</span>
-                                         </span>
-                                     </TooltipWrapper>
-                                     <div className="relative">
-                                         <input type="checkbox" id="blacklistToggle" className="peer sr-only" checked={enableBlacklist} onChange={handleBlacklistToggle} />
-                                         <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]"></div>
-                                         <motion.div
-                                             className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
-                                             layout
-                                             transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                                             initial={false}
-                                             animate={{ x: enableBlacklist ? 20 : 0 }}
-                                         ></motion.div>
-                                     </div>
-                                 </label>
-                                 <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.toggles.blacklist.description')}</p>
-                                  <motion.div
-                                      initial={{ opacity: 0, height: 0 }}
-                                      animate={{ opacity: enableBlacklist ? 1 : 0, height: enableBlacklist ? 'auto' : 0 }}
-                                      className={`mt-2 space-y-2 overflow-hidden ${enableBlacklist ? '' : 'pointer-events-none'}`}
-                                  >
-                                     <textarea
-                                         value={localBlacklist}
-                                         onChange={handleBlacklistChange}
-                                         rows={3}
-                                          className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                         placeholder={t('settings.toggles.blacklist.placeholder')}
-                                         aria-label={t('settings.toggles.blacklist.ariaLabel')}
-                                     />
-                                     <div className="text-right">
-                                         <button type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500 active:scale-95">{t('settings.toggles.blacklist.reset')}</button>
-                                     </div>
-                                 </motion.div>
-                             </div>
-
-                            <AnimatePresence>
-                                {saveHistory && (
-                                    <motion.div
-                                        {...EXPAND_VARIANTS}
-                                        transition={{ duration: 0.2 }}
-                                    >
-                                        <label htmlFor="maxHistorySizeSelect" className="mb-1.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                                            <HistorySizeIcon />
-                                            <span className="ml-2">{t('settings.historySize.label')}</span>
-                                        </label>
-                                        <div className="relative">
-                                            <select
-                                                id="maxHistorySizeSelect"
-                                                value={maxHistorySize}
-                                                onChange={handleMaxHistoryChange}
-                                                className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                                aria-label={t('settings.accessibility.historySizeSelect')}
-                                            >
-                                                {historySizeOptions.map(option => (
-                                                    <option key={option.value} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
-                                                        {option.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                                            </div>
-                                        </div>
-                                        <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.historySize.description')}</p>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-
-                        <div className="mt-6 space-y-3 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 px-4 md:px-0 pb-safe">
-                            <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">{t('settings.support.title')}</label>
-                            <a
-                                href={REPORT_ISSUE_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex w-full items-center justify-center space-x-2 rounded-lg border border-[rgb(var(--color-surface-border-rgb))] px-4 py-2.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-200 hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
+                <motion.div
+                    className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden"
+                    {...BACKDROP_VARIANTS}
+                    onClick={onClose}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="settings-title"
+                >
+                    <motion.div
+                        className="w-full h-[100dvh] md:h-[90vh] md:max-w-md rounded-none md:rounded-xl bg-[rgb(var(--color-surface-alt-rgb))] p-0 md:p-6 shadow-2xl overflow-hidden"
+                        {...MODAL_VARIANTS}
+                        transition={MODAL_TRANSITION}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div
+                            className="h-full overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]"
+                            style={{ WebkitOverflowScrolling: 'touch' }}
+                        >
+                            {/* Header */}
+                            <div
+                                className="sticky top-0 z-10 mb-4 md:mb-6 flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 md:px-0 pb-3 md:pb-4 pt-3"
+                                style={{ paddingTop: 'env(safe-area-inset-top)' }}
                             >
-                                <BugAntIcon />
-                                <span>{t('settings.support.cta')}</span>
-                            </a>
-                            <p className="text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{t('settings.support.description')}</p>
-                        </div>
+                                <h2 id="settings-title" className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">
+                                    {t('settings.title')}
+                                </h2>
+                                <TooltipWrapper tipContent={t('settings.modal.close')}>
+                                    <button
+                                        onClick={onClose}
+                                        className="-mr-2 rounded-full p-1 text-[rgb(var(--color-on-surface-muted-rgb))] transition-all hover:text-[rgb(var(--color-on-surface-rgb))] hover:rotate-90 active:scale-90 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
+                                        aria-label={t('settings.modal.close')}
+                                    >
+                                        <XMarkIcon className="h-6 w-6" />
+                                    </button>
+                                </TooltipWrapper>
+                            </div>
 
-                        <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0 hidden md:block">
-                            <button onClick={onClose} className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-all duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]">{t('common.actions.done')}</button>
+                            {/* Content */}
+                            <div className="space-y-6 px-4 md:px-0 pb-4 md:pb-0">
+                                <LanguageSelector />
+
+                                <ThemeSection theme={settings.theme} onChange={handleThemeChange} />
+
+                                <ColorThemeSection
+                                    colorTheme={settings.colorTheme}
+                                    customColorHex={settings.customColorHex}
+                                    onChange={handleColorThemeChange}
+                                />
+
+                                <FetchModeSection
+                                    fetchMode={settings.fetchMode}
+                                    clientProxyUrl={settings.clientProxyUrl}
+                                    onFetchModeChange={handleFetchModeChange}
+                                    onProxyUrlChange={handleClientProxyUrlChange}
+                                />
+
+                                <ToggleSetting
+                                    id="autoExtractToggle"
+                                    label={t('settings.toggles.autoExtract.label')}
+                                    description={t('settings.toggles.autoExtract.description')}
+                                    tooltip={t('settings.toggles.autoExtract.tooltip')}
+                                    checked={settings.autoExtract}
+                                    onChange={handleAutoExtractChange}
+                                    icon={<AutomaticIcon />}
+                                />
+
+                                <ToggleSetting
+                                    id="imagePreviewsToggle"
+                                    label={t('settings.toggles.previews.label')}
+                                    description={t('settings.toggles.previews.description')}
+                                    tooltip={t('settings.toggles.previews.tooltip')}
+                                    checked={settings.enableImagePreviews}
+                                    onChange={handleImagePreviewsChange}
+                                    icon={<PreviewIcon />}
+                                    note={t('settings.toggles.previews.note')}
+                                />
+
+                                <ToggleSetting
+                                    id="saveHistoryToggle"
+                                    label={t('settings.toggles.saveHistory.label')}
+                                    description={t('settings.toggles.saveHistory.description')}
+                                    tooltip={t('settings.toggles.saveHistory.tooltip')}
+                                    checked={settings.saveHistory}
+                                    onChange={handleSaveHistoryChange}
+                                    icon={<HistorySaveIcon />}
+                                />
+
+                                <ToggleSetting
+                                    id="unsupportedSitesToggle"
+                                    label={t('settings.toggles.unsupportedSites.label')}
+                                    description={t('settings.toggles.unsupportedSites.description')}
+                                    tooltip={t('settings.toggles.unsupportedSites.tooltip')}
+                                    checked={settings.enableUnsupportedSites}
+                                    onChange={handleUnsupportedSitesChange}
+                                    icon={<UnsupportedSitesIcon />}
+                                />
+
+                                <BlacklistSection
+                                    enabled={settings.enableBlacklist}
+                                    keywords={settings.blacklistKeywords}
+                                    defaultKeywords={defaultBlacklistKeywords}
+                                    onEnabledChange={handleBlacklistEnabledChange}
+                                    onKeywordsChange={handleBlacklistKeywordsChange}
+                                />
+
+                                <HistorySizeSection
+                                    saveHistory={settings.saveHistory}
+                                    maxHistorySize={settings.maxHistorySize}
+                                    onChange={handleHistorySizeChange}
+                                />
+                            </div>
+
+                            {/* Support Section */}
+                            <div className="mt-6 space-y-3 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 px-4 md:px-0 pb-safe">
+                                <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                                    {t('settings.support.title')}
+                                </label>
+                                <a
+                                    href={REPORT_ISSUE_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex w-full items-center justify-center space-x-2 rounded-lg border border-[rgb(var(--color-surface-border-rgb))] px-4 py-2.5 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] transition-colors duration-200 hover:bg-[rgb(var(--color-surface-alt-2-rgb))] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
+                                >
+                                    <BugAntIcon />
+                                    <span>{t('settings.support.cta')}</span>
+                                </a>
+                                <p className="text-center text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">
+                                    {t('settings.support.description')}
+                                </p>
+                            </div>
+
+                            {/* Footer Button */}
+                            <div className="mt-6 border-t border-[rgb(var(--color-surface-border-rgb))] pt-4 text-right px-4 md:px-0 pb-4 md:pb-0 hidden md:block">
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-full bg-[rgb(var(--color-primary-rgb))] px-5 py-2 font-medium text-[rgb(var(--color-primary-content-rgb))] shadow-sm transition-all duration-200 hover:bg-[rgb(var(--color-primary-focus-rgb))] active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))]"
+                                >
+                                    {t('common.actions.done')}
+                                </button>
+                            </div>
                         </div>
-                      </div>
                     </motion.div>
                 </motion.div>
             )}
