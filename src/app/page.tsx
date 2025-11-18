@@ -247,6 +247,7 @@ const BooruTagExtractor = () => {
         const currentPath = window.location.pathname;
         if (currentPath === '/image-metadata') setActiveView('image');
         else if (currentPath === '/booru-list') setActiveView('booru-list');
+        else if (currentPath === '/status') setActiveView('status');
         else if (currentPath === '/settings') setActiveView('settings');
         else {
             setActiveView('extractor');
