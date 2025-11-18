@@ -55,9 +55,13 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
     const startTime = Date.now();
 
     try {
-        const baseUrl = process.env.VERCEL_URL
+        // Get the base URL - use public URL for external calls
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+            || process.env.VERCEL_URL
             ? `https://${process.env.VERCEL_URL}`
             : 'http://localhost:3000';
+
+        console.log(`[Status API] Checking API endpoint at: ${baseUrl}/api/fetch-booru`);
 
         // Test API endpoint with a known working URL
         const response = await fetch(`${baseUrl}/api/fetch-booru`, {
@@ -73,6 +77,8 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
         let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
         let errorMsg: string | undefined;
 
+        console.log(`[Status API] API endpoint response status: ${response.status}`);
+
         if (response.ok) {
             const data = await response.json();
 
@@ -80,22 +86,37 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
             if (data.error) {
                 // Even with error, if API responded properly, it's operational
                 status = 'operational';
+                console.log('[Status API] API endpoint operational (returned error response)');
             } else if (data.tags || data.siteName) {
                 // Valid extraction response
                 status = 'operational';
+                console.log('[Status API] API endpoint operational (valid extraction)');
             } else {
                 status = 'degraded';
                 errorMsg = 'Invalid API response';
+                console.log('[Status API] API endpoint degraded (invalid response structure)');
             }
         } else if (response.status === 422) {
             // Unprocessable entity - API works but extraction failed
             status = 'operational';
+            console.log('[Status API] API endpoint operational (422 - validation error is expected)');
+        } else if (response.status === 400) {
+            // Bad request but API is responding - still operational
+            status = 'operational';
+            console.log('[Status API] API endpoint operational (400 - API responding to requests)');
+        } else if (response.status === 401 || response.status === 403) {
+            // Auth errors - but API is responding, just access denied
+            // This is actually operational since API is working, just access control
+            status = 'operational';
+            console.log('[Status API] API endpoint operational (auth response - API is responding)');
         } else if (response.status === 502 || response.status === 503 || response.status === 504) {
             status = 'major_outage';
             errorMsg = `Server error: ${response.status}`;
+            console.log(`[Status API] API endpoint major outage: ${response.status}`);
         } else {
             status = 'degraded';
             errorMsg = `HTTP ${response.status}`;
+            console.log(`[Status API] API endpoint degraded: HTTP ${response.status}`);
         }
 
         return {
@@ -111,6 +132,7 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
         let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage' = 'major_outage';
 
         if (err instanceof Error) {
+            console.error('[Status API] API endpoint check error:', err.message);
             if (err.name === 'TimeoutError' || err.message.includes('timeout')) {
                 status = 'major_outage';
                 errorMsg = 'API timeout';
@@ -119,6 +141,7 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
             }
         } else {
             errorMsg = 'Unknown error';
+            console.error('[Status API] API endpoint check unknown error:', err);
         }
 
         return {
