@@ -12,6 +12,8 @@ interface MobileAppShellProps {
     selectExtractor: () => void;
     selectImage: () => void;
     selectBooruList: () => void;
+    selectStatus: () => void;
+    selectApiTest: () => void;
     openSettings: () => void;
     highlightSettings?: boolean;
 
@@ -34,6 +36,8 @@ export function MobileAppShell({
     selectExtractor,
     selectImage,
     selectBooruList,
+    selectStatus,
+    selectApiTest,
     openSettings,
     highlightSettings = false,
     isDraggingOverExtractor,
@@ -96,7 +100,7 @@ export function MobileAppShell({
                 {children}
             </div>
 
-            <MobileBottomNav active={active} onSelectExtractor={selectExtractor} onSelectImage={selectImage} onSelectBooruList={selectBooruList} onOpenSettings={openSettings} highlightSettings={highlightSettings} />
+            <MobileBottomNav active={active} onSelectExtractor={selectExtractor} onSelectImage={selectImage} onSelectBooruList={selectBooruList} onSelectStatus={selectStatus} onSelectApiTest={selectApiTest} onOpenSettings={openSettings} highlightSettings={highlightSettings} />
         </>
     );
 }
