@@ -51,14 +51,14 @@ export function MobileBottomNav({ active, onSelectExtractor, onSelectImage, onSe
             <span className="mt-1 text-[10px] font-medium">{t('common.nav.booruList')}</span>
             <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
           </button>
-          <button onClick={onSelectStatus} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all ${active === 'status' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label="API Status" aria-current={active === 'status' ? 'page' : undefined}>
+          <button onClick={onSelectStatus} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all ${active === 'status' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label={t('common.navTooltip.status')} aria-current={active === 'status' ? 'page' : undefined}>
             <SignalIcon className="h-5 w-5" />
-            <span className="mt-1 text-[10px] font-medium">Status</span>
+            <span className="mt-1 text-[10px] font-medium">{t('common.nav.status')}</span>
             <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
           </button>
-          <button onClick={onSelectApiTest} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all ${active === 'api-test' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label="API Testing" aria-current={active === 'api-test' ? 'page' : undefined}>
+          <button onClick={onSelectApiTest} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all ${active === 'api-test' ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label={t('common.navTooltip.apiTest')} aria-current={active === 'api-test' ? 'page' : undefined}>
             <CodeBracketIcon className="h-5 w-5" />
-            <span className="mt-1 text-[10px] font-medium">API</span>
+            <span className="mt-1 text-[10px] font-medium">{t('common.nav.apiTest')}</span>
             <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity" />
           </button>
           <button onClick={onOpenSettings} className={`group relative flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all ${active === 'settings' || highlightSettings ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.12)]' : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-label={t('common.navTooltip.settings')} aria-current={active === 'settings' ? 'page' : undefined}>

@@ -42,14 +42,14 @@ export function DesktopSideNav({ active, highlightSettings = false, onSelectExtr
                         <TrophyIcon />
                     </motion.button>
                 </TooltipWrapper>
-                <TooltipWrapper tipContent="API Status">
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectStatus} className={navButtonClass(active === 'status')} aria-label="API Status" aria-current={active === 'status' ? 'page' : undefined}>
+                <TooltipWrapper tipContent={t('common.navTooltip.status')}>
+                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectStatus} className={navButtonClass(active === 'status')} aria-label={t('common.navTooltip.status')} aria-current={active === 'status' ? 'page' : undefined}>
                         <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
                         <SignalIcon />
                     </motion.button>
                 </TooltipWrapper>
-                <TooltipWrapper tipContent="API Testing">
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectApiTest} className={navButtonClass(active === 'api-test')} aria-label="API Testing" aria-current={active === 'api-test' ? 'page' : undefined}>
+                <TooltipWrapper tipContent={t('common.navTooltip.apiTest')}>
+                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectApiTest} className={navButtonClass(active === 'api-test')} aria-label={t('common.navTooltip.apiTest')} aria-current={active === 'api-test' ? 'page' : undefined}>
                         <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
                         <CodeBracketIcon />
                     </motion.button>

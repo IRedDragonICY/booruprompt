@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface SiteStatus {
     name: string;
@@ -76,16 +77,16 @@ const getStatusBgColor = (status: SiteStatus['status']) => {
     }
 };
 
-const getStatusText = (status: SiteStatus['status']) => {
+const getStatusText = (status: SiteStatus['status'], t: any) => {
     switch (status) {
         case 'operational':
-            return 'Operational';
+            return t('apiStatus.statusOperational');
         case 'degraded':
-            return 'Degraded Performance';
+            return t('apiStatus.statusDegraded');
         case 'partial_outage':
-            return 'Partial Outage';
+            return t('apiStatus.statusPartialOutage');
         case 'major_outage':
-            return 'Major Outage';
+            return t('apiStatus.statusMajorOutage');
     }
 };
 
@@ -139,6 +140,7 @@ const generateUptimeData = (status: SiteStatus['status']): { fill: string; title
 };
 
 export default function StatusView() {
+    const { t } = useTranslation();
     const [statusData, setStatusData] = useState<StatusResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -181,7 +183,7 @@ export default function StatusView() {
             <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary-rgb))]"></div>
-                    <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Loading status...</p>
+                    <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.loading')}</p>
                 </div>
             </div>
         );
@@ -191,12 +193,12 @@ export default function StatusView() {
         return (
             <div className="flex h-full items-center justify-center">
                 <div className="text-center">
-                    <p className="text-red-600">Error: {error}</p>
+                    <p className="text-red-600">{t('apiStatus.error', { message: error })}</p>
                     <button
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg"
                     >
-                        Retry
+                        {t('apiStatus.retry')}
                     </button>
                 </div>
             </div>
@@ -209,7 +211,7 @@ export default function StatusView() {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-6">
-                        API Status
+                        {t('apiStatus.title')}
                     </h1>
 
                     {statusData && (
@@ -217,15 +219,15 @@ export default function StatusView() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
-                                        Overall System Status
+                                        {t('apiStatus.overallStatus')}
                                     </p>
                                     <p className={`text-2xl font-semibold ${getStatusColor(statusData.overall.status)}`}>
-                                        {getStatusText(statusData.overall.status)}
+                                        {getStatusText(statusData.overall.status, t)}
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
-                                        Uptime
+                                        {t('apiStatus.uptime')}
                                     </p>
                                     <p className="text-2xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">
                                         {statusData.overall.uptimePercentage}%
@@ -233,7 +235,10 @@ export default function StatusView() {
                                 </div>
                             </div>
                             <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                {statusData.overall.operationalCount} of {statusData.overall.totalCount} services operational
+                                {t('apiStatus.servicesOperational', {
+                                    count: statusData.overall.operationalCount,
+                                    total: statusData.overall.totalCount
+                                })}
                             </div>
                         </div>
                     )}
@@ -243,7 +248,7 @@ export default function StatusView() {
                 {statusData && (
                     <div className="mb-6 text-center">
                         <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                            Last updated: {new Date(statusData.lastUpdated).toLocaleString()}
+                            {t('apiStatus.lastUpdated', { time: new Date(statusData.lastUpdated).toLocaleString() })}
                         </p>
                     </div>
                 )}
@@ -257,7 +262,7 @@ export default function StatusView() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search services..."
+                                placeholder={t('apiStatus.searchPlaceholder')}
                                 className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
                             />
                         </div>
@@ -269,11 +274,11 @@ export default function StatusView() {
                                 onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
                                 className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
                             >
-                                <option value="all">All Statuses</option>
-                                <option value="operational">Operational</option>
-                                <option value="degraded">Degraded</option>
-                                <option value="partial_outage">Partial Outage</option>
-                                <option value="major_outage">Major Outage</option>
+                                <option value="all">{t('apiStatus.filterAll')}</option>
+                                <option value="operational">{t('apiStatus.filterOperational')}</option>
+                                <option value="degraded">{t('apiStatus.filterDegraded')}</option>
+                                <option value="partial_outage">{t('apiStatus.filterPartialOutage')}</option>
+                                <option value="major_outage">{t('apiStatus.filterMajorOutage')}</option>
                             </select>
                         </div>
                     </div>
@@ -296,18 +301,23 @@ export default function StatusView() {
                             <>
                                 {/* Results count */}
                                 <div className="mb-4 flex items-center justify-between">
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                        Showing <span className="font-semibold">{filteredSites.length}</span> of <span className="font-semibold">{statusData?.sites.length || 0}</span> services
-                                    </p>
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                        Uptime over the past <span className="font-semibold">90</span> days.
-                                    </p>
+                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                        dangerouslySetInnerHTML={{
+                                            __html: t('apiStatus.showingResults', {
+                                                count: filteredSites.length,
+                                                total: statusData?.sites.length || 0
+                                            })
+                                        }}
+                                    />
+                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                        dangerouslySetInnerHTML={{ __html: t('apiStatus.uptimePeriod') }}
+                                    />
                                 </div>
 
                                 {filteredSites.length === 0 ? (
                                     <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
                                         <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
-                                            No services found matching your criteria
+                                            {t('apiStatus.noResults')}
                                         </p>
                                         <button
                                             onClick={() => {
@@ -316,7 +326,7 @@ export default function StatusView() {
                                             }}
                                             className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
                                         >
-                                            Clear Filters
+                                            {t('apiStatus.clearFilters')}
                                         </button>
                                     </div>
                                 ) : (
@@ -345,7 +355,7 @@ export default function StatusView() {
                                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getStatusBgColor(site.status)}`}>
                                         <StatusIcon status={site.status} />
                                         <span className={`text-sm font-medium ${getStatusColor(site.status)}`}>
-                                            {getStatusText(site.status)}
+                                            {getStatusText(site.status, t)}
                                         </span>
                                     </div>
                                 </div>
@@ -374,18 +384,22 @@ export default function StatusView() {
                                     </svg>
 
                                     <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                        <span>90 days ago</span>
+                                        <span>{t('apiStatus.daysAgo')}</span>
                                         <span className="font-semibold">
-                                            {site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'}% uptime (today only)
+                                            {t('apiStatus.uptimeToday', {
+                                                percent: site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'
+                                            })}
                                         </span>
-                                        <span>Today</span>
+                                        <span>{t('apiStatus.today')}</span>
                                     </div>
                                 </div>
 
                                 {/* Response time */}
-                                <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                    Response time: <span className="font-semibold">{site.responseTime}ms</span>
-                                </div>
+                                <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                    dangerouslySetInnerHTML={{
+                                        __html: t('apiStatus.responseTime', { time: site.responseTime })
+                                    }}
+                                />
                             </motion.div>
                         );
                     })
@@ -398,28 +412,28 @@ export default function StatusView() {
                 {/* Legend */}
                 <div className="mt-8 p-6 bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl border border-[rgb(var(--color-surface-border-rgb))]">
                     <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                        Status Legend
+                        {t('apiStatus.legendTitle')}
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-green-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Operational</span>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusOperational')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-yellow-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Degraded Performance</span>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusDegraded')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-orange-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Partial Outage</span>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusPartialOutage')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-red-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Major Outage</span>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusMajorOutage')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-gray-300"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No Data</span>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.legendNoData')}</span>
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { ClipboardIcon, CheckCircleIcon, ChevronDownIcon } from './icons/icons';
 
 const API_ENDPOINT = '/api/fetch-booru';
@@ -29,6 +30,7 @@ const LANGUAGES: { id: Language; label: string }[] = [
 ];
 
 export default function ApiTestView() {
+    const { t } = useTranslation();
     const [testUrl, setTestUrl] = useState(EXAMPLE_URL);
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<any>(null);
@@ -57,7 +59,7 @@ export default function ApiTestView() {
 
     const handleTest = async () => {
         if (!testUrl.trim()) {
-            setError('Please enter a URL');
+            setError(t('apiTest.urlError'));
             return;
         }
 
@@ -588,7 +590,7 @@ print_r($response);
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Search languages..."
+                                            placeholder={t('apiTest.searchLanguages')}
                                             className="w-full px-3 py-1.5 text-sm bg-[rgb(var(--color-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
                                             onClick={(e) => e.stopPropagation()} // Prevent closing dropdown when clicking input
                                         />
@@ -616,7 +618,7 @@ print_r($response);
                                             ))
                                         ) : (
                                             <div className="px-4 py-3 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] text-center">
-                                                No languages found
+                                                {t('apiTest.noLanguagesFound')}
                                             </div>
                                         )}
                                     </div>
@@ -629,7 +631,7 @@ print_r($response);
                     <button
                         onClick={() => copyToClipboard(code, 'code-example')}
                         className="p-2 rounded hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
-                        title="Copy to clipboard"
+                        title={t('apiTest.copyCode')}
                     >
                         {copiedSection === 'code-example' ? (
                             <CheckCircleIcon className="h-4 w-4 text-green-500" />
@@ -668,29 +670,29 @@ print_r($response);
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-2">
-                        API Testing & Documentation
+                        {t('apiTest.title')}
                     </h1>
                     <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">
-                        Test the Booru tag extraction API and view integration examples
+                        {t('apiTest.subtitle')}
                     </p>
                 </div>
 
                 {/* Interactive Tester */}
                 <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        Interactive API Tester
+                        {t('apiTest.testerTitle')}
                     </h2>
 
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] mb-2">
-                                Booru Post URL
+                                {t('apiTest.urlLabel')}
                             </label>
                             <input
                                 type="text"
                                 value={testUrl}
                                 onChange={(e) => setTestUrl(e.target.value)}
-                                placeholder="Enter booru post URL"
+                                placeholder={t('apiTest.urlPlaceholder')}
                                 className="w-full px-4 py-2 bg-[rgb(var(--color-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
                             />
                         </div>
@@ -700,12 +702,12 @@ print_r($response);
                             disabled={loading}
                             className="px-6 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                         >
-                            {loading ? 'Testing...' : 'Test API'}
+                            {loading ? t('apiTest.testing') : t('apiTest.testButton')}
                         </button>
 
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                                <p className="text-red-500 font-medium">Error</p>
+                                <p className="text-red-500 font-medium">{t('apiTest.error')}</p>
                                 <p className="text-red-400 text-sm mt-1">{error}</p>
                             </div>
                         )}
@@ -714,12 +716,12 @@ print_r($response);
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))]">
-                                        Response
+                                        {t('apiTest.responseTitle')}
                                     </h3>
                                     <button
                                         onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
                                         className="p-2 rounded hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
-                                        title="Copy response"
+                                        title={t('apiTest.copyResponse')}
                                     >
                                         {copiedSection === 'response' ? (
                                             <CheckCircleIcon className="h-4 w-4 text-green-500" />
@@ -741,19 +743,19 @@ print_r($response);
                 {/* API Documentation */}
                 <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        API Endpoint
+                        {t('apiTest.endpointTitle')}
                     </h2>
 
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Endpoint URL</p>
+                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.endpointUrl')}</p>
                             <code className="block bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2 rounded text-[rgb(var(--color-on-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))]">
                                 POST {baseUrl}{API_ENDPOINT}
                             </code>
                         </div>
 
                         <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Request Body</p>
+                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.requestBody')}</p>
                             <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
                                 <code className="text-[rgb(var(--color-on-surface-rgb))]">
 {`{
@@ -764,7 +766,7 @@ print_r($response);
                         </div>
 
                         <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Response Format</p>
+                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.responseFormat')}</p>
                             <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
                                 <code className="text-[rgb(var(--color-on-surface-rgb))]">
 {`{
@@ -788,7 +790,7 @@ print_r($response);
                 {/* Code Examples */}
                 <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        Code Examples
+                        {t('apiTest.codeExamples')}
                     </h2>
                     <CodeBlock />
                 </div>
@@ -796,10 +798,10 @@ print_r($response);
                 {/* Supported Sites */}
                 <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        Supported Sites
+                        {t('apiTest.supportedSites')}
                     </h2>
                     <p className="text-[rgb(var(--color-on-surface-muted-rgb))] mb-4">
-                        The API supports tag extraction from 18+ booru sites including:
+                        {t('apiTest.supportedDescription')}
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-[rgb(var(--color-on-surface-rgb))]">
                         <div>• Danbooru</div>
@@ -811,33 +813,41 @@ print_r($response);
                         <div>• Konachan</div>
                         <div>• AIBooru</div>
                         <div>• Pixiv</div>
-                        <div>• And more...</div>
+                        <div>• {t('apiTest.andMore')}</div>
                     </div>
                     <p className="text-[rgb(var(--color-on-surface-muted-rgb))] mt-4 text-sm">
-                        Check the <a href="/booru-list" className="text-[rgb(var(--color-primary-rgb))] hover:underline">Booru List</a> page for the complete list of supported sites.
+                        {t('apiTest.checkList').split('<link>')[0]}
+                        <a href="/booru-list" className="text-[rgb(var(--color-primary-rgb))] hover:underline">
+                            {t('apiTest.checkList').split('<link>')[1].split('</link>')[0]}
+                        </a>
+                        {t('apiTest.checkList').split('</link>')[1]}
                     </p>
                 </div>
 
                 {/* Rate Limiting & Notes */}
                 <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        Rate Limiting & Notes
+                        {t('apiTest.rateLimiting')}
                     </h2>
                     <div className="space-y-3 text-[rgb(var(--color-on-surface-muted-rgb))]">
                         <p>
-                            • API requests are rate-limited to prevent abuse and respect booru site resources
+                            • {t('apiTest.note1')}
                         </p>
                         <p>
-                            • Some sites may require authentication or have additional restrictions
+                            • {t('apiTest.note2')}
                         </p>
                         <p>
-                            • Response times vary depending on the target booru site (typically 1-5 seconds)
+                            • {t('apiTest.note3')}
                         </p>
                         <p>
-                            • Check the <a href="/status" className="text-[rgb(var(--color-primary-rgb))] hover:underline">API Status</a> page to verify endpoint availability before integration
+                            • {t('apiTest.note4').split('<link>')[0]}
+                            <a href="/status" className="text-[rgb(var(--color-primary-rgb))] hover:underline">
+                                {t('apiTest.note4').split('<link>')[1].split('</link>')[0]}
+                            </a>
+                            {t('apiTest.note4').split('</link>')[1]}
                         </p>
                         <p>
-                            • The API is provided as-is for educational and integration purposes
+                            • {t('apiTest.note5')}
                         </p>
                     </div>
                 </div>
