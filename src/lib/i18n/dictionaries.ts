@@ -4,7 +4,11 @@ import type { Locale, TranslationSchema } from './types';
 const dictionaries = {
   en: () => import('./locales/en.json').then((module) => module.default as TranslationSchema),
   id: () => import('./locales/id.json').then((module) => module.default as TranslationSchema),
-  zh: () => import('./locales/zh.json').then((module) => module.default as TranslationSchema)
+  zh: () => import('./locales/zh.json').then((module) => module.default as TranslationSchema),
+  'zh-TW': () => import('./locales/zh-TW.json').then((module) => module.default as TranslationSchema),
+  ja: () => import('./locales/ja.json').then((module) => module.default as TranslationSchema),
+  ar: () => import('./locales/ar.json').then((module) => module.default as TranslationSchema),
+  ru: () => import('./locales/ru.json').then((module) => module.default as TranslationSchema)
 } as const;
 
 // Cache for loaded dictionaries

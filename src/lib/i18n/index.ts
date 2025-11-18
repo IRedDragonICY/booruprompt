@@ -9,21 +9,33 @@ export const DEFAULT_LANGUAGE: Locale = 'en';
 export const availableLanguages: readonly LanguageOption[] = [
   { code: 'en', label: 'English' },
   { code: 'id', label: 'Bahasa Indonesia' },
-  { code: 'zh', label: '中文' }
+  { code: 'zh', label: '中文' },
+  { code: 'zh-TW', label: '繁體中文' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'ru', label: 'Русский' }
 ] as const;
 
 // Lazy load resources for better performance
 const loadResources = async () => {
-  const [en, id, zh] = await Promise.all([
+  const [en, id, zh, zhTW, ja, ar, ru] = await Promise.all([
     getDictionary('en'),
     getDictionary('id'),
-    getDictionary('zh')
+    getDictionary('zh'),
+    getDictionary('zh-TW'),
+    getDictionary('ja'),
+    getDictionary('ar'),
+    getDictionary('ru')
   ]);
 
   return {
     en: { translation: en },
     id: { translation: id },
-    zh: { translation: zh }
+    zh: { translation: zh },
+    'zh-TW': { translation: zhTW },
+    ja: { translation: ja },
+    ar: { translation: ar },
+    ru: { translation: ru }
   };
 };
 
