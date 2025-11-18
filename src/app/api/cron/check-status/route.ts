@@ -209,16 +209,3 @@ export async function GET(req: NextRequest) {
         );
     }
 }
-
-// Export cached data getter for other endpoints to use
-export function getCachedStatusData(): StatusData | null {
-    // Only return cache if it's less than 10 minutes old
-    const cacheAge = Date.now() - lastCheckTimestamp;
-    const TEN_MINUTES = 10 * 60 * 1000;
-
-    if (cachedStatusData && cacheAge < TEN_MINUTES) {
-        return cachedStatusData;
-    }
-
-    return null;
-}
