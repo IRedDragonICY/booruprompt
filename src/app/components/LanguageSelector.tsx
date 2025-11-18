@@ -18,6 +18,14 @@ export const LanguageSelector: React.FC = () => {
           return t('common.indonesian');
         case 'zh':
           return t('common.chinese');
+        case 'zh-TW':
+          return t('common.chineseTraditional');
+        case 'ja':
+          return t('common.japanese');
+        case 'ar':
+          return t('common.arabic');
+        case 'ru':
+          return t('common.russian');
         case 'en':
         default:
           return t('common.english');
