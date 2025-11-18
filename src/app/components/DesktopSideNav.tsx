@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TagIcon, PhotoIcon, TrophyIcon, CogIcon } from './icons/icons';
+import { TagIcon, PhotoIcon, TrophyIcon, CogIcon, SignalIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import type { ActiveView } from '../types/settings';
 import { useTranslation } from 'react-i18next';
+import Link from 'next/link';
 
 interface DesktopSideNavProps {
     active: ActiveView;
@@ -39,6 +40,14 @@ export function DesktopSideNav({ active, highlightSettings = false, onSelectExtr
                         <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
                         <TrophyIcon />
                     </motion.button>
+                </TooltipWrapper>
+                <TooltipWrapper tipContent="API Status">
+                    <Link href="/status" passHref legacyBehavior>
+                        <motion.a whileTap={{ scale: 0.96 }} className={navButtonClass(false)} aria-label="API Status" target="_blank" rel="noopener noreferrer">
+                            <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                            <SignalIcon />
+                        </motion.a>
+                    </Link>
                 </TooltipWrapper>
                 <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
                 <TooltipWrapper tipContent={t('common.navTooltip.settings')}>
