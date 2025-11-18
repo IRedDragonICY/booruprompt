@@ -51,6 +51,86 @@ const TEST_URLS: Record<string, string> = {
     'Fur Affinity': 'https://furaffinity.net/view/1'
 };
 
+async function checkApiEndpoint(): Promise<SiteStatus> {
+    const startTime = Date.now();
+
+    try {
+        const baseUrl = process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : 'http://localhost:3000';
+
+        // Test API endpoint with a known working URL
+        const response = await fetch(`${baseUrl}/api/fetch-booru`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ targetUrl: 'https://danbooru.donmai.us/posts/1' }),
+            signal: AbortSignal.timeout(15000), // 15 second timeout for API
+        });
+
+        const responseTime = Date.now() - startTime;
+        let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
+        let errorMsg: string | undefined;
+
+        if (response.ok) {
+            const data = await response.json();
+
+            // Check if API returned valid data
+            if (data.error) {
+                // Even with error, if API responded properly, it's operational
+                status = 'operational';
+            } else if (data.tags || data.siteName) {
+                // Valid extraction response
+                status = 'operational';
+            } else {
+                status = 'degraded';
+                errorMsg = 'Invalid API response';
+            }
+        } else if (response.status === 422) {
+            // Unprocessable entity - API works but extraction failed
+            status = 'operational';
+        } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+            status = 'major_outage';
+            errorMsg = `Server error: ${response.status}`;
+        } else {
+            status = 'degraded';
+            errorMsg = `HTTP ${response.status}`;
+        }
+
+        return {
+            name: 'API Endpoint (/api/fetch-booru)',
+            status,
+            responseTime,
+            lastChecked: new Date().toISOString(),
+            error: errorMsg
+        };
+    } catch (err: unknown) {
+        const responseTime = Date.now() - startTime;
+        let errorMsg: string;
+        let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage' = 'major_outage';
+
+        if (err instanceof Error) {
+            if (err.name === 'TimeoutError' || err.message.includes('timeout')) {
+                status = 'major_outage';
+                errorMsg = 'API timeout';
+            } else {
+                errorMsg = err.message;
+            }
+        } else {
+            errorMsg = 'Unknown error';
+        }
+
+        return {
+            name: 'API Endpoint (/api/fetch-booru)',
+            status,
+            responseTime,
+            lastChecked: new Date().toISOString(),
+            error: errorMsg
+        };
+    }
+}
+
 async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteStatus> {
     const startTime = Date.now();
 
@@ -154,8 +234,10 @@ export async function GET(req: NextRequest) {
         // Import BOORU_SITES
         const { BOORU_SITES } = await import('@/app/utils/extractionUtils');
 
-        // Check all sites in parallel
-        const statusPromises = BOORU_SITES.map(async (site) => {
+        // Check API endpoint and all sites in parallel
+        const apiCheckPromise = checkApiEndpoint();
+
+        const siteCheckPromises = BOORU_SITES.map(async (site) => {
             const testUrl = TEST_URLS[site.name];
             if (!testUrl) {
                 return {
@@ -170,7 +252,11 @@ export async function GET(req: NextRequest) {
             return checkSiteStatus(site.name, testUrl);
         });
 
-        const sites = await Promise.all(statusPromises);
+        // Wait for all checks to complete
+        const [apiStatus, ...siteStatuses] = await Promise.all([apiCheckPromise, ...siteCheckPromises]);
+
+        // Combine API status at the beginning of the list
+        const sites = [apiStatus, ...siteStatuses];
 
         // Calculate overall status
         const operationalCount = sites.filter(s => s.status === 'operational').length;
@@ -189,7 +275,7 @@ export async function GET(req: NextRequest) {
             lastUpdated: new Date().toISOString()
         };
 
-        console.log(`[Status API] Check completed. ${operationalCount}/${totalCount} operational`);
+        console.log(`[Status API] Check completed. ${operationalCount}/${totalCount} operational (including API endpoint)`);
 
         return NextResponse.json(statusData, {
             headers: {
