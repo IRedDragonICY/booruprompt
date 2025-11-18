@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
 
 interface SiteStatus {
     name: string;
@@ -140,8 +138,7 @@ const generateUptimeData = (status: SiteStatus['status']): { fill: string; title
     return data;
 };
 
-export default function StatusPage() {
-    const { t } = useTranslation();
+export default function StatusView() {
     const [statusData, setStatusData] = useState<StatusResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -179,7 +176,7 @@ export default function StatusPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[rgb(var(--color-surface-rgb))] flex items-center justify-center">
+            <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary-rgb))]"></div>
                     <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">Loading status...</p>
@@ -190,7 +187,7 @@ export default function StatusPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-[rgb(var(--color-surface-rgb))] flex items-center justify-center">
+            <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                     <p className="text-red-600">Error: {error}</p>
                     <button
@@ -205,21 +202,13 @@ export default function StatusPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[rgb(var(--color-surface-rgb))]">
-            <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+            <div className="max-w-6xl mx-auto px-6 py-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))]">
-                            API Status
-                        </h1>
-                        <Link
-                            href="/"
-                            className="px-4 py-2 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))] transition-colors"
-                        >
-                            ← Back to Home
-                        </Link>
-                    </div>
+                    <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-6">
+                        API Status
+                    </h1>
 
                     {statusData && (
                         <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">

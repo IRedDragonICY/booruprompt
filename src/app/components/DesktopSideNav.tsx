@@ -4,7 +4,6 @@ import { TagIcon, PhotoIcon, TrophyIcon, CogIcon, SignalIcon } from './icons/ico
 import { TooltipWrapper } from './TooltipWrapper';
 import type { ActiveView } from '../types/settings';
 import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
 
 interface DesktopSideNavProps {
     active: ActiveView;
@@ -12,12 +11,13 @@ interface DesktopSideNavProps {
     onSelectExtractor: () => void;
     onSelectImage: () => void;
     onSelectBooruList: () => void;
+    onSelectStatus: () => void;
     onOpenSettings: () => void;
 }
 
 const navButtonClass = (isActive: boolean) => `group relative overflow-hidden rounded-xl h-10 w-10 flex items-center justify-center transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${isActive ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40 shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
 
-export function DesktopSideNav({ active, highlightSettings = false, onSelectExtractor, onSelectImage, onSelectBooruList, onOpenSettings }: DesktopSideNavProps) {
+export function DesktopSideNav({ active, highlightSettings = false, onSelectExtractor, onSelectImage, onSelectBooruList, onSelectStatus, onOpenSettings }: DesktopSideNavProps) {
     const { t } = useTranslation();
 
     return (
@@ -42,12 +42,10 @@ export function DesktopSideNav({ active, highlightSettings = false, onSelectExtr
                     </motion.button>
                 </TooltipWrapper>
                 <TooltipWrapper tipContent="API Status">
-                    <Link href="/status" passHref legacyBehavior>
-                        <motion.a whileTap={{ scale: 0.96 }} className={navButtonClass(false)} aria-label="API Status" target="_blank" rel="noopener noreferrer">
-                            <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                            <SignalIcon />
-                        </motion.a>
-                    </Link>
+                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectStatus} className={navButtonClass(active === 'status')} aria-label="API Status" aria-current={active === 'status' ? 'page' : undefined}>
+                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                        <SignalIcon />
+                    </motion.button>
                 </TooltipWrapper>
                 <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
                 <TooltipWrapper tipContent={t('common.navTooltip.settings')}>

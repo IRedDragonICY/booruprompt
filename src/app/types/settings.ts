@@ -17,5 +17,5 @@ export interface Settings {
   blacklistKeywords: string;
 }
 
-export type ActiveView = 'extractor' | 'image' | 'booru-list' | 'settings';
+export type ActiveView = 'extractor' | 'image' | 'booru-list' | 'status' | 'settings';
 
