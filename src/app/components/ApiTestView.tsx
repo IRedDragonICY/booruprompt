@@ -2,10 +2,20 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ClipboardIcon, CheckCircleIcon } from './icons/icons';
+import { ClipboardIcon, CheckCircleIcon, ChevronDownIcon } from './icons/icons';
 
 const API_ENDPOINT = '/api/fetch-booru';
 const EXAMPLE_URL = 'https://safebooru.org/index.php?page=post&s=view&id=5592299';
+
+type Language = 'curl' | 'javascript' | 'python' | 'nodejs' | 'php';
+
+const LANGUAGES: { id: Language; label: string }[] = [
+    { id: 'curl', label: 'cURL' },
+    { id: 'javascript', label: 'JavaScript' },
+    { id: 'python', label: 'Python' },
+    { id: 'nodejs', label: 'Node.js' },
+    { id: 'php', label: 'PHP' },
+];
 
 export default function ApiTestView() {
     const [testUrl, setTestUrl] = useState(EXAMPLE_URL);
@@ -13,6 +23,8 @@ export default function ApiTestView() {
     const [response, setResponse] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [copiedSection, setCopiedSection] = useState<string | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState<Language>('curl');
+    const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
     const baseUrl = typeof window !== 'undefined'
         ? window.location.origin
@@ -57,11 +69,14 @@ export default function ApiTestView() {
         setTimeout(() => setCopiedSection(null), 2000);
     };
 
-    const curlExample = `curl -X POST ${baseUrl}${API_ENDPOINT} \\
+    const getCodeExample = (lang: Language): string => {
+        const examples: Record<Language, string> = {
+            curl: `curl -X POST ${baseUrl}${API_ENDPOINT} \\
   -H "Content-Type: application/json" \\
-  -d '{"targetUrl": "${EXAMPLE_URL}"}'`;
-
-    const javascriptExample = `// Using fetch API
+  -d '{
+    "targetUrl": "${EXAMPLE_URL}"
+  }'`,
+            javascript: `// Using fetch API
 fetch('${baseUrl}${API_ENDPOINT}', {
   method: 'POST',
   headers: {
@@ -73,9 +88,8 @@ fetch('${baseUrl}${API_ENDPOINT}', {
 })
   .then(response => response.json())
   .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));`;
-
-    const pythonExample = `import requests
+  .catch(error => console.error('Error:', error));`,
+            python: `import requests
 import json
 
 url = "${baseUrl}${API_ENDPOINT}"
@@ -89,9 +103,8 @@ headers = {
 
 response = requests.post(url, json=payload, headers=headers)
 data = response.json()
-print(json.dumps(data, indent=2))`;
-
-    const nodeExample = `const axios = require('axios');
+print(json.dumps(data, indent=2))`,
+            nodejs: `const axios = require('axios');
 
 const url = '${baseUrl}${API_ENDPOINT}';
 const data = {
@@ -104,9 +117,8 @@ axios.post(url, data)
   })
   .catch(error => {
     console.error('Error:', error.response?.data || error.message);
-  });`;
-
-    const phpExample = `<?php
+  });`,
+            php: `<?php
 $url = "${baseUrl}${API_ENDPOINT}";
 $data = array(
     "targetUrl" => "${EXAMPLE_URL}"
@@ -125,31 +137,90 @@ $result = file_get_contents($url, false, $context);
 $response = json_decode($result, true);
 
 print_r($response);
-?>`;
+?>`
+        };
+        return examples[lang];
+    };
 
-    const CodeBlock = ({ code, language, section }: { code: string; language: string; section: string }) => (
-        <div className="relative">
-            <div className="absolute top-2 right-2 flex items-center gap-2">
-                <span className="text-xs text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-2 py-1 rounded">
-                    {language}
-                </span>
-                <button
-                    onClick={() => copyToClipboard(code, section)}
-                    className="p-2 rounded bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
-                    title="Copy to clipboard"
-                >
-                    {copiedSection === section ? (
-                        <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                    ) : (
-                        <ClipboardIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-rgb))]" />
-                    )}
-                </button>
+    const CodeBlock = () => {
+        const code = getCodeExample(selectedLanguage);
+        const lines = code.split('\n');
+
+        return (
+            <div className="relative">
+                {/* Header with language selector and copy button */}
+                <div className="flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 py-2">
+                    {/* Language selector */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+                            className="flex items-center gap-2 text-sm text-[rgb(var(--color-on-surface-rgb))] hover:text-[rgb(var(--color-primary-rgb))] transition-colors"
+                        >
+                            <span className="font-medium">{LANGUAGES.find(l => l.id === selectedLanguage)?.label}</span>
+                            <ChevronDownIcon className="h-4 w-4" />
+                        </button>
+
+                        {/* Dropdown */}
+                        {showLanguageDropdown && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setShowLanguageDropdown(false)}
+                                />
+                                <div className="absolute top-full left-0 mt-1 z-20 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg shadow-lg py-1 min-w-[120px]">
+                                    {LANGUAGES.map((lang) => (
+                                        <button
+                                            key={lang.id}
+                                            onClick={() => {
+                                                setSelectedLanguage(lang.id);
+                                                setShowLanguageDropdown(false);
+                                            }}
+                                            className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                                                selectedLanguage === lang.id
+                                                    ? 'bg-[rgb(var(--color-primary-rgb))] text-white'
+                                                    : 'text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
+                                            }`}
+                                        >
+                                            {lang.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Copy button */}
+                    <button
+                        onClick={() => copyToClipboard(code, 'code-example')}
+                        className="p-2 rounded hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
+                        title="Copy to clipboard"
+                    >
+                        {copiedSection === 'code-example' ? (
+                            <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                        ) : (
+                            <ClipboardIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-rgb))]" />
+                        )}
+                    </button>
+                </div>
+
+                {/* Code content with line numbers */}
+                <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] rounded-b-lg overflow-x-auto">
+                    <pre className="p-4">
+                        <code className="text-sm text-[rgb(var(--color-on-surface-rgb))] font-mono">
+                            {lines.map((line, index) => (
+                                <div key={index} className="table-row">
+                                    <span className="table-cell pr-4 text-right select-none text-[rgb(var(--color-on-surface-muted-rgb))] w-8">
+                                        {index + 1}
+                                    </span>
+                                    <span className="table-cell">{line || ' '}</span>
+                                </div>
+                            ))}
+                        </code>
+                    </pre>
+                </div>
             </div>
-            <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] rounded-lg p-4 overflow-x-auto text-sm">
-                <code className="text-[rgb(var(--color-on-surface-rgb))]">{code}</code>
-            </pre>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="h-full w-full overflow-y-auto bg-[rgb(var(--color-surface-rgb))] p-4 md:p-6">
@@ -221,7 +292,7 @@ print_r($response);
                                         )}
                                     </button>
                                 </div>
-                                <pre className="bg-[rgb(var(--color-surface-rgb))] rounded-lg p-4 overflow-x-auto text-sm max-h-96">
+                                <pre className="bg-[rgb(var(--color-surface-rgb))] rounded-lg p-4 overflow-x-auto text-sm max-h-96 border border-[rgb(var(--color-surface-border-rgb))]">
                                     <code className="text-[rgb(var(--color-on-surface-rgb))]">
                                         {JSON.stringify(response, null, 2)}
                                     </code>
@@ -240,45 +311,40 @@ print_r($response);
                     <div className="space-y-4">
                         <div>
                             <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Endpoint URL</p>
-                            <code className="block bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2 rounded text-[rgb(var(--color-on-surface-rgb))]">
+                            <code className="block bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2 rounded text-[rgb(var(--color-on-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))]">
                                 POST {baseUrl}{API_ENDPOINT}
                             </code>
                         </div>
 
                         <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Request Headers</p>
-                            <code className="block bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2 rounded text-[rgb(var(--color-on-surface-rgb))]">
-                                Content-Type: application/json
-                            </code>
-                        </div>
-
-                        <div>
                             <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Request Body</p>
-                            <CodeBlock
-                                code={JSON.stringify({ targetUrl: "https://example.com/post/123" }, null, 2)}
-                                language="JSON"
-                                section="request-body"
-                            />
+                            <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
+                                <code className="text-[rgb(var(--color-on-surface-rgb))]">
+{`{
+  "targetUrl": "https://example.com/post/123"
+}`}
+                                </code>
+                            </pre>
                         </div>
 
                         <div>
                             <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">Response Format</p>
-                            <CodeBlock
-                                code={`{
+                            <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
+                                <code className="text-[rgb(var(--color-on-surface-rgb))]">
+{`{
   "siteName": "Safebooru",
   "tags": {
-    "general": ["tag1", "tag2", "..."],
-    "character": ["character1", "..."],
-    "copyright": ["series1", "..."],
-    "artist": ["artist1", "..."],
-    "meta": ["meta1", "..."]
+    "general": ["tag1", "tag2"],
+    "character": ["character1"],
+    "copyright": ["series1"],
+    "artist": ["artist1"],
+    "meta": ["meta1"]
   },
   "imageUrl": "https://...",
   "title": "Post #123"
 }`}
-                                language="JSON"
-                                section="response-format"
-                            />
+                                </code>
+                            </pre>
                         </div>
                     </div>
                 </div>
@@ -288,43 +354,7 @@ print_r($response);
                     <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
                         Code Examples
                     </h2>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                                cURL
-                            </h3>
-                            <CodeBlock code={curlExample} language="bash" section="curl" />
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                                JavaScript (Fetch API)
-                            </h3>
-                            <CodeBlock code={javascriptExample} language="javascript" section="javascript" />
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                                Python (Requests)
-                            </h3>
-                            <CodeBlock code={pythonExample} language="python" section="python" />
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                                Node.js (Axios)
-                            </h3>
-                            <CodeBlock code={nodeExample} language="javascript" section="nodejs" />
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                                PHP
-                            </h3>
-                            <CodeBlock code={phpExample} language="php" section="php" />
-                        </div>
-                    </div>
+                    <CodeBlock />
                 </div>
 
                 {/* Supported Sites */}
