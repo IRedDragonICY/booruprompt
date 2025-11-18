@@ -91,34 +91,45 @@ const getStatusText = (status: SiteStatus['status']) => {
     }
 };
 
-// Mock uptime data (90 days) - in real app, this would come from historical data
-const generateMockUptimeData = (status: SiteStatus['status']): { fill: string; title: string }[] => {
+// Uptime data (90 days) - shows gray for untracked days and current status for today
+const generateUptimeData = (status: SiteStatus['status']): { fill: string; title: string }[] => {
     const days = 90;
     const data: { fill: string; title: string }[] = [];
 
     for (let i = 0; i < days; i++) {
-        // Mostly green, with occasional issues
-        const rand = Math.random();
-        let fill: string;
-        let statusText: string;
-
-        if (status === 'major_outage' && i === days - 1) {
-            fill = '#e04343'; // red
-            statusText = 'Major Outage';
-        } else if (rand > 0.95) {
-            fill = '#e04343'; // red
-            statusText = 'Major Outage';
-        } else if (rand > 0.90) {
-            fill = '#d1a92a'; // yellow
-            statusText = 'Degraded';
-        } else {
-            fill = '#76ad2a'; // green
-            statusText = 'Operational';
-        }
-
         const daysAgo = days - i - 1;
         const date = new Date();
         date.setDate(date.getDate() - daysAgo);
+
+        let fill: string;
+        let statusText: string;
+
+        // Only show real status for today (last day), rest is no data
+        if (i === days - 1) {
+            // Today - show actual status
+            switch (status) {
+                case 'operational':
+                    fill = '#76ad2a'; // green
+                    statusText = 'Operational';
+                    break;
+                case 'degraded':
+                    fill = '#d1a92a'; // yellow
+                    statusText = 'Degraded Performance';
+                    break;
+                case 'partial_outage':
+                    fill = '#e7a82a'; // orange
+                    statusText = 'Partial Outage';
+                    break;
+                case 'major_outage':
+                    fill = '#e04343'; // red
+                    statusText = 'Major Outage';
+                    break;
+            }
+        } else {
+            // Previous days - no data yet
+            fill = '#d1d5db'; // gray - no data
+            statusText = 'No data';
+        }
 
         data.push({
             fill,
@@ -369,7 +380,7 @@ export default function StatusPage() {
                     </div>
 
                     {statusData?.sites.map((site) => {
-                        const uptimeData = generateMockUptimeData(site.status);
+                        const uptimeData = generateUptimeData(site.status);
 
                         return (
                             <motion.div
@@ -424,7 +435,7 @@ export default function StatusPage() {
                                     <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
                                         <span>90 days ago</span>
                                         <span className="font-semibold">
-                                            {((uptimeData.filter(d => d.fill === '#76ad2a').length / 90) * 100).toFixed(2)}% uptime
+                                            {site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'}% uptime (today only)
                                         </span>
                                         <span>Today</span>
                                     </div>
@@ -444,7 +455,7 @@ export default function StatusPage() {
                     <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-3">
                         Status Legend
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-green-600"></div>
                             <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Operational</span>
@@ -460,6 +471,10 @@ export default function StatusPage() {
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded-full bg-red-600"></div>
                             <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Major Outage</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-gray-300"></div>
+                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">No Data</span>
                         </div>
                     </div>
                 </div>
