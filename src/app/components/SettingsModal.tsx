@@ -129,7 +129,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 backdrop-blur-xs overflow-hidden"
+                    className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-0 md:p-4 overflow-hidden"
                     {...BACKDROP_VARIANTS}
                     onClick={onClose}
                     role="dialog"
