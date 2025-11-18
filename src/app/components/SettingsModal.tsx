@@ -63,7 +63,7 @@ const EXPAND_VARIANTS = {
 // Optimized debounce hook using useRef for better performance
 function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
-    const timerRef = React.useRef<NodeJS.Timeout>();
+    const timerRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
