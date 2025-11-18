@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TagIcon, PhotoIcon, TrophyIcon, CogIcon, SignalIcon } from './icons/icons';
+import { TagIcon, PhotoIcon, TrophyIcon, CogIcon, SignalIcon, CodeBracketIcon } from './icons/icons';
 import { TooltipWrapper } from './TooltipWrapper';
 import type { ActiveView } from '../types/settings';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +12,13 @@ interface DesktopSideNavProps {
     onSelectImage: () => void;
     onSelectBooruList: () => void;
     onSelectStatus: () => void;
+    onSelectApiTest: () => void;
     onOpenSettings: () => void;
 }
 
 const navButtonClass = (isActive: boolean) => `group relative overflow-hidden rounded-xl h-10 w-10 flex items-center justify-center transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${isActive ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40 shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
 
-export function DesktopSideNav({ active, highlightSettings = false, onSelectExtractor, onSelectImage, onSelectBooruList, onSelectStatus, onOpenSettings }: DesktopSideNavProps) {
+export function DesktopSideNav({ active, highlightSettings = false, onSelectExtractor, onSelectImage, onSelectBooruList, onSelectStatus, onSelectApiTest, onOpenSettings }: DesktopSideNavProps) {
     const { t } = useTranslation();
 
     return (
@@ -45,6 +46,12 @@ export function DesktopSideNav({ active, highlightSettings = false, onSelectExtr
                     <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectStatus} className={navButtonClass(active === 'status')} aria-label="API Status" aria-current={active === 'status' ? 'page' : undefined}>
                         <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
                         <SignalIcon />
+                    </motion.button>
+                </TooltipWrapper>
+                <TooltipWrapper tipContent="API Testing">
+                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectApiTest} className={navButtonClass(active === 'api-test')} aria-label="API Testing" aria-current={active === 'api-test' ? 'page' : undefined}>
+                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
+                        <CodeBracketIcon />
                     </motion.button>
                 </TooltipWrapper>
                 <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />

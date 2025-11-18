@@ -15,6 +15,7 @@ interface DesktopAppShellProps {
     selectImage: () => void;
     selectBooruList: () => void;
     selectStatus: () => void;
+    selectApiTest: () => void;
     openSettings: () => void;
 
     isDraggingOverExtractor: boolean;
@@ -38,6 +39,7 @@ export function DesktopAppShell({
     selectImage,
     selectBooruList,
     selectStatus,
+    selectApiTest,
     openSettings,
     isDraggingOverExtractor,
     isDraggingOverImage,
@@ -63,6 +65,7 @@ export function DesktopAppShell({
                 onSelectImage={selectImage}
                 onSelectBooruList={selectBooruList}
                 onSelectStatus={selectStatus}
+                onSelectApiTest={selectApiTest}
                 onOpenSettings={openSettings}
             />
 

@@ -21,6 +21,7 @@ import BooruInfoSection from './components/BooruInfoSection';
 import BooruListPanel from './components/BooruListPanel';
 import { StatusMessage } from './components/StatusMessage';
 import StatusView from './components/StatusView';
+import ApiTestView from './components/ApiTestView';
 import { HistoryPanelBase } from './components/HistoryPanel';
 import { ParameterItem } from './components/ParameterItem';
 import ErrorPage from './components/ErrorPage';
@@ -248,6 +249,7 @@ const BooruTagExtractor = () => {
         if (currentPath === '/image-metadata') setActiveView('image');
         else if (currentPath === '/booru-list') setActiveView('booru-list');
         else if (currentPath === '/status') setActiveView('status');
+        else if (currentPath === '/api-test') setActiveView('api-test');
         else if (currentPath === '/settings') setActiveView('settings');
         else {
             setActiveView('extractor');
@@ -269,6 +271,7 @@ const BooruTagExtractor = () => {
         else if (activeView === 'image') targetPath = '/image-metadata';
         else if (activeView === 'booru-list') targetPath = '/booru-list';
         else if (activeView === 'status') targetPath = '/status';
+        else if (activeView === 'api-test') targetPath = '/api-test';
         else targetPath = '/settings';
 
         if (currentPath !== targetPath) window.history.replaceState(null, '', targetPath);
@@ -730,6 +733,7 @@ const BooruTagExtractor = () => {
                     selectImage={() => setActiveView('image')}
                     selectBooruList={() => setActiveView('booru-list')}
                     selectStatus={() => setActiveView('status')}
+                    selectApiTest={() => setActiveView('api-test')}
                     openSettings={() => setActiveView('settings')}
                     highlightSettings={showSettings}
                     isDraggingOverExtractor={isDraggingOver}
@@ -917,6 +921,10 @@ const BooruTagExtractor = () => {
                             <motion.div key="status-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
                                 <StatusView />
                             </motion.div>
+                        ) : activeView === 'api-test' ? (
+                            <motion.div key="api-test-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+                                <ApiTestView />
+                            </motion.div>
                         ) : (
                             <motion.div key="settings-view" className="flex flex-col flex-1 overflow-hidden" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} transition={{ duration: 0.25, ease: "easeOut" }}>
                                 <SettingsPanel settings={settings} onSettingsChange={handleSettingsChange} />
@@ -932,6 +940,7 @@ const BooruTagExtractor = () => {
                     selectImage={() => setActiveView('image')}
                     selectBooruList={() => setActiveView('booru-list')}
                     selectStatus={() => setActiveView('status')}
+                    selectApiTest={() => setActiveView('api-test')}
                     openSettings={handleOpenSettings}
                     isDraggingOverExtractor={isDraggingOver}
                     isDraggingOverImage={isDraggingOverImage}
@@ -1121,6 +1130,10 @@ const BooruTagExtractor = () => {
                         ) : activeView === 'status' ? (
                             <motion.div key="status-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                                 <StatusView />
+                            </motion.div>
+                        ) : activeView === 'api-test' ? (
+                            <motion.div key="api-test-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                                <ApiTestView />
                             </motion.div>
                         ) : null}
                     </AnimatePresence>
