@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "Booru 태그 추출기",
-    "language": "한국어",
+    "language": "언어",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -9,77 +9,6 @@
     "japanese": "日本語",
     "arabic": "العربية",
     "russian": "Русский",
-    "author": "IRedDragonICY",
-    "defaultDescription": "Booru 게시물에서 태그를 즉시 추출, 필터링 및 복사합니다.",
-    "unknown": "Unknown",
-    "languageSwitcher": {
-      "title": "Interface language",
-      "description": "Stored in your browser. Default language is English.",
-      "instantNotice": "Changes apply instantly without reloading.",
-      "searchPlaceholder": "Search languages...",
-      "noResults": "No languages found"
-    },
-    "nav": {
-      "extractor": "태그",
-      "image": "이미지",
-      "booruList": "Boorus",
-      "settings": "설정"
-    },
-    "navTooltip": {
-      "extractor": "Tag Extractor",
-      "image": "Image Metadata",
-      "booruList": "Booru Leaderboard",
-      "settings": "Settings"
-    },
-    "dropOverlay": {
-      "url": "Drop URL",
-      "png": "Drop PNG"
-    },
-    "actions": {
-      "add": "Add",
-      "apply": "Apply",
-      "back": "Back",
-      "cancel": "Cancel",
-      "clear": "Clear",
-      "close": "Close",
-      "confirm": "Confirm",
-      "copy": "Copy",
-      "copied": "Copied!",
-      "delete": "Delete",
-      "done": "Done",
-      "edit": "Edit",
-      "next": "Next",
-      "previous": "Previous",
-      "refresh": "Refresh",
-      "reset": "Reset",
-      "retry": "Retry",
-      "save": "Save",
-      "search": "Search",
-      "select": "Select",
-      "submit": "Submit",
-      "all": "All",
-      "none": "None",
-      "visit": "Visit",
-      "previousShort": "Prev",
-      "nextShort": "Next"
-    },
-    "status": {
-      "loading": "로딩 중...",
-      "processing": "Processing...",
-      "copied": "복사됨!"
-    },
-    "footer": {
-      "madeWith": "Made with",
-      "by": "by"
-    },
-    "statusBar": {
-      "serverProxy": "Server Proxy.",
-      "clientProxy": "Client Proxy ({{proxy}}).",
-      "historyEnabled": "History enabled ({{size}}).",
-      "historyDisabled": "History disabled.",
-      "historyUnlimited": "Unlimited",
-      "historyEntries": "{{count}} Entries"
-    },
     "spanish": "Español",
     "french": "Français",
     "german": "Deutsch",
@@ -92,290 +21,360 @@
     "vietnamese": "Tiếng Việt",
     "thai": "ไทย",
     "hindi": "हिन्दी",
-    "ukrainian": "Українська"
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Booru 게시물에서 태그를 즉시 추출, 필터링 및 복사합니다.",
+    "unknown": "알 수 없음",
+    "languageSwitcher": {
+      "title": "인터페이스 언어",
+      "description": "브라우저에 저장됩니다. 기본 언어는 영어입니다.",
+      "instantNotice": "변경 사항이 다시 로드하지 않고 즉시 적용됩니다.",
+      "searchPlaceholder": "언어 검색...",
+      "noResults": "언어를 찾을 수 없습니다"
+    },
+    "nav": {
+      "extractor": "태그",
+      "image": "이미지",
+      "booruList": "Boorus",
+      "settings": "설정"
+    },
+    "navTooltip": {
+      "extractor": "태그 추출기",
+      "image": "이미지 메타데이터",
+      "booruList": "Booru 리더보드",
+      "settings": "설정"
+    },
+    "dropOverlay": {
+      "url": "URL 드롭",
+      "png": "PNG 드롭"
+    },
+    "actions": {
+      "add": "추가",
+      "apply": "적용",
+      "back": "뒤로",
+      "cancel": "취소",
+      "clear": "지우기",
+      "close": "닫기",
+      "confirm": "확인",
+      "copy": "복사",
+      "copied": "복사됨!",
+      "delete": "삭제",
+      "done": "완료",
+      "edit": "편집",
+      "next": "다음",
+      "previous": "이전",
+      "refresh": "새로고침",
+      "reset": "재설정",
+      "retry": "다시 시도",
+      "save": "저장",
+      "search": "검색",
+      "select": "선택",
+      "submit": "제출",
+      "all": "전체",
+      "none": "없음",
+      "visit": "방문",
+      "previousShort": "이전",
+      "nextShort": "다음"
+    },
+    "status": {
+      "loading": "로딩 중...",
+      "processing": "처리 중..."
+    },
+    "footer": {
+      "madeWith": "제작",
+      "by": "작성자"
+    },
+    "statusBar": {
+      "serverProxy": "서버 프록시.",
+      "clientProxy": "클라이언트 프록시 ({{proxy}}).",
+      "historyEnabled": "기록 활성화됨 ({{size}}).",
+      "historyDisabled": "기록 비활성화됨.",
+      "historyUnlimited": "무제한",
+      "historyEntries": "{{count}}개 항목"
+    }
   },
   "settings": {
     "title": "설정",
     "sections": {
-      "appearance": "Appearance",
-      "colorTheme": "Color Theme",
-      "dataFetch": "Data Fetching Method"
+      "appearance": "외관",
+      "colorTheme": "색상 테마",
+      "dataFetch": "데이터 가져오기 방법"
     },
     "themeOptions": {
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark"
+      "system": "시스템",
+      "light": "밝게",
+      "dark": "어둡게"
     },
     "colorThemes": {
-      "blue": "Blue",
-      "orange": "Orange",
-      "teal": "Teal",
-      "rose": "Rose",
-      "purple": "Purple",
-      "green": "Green",
-      "custom": "Custom Color"
+      "blue": "파란색",
+      "orange": "주황색",
+      "teal": "청록색",
+      "rose": "장미색",
+      "purple": "보라색",
+      "green": "녹색",
+      "custom": "사용자 지정 색상"
     },
     "customColor": {
-      "label": "Custom Color",
-      "pickerLabel": "Custom color picker",
-      "inputLabel": "Custom color hex code",
+      "label": "사용자 지정 색상",
+      "pickerLabel": "사용자 지정 색상 선택기",
+      "inputLabel": "사용자 지정 색상 16진수 코드",
       "placeholder": "#rrggbb"
     },
     "fetchModes": {
       "server": {
-        "label": "Server Proxy",
-        "description": "Uses this application's server to fetch data. Recommended, more reliable."
+        "label": "서버 프록시",
+        "description": "이 애플리케이션의 서버를 사용하여 데이터를 가져옵니다. 권장, 더 안정적입니다."
       },
       "clientProxy": {
-        "label": "Client-Side Proxy",
-        "description": "Uses a public CORS proxy in your browser. May be less reliable or rate-limited."
+        "label": "클라이언트측 프록시",
+        "description": "브라우저에서 공개 CORS 프록시를 사용합니다. 덜 안정적이거나 속도 제한이 있을 수 있습니다."
       }
     },
     "clientProxy": {
-      "selectLabel": "Select Client Proxy Service:",
-      "ariaLabel": "Client Proxy Service Selector",
-      "helper": "Performance and reliability vary between proxies."
+      "selectLabel": "클라이언트 프록시 서비스 선택:",
+      "ariaLabel": "클라이언트 프록시 서비스 선택기",
+      "helper": "프록시마다 성능과 안정성이 다릅니다."
     },
     "toggles": {
       "autoExtract": {
-        "label": "Automatic Extraction",
-        "description": "Extract tags automatically after pasting/typing a valid URL.",
-        "tooltip": "Enable or disable automatic tag extraction upon pasting/typing a valid URL"
+        "label": "자동 추출",
+        "description": "유효한 URL을 붙여넣기/입력한 후 태그를 자동으로 추출합니다.",
+        "tooltip": "유효한 URL을 붙여넣기/입력할 때 자동 태그 추출 활성화 또는 비활성화"
       },
       "previews": {
-        "label": "Enable Previews",
-        "description": "Show image/video previews during extraction and in history.",
-        "tooltip": "Enable or disable image/video previews to save bandwidth or avoid potential issues",
-        "note": "Images are always fetched via the Server Proxy."
+        "label": "미리보기 활성화",
+        "description": "추출 중 및 기록에서 이미지/비디오 미리보기를 표시합니다.",
+        "tooltip": "대역폭을 절약하거나 잠재적인 문제를 방지하기 위해 이미지/비디오 미리보기 활성화 또는 비활성화",
+        "note": "이미지는 항상 서버 프록시를 통해 가져옵니다."
       },
       "saveHistory": {
-        "label": "Save History",
-        "description": "Store successful extractions locally in your browser.",
-        "tooltip": "Enable or disable saving extraction history to your browser's local storage"
+        "label": "기록 저장",
+        "description": "성공적인 추출을 브라우저에 로컬로 저장합니다.",
+        "tooltip": "브라우저의 로컬 스토리지에 추출 기록 저장 활성화 또는 비활성화"
       },
       "unsupportedSites": {
-        "label": "Enable for Unsupported Sites",
-        "description": "Try to extract from unsupported sites using similar site patterns. May not work for all sites.",
-        "tooltip": "Enable extraction for unsupported websites by using similar site patterns"
+        "label": "지원되지 않는 사이트에 대해 활성화",
+        "description": "유사한 사이트 패턴을 사용하여 지원되지 않는 사이트에서 추출을 시도합니다. 모든 사이트에서 작동하지 않을 수 있습니다.",
+        "tooltip": "유사한 사이트 패턴을 사용하여 지원되지 않는 웹사이트에 대한 추출 활성화"
       },
       "blacklist": {
-        "label": "Enable Keyword Blacklist",
-        "description": "Enter keywords to block, separated by commas, semicolons, or new lines.",
-        "tooltip": "Block unwanted tags by filtering out specific keywords",
-        "placeholder": "Enter keywords to block…",
-        "ariaLabel": "Blacklist Keywords",
-        "reset": "Reset to Default"
+        "label": "키워드 블랙리스트 활성화",
+        "description": "차단할 키워드를 쉼표, 세미콜론 또는 줄바꿈으로 구분하여 입력하세요.",
+        "tooltip": "특정 키워드를 필터링하여 원하지 않는 태그 차단",
+        "placeholder": "차단할 키워드 입력...",
+        "ariaLabel": "블랙리스트 키워드",
+        "reset": "기본값으로 재설정"
       }
     },
     "historySize": {
-      "label": "Maximum History Size",
-      "description": "Set the max number of entries for both extraction and image history."
+      "label": "최대 기록 크기",
+      "description": "추출 및 이미지 기록 모두에 대한 최대 항목 수를 설정합니다."
     },
     "accessibility": {
-      "themeOption": "Theme {{label}}",
-      "colorThemeOption": "Color theme {{label}}",
-      "historySizeSelect": "Maximum history size"
+      "themeOption": "테마 {{label}}",
+      "colorThemeOption": "색상 테마 {{label}}",
+      "historySizeSelect": "최대 기록 크기"
     },
     "historySizeOptions": {
-      "10": "10 Entries",
-      "30": "30 Entries",
-      "50": "50 Entries",
-      "100": "100 Entries",
-      "unlimited": "Unlimited"
+      "10": "10개 항목",
+      "30": "30개 항목",
+      "50": "50개 항목",
+      "100": "100개 항목",
+      "unlimited": "무제한"
     },
     "support": {
-      "title": "Support & Feedback",
-      "cta": "Report an Issue on GitHub",
-      "description": "Found a bug or have a suggestion? Let us know!"
+      "title": "지원 및 피드백",
+      "cta": "GitHub에서 문제 보고",
+      "description": "버그를 발견했거나 제안이 있으신가요? 알려주세요!"
     },
     "modal": {
-      "close": "Close Settings"
+      "close": "설정 닫기"
     }
   },
   "extractor": {
     "header": {
-      "title": "Booru Tag Extractor",
-      "subtitle": "Extract tags from booru image boards",
-      "supported": "Supported platforms:",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste your booru post URL here...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset",
+      "title": "Booru 태그 추출기",
+      "subtitle": "Booru 이미지 보드에서 태그 추출",
+      "supported": "지원되는 플랫폼:",
+      "urlLabel": "Booru 게시물 URL",
+      "urlPlaceholder": "Booru 게시물 URL을 여기에 붙여넣으세요...",
+      "manualButton": "수동으로 추출",
+      "resetButton": "재설정",
       "activePlaceholder": "—"
     },
     "info": {
-      "heroTitle": "Booru Tag Extractor",
-      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "heroTitle": "Booru 태그 추출기",
+      "heroSubtitle": "Booru 사이트에서 태그를 즉시 추출, 필터링 및 복사",
       "features": {
         "smart": {
-          "title": "Smart",
-          "subtitle": "Auto-extract"
+          "title": "스마트",
+          "subtitle": "자동 추출"
         },
         "fast": {
-          "title": "Fast",
-          "subtitle": "Instant results"
+          "title": "빠름",
+          "subtitle": "즉각적인 결과"
         },
         "private": {
-          "title": "Private",
-          "subtitle": "Client-side"
+          "title": "프라이빗",
+          "subtitle": "클라이언트측"
         },
         "copy": {
-          "title": "Copy",
-          "subtitle": "One-click"
+          "title": "복사",
+          "subtitle": "원클릭"
         }
       },
       "cta": {
-        "paste": "Paste",
-        "extract": "Extract",
-        "filter": "Filter",
-        "copy": "Copy"
+        "paste": "붙여넣기",
+        "extract": "추출",
+        "filter": "필터",
+        "copy": "복사"
       },
-      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+      "supportNotice": "Danbooru, Gelbooru, Safebooru, Rule34, e621 등을 지원합니다"
     },
     "preview": {
-      "title": "Preview"
+      "title": "미리보기"
     },
     "status": {
-      "resultLabel": "Result for:"
+      "resultLabel": "결과:"
     },
     "categories": {
-      "title": "Filter Categories",
-      "enableAll": "All",
-      "disableAll": "None",
+      "title": "카테고리 필터",
+      "enableAll": "전체",
+      "disableAll": "없음",
       "items": {
-        "copyright": "Copyright",
-        "character": "Character",
-        "general": "General",
-        "meta": "Meta",
-        "other": "Other"
+        "copyright": "저작권",
+        "character": "캐릭터",
+        "general": "일반",
+        "meta": "메타",
+        "other": "기타"
       },
-      "count_one": "{{count}} tag",
-      "count_other": "{{count}} tags"
+      "count_one": "{{count}}개 태그",
+      "count_other": "{{count}}개 태그"
     },
     "filteredTags": {
-      "label": "Filtered Tags",
-      "ariaLabel": "Filtered tags",
-      "empty": "No tags to display.",
-      "copy": "Copy Tags",
-      "copied": "Copied!"
+      "label": "필터링된 태그",
+      "ariaLabel": "필터링된 태그",
+      "empty": "표시할 태그가 없습니다.",
+      "copy": "태그 복사",
+      "copied": "복사됨!"
     },
     "history": {
-      "extractionTitle": "Extraction History",
-      "imageTitle": "Image History",
-      "searchExtraction": "Search title, url, tags...",
-      "searchImages": "Search filename, prompts, params...",
-      "emptySearch": "No entries match your search.",
-      "clearTooltip": "Clear All History",
-      "clearAction": "Clear History",
-      "confirmMessage": "Really clear?",
-      "confirmYes": "Yes, Clear",
-      "confirmCancel": "Cancel",
-      "searchAriaLabel": "Search {{context}}",
-      "searchFallback": "history",
-      "clearSearchTooltip": "Clear Search",
-      "clearSearchAria": "Clear search"
+      "extractionTitle": "추출 기록",
+      "imageTitle": "이미지 기록",
+      "searchExtraction": "제목, URL, 태그 검색...",
+      "searchImages": "파일명, 프롬프트, 매개변수 검색...",
+      "emptySearch": "검색과 일치하는 항목이 없습니다.",
+      "clearTooltip": "전체 기록 지우기",
+      "clearAction": "기록 지우기",
+      "confirmMessage": "정말 지우시겠습니까?",
+      "confirmYes": "예, 지우기",
+      "confirmCancel": "취소",
+      "searchAriaLabel": "{{context}} 검색",
+      "searchFallback": "기록",
+      "clearSearchTooltip": "검색 지우기",
+      "clearSearchAria": "검색 지우기"
     },
     "mobile": {
-      "historyButton": "History",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste URL or Drag & Drop...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset"
+      "historyButton": "기록",
+      "urlLabel": "Booru 게시물 URL",
+      "urlPlaceholder": "URL 붙여넣기 또는 드래그 앤 드롭...",
+      "manualButton": "수동으로 추출",
+      "resetButton": "재설정"
     }
   },
   "imageTool": {
-    "title": "Image Metadata",
-    "dropCtaTitle": "Drag & Drop PNG Here",
-    "dropCtaSubtitle": "or click to upload",
-    "selectButton": "Select PNG",
-    "statusProcessing": "Processing...",
+    "title": "이미지 메타데이터",
+    "dropCtaTitle": "여기에 PNG 드래그 앤 드롭",
+    "dropCtaSubtitle": "또는 클릭하여 업로드",
+    "selectButton": "PNG 선택",
+    "statusProcessing": "처리 중...",
     "previewMeta": "{{name}} ({{size}} KB)",
-    "positivePrompt": "Positive Prompt",
-    "negativePrompt": "Negative Prompt",
-    "parameters": "Parameters",
-    "copy": "Copy",
-    "copyAll": "Copy All",
-    "copySuccess": "Copied!",
-    "noMetadata": "No generation metadata found.",
-    "loadMetadata": "Load Metadata",
-    "deleteEntry": "Delete Entry",
-    "historyTitle": "Image History",
-    "historySearch": "Search filename, prompts, params...",
-    "previewAlt": "Preview",
+    "positivePrompt": "긍정 프롬프트",
+    "negativePrompt": "부정 프롬프트",
+    "parameters": "매개변수",
+    "copy": "복사",
+    "copyAll": "모두 복사",
+    "copySuccess": "복사됨!",
+    "noMetadata": "생성 메타데이터를 찾을 수 없습니다.",
+    "loadMetadata": "메타데이터 로드",
+    "deleteEntry": "항목 삭제",
+    "historyTitle": "이미지 기록",
+    "historySearch": "파일명, 프롬프트, 매개변수 검색...",
+    "previewAlt": "미리보기",
     "footer": {
-      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+      "metadataNotice": "'parameters' 텍스트 청크에 대한 PNG 메타데이터 추출."
     }
   },
   "historyItem": {
-    "load": "Load this history entry",
-    "delete": "Delete this history entry",
-    "previewAlt": "Preview"
+    "load": "이 기록 항목 로드",
+    "delete": "이 기록 항목 삭제",
+    "previewAlt": "미리보기"
   },
   "imagePreview": {
-    "loading": "Loading preview...",
-    "error": "Could not load preview.",
-    "errorDetail": "Server proxy error or invalid image",
-    "videoUnsupported": "Your browser does not support video.",
-    "openFull": "Open full-size preview",
-    "close": "Close",
-    "reset": "Reset",
-    "openOriginal": "Open original"
+    "loading": "미리보기 로딩 중...",
+    "error": "미리보기를 로드할 수 없습니다.",
+    "errorDetail": "서버 프록시 오류 또는 잘못된 이미지",
+    "videoUnsupported": "브라우저가 비디오를 지원하지 않습니다.",
+    "openFull": "전체 크기 미리보기 열기",
+    "close": "닫기",
+    "reset": "재설정",
+    "openOriginal": "원본 열기"
   },
   "booruList": {
-    "pageTitle": "Top Booru Leaderboard",
-    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
-    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
-    "searchPlaceholder": "Search booru sites...",
+    "pageTitle": "상위 Booru 리더보드",
+    "pageDescriptionShort": "총 이미지 및 활동으로 순위가 매겨진 상위 Booru 사이트를 탐색합니다.",
+    "pageDescriptionLong": "웹 전체에서 가장 인기 있는 Booru 사이트를 발견하세요. Booru.org의 데이터로 총 이미지, 회원 수 및 활동으로 순위가 매겨집니다.",
+    "searchPlaceholder": "Booru 사이트 검색...",
     "filter": {
-      "all": "All",
-      "sfw": "SFW",
-      "nsfw": "NSFW"
+      "all": "전체",
+      "sfw": "안전",
+      "nsfw": "성인"
     },
     "stats": {
-      "images": "Images",
-      "members": "Members",
-      "owner": "Owner"
+      "images": "이미지",
+      "members": "회원",
+      "owner": "소유자"
     },
     "sort": {
-      "label": "Sort by:",
-      "rank": "Rank (Top)",
-      "images": "Images Count",
-      "members": "Members Count",
-      "asc": "Asc",
-      "desc": "Desc"
+      "label": "정렬 기준:",
+      "rank": "순위 (상위)",
+      "images": "이미지 수",
+      "members": "회원 수",
+      "asc": "오름차순",
+      "desc": "내림차순"
     },
-    "itemsPerPage": "Per page:",
-    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "itemsPerPage": "페이지당:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
     "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "previousShort": "Prev",
-      "nextShort": "Next"
+      "previous": "이전",
+      "next": "다음",
+      "previousShort": "이전",
+      "nextShort": "다음"
     },
-    "emptyState": "No booru sites found",
-    "loading": "Loading booru data...",
-    "errorTitle": "Error Loading Data",
+    "emptyState": "Booru 사이트를 찾을 수 없습니다",
+    "loading": "Booru 데이터 로딩 중...",
+    "errorTitle": "데이터 로드 오류",
     "errors": {
-      "fetchFailed": "Failed to fetch booru data.",
-      "unknown": "Something went wrong while loading the leaderboard."
+      "fetchFailed": "Booru 데이터를 가져오지 못했습니다.",
+      "unknown": "리더보드를 로드하는 중 문제가 발생했습니다."
     },
-    "ownerLabel": "Owner:",
-    "visit": "Visit {{name}}"
+    "ownerLabel": "소유자:",
+    "visit": "{{name}} 방문"
   },
   "booruDetail": {
-    "backButton": "Back to Booru List",
-    "notFoundTitle": "Booru Not Found",
-    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
-    "statistics": "Statistics",
-    "totalImages": "Total Images",
-    "totalMembers": "Total Members",
-    "shortName": "Short Name",
-    "owner": "Owner",
-    "hosted": "Hosted by booru.org",
-    "protocol": "Protocol",
+    "backButton": "Booru 목록으로 돌아가기",
+    "notFoundTitle": "Booru를 찾을 수 없음",
+    "notFoundDescription": "Booru 도메인 \"{{domain}}\"을(를) 데이터베이스에서 찾을 수 없습니다.",
+    "statistics": "통계",
+    "totalImages": "총 이미지",
+    "totalMembers": "총 회원",
+    "shortName": "짧은 이름",
+    "owner": "소유자",
+    "hosted": "booru.org에서 호스팅",
+    "protocol": "프로토콜",
     "yes": "예",
     "no": "아니요",
-    "visit": "Visit {{name}}",
-    "loading": "Loading..."
+    "visit": "{{name}} 방문",
+    "loading": "로딩 중..."
   }
 }

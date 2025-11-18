@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "Екстрактор тегів Booru",
-    "language": "Українська",
+    "language": "Мова",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -9,77 +9,6 @@
     "japanese": "日本語",
     "arabic": "العربية",
     "russian": "Русский",
-    "author": "IRedDragonICY",
-    "defaultDescription": "Миттєво витягуйте, фільтруйте та копіюйте теги з публікацій booru.",
-    "unknown": "Unknown",
-    "languageSwitcher": {
-      "title": "Interface language",
-      "description": "Stored in your browser. Default language is English.",
-      "instantNotice": "Changes apply instantly without reloading.",
-      "searchPlaceholder": "Search languages...",
-      "noResults": "No languages found"
-    },
-    "nav": {
-      "extractor": "Теги",
-      "image": "Зображення",
-      "booruList": "Boorus",
-      "settings": "Налаштування"
-    },
-    "navTooltip": {
-      "extractor": "Tag Extractor",
-      "image": "Image Metadata",
-      "booruList": "Booru Leaderboard",
-      "settings": "Settings"
-    },
-    "dropOverlay": {
-      "url": "Drop URL",
-      "png": "Drop PNG"
-    },
-    "actions": {
-      "add": "Add",
-      "apply": "Apply",
-      "back": "Back",
-      "cancel": "Cancel",
-      "clear": "Clear",
-      "close": "Close",
-      "confirm": "Confirm",
-      "copy": "Copy",
-      "copied": "Copied!",
-      "delete": "Delete",
-      "done": "Done",
-      "edit": "Edit",
-      "next": "Next",
-      "previous": "Previous",
-      "refresh": "Refresh",
-      "reset": "Reset",
-      "retry": "Retry",
-      "save": "Save",
-      "search": "Search",
-      "select": "Select",
-      "submit": "Submit",
-      "all": "All",
-      "none": "None",
-      "visit": "Visit",
-      "previousShort": "Prev",
-      "nextShort": "Next"
-    },
-    "status": {
-      "loading": "Завантаження...",
-      "processing": "Processing...",
-      "copied": "Скопійовано!"
-    },
-    "footer": {
-      "madeWith": "Made with",
-      "by": "by"
-    },
-    "statusBar": {
-      "serverProxy": "Server Proxy.",
-      "clientProxy": "Client Proxy ({{proxy}}).",
-      "historyEnabled": "History enabled ({{size}}).",
-      "historyDisabled": "History disabled.",
-      "historyUnlimited": "Unlimited",
-      "historyEntries": "{{count}} Entries"
-    },
     "spanish": "Español",
     "french": "Français",
     "german": "Deutsch",
@@ -92,290 +21,360 @@
     "vietnamese": "Tiếng Việt",
     "thai": "ไทย",
     "hindi": "हिन्दी",
-    "ukrainian": "Українська"
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Миттєво витягуйте, фільтруйте та копіюйте теги з публікацій booru.",
+    "unknown": "Невідомо",
+    "languageSwitcher": {
+      "title": "Мова інтерфейсу",
+      "description": "Зберігається у вашому браузері. Мова за замовчуванням - англійська.",
+      "instantNotice": "Зміни застосовуються миттєво без перезавантаження.",
+      "searchPlaceholder": "Пошук мов...",
+      "noResults": "Мови не знайдено"
+    },
+    "nav": {
+      "extractor": "Теги",
+      "image": "Зображення",
+      "booruList": "Booru",
+      "settings": "Налаштування"
+    },
+    "navTooltip": {
+      "extractor": "Екстрактор тегів",
+      "image": "Метадані зображення",
+      "booruList": "Рейтинг Booru",
+      "settings": "Налаштування"
+    },
+    "dropOverlay": {
+      "url": "Відпустіть URL",
+      "png": "Відпустіть PNG"
+    },
+    "actions": {
+      "add": "Додати",
+      "apply": "Застосувати",
+      "back": "Назад",
+      "cancel": "Скасувати",
+      "clear": "Очистити",
+      "close": "Закрити",
+      "confirm": "Підтвердити",
+      "copy": "Копіювати",
+      "copied": "Скопійовано!",
+      "delete": "Видалити",
+      "done": "Готово",
+      "edit": "Редагувати",
+      "next": "Наступний",
+      "previous": "Попередній",
+      "refresh": "Оновити",
+      "reset": "Скинути",
+      "retry": "Повторити",
+      "save": "Зберегти",
+      "search": "Шукати",
+      "select": "Вибрати",
+      "submit": "Надіслати",
+      "all": "Всі",
+      "none": "Жодного",
+      "visit": "Відвідати",
+      "previousShort": "Попер",
+      "nextShort": "Наст"
+    },
+    "status": {
+      "loading": "Завантаження...",
+      "processing": "Обробка..."
+    },
+    "footer": {
+      "madeWith": "Створено з",
+      "by": "автор"
+    },
+    "statusBar": {
+      "serverProxy": "Серверний проксі.",
+      "clientProxy": "Клієнтський проксі ({{proxy}}).",
+      "historyEnabled": "Історію увімкнено ({{size}}).",
+      "historyDisabled": "Історію вимкнено.",
+      "historyUnlimited": "Необмежено",
+      "historyEntries": "{{count}} записів"
+    }
   },
   "settings": {
     "title": "Налаштування",
     "sections": {
-      "appearance": "Appearance",
-      "colorTheme": "Color Theme",
-      "dataFetch": "Data Fetching Method"
+      "appearance": "Вигляд",
+      "colorTheme": "Кольорова тема",
+      "dataFetch": "Метод отримання даних"
     },
     "themeOptions": {
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark"
+      "system": "Система",
+      "light": "Світла",
+      "dark": "Темна"
     },
     "colorThemes": {
-      "blue": "Blue",
-      "orange": "Orange",
-      "teal": "Teal",
-      "rose": "Rose",
-      "purple": "Purple",
-      "green": "Green",
-      "custom": "Custom Color"
+      "blue": "Синій",
+      "orange": "Помаранчевий",
+      "teal": "Бірюзовий",
+      "rose": "Рожевий",
+      "purple": "Фіолетовий",
+      "green": "Зелений",
+      "custom": "Власний колір"
     },
     "customColor": {
-      "label": "Custom Color",
-      "pickerLabel": "Custom color picker",
-      "inputLabel": "Custom color hex code",
+      "label": "Власний колір",
+      "pickerLabel": "Вибір власного кольору",
+      "inputLabel": "Hex-код власного кольору",
       "placeholder": "#rrggbb"
     },
     "fetchModes": {
       "server": {
-        "label": "Server Proxy",
-        "description": "Uses this application's server to fetch data. Recommended, more reliable."
+        "label": "Серверний проксі",
+        "description": "Використовує сервер цього додатка для отримання даних. Рекомендовано, більш надійно."
       },
       "clientProxy": {
-        "label": "Client-Side Proxy",
-        "description": "Uses a public CORS proxy in your browser. May be less reliable or rate-limited."
+        "label": "Клієнтський проксі",
+        "description": "Використовує публічний CORS проксі у вашому браузері. Може бути менш надійним або обмеженим за швидкістю."
       }
     },
     "clientProxy": {
-      "selectLabel": "Select Client Proxy Service:",
-      "ariaLabel": "Client Proxy Service Selector",
-      "helper": "Performance and reliability vary between proxies."
+      "selectLabel": "Виберіть службу клієнтського проксі:",
+      "ariaLabel": "Вибір служби клієнтського проксі",
+      "helper": "Продуктивність і надійність різняться між проксі."
     },
     "toggles": {
       "autoExtract": {
-        "label": "Automatic Extraction",
-        "description": "Extract tags automatically after pasting/typing a valid URL.",
-        "tooltip": "Enable or disable automatic tag extraction upon pasting/typing a valid URL"
+        "label": "Автоматичне витягування",
+        "description": "Автоматично витягувати теги після вставки/введення дійсного URL.",
+        "tooltip": "Увімкнути або вимкнути автоматичне витягування тегів при вставці/введенні дійсного URL"
       },
       "previews": {
-        "label": "Enable Previews",
-        "description": "Show image/video previews during extraction and in history.",
-        "tooltip": "Enable or disable image/video previews to save bandwidth or avoid potential issues",
-        "note": "Images are always fetched via the Server Proxy."
+        "label": "Увімкнути попередній перегляд",
+        "description": "Показувати попередній перегляд зображень/відео під час витягування та в історії.",
+        "tooltip": "Увімкнути або вимкнути попередній перегляд зображень/відео для економії трафіку або уникнення потенційних проблем",
+        "note": "Зображення завжди отримуються через серверний проксі."
       },
       "saveHistory": {
-        "label": "Save History",
-        "description": "Store successful extractions locally in your browser.",
-        "tooltip": "Enable or disable saving extraction history to your browser's local storage"
+        "label": "Зберігати історію",
+        "description": "Зберігати успішні витягування локально у вашому браузері.",
+        "tooltip": "Увімкнути або вимкнути збереження історії витягування в локальному сховищі браузера"
       },
       "unsupportedSites": {
-        "label": "Enable for Unsupported Sites",
-        "description": "Try to extract from unsupported sites using similar site patterns. May not work for all sites.",
-        "tooltip": "Enable extraction for unsupported websites by using similar site patterns"
+        "label": "Увімкнути для непідтримуваних сайтів",
+        "description": "Спробувати витягнути з непідтримуваних сайтів, використовуючи шаблони подібних сайтів. Може не працювати для всіх сайтів.",
+        "tooltip": "Увімкнути витягування для непідтримуваних веб-сайтів, використовуючи шаблони подібних сайтів"
       },
       "blacklist": {
-        "label": "Enable Keyword Blacklist",
-        "description": "Enter keywords to block, separated by commas, semicolons, or new lines.",
-        "tooltip": "Block unwanted tags by filtering out specific keywords",
-        "placeholder": "Enter keywords to block…",
-        "ariaLabel": "Blacklist Keywords",
-        "reset": "Reset to Default"
+        "label": "Увімкнути чорний список ключових слів",
+        "description": "Введіть ключові слова для блокування, розділені комами, крапками з комою або новими рядками.",
+        "tooltip": "Блокувати небажані теги, фільтруючи певні ключові слова",
+        "placeholder": "Введіть ключові слова для блокування...",
+        "ariaLabel": "Ключові слова чорного списку",
+        "reset": "Скинути до типових"
       }
     },
     "historySize": {
-      "label": "Maximum History Size",
-      "description": "Set the max number of entries for both extraction and image history."
+      "label": "Максимальний розмір історії",
+      "description": "Встановіть максимальну кількість записів як для історії витягування, так і для історії зображень."
     },
     "accessibility": {
-      "themeOption": "Theme {{label}}",
-      "colorThemeOption": "Color theme {{label}}",
-      "historySizeSelect": "Maximum history size"
+      "themeOption": "Тема {{label}}",
+      "colorThemeOption": "Кольорова тема {{label}}",
+      "historySizeSelect": "Максимальний розмір історії"
     },
     "historySizeOptions": {
-      "10": "10 Entries",
-      "30": "30 Entries",
-      "50": "50 Entries",
-      "100": "100 Entries",
-      "unlimited": "Unlimited"
+      "10": "10 записів",
+      "30": "30 записів",
+      "50": "50 записів",
+      "100": "100 записів",
+      "unlimited": "Необмежено"
     },
     "support": {
-      "title": "Support & Feedback",
-      "cta": "Report an Issue on GitHub",
-      "description": "Found a bug or have a suggestion? Let us know!"
+      "title": "Підтримка та відгуки",
+      "cta": "Повідомити про проблему на GitHub",
+      "description": "Знайшли помилку або маєте пропозицію? Повідомте нам!"
     },
     "modal": {
-      "close": "Close Settings"
+      "close": "Закрити налаштування"
     }
   },
   "extractor": {
     "header": {
-      "title": "Booru Tag Extractor",
-      "subtitle": "Extract tags from booru image boards",
-      "supported": "Supported platforms:",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste your booru post URL here...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset",
+      "title": "Екстрактор тегів Booru",
+      "subtitle": "Витягувати теги з дошок зображень booru",
+      "supported": "Підтримувані платформи:",
+      "urlLabel": "URL публікації Booru",
+      "urlPlaceholder": "Вставте URL вашої публікації booru тут...",
+      "manualButton": "Витягнути вручну",
+      "resetButton": "Скинути",
       "activePlaceholder": "—"
     },
     "info": {
-      "heroTitle": "Booru Tag Extractor",
-      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "heroTitle": "Екстрактор тегів Booru",
+      "heroSubtitle": "Витягуйте, фільтруйте та копіюйте теги з сайтів booru миттєво",
       "features": {
         "smart": {
-          "title": "Smart",
-          "subtitle": "Auto-extract"
+          "title": "Розумний",
+          "subtitle": "Автоматичне витягування"
         },
         "fast": {
-          "title": "Fast",
-          "subtitle": "Instant results"
+          "title": "Швидкий",
+          "subtitle": "Миттєві результати"
         },
         "private": {
-          "title": "Private",
-          "subtitle": "Client-side"
+          "title": "Приватний",
+          "subtitle": "На стороні клієнта"
         },
         "copy": {
-          "title": "Copy",
-          "subtitle": "One-click"
+          "title": "Копіювати",
+          "subtitle": "Один клік"
         }
       },
       "cta": {
-        "paste": "Paste",
-        "extract": "Extract",
-        "filter": "Filter",
-        "copy": "Copy"
+        "paste": "Вставити",
+        "extract": "Витягнути",
+        "filter": "Фільтрувати",
+        "copy": "Копіювати"
       },
-      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+      "supportNotice": "Підтримує Danbooru, Gelbooru, Safebooru, Rule34, e621 та інші"
     },
     "preview": {
-      "title": "Preview"
+      "title": "Попередній перегляд"
     },
     "status": {
-      "resultLabel": "Result for:"
+      "resultLabel": "Результат для:"
     },
     "categories": {
-      "title": "Filter Categories",
-      "enableAll": "All",
-      "disableAll": "None",
+      "title": "Фільтрувати категорії",
+      "enableAll": "Всі",
+      "disableAll": "Жодного",
       "items": {
-        "copyright": "Copyright",
-        "character": "Character",
-        "general": "General",
-        "meta": "Meta",
-        "other": "Other"
+        "copyright": "Авторське право",
+        "character": "Персонаж",
+        "general": "Загальні",
+        "meta": "Мета",
+        "other": "Інше"
       },
-      "count_one": "{{count}} tag",
-      "count_other": "{{count}} tags"
+      "count_one": "{{count}} тег",
+      "count_other": "{{count}} тегів"
     },
     "filteredTags": {
-      "label": "Filtered Tags",
-      "ariaLabel": "Filtered tags",
-      "empty": "No tags to display.",
-      "copy": "Copy Tags",
-      "copied": "Copied!"
+      "label": "Відфільтровані теги",
+      "ariaLabel": "Відфільтровані теги",
+      "empty": "Немає тегів для відображення.",
+      "copy": "Копіювати теги",
+      "copied": "Скопійовано!"
     },
     "history": {
-      "extractionTitle": "Extraction History",
-      "imageTitle": "Image History",
-      "searchExtraction": "Search title, url, tags...",
-      "searchImages": "Search filename, prompts, params...",
-      "emptySearch": "No entries match your search.",
-      "clearTooltip": "Clear All History",
-      "clearAction": "Clear History",
-      "confirmMessage": "Really clear?",
-      "confirmYes": "Yes, Clear",
-      "confirmCancel": "Cancel",
-      "searchAriaLabel": "Search {{context}}",
-      "searchFallback": "history",
-      "clearSearchTooltip": "Clear Search",
-      "clearSearchAria": "Clear search"
+      "extractionTitle": "Історія витягування",
+      "imageTitle": "Історія зображень",
+      "searchExtraction": "Пошук за назвою, url, тегами...",
+      "searchImages": "Пошук за назвою файлу, підказками, параметрами...",
+      "emptySearch": "Немає записів, які відповідають вашому пошуку.",
+      "clearTooltip": "Очистити всю історію",
+      "clearAction": "Очистити історію",
+      "confirmMessage": "Справді очистити?",
+      "confirmYes": "Так, очистити",
+      "confirmCancel": "Скасувати",
+      "searchAriaLabel": "Шукати {{context}}",
+      "searchFallback": "історію",
+      "clearSearchTooltip": "Очистити пошук",
+      "clearSearchAria": "Очистити пошук"
     },
     "mobile": {
-      "historyButton": "History",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste URL or Drag & Drop...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset"
+      "historyButton": "Історія",
+      "urlLabel": "URL публікації Booru",
+      "urlPlaceholder": "Вставте URL або перетягніть...",
+      "manualButton": "Витягнути вручну",
+      "resetButton": "Скинути"
     }
   },
   "imageTool": {
-    "title": "Image Metadata",
-    "dropCtaTitle": "Drag & Drop PNG Here",
-    "dropCtaSubtitle": "or click to upload",
-    "selectButton": "Select PNG",
-    "statusProcessing": "Processing...",
+    "title": "Метадані зображення",
+    "dropCtaTitle": "Перетягніть PNG сюди",
+    "dropCtaSubtitle": "або клацніть для завантаження",
+    "selectButton": "Вибрати PNG",
+    "statusProcessing": "Обробка...",
     "previewMeta": "{{name}} ({{size}} KB)",
-    "positivePrompt": "Positive Prompt",
-    "negativePrompt": "Negative Prompt",
-    "parameters": "Parameters",
-    "copy": "Copy",
-    "copyAll": "Copy All",
-    "copySuccess": "Copied!",
-    "noMetadata": "No generation metadata found.",
-    "loadMetadata": "Load Metadata",
-    "deleteEntry": "Delete Entry",
-    "historyTitle": "Image History",
-    "historySearch": "Search filename, prompts, params...",
-    "previewAlt": "Preview",
+    "positivePrompt": "Позитивна підказка",
+    "negativePrompt": "Негативна підказка",
+    "parameters": "Параметри",
+    "copy": "Копіювати",
+    "copyAll": "Копіювати все",
+    "copySuccess": "Скопійовано!",
+    "noMetadata": "Метаданих генерації не знайдено.",
+    "loadMetadata": "Завантажити метадані",
+    "deleteEntry": "Видалити запис",
+    "historyTitle": "Історія зображень",
+    "historySearch": "Пошук за назвою файлу, підказками, параметрами...",
+    "previewAlt": "Попередній перегляд",
     "footer": {
-      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+      "metadataNotice": "Витягування метаданих PNG для текстового фрагмента 'parameters'."
     }
   },
   "historyItem": {
-    "load": "Load this history entry",
-    "delete": "Delete this history entry",
-    "previewAlt": "Preview"
+    "load": "Завантажити цей запис історії",
+    "delete": "Видалити цей запис історії",
+    "previewAlt": "Попередній перегляд"
   },
   "imagePreview": {
-    "loading": "Loading preview...",
-    "error": "Could not load preview.",
-    "errorDetail": "Server proxy error or invalid image",
-    "videoUnsupported": "Your browser does not support video.",
-    "openFull": "Open full-size preview",
-    "close": "Close",
-    "reset": "Reset",
-    "openOriginal": "Open original"
+    "loading": "Завантаження попереднього перегляду...",
+    "error": "Не вдалося завантажити попередній перегляд.",
+    "errorDetail": "Помилка серверного проксі або недійсне зображення",
+    "videoUnsupported": "Ваш браузер не підтримує відео.",
+    "openFull": "Відкрити попередній перегляд у повному розмірі",
+    "close": "Закрити",
+    "reset": "Скинути",
+    "openOriginal": "Відкрити оригінал"
   },
   "booruList": {
-    "pageTitle": "Top Booru Leaderboard",
-    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
-    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
-    "searchPlaceholder": "Search booru sites...",
+    "pageTitle": "Топ рейтинг Booru",
+    "pageDescriptionShort": "Досліджуйте найкращі сайти booru, ранжовані за загальною кількістю зображень та активністю.",
+    "pageDescriptionLong": "Відкрийте найпопулярніші сайти booru з усього Інтернету. Ранжовано за загальною кількістю зображень, кількістю учасників та активністю з даними від Booru.org.",
+    "searchPlaceholder": "Шукати сайти booru...",
     "filter": {
-      "all": "All",
-      "sfw": "SFW",
-      "nsfw": "NSFW"
+      "all": "Всі",
+      "sfw": "Безпечні",
+      "nsfw": "Для дорослих"
     },
     "stats": {
-      "images": "Images",
-      "members": "Members",
-      "owner": "Owner"
+      "images": "Зображення",
+      "members": "Учасники",
+      "owner": "Власник"
     },
     "sort": {
-      "label": "Sort by:",
-      "rank": "Rank (Top)",
-      "images": "Images Count",
-      "members": "Members Count",
-      "asc": "Asc",
-      "desc": "Desc"
+      "label": "Сортувати за:",
+      "rank": "Рейтинг (Топ)",
+      "images": "Кількість зображень",
+      "members": "Кількість учасників",
+      "asc": "За зростанням",
+      "desc": "За спаданням"
     },
-    "itemsPerPage": "Per page:",
-    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "itemsPerPage": "На сторінці:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> з {{total}}",
     "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "previousShort": "Prev",
-      "nextShort": "Next"
+      "previous": "Попередній",
+      "next": "Наступний",
+      "previousShort": "Попер",
+      "nextShort": "Наст"
     },
-    "emptyState": "No booru sites found",
-    "loading": "Loading booru data...",
-    "errorTitle": "Error Loading Data",
+    "emptyState": "Сайти booru не знайдено",
+    "loading": "Завантаження даних booru...",
+    "errorTitle": "Помилка завантаження даних",
     "errors": {
-      "fetchFailed": "Failed to fetch booru data.",
-      "unknown": "Something went wrong while loading the leaderboard."
+      "fetchFailed": "Не вдалося отримати дані booru.",
+      "unknown": "Щось пішло не так під час завантаження рейтингу."
     },
-    "ownerLabel": "Owner:",
-    "visit": "Visit {{name}}"
+    "ownerLabel": "Власник:",
+    "visit": "Відвідати {{name}}"
   },
   "booruDetail": {
-    "backButton": "Back to Booru List",
-    "notFoundTitle": "Booru Not Found",
-    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
-    "statistics": "Statistics",
-    "totalImages": "Total Images",
-    "totalMembers": "Total Members",
-    "shortName": "Short Name",
-    "owner": "Owner",
-    "hosted": "Hosted by booru.org",
-    "protocol": "Protocol",
+    "backButton": "Назад до списку Booru",
+    "notFoundTitle": "Booru не знайдено",
+    "notFoundDescription": "Домен booru \"{{domain}}\" не знайдено в нашій базі даних.",
+    "statistics": "Статистика",
+    "totalImages": "Всього зображень",
+    "totalMembers": "Всього учасників",
+    "shortName": "Коротка назва",
+    "owner": "Власник",
+    "hosted": "Розміщено на booru.org",
+    "protocol": "Протокол",
     "yes": "Так",
     "no": "Ні",
-    "visit": "Visit {{name}}",
-    "loading": "Loading..."
+    "visit": "Відвідати {{name}}",
+    "loading": "Завантаження..."
   }
 }

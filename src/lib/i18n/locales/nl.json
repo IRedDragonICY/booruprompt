@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "Booru Tag Extractor",
-    "language": "Nederlands",
+    "language": "Taal",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -9,77 +9,6 @@
     "japanese": "日本語",
     "arabic": "العربية",
     "russian": "Русский",
-    "author": "IRedDragonICY",
-    "defaultDescription": "Extraheer, filter en kopieer direct tags van booru-berichten.",
-    "unknown": "Unknown",
-    "languageSwitcher": {
-      "title": "Interface language",
-      "description": "Stored in your browser. Default language is English.",
-      "instantNotice": "Changes apply instantly without reloading.",
-      "searchPlaceholder": "Search languages...",
-      "noResults": "No languages found"
-    },
-    "nav": {
-      "extractor": "Tags",
-      "image": "Afbeelding",
-      "booruList": "Boorus",
-      "settings": "Instellingen"
-    },
-    "navTooltip": {
-      "extractor": "Tag Extractor",
-      "image": "Image Metadata",
-      "booruList": "Booru Leaderboard",
-      "settings": "Settings"
-    },
-    "dropOverlay": {
-      "url": "Drop URL",
-      "png": "Drop PNG"
-    },
-    "actions": {
-      "add": "Add",
-      "apply": "Apply",
-      "back": "Back",
-      "cancel": "Cancel",
-      "clear": "Clear",
-      "close": "Close",
-      "confirm": "Confirm",
-      "copy": "Copy",
-      "copied": "Copied!",
-      "delete": "Delete",
-      "done": "Done",
-      "edit": "Edit",
-      "next": "Next",
-      "previous": "Previous",
-      "refresh": "Refresh",
-      "reset": "Reset",
-      "retry": "Retry",
-      "save": "Save",
-      "search": "Search",
-      "select": "Select",
-      "submit": "Submit",
-      "all": "All",
-      "none": "None",
-      "visit": "Visit",
-      "previousShort": "Prev",
-      "nextShort": "Next"
-    },
-    "status": {
-      "loading": "Laden...",
-      "processing": "Processing...",
-      "copied": "Gekopieerd!"
-    },
-    "footer": {
-      "madeWith": "Made with",
-      "by": "by"
-    },
-    "statusBar": {
-      "serverProxy": "Server Proxy.",
-      "clientProxy": "Client Proxy ({{proxy}}).",
-      "historyEnabled": "History enabled ({{size}}).",
-      "historyDisabled": "History disabled.",
-      "historyUnlimited": "Unlimited",
-      "historyEntries": "{{count}} Entries"
-    },
     "spanish": "Español",
     "french": "Français",
     "german": "Deutsch",
@@ -92,290 +21,360 @@
     "vietnamese": "Tiếng Việt",
     "thai": "ไทย",
     "hindi": "हिन्दी",
-    "ukrainian": "Українська"
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Extraheer, filter en kopieer direct tags van booru-berichten.",
+    "unknown": "Onbekend",
+    "languageSwitcher": {
+      "title": "Interface taal",
+      "description": "Opgeslagen in je browser. Standaardtaal is Engels.",
+      "instantNotice": "Wijzigingen worden direct toegepast zonder herladen.",
+      "searchPlaceholder": "Zoek talen...",
+      "noResults": "Geen talen gevonden"
+    },
+    "nav": {
+      "extractor": "Tags",
+      "image": "Afbeelding",
+      "booruList": "Booru's",
+      "settings": "Instellingen"
+    },
+    "navTooltip": {
+      "extractor": "Tag Extractor",
+      "image": "Afbeeldings Metadata",
+      "booruList": "Booru Ranglijst",
+      "settings": "Instellingen"
+    },
+    "dropOverlay": {
+      "url": "URL Neerzetten",
+      "png": "PNG Neerzetten"
+    },
+    "actions": {
+      "add": "Toevoegen",
+      "apply": "Toepassen",
+      "back": "Terug",
+      "cancel": "Annuleren",
+      "clear": "Wissen",
+      "close": "Sluiten",
+      "confirm": "Bevestigen",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd!",
+      "delete": "Verwijderen",
+      "done": "Klaar",
+      "edit": "Bewerken",
+      "next": "Volgende",
+      "previous": "Vorige",
+      "refresh": "Vernieuwen",
+      "reset": "Herstellen",
+      "retry": "Opnieuw",
+      "save": "Opslaan",
+      "search": "Zoeken",
+      "select": "Selecteren",
+      "submit": "Verzenden",
+      "all": "Alle",
+      "none": "Geen",
+      "visit": "Bezoeken",
+      "previousShort": "Vor",
+      "nextShort": "Volg"
+    },
+    "status": {
+      "loading": "Laden...",
+      "processing": "Verwerken..."
+    },
+    "footer": {
+      "madeWith": "Gemaakt met",
+      "by": "door"
+    },
+    "statusBar": {
+      "serverProxy": "Server Proxy.",
+      "clientProxy": "Client Proxy ({{proxy}}).",
+      "historyEnabled": "Geschiedenis ingeschakeld ({{size}}).",
+      "historyDisabled": "Geschiedenis uitgeschakeld.",
+      "historyUnlimited": "Onbeperkt",
+      "historyEntries": "{{count}} items"
+    }
   },
   "settings": {
     "title": "Instellingen",
     "sections": {
-      "appearance": "Appearance",
-      "colorTheme": "Color Theme",
-      "dataFetch": "Data Fetching Method"
+      "appearance": "Uiterlijk",
+      "colorTheme": "Kleurthema",
+      "dataFetch": "Gegevens Ophaal Methode"
     },
     "themeOptions": {
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark"
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker"
     },
     "colorThemes": {
-      "blue": "Blue",
-      "orange": "Orange",
-      "teal": "Teal",
-      "rose": "Rose",
-      "purple": "Purple",
-      "green": "Green",
-      "custom": "Custom Color"
+      "blue": "Blauw",
+      "orange": "Oranje",
+      "teal": "Groenblauw",
+      "rose": "Roze",
+      "purple": "Paars",
+      "green": "Groen",
+      "custom": "Aangepaste Kleur"
     },
     "customColor": {
-      "label": "Custom Color",
-      "pickerLabel": "Custom color picker",
-      "inputLabel": "Custom color hex code",
+      "label": "Aangepaste Kleur",
+      "pickerLabel": "Aangepaste kleurkiezer",
+      "inputLabel": "Aangepaste kleur hex-code",
       "placeholder": "#rrggbb"
     },
     "fetchModes": {
       "server": {
         "label": "Server Proxy",
-        "description": "Uses this application's server to fetch data. Recommended, more reliable."
+        "description": "Gebruikt de server van deze applicatie om gegevens op te halen. Aanbevolen, betrouwbaarder."
       },
       "clientProxy": {
         "label": "Client-Side Proxy",
-        "description": "Uses a public CORS proxy in your browser. May be less reliable or rate-limited."
+        "description": "Gebruikt een openbare CORS-proxy in je browser. Kan minder betrouwbaar zijn of snelheidsbeperkt."
       }
     },
     "clientProxy": {
-      "selectLabel": "Select Client Proxy Service:",
+      "selectLabel": "Selecteer Client Proxy Service:",
       "ariaLabel": "Client Proxy Service Selector",
-      "helper": "Performance and reliability vary between proxies."
+      "helper": "Prestaties en betrouwbaarheid variëren tussen proxies."
     },
     "toggles": {
       "autoExtract": {
-        "label": "Automatic Extraction",
-        "description": "Extract tags automatically after pasting/typing a valid URL.",
-        "tooltip": "Enable or disable automatic tag extraction upon pasting/typing a valid URL"
+        "label": "Automatische Extractie",
+        "description": "Extraheer tags automatisch na het plakken/typen van een geldige URL.",
+        "tooltip": "Schakel automatische tag extractie in of uit bij het plakken/typen van een geldige URL"
       },
       "previews": {
-        "label": "Enable Previews",
-        "description": "Show image/video previews during extraction and in history.",
-        "tooltip": "Enable or disable image/video previews to save bandwidth or avoid potential issues",
-        "note": "Images are always fetched via the Server Proxy."
+        "label": "Voorbeelden Inschakelen",
+        "description": "Toon afbeeldings-/videovoorbeelden tijdens extractie en in geschiedenis.",
+        "tooltip": "Schakel afbeeldings-/videovoorbeelden in of uit om bandbreedte te besparen of potentiële problemen te vermijden",
+        "note": "Afbeeldingen worden altijd opgehaald via de Server Proxy."
       },
       "saveHistory": {
-        "label": "Save History",
-        "description": "Store successful extractions locally in your browser.",
-        "tooltip": "Enable or disable saving extraction history to your browser's local storage"
+        "label": "Geschiedenis Opslaan",
+        "description": "Sla succesvolle extracties lokaal op in je browser.",
+        "tooltip": "Schakel het opslaan van extractiegeschiedenis in of uit in de lokale opslag van je browser"
       },
       "unsupportedSites": {
-        "label": "Enable for Unsupported Sites",
-        "description": "Try to extract from unsupported sites using similar site patterns. May not work for all sites.",
-        "tooltip": "Enable extraction for unsupported websites by using similar site patterns"
+        "label": "Inschakelen voor Niet-ondersteunde Sites",
+        "description": "Probeer te extraheren van niet-ondersteunde sites met vergelijkbare sitepatronen. Werkt mogelijk niet voor alle sites.",
+        "tooltip": "Schakel extractie in voor niet-ondersteunde websites met vergelijkbare sitepatronen"
       },
       "blacklist": {
-        "label": "Enable Keyword Blacklist",
-        "description": "Enter keywords to block, separated by commas, semicolons, or new lines.",
-        "tooltip": "Block unwanted tags by filtering out specific keywords",
-        "placeholder": "Enter keywords to block…",
-        "ariaLabel": "Blacklist Keywords",
-        "reset": "Reset to Default"
+        "label": "Sleutelwoord Blacklist Inschakelen",
+        "description": "Voer sleutelwoorden in om te blokkeren, gescheiden door komma's, puntkomma's of nieuwe regels.",
+        "tooltip": "Blokkeer ongewenste tags door specifieke sleutelwoorden te filteren",
+        "placeholder": "Voer sleutelwoorden in om te blokkeren...",
+        "ariaLabel": "Blacklist Sleutelwoorden",
+        "reset": "Herstellen naar Standaard"
       }
     },
     "historySize": {
-      "label": "Maximum History Size",
-      "description": "Set the max number of entries for both extraction and image history."
+      "label": "Maximale Geschiedenis Grootte",
+      "description": "Stel het maximale aantal items in voor zowel extractie- als afbeeldingsgeschiedenis."
     },
     "accessibility": {
-      "themeOption": "Theme {{label}}",
-      "colorThemeOption": "Color theme {{label}}",
-      "historySizeSelect": "Maximum history size"
+      "themeOption": "Thema {{label}}",
+      "colorThemeOption": "Kleurthema {{label}}",
+      "historySizeSelect": "Maximale geschiedenis grootte"
     },
     "historySizeOptions": {
-      "10": "10 Entries",
-      "30": "30 Entries",
-      "50": "50 Entries",
-      "100": "100 Entries",
-      "unlimited": "Unlimited"
+      "10": "10 Items",
+      "30": "30 Items",
+      "50": "50 Items",
+      "100": "100 Items",
+      "unlimited": "Onbeperkt"
     },
     "support": {
-      "title": "Support & Feedback",
-      "cta": "Report an Issue on GitHub",
-      "description": "Found a bug or have a suggestion? Let us know!"
+      "title": "Ondersteuning & Feedback",
+      "cta": "Meld een Probleem op GitHub",
+      "description": "Een bug gevonden of heb je een suggestie? Laat het ons weten!"
     },
     "modal": {
-      "close": "Close Settings"
+      "close": "Instellingen Sluiten"
     }
   },
   "extractor": {
     "header": {
       "title": "Booru Tag Extractor",
-      "subtitle": "Extract tags from booru image boards",
-      "supported": "Supported platforms:",
+      "subtitle": "Extraheer tags van booru imageboard",
+      "supported": "Ondersteunde platforms:",
       "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste your booru post URL here...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset",
+      "urlPlaceholder": "Plak hier je booru post URL...",
+      "manualButton": "Handmatig Extraheren",
+      "resetButton": "Herstellen",
       "activePlaceholder": "—"
     },
     "info": {
       "heroTitle": "Booru Tag Extractor",
-      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "heroSubtitle": "Extraheer, filter en kopieer tags van booru sites direct",
       "features": {
         "smart": {
-          "title": "Smart",
-          "subtitle": "Auto-extract"
+          "title": "Slim",
+          "subtitle": "Auto-extractie"
         },
         "fast": {
-          "title": "Fast",
-          "subtitle": "Instant results"
+          "title": "Snel",
+          "subtitle": "Direct resultaten"
         },
         "private": {
-          "title": "Private",
+          "title": "Privé",
           "subtitle": "Client-side"
         },
         "copy": {
-          "title": "Copy",
-          "subtitle": "One-click"
+          "title": "Kopiëren",
+          "subtitle": "Één klik"
         }
       },
       "cta": {
-        "paste": "Paste",
-        "extract": "Extract",
-        "filter": "Filter",
-        "copy": "Copy"
+        "paste": "Plakken",
+        "extract": "Extraheren",
+        "filter": "Filteren",
+        "copy": "Kopiëren"
       },
-      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+      "supportNotice": "Ondersteunt Danbooru, Gelbooru, Safebooru, Rule34, e621 en meer"
     },
     "preview": {
-      "title": "Preview"
+      "title": "Voorbeeld"
     },
     "status": {
-      "resultLabel": "Result for:"
+      "resultLabel": "Resultaat voor:"
     },
     "categories": {
-      "title": "Filter Categories",
-      "enableAll": "All",
-      "disableAll": "None",
+      "title": "Filter Categorieën",
+      "enableAll": "Alle",
+      "disableAll": "Geen",
       "items": {
         "copyright": "Copyright",
-        "character": "Character",
-        "general": "General",
+        "character": "Personage",
+        "general": "Algemeen",
         "meta": "Meta",
-        "other": "Other"
+        "other": "Overig"
       },
       "count_one": "{{count}} tag",
       "count_other": "{{count}} tags"
     },
     "filteredTags": {
-      "label": "Filtered Tags",
-      "ariaLabel": "Filtered tags",
-      "empty": "No tags to display.",
-      "copy": "Copy Tags",
-      "copied": "Copied!"
+      "label": "Gefilterde Tags",
+      "ariaLabel": "Gefilterde tags",
+      "empty": "Geen tags om weer te geven.",
+      "copy": "Kopieer Tags",
+      "copied": "Gekopieerd!"
     },
     "history": {
-      "extractionTitle": "Extraction History",
-      "imageTitle": "Image History",
-      "searchExtraction": "Search title, url, tags...",
-      "searchImages": "Search filename, prompts, params...",
-      "emptySearch": "No entries match your search.",
-      "clearTooltip": "Clear All History",
-      "clearAction": "Clear History",
-      "confirmMessage": "Really clear?",
-      "confirmYes": "Yes, Clear",
-      "confirmCancel": "Cancel",
-      "searchAriaLabel": "Search {{context}}",
-      "searchFallback": "history",
-      "clearSearchTooltip": "Clear Search",
-      "clearSearchAria": "Clear search"
+      "extractionTitle": "Extractie Geschiedenis",
+      "imageTitle": "Afbeeldingen Geschiedenis",
+      "searchExtraction": "Zoek titel, url, tags...",
+      "searchImages": "Zoek bestandsnaam, prompts, parameters...",
+      "emptySearch": "Geen items komen overeen met je zoekopdracht.",
+      "clearTooltip": "Alle Geschiedenis Wissen",
+      "clearAction": "Geschiedenis Wissen",
+      "confirmMessage": "Echt wissen?",
+      "confirmYes": "Ja, Wissen",
+      "confirmCancel": "Annuleren",
+      "searchAriaLabel": "Zoek {{context}}",
+      "searchFallback": "geschiedenis",
+      "clearSearchTooltip": "Zoekopdracht Wissen",
+      "clearSearchAria": "Zoekopdracht wissen"
     },
     "mobile": {
-      "historyButton": "History",
+      "historyButton": "Geschiedenis",
       "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste URL or Drag & Drop...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset"
+      "urlPlaceholder": "Plak URL of Sleep & Zet Neer...",
+      "manualButton": "Handmatig Extraheren",
+      "resetButton": "Herstellen"
     }
   },
   "imageTool": {
-    "title": "Image Metadata",
-    "dropCtaTitle": "Drag & Drop PNG Here",
-    "dropCtaSubtitle": "or click to upload",
-    "selectButton": "Select PNG",
-    "statusProcessing": "Processing...",
+    "title": "Afbeeldings Metadata",
+    "dropCtaTitle": "Sleep & Zet PNG Neer Hier",
+    "dropCtaSubtitle": "of klik om te uploaden",
+    "selectButton": "Selecteer PNG",
+    "statusProcessing": "Verwerken...",
     "previewMeta": "{{name}} ({{size}} KB)",
-    "positivePrompt": "Positive Prompt",
-    "negativePrompt": "Negative Prompt",
+    "positivePrompt": "Positieve Prompt",
+    "negativePrompt": "Negatieve Prompt",
     "parameters": "Parameters",
-    "copy": "Copy",
-    "copyAll": "Copy All",
-    "copySuccess": "Copied!",
-    "noMetadata": "No generation metadata found.",
-    "loadMetadata": "Load Metadata",
-    "deleteEntry": "Delete Entry",
-    "historyTitle": "Image History",
-    "historySearch": "Search filename, prompts, params...",
-    "previewAlt": "Preview",
+    "copy": "Kopiëren",
+    "copyAll": "Alles Kopiëren",
+    "copySuccess": "Gekopieerd!",
+    "noMetadata": "Geen generatie metadata gevonden.",
+    "loadMetadata": "Metadata Laden",
+    "deleteEntry": "Item Verwijderen",
+    "historyTitle": "Afbeeldingen Geschiedenis",
+    "historySearch": "Zoek bestandsnaam, prompts, parameters...",
+    "previewAlt": "Voorbeeld",
     "footer": {
-      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+      "metadataNotice": "PNG metadata extractie voor 'parameters' tekstblok."
     }
   },
   "historyItem": {
-    "load": "Load this history entry",
-    "delete": "Delete this history entry",
-    "previewAlt": "Preview"
+    "load": "Laad dit geschiedenisitem",
+    "delete": "Verwijder dit geschiedenisitem",
+    "previewAlt": "Voorbeeld"
   },
   "imagePreview": {
-    "loading": "Loading preview...",
-    "error": "Could not load preview.",
-    "errorDetail": "Server proxy error or invalid image",
-    "videoUnsupported": "Your browser does not support video.",
-    "openFull": "Open full-size preview",
-    "close": "Close",
-    "reset": "Reset",
-    "openOriginal": "Open original"
+    "loading": "Voorbeeld laden...",
+    "error": "Kon voorbeeld niet laden.",
+    "errorDetail": "Server proxy fout of ongeldige afbeelding",
+    "videoUnsupported": "Je browser ondersteunt geen video.",
+    "openFull": "Open voorbeeld op volledige grootte",
+    "close": "Sluiten",
+    "reset": "Herstellen",
+    "openOriginal": "Open origineel"
   },
   "booruList": {
-    "pageTitle": "Top Booru Leaderboard",
-    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
-    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
-    "searchPlaceholder": "Search booru sites...",
+    "pageTitle": "Top Booru Ranglijst",
+    "pageDescriptionShort": "Verken de top booru sites gerangschikt op totale afbeeldingen en activiteit.",
+    "pageDescriptionLong": "Ontdek de populairste booru sites van het hele web. Gerangschikt op totale afbeeldingen, aantal leden en activiteit met gegevens van Booru.org.",
+    "searchPlaceholder": "Zoek booru sites...",
     "filter": {
-      "all": "All",
-      "sfw": "SFW",
-      "nsfw": "NSFW"
+      "all": "Alle",
+      "sfw": "Veilig",
+      "nsfw": "Volwassen"
     },
     "stats": {
-      "images": "Images",
-      "members": "Members",
-      "owner": "Owner"
+      "images": "Afbeeldingen",
+      "members": "Leden",
+      "owner": "Eigenaar"
     },
     "sort": {
-      "label": "Sort by:",
-      "rank": "Rank (Top)",
-      "images": "Images Count",
-      "members": "Members Count",
-      "asc": "Asc",
-      "desc": "Desc"
+      "label": "Sorteer op:",
+      "rank": "Rang (Top)",
+      "images": "Aantal Afbeeldingen",
+      "members": "Aantal Leden",
+      "asc": "Oplopend",
+      "desc": "Aflopend"
     },
-    "itemsPerPage": "Per page:",
-    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "itemsPerPage": "Per pagina:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> van {{total}}",
     "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "previousShort": "Prev",
-      "nextShort": "Next"
+      "previous": "Vorige",
+      "next": "Volgende",
+      "previousShort": "Vor",
+      "nextShort": "Volg"
     },
-    "emptyState": "No booru sites found",
-    "loading": "Loading booru data...",
-    "errorTitle": "Error Loading Data",
+    "emptyState": "Geen booru sites gevonden",
+    "loading": "Booru gegevens laden...",
+    "errorTitle": "Fout bij Laden van Gegevens",
     "errors": {
-      "fetchFailed": "Failed to fetch booru data.",
-      "unknown": "Something went wrong while loading the leaderboard."
+      "fetchFailed": "Kon booru gegevens niet ophalen.",
+      "unknown": "Er ging iets mis bij het laden van de ranglijst."
     },
-    "ownerLabel": "Owner:",
-    "visit": "Visit {{name}}"
+    "ownerLabel": "Eigenaar:",
+    "visit": "Bezoek {{name}}"
   },
   "booruDetail": {
-    "backButton": "Back to Booru List",
-    "notFoundTitle": "Booru Not Found",
-    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
-    "statistics": "Statistics",
-    "totalImages": "Total Images",
-    "totalMembers": "Total Members",
-    "shortName": "Short Name",
-    "owner": "Owner",
-    "hosted": "Hosted by booru.org",
+    "backButton": "Terug naar Booru Lijst",
+    "notFoundTitle": "Booru Niet Gevonden",
+    "notFoundDescription": "Het booru domein \"{{domain}}\" werd niet gevonden in onze database.",
+    "statistics": "Statistieken",
+    "totalImages": "Totaal Afbeeldingen",
+    "totalMembers": "Totaal Leden",
+    "shortName": "Korte Naam",
+    "owner": "Eigenaar",
+    "hosted": "Gehost door booru.org",
     "protocol": "Protocol",
     "yes": "Ja",
     "no": "Nee",
-    "visit": "Visit {{name}}",
-    "loading": "Loading..."
+    "visit": "Bezoek {{name}}",
+    "loading": "Laden..."
   }
 }

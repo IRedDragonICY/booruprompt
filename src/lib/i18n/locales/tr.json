@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "Booru Etiket Çıkarıcı",
-    "language": "Türkçe",
+    "language": "Dil",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -9,77 +9,6 @@
     "japanese": "日本語",
     "arabic": "العربية",
     "russian": "Русский",
-    "author": "IRedDragonICY",
-    "defaultDescription": "Booru gönderilerinden etiketleri anında çıkarın, filtreleyin ve kopyalayın.",
-    "unknown": "Unknown",
-    "languageSwitcher": {
-      "title": "Interface language",
-      "description": "Stored in your browser. Default language is English.",
-      "instantNotice": "Changes apply instantly without reloading.",
-      "searchPlaceholder": "Search languages...",
-      "noResults": "No languages found"
-    },
-    "nav": {
-      "extractor": "Etiketler",
-      "image": "Resim",
-      "booruList": "Boorus",
-      "settings": "Ayarlar"
-    },
-    "navTooltip": {
-      "extractor": "Tag Extractor",
-      "image": "Image Metadata",
-      "booruList": "Booru Leaderboard",
-      "settings": "Settings"
-    },
-    "dropOverlay": {
-      "url": "Drop URL",
-      "png": "Drop PNG"
-    },
-    "actions": {
-      "add": "Add",
-      "apply": "Apply",
-      "back": "Back",
-      "cancel": "Cancel",
-      "clear": "Clear",
-      "close": "Close",
-      "confirm": "Confirm",
-      "copy": "Copy",
-      "copied": "Copied!",
-      "delete": "Delete",
-      "done": "Done",
-      "edit": "Edit",
-      "next": "Next",
-      "previous": "Previous",
-      "refresh": "Refresh",
-      "reset": "Reset",
-      "retry": "Retry",
-      "save": "Save",
-      "search": "Search",
-      "select": "Select",
-      "submit": "Submit",
-      "all": "All",
-      "none": "None",
-      "visit": "Visit",
-      "previousShort": "Prev",
-      "nextShort": "Next"
-    },
-    "status": {
-      "loading": "Yükleniyor...",
-      "processing": "Processing...",
-      "copied": "Kopyalandı!"
-    },
-    "footer": {
-      "madeWith": "Made with",
-      "by": "by"
-    },
-    "statusBar": {
-      "serverProxy": "Server Proxy.",
-      "clientProxy": "Client Proxy ({{proxy}}).",
-      "historyEnabled": "History enabled ({{size}}).",
-      "historyDisabled": "History disabled.",
-      "historyUnlimited": "Unlimited",
-      "historyEntries": "{{count}} Entries"
-    },
     "spanish": "Español",
     "french": "Français",
     "german": "Deutsch",
@@ -92,290 +21,360 @@
     "vietnamese": "Tiếng Việt",
     "thai": "ไทย",
     "hindi": "हिन्दी",
-    "ukrainian": "Українська"
+    "ukrainian": "Українська",
+    "author": "IRedDragonICY",
+    "defaultDescription": "Booru gönderilerinden etiketleri anında çıkarın, filtreleyin ve kopyalayın.",
+    "unknown": "Bilinmeyen",
+    "languageSwitcher": {
+      "title": "Arayüz dili",
+      "description": "Tarayıcınızda saklanır. Varsayılan dil İngilizce'dir.",
+      "instantNotice": "Değişiklikler yeniden yüklemeden anında uygulanır.",
+      "searchPlaceholder": "Dil ara...",
+      "noResults": "Dil bulunamadı"
+    },
+    "nav": {
+      "extractor": "Etiketler",
+      "image": "Resim",
+      "booruList": "Booru'lar",
+      "settings": "Ayarlar"
+    },
+    "navTooltip": {
+      "extractor": "Etiket Çıkarıcı",
+      "image": "Resim Meta Verileri",
+      "booruList": "Booru Sıralaması",
+      "settings": "Ayarlar"
+    },
+    "dropOverlay": {
+      "url": "URL Bırak",
+      "png": "PNG Bırak"
+    },
+    "actions": {
+      "add": "Ekle",
+      "apply": "Uygula",
+      "back": "Geri",
+      "cancel": "İptal",
+      "clear": "Temizle",
+      "close": "Kapat",
+      "confirm": "Onayla",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı!",
+      "delete": "Sil",
+      "done": "Tamam",
+      "edit": "Düzenle",
+      "next": "Sonraki",
+      "previous": "Önceki",
+      "refresh": "Yenile",
+      "reset": "Sıfırla",
+      "retry": "Tekrar Dene",
+      "save": "Kaydet",
+      "search": "Ara",
+      "select": "Seç",
+      "submit": "Gönder",
+      "all": "Tümü",
+      "none": "Hiçbiri",
+      "visit": "Ziyaret Et",
+      "previousShort": "Önc",
+      "nextShort": "Sonr"
+    },
+    "status": {
+      "loading": "Yükleniyor...",
+      "processing": "İşleniyor..."
+    },
+    "footer": {
+      "madeWith": "İle yapıldı",
+      "by": "tarafından"
+    },
+    "statusBar": {
+      "serverProxy": "Sunucu Proxy'si.",
+      "clientProxy": "İstemci Proxy'si ({{proxy}}).",
+      "historyEnabled": "Geçmiş etkin ({{size}}).",
+      "historyDisabled": "Geçmiş devre dışı.",
+      "historyUnlimited": "Sınırsız",
+      "historyEntries": "{{count}} kayıt"
+    }
   },
   "settings": {
     "title": "Ayarlar",
     "sections": {
-      "appearance": "Appearance",
-      "colorTheme": "Color Theme",
-      "dataFetch": "Data Fetching Method"
+      "appearance": "Görünüm",
+      "colorTheme": "Renk Teması",
+      "dataFetch": "Veri Getirme Yöntemi"
     },
     "themeOptions": {
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark"
+      "system": "Sistem",
+      "light": "Açık",
+      "dark": "Koyu"
     },
     "colorThemes": {
-      "blue": "Blue",
-      "orange": "Orange",
-      "teal": "Teal",
-      "rose": "Rose",
-      "purple": "Purple",
-      "green": "Green",
-      "custom": "Custom Color"
+      "blue": "Mavi",
+      "orange": "Turuncu",
+      "teal": "Deniz Mavisi",
+      "rose": "Gül",
+      "purple": "Mor",
+      "green": "Yeşil",
+      "custom": "Özel Renk"
     },
     "customColor": {
-      "label": "Custom Color",
-      "pickerLabel": "Custom color picker",
-      "inputLabel": "Custom color hex code",
+      "label": "Özel Renk",
+      "pickerLabel": "Özel renk seçici",
+      "inputLabel": "Özel renk hex kodu",
       "placeholder": "#rrggbb"
     },
     "fetchModes": {
       "server": {
-        "label": "Server Proxy",
-        "description": "Uses this application's server to fetch data. Recommended, more reliable."
+        "label": "Sunucu Proxy'si",
+        "description": "Veri getirmek için bu uygulamanın sunucusunu kullanır. Önerilir, daha güvenilir."
       },
       "clientProxy": {
-        "label": "Client-Side Proxy",
-        "description": "Uses a public CORS proxy in your browser. May be less reliable or rate-limited."
+        "label": "İstemci Tarafı Proxy'si",
+        "description": "Tarayıcınızda herkese açık bir CORS proxy'si kullanır. Daha az güvenilir veya hız sınırlı olabilir."
       }
     },
     "clientProxy": {
-      "selectLabel": "Select Client Proxy Service:",
-      "ariaLabel": "Client Proxy Service Selector",
-      "helper": "Performance and reliability vary between proxies."
+      "selectLabel": "İstemci Proxy Hizmetini Seçin:",
+      "ariaLabel": "İstemci Proxy Hizmeti Seçici",
+      "helper": "Performans ve güvenilirlik proxy'ler arasında değişir."
     },
     "toggles": {
       "autoExtract": {
-        "label": "Automatic Extraction",
-        "description": "Extract tags automatically after pasting/typing a valid URL.",
-        "tooltip": "Enable or disable automatic tag extraction upon pasting/typing a valid URL"
+        "label": "Otomatik Çıkarma",
+        "description": "Geçerli bir URL yapıştırdıktan/yazdıktan sonra etiketleri otomatik olarak çıkar.",
+        "tooltip": "Geçerli bir URL yapıştırıldığında/yazıldığında otomatik etiket çıkarmayı etkinleştir veya devre dışı bırak"
       },
       "previews": {
-        "label": "Enable Previews",
-        "description": "Show image/video previews during extraction and in history.",
-        "tooltip": "Enable or disable image/video previews to save bandwidth or avoid potential issues",
-        "note": "Images are always fetched via the Server Proxy."
+        "label": "Önizlemeleri Etkinleştir",
+        "description": "Çıkarma sırasında ve geçmişte resim/video önizlemelerini göster.",
+        "tooltip": "Bant genişliğinden tasarruf etmek veya olası sorunları önlemek için resim/video önizlemelerini etkinleştir veya devre dışı bırak",
+        "note": "Resimler her zaman Sunucu Proxy'si üzerinden getirilir."
       },
       "saveHistory": {
-        "label": "Save History",
-        "description": "Store successful extractions locally in your browser.",
-        "tooltip": "Enable or disable saving extraction history to your browser's local storage"
+        "label": "Geçmişi Kaydet",
+        "description": "Başarılı çıkarmaları tarayıcınızda yerel olarak sakla.",
+        "tooltip": "Çıkarma geçmişini tarayıcınızın yerel depolama alanına kaydetmeyi etkinleştir veya devre dışı bırak"
       },
       "unsupportedSites": {
-        "label": "Enable for Unsupported Sites",
-        "description": "Try to extract from unsupported sites using similar site patterns. May not work for all sites.",
-        "tooltip": "Enable extraction for unsupported websites by using similar site patterns"
+        "label": "Desteklenmeyen Siteler İçin Etkinleştir",
+        "description": "Benzer site desenleri kullanarak desteklenmeyen sitelerden çıkarmayı dene. Tüm siteler için çalışmayabilir.",
+        "tooltip": "Benzer site desenleri kullanarak desteklenmeyen web siteleri için çıkarmayı etkinleştir"
       },
       "blacklist": {
-        "label": "Enable Keyword Blacklist",
-        "description": "Enter keywords to block, separated by commas, semicolons, or new lines.",
-        "tooltip": "Block unwanted tags by filtering out specific keywords",
-        "placeholder": "Enter keywords to block…",
-        "ariaLabel": "Blacklist Keywords",
-        "reset": "Reset to Default"
+        "label": "Anahtar Kelime Kara Listesini Etkinleştir",
+        "description": "Engellenecek anahtar kelimeleri virgül, noktalı virgül veya yeni satırlarla ayırarak girin.",
+        "tooltip": "Belirli anahtar kelimeleri filtreleyerek istenmeyen etiketleri engelle",
+        "placeholder": "Engellenecek anahtar kelimeleri girin...",
+        "ariaLabel": "Kara Liste Anahtar Kelimeleri",
+        "reset": "Varsayılana Sıfırla"
       }
     },
     "historySize": {
-      "label": "Maximum History Size",
-      "description": "Set the max number of entries for both extraction and image history."
+      "label": "Maksimum Geçmiş Boyutu",
+      "description": "Hem çıkarma hem de resim geçmişi için maksimum kayıt sayısını ayarla."
     },
     "accessibility": {
-      "themeOption": "Theme {{label}}",
-      "colorThemeOption": "Color theme {{label}}",
-      "historySizeSelect": "Maximum history size"
+      "themeOption": "Tema {{label}}",
+      "colorThemeOption": "Renk teması {{label}}",
+      "historySizeSelect": "Maksimum geçmiş boyutu"
     },
     "historySizeOptions": {
-      "10": "10 Entries",
-      "30": "30 Entries",
-      "50": "50 Entries",
-      "100": "100 Entries",
-      "unlimited": "Unlimited"
+      "10": "10 Kayıt",
+      "30": "30 Kayıt",
+      "50": "50 Kayıt",
+      "100": "100 Kayıt",
+      "unlimited": "Sınırsız"
     },
     "support": {
-      "title": "Support & Feedback",
-      "cta": "Report an Issue on GitHub",
-      "description": "Found a bug or have a suggestion? Let us know!"
+      "title": "Destek ve Geri Bildirim",
+      "cta": "GitHub'da Sorun Bildir",
+      "description": "Bir hata mı buldunuz veya bir öneriniz mi var? Bize bildirin!"
     },
     "modal": {
-      "close": "Close Settings"
+      "close": "Ayarları Kapat"
     }
   },
   "extractor": {
     "header": {
-      "title": "Booru Tag Extractor",
-      "subtitle": "Extract tags from booru image boards",
-      "supported": "Supported platforms:",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste your booru post URL here...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset",
+      "title": "Booru Etiket Çıkarıcı",
+      "subtitle": "Booru resim panolarından etiketleri çıkar",
+      "supported": "Desteklenen platformlar:",
+      "urlLabel": "Booru Gönderi URL'si",
+      "urlPlaceholder": "Booru gönderi URL'nizi buraya yapıştırın...",
+      "manualButton": "Manuel Olarak Çıkar",
+      "resetButton": "Sıfırla",
       "activePlaceholder": "—"
     },
     "info": {
-      "heroTitle": "Booru Tag Extractor",
-      "heroSubtitle": "Extract, filter, and copy tags from booru sites instantly",
+      "heroTitle": "Booru Etiket Çıkarıcı",
+      "heroSubtitle": "Booru sitelerinden etiketleri anında çıkarın, filtreleyin ve kopyalayın",
       "features": {
         "smart": {
-          "title": "Smart",
-          "subtitle": "Auto-extract"
+          "title": "Akıllı",
+          "subtitle": "Otomatik çıkarma"
         },
         "fast": {
-          "title": "Fast",
-          "subtitle": "Instant results"
+          "title": "Hızlı",
+          "subtitle": "Anında sonuçlar"
         },
         "private": {
-          "title": "Private",
-          "subtitle": "Client-side"
+          "title": "Özel",
+          "subtitle": "İstemci tarafı"
         },
         "copy": {
-          "title": "Copy",
-          "subtitle": "One-click"
+          "title": "Kopyala",
+          "subtitle": "Tek tıkla"
         }
       },
       "cta": {
-        "paste": "Paste",
-        "extract": "Extract",
-        "filter": "Filter",
-        "copy": "Copy"
+        "paste": "Yapıştır",
+        "extract": "Çıkar",
+        "filter": "Filtrele",
+        "copy": "Kopyala"
       },
-      "supportNotice": "Supports Danbooru, Gelbooru, Safebooru, Rule34, e621, and more"
+      "supportNotice": "Danbooru, Gelbooru, Safebooru, Rule34, e621 ve daha fazlasını destekler"
     },
     "preview": {
-      "title": "Preview"
+      "title": "Önizleme"
     },
     "status": {
-      "resultLabel": "Result for:"
+      "resultLabel": "Sonuç:"
     },
     "categories": {
-      "title": "Filter Categories",
-      "enableAll": "All",
-      "disableAll": "None",
+      "title": "Kategorileri Filtrele",
+      "enableAll": "Tümü",
+      "disableAll": "Hiçbiri",
       "items": {
-        "copyright": "Copyright",
-        "character": "Character",
-        "general": "General",
+        "copyright": "Telif Hakkı",
+        "character": "Karakter",
+        "general": "Genel",
         "meta": "Meta",
-        "other": "Other"
+        "other": "Diğer"
       },
-      "count_one": "{{count}} tag",
-      "count_other": "{{count}} tags"
+      "count_one": "{{count}} etiket",
+      "count_other": "{{count}} etiket"
     },
     "filteredTags": {
-      "label": "Filtered Tags",
-      "ariaLabel": "Filtered tags",
-      "empty": "No tags to display.",
-      "copy": "Copy Tags",
-      "copied": "Copied!"
+      "label": "Filtrelenmiş Etiketler",
+      "ariaLabel": "Filtrelenmiş etiketler",
+      "empty": "Gösterilecek etiket yok.",
+      "copy": "Etiketleri Kopyala",
+      "copied": "Kopyalandı!"
     },
     "history": {
-      "extractionTitle": "Extraction History",
-      "imageTitle": "Image History",
-      "searchExtraction": "Search title, url, tags...",
-      "searchImages": "Search filename, prompts, params...",
-      "emptySearch": "No entries match your search.",
-      "clearTooltip": "Clear All History",
-      "clearAction": "Clear History",
-      "confirmMessage": "Really clear?",
-      "confirmYes": "Yes, Clear",
-      "confirmCancel": "Cancel",
-      "searchAriaLabel": "Search {{context}}",
-      "searchFallback": "history",
-      "clearSearchTooltip": "Clear Search",
-      "clearSearchAria": "Clear search"
+      "extractionTitle": "Çıkarma Geçmişi",
+      "imageTitle": "Resim Geçmişi",
+      "searchExtraction": "Başlık, url, etiket ara...",
+      "searchImages": "Dosya adı, istemler, parametreler ara...",
+      "emptySearch": "Aramanızla eşleşen kayıt yok.",
+      "clearTooltip": "Tüm Geçmişi Temizle",
+      "clearAction": "Geçmişi Temizle",
+      "confirmMessage": "Gerçekten temizlensin mi?",
+      "confirmYes": "Evet, Temizle",
+      "confirmCancel": "İptal",
+      "searchAriaLabel": "{{context}} ara",
+      "searchFallback": "geçmiş",
+      "clearSearchTooltip": "Aramayı Temizle",
+      "clearSearchAria": "Aramayı temizle"
     },
     "mobile": {
-      "historyButton": "History",
-      "urlLabel": "Booru Post URL",
-      "urlPlaceholder": "Paste URL or Drag & Drop...",
-      "manualButton": "Extract Manually",
-      "resetButton": "Reset"
+      "historyButton": "Geçmiş",
+      "urlLabel": "Booru Gönderi URL'si",
+      "urlPlaceholder": "URL Yapıştır veya Sürükle Bırak...",
+      "manualButton": "Manuel Olarak Çıkar",
+      "resetButton": "Sıfırla"
     }
   },
   "imageTool": {
-    "title": "Image Metadata",
-    "dropCtaTitle": "Drag & Drop PNG Here",
-    "dropCtaSubtitle": "or click to upload",
-    "selectButton": "Select PNG",
-    "statusProcessing": "Processing...",
+    "title": "Resim Meta Verileri",
+    "dropCtaTitle": "PNG'yi Buraya Sürükle Bırak",
+    "dropCtaSubtitle": "veya yüklemek için tıkla",
+    "selectButton": "PNG Seç",
+    "statusProcessing": "İşleniyor...",
     "previewMeta": "{{name}} ({{size}} KB)",
-    "positivePrompt": "Positive Prompt",
-    "negativePrompt": "Negative Prompt",
-    "parameters": "Parameters",
-    "copy": "Copy",
-    "copyAll": "Copy All",
-    "copySuccess": "Copied!",
-    "noMetadata": "No generation metadata found.",
-    "loadMetadata": "Load Metadata",
-    "deleteEntry": "Delete Entry",
-    "historyTitle": "Image History",
-    "historySearch": "Search filename, prompts, params...",
-    "previewAlt": "Preview",
+    "positivePrompt": "Pozitif İstem",
+    "negativePrompt": "Negatif İstem",
+    "parameters": "Parametreler",
+    "copy": "Kopyala",
+    "copyAll": "Tümünü Kopyala",
+    "copySuccess": "Kopyalandı!",
+    "noMetadata": "Üretim meta verisi bulunamadı.",
+    "loadMetadata": "Meta Verileri Yükle",
+    "deleteEntry": "Kaydı Sil",
+    "historyTitle": "Resim Geçmişi",
+    "historySearch": "Dosya adı, istemler, parametreler ara...",
+    "previewAlt": "Önizleme",
     "footer": {
-      "metadataNotice": "PNG metadata extraction for 'parameters' text chunk."
+      "metadataNotice": "'parameters' metin parçası için PNG meta veri çıkarma."
     }
   },
   "historyItem": {
-    "load": "Load this history entry",
-    "delete": "Delete this history entry",
-    "previewAlt": "Preview"
+    "load": "Bu geçmiş kaydını yükle",
+    "delete": "Bu geçmiş kaydını sil",
+    "previewAlt": "Önizleme"
   },
   "imagePreview": {
-    "loading": "Loading preview...",
-    "error": "Could not load preview.",
-    "errorDetail": "Server proxy error or invalid image",
-    "videoUnsupported": "Your browser does not support video.",
-    "openFull": "Open full-size preview",
-    "close": "Close",
-    "reset": "Reset",
-    "openOriginal": "Open original"
+    "loading": "Önizleme yükleniyor...",
+    "error": "Önizleme yüklenemedi.",
+    "errorDetail": "Sunucu proxy hatası veya geçersiz resim",
+    "videoUnsupported": "Tarayıcınız videoyu desteklemiyor.",
+    "openFull": "Tam boyutlu önizlemeyi aç",
+    "close": "Kapat",
+    "reset": "Sıfırla",
+    "openOriginal": "Orijinali aç"
   },
   "booruList": {
-    "pageTitle": "Top Booru Leaderboard",
-    "pageDescriptionShort": "Explore the top booru sites ranked by total images and activity.",
-    "pageDescriptionLong": "Discover the most popular booru sites from across the web. Ranked by total images, member count, and activity with data from Booru.org.",
-    "searchPlaceholder": "Search booru sites...",
+    "pageTitle": "En İyi Booru Sıralaması",
+    "pageDescriptionShort": "Toplam resim ve aktiviteye göre sıralanmış en iyi booru sitelerini keşfedin.",
+    "pageDescriptionLong": "Web'deki en popüler booru sitelerini keşfedin. Booru.org'dan gelen verilerle toplam resim, üye sayısı ve aktiviteye göre sıralanmıştır.",
+    "searchPlaceholder": "Booru sitelerinde ara...",
     "filter": {
-      "all": "All",
-      "sfw": "SFW",
-      "nsfw": "NSFW"
+      "all": "Tümü",
+      "sfw": "Güvenli",
+      "nsfw": "Yetişkin"
     },
     "stats": {
-      "images": "Images",
-      "members": "Members",
-      "owner": "Owner"
+      "images": "Resimler",
+      "members": "Üyeler",
+      "owner": "Sahip"
     },
     "sort": {
-      "label": "Sort by:",
-      "rank": "Rank (Top)",
-      "images": "Images Count",
-      "members": "Members Count",
-      "asc": "Asc",
-      "desc": "Desc"
+      "label": "Sırala:",
+      "rank": "Sıralama (En İyi)",
+      "images": "Resim Sayısı",
+      "members": "Üye Sayısı",
+      "asc": "Artan",
+      "desc": "Azalan"
     },
-    "itemsPerPage": "Per page:",
-    "resultsRange": "<strong>{{start}}-{{end}}</strong> of {{total}}",
+    "itemsPerPage": "Sayfa başına:",
+    "resultsRange": "<strong>{{start}}-{{end}}</strong> / {{total}}",
     "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "previousShort": "Prev",
-      "nextShort": "Next"
+      "previous": "Önceki",
+      "next": "Sonraki",
+      "previousShort": "Önc",
+      "nextShort": "Sonr"
     },
-    "emptyState": "No booru sites found",
-    "loading": "Loading booru data...",
-    "errorTitle": "Error Loading Data",
+    "emptyState": "Booru sitesi bulunamadı",
+    "loading": "Booru verileri yükleniyor...",
+    "errorTitle": "Veri Yükleme Hatası",
     "errors": {
-      "fetchFailed": "Failed to fetch booru data.",
-      "unknown": "Something went wrong while loading the leaderboard."
+      "fetchFailed": "Booru verileri getirilemedi.",
+      "unknown": "Sıralama yüklenirken bir şeyler ters gitti."
     },
-    "ownerLabel": "Owner:",
-    "visit": "Visit {{name}}"
+    "ownerLabel": "Sahip:",
+    "visit": "{{name}} Ziyaret Et"
   },
   "booruDetail": {
-    "backButton": "Back to Booru List",
-    "notFoundTitle": "Booru Not Found",
-    "notFoundDescription": "The booru domain \"{{domain}}\" was not found in our database.",
-    "statistics": "Statistics",
-    "totalImages": "Total Images",
-    "totalMembers": "Total Members",
-    "shortName": "Short Name",
-    "owner": "Owner",
-    "hosted": "Hosted by booru.org",
-    "protocol": "Protocol",
+    "backButton": "Booru Listesine Dön",
+    "notFoundTitle": "Booru Bulunamadı",
+    "notFoundDescription": "\"{{domain}}\" booru alan adı veritabanımızda bulunamadı.",
+    "statistics": "İstatistikler",
+    "totalImages": "Toplam Resim",
+    "totalMembers": "Toplam Üye",
+    "shortName": "Kısa Ad",
+    "owner": "Sahip",
+    "hosted": "booru.org tarafından barındırılıyor",
+    "protocol": "Protokol",
     "yes": "Evet",
     "no": "Hayır",
-    "visit": "Visit {{name}}",
-    "loading": "Loading..."
+    "visit": "{{name}} Ziyaret Et",
+    "loading": "Yükleniyor..."
   }
 }
