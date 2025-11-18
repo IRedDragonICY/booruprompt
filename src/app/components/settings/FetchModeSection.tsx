@@ -24,6 +24,12 @@ interface FetchModeSectionProps {
     onProxyUrlChange: (url: string) => void;
 }
 
+// Icon map to avoid recreating JSX elements
+const FETCH_MODE_ICON_MAP = {
+    server: ServerIcon,
+    clientProxy: CloudArrowDownIcon,
+} as const;
+
 export const FetchModeSection = memo(function FetchModeSection({
     fetchMode,
     clientProxyUrl,
@@ -41,8 +47,8 @@ export const FetchModeSection = memo(function FetchModeSection({
     }, [onProxyUrlChange]);
 
     const fetchOptions = useMemo(() => [
-        { value: 'server' as FetchMode, label: t('settings.fetchModes.server.label'), icon: <ServerIcon />, description: t('settings.fetchModes.server.description') },
-        { value: 'clientProxy' as FetchMode, label: t('settings.fetchModes.clientProxy.label'), icon: <CloudArrowDownIcon />, description: t('settings.fetchModes.clientProxy.description') },
+        { value: 'server' as FetchMode, label: t('settings.fetchModes.server.label'), description: t('settings.fetchModes.server.description') },
+        { value: 'clientProxy' as FetchMode, label: t('settings.fetchModes.clientProxy.label'), description: t('settings.fetchModes.clientProxy.description') },
     ], [t]);
 
     return (
@@ -54,25 +60,28 @@ export const FetchModeSection = memo(function FetchModeSection({
                 <span>{t('settings.sections.dataFetch')}</span>
             </label>
             <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
-                {fetchOptions.map(({ value, label, icon, description }) => (
-                    <div key={value}>
-                        <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                            <input type="radio" name="fetchMode" value={value} checked={fetchMode === value} onChange={handleModeChange} className="peer sr-only" aria-label={label} />
-                            <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                {icon}
-                            </div>
-                            <div className="flex-1">
-                                <span className={`block text-sm font-medium ${fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
-                            </div>
-                            <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
-                                <AnimatePresence>
-                                    {fetchMode === value && (
-                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]" />
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </label>
+                {fetchOptions.map(({ value, label, description }) => {
+                    const IconComponent = FETCH_MODE_ICON_MAP[value];
+
+                    return (
+                        <div key={value}>
+                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
+                                <input type="radio" name="fetchMode" value={value} checked={fetchMode === value} onChange={handleModeChange} className="peer sr-only" aria-label={label} />
+                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                                    <IconComponent />
+                                </div>
+                                <div className="flex-1">
+                                    <span className={`block text-sm font-medium ${fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
+                                </div>
+                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
+                                    <AnimatePresence>
+                                        {fetchMode === value && (
+                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]" />
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </label>
                         {value === 'clientProxy' && fetchMode === 'clientProxy' && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0, marginTop: 0 }}
@@ -98,8 +107,9 @@ export const FetchModeSection = memo(function FetchModeSection({
                                 <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{t('settings.clientProxy.helper')}</p>
                             </motion.div>
                         )}
-                    </div>
-                ))}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

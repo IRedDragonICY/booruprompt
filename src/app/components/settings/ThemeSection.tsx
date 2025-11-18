@@ -10,6 +10,19 @@ interface ThemeSectionProps {
     onChange: (theme: ThemePreference) => void;
 }
 
+// Icon map to avoid recreating JSX elements
+const THEME_ICON_MAP = {
+    system: ComputerDesktopIcon,
+    light: SunIcon,
+    dark: MoonIcon,
+} as const;
+
+const THEME_ANIMATION_MAP = {
+    system: 'gentle' as const,
+    light: 'spin' as const,
+    dark: 'default' as const,
+} as const;
+
 export const ThemeSection = memo(function ThemeSection({ theme, onChange }: ThemeSectionProps) {
     const { t } = useTranslation();
 
@@ -18,9 +31,9 @@ export const ThemeSection = memo(function ThemeSection({ theme, onChange }: Them
     }, [onChange]);
 
     const themeOptions = useMemo(() => [
-        { value: 'system' as ThemePreference, label: t('settings.themeOptions.system'), icon: <ComputerDesktopIcon />, animation: 'gentle' as const },
-        { value: 'light' as ThemePreference, label: t('settings.themeOptions.light'), icon: <SunIcon />, animation: 'spin' as const },
-        { value: 'dark' as ThemePreference, label: t('settings.themeOptions.dark'), icon: <MoonIcon />, animation: 'default' as const },
+        { value: 'system' as ThemePreference, label: t('settings.themeOptions.system') },
+        { value: 'light' as ThemePreference, label: t('settings.themeOptions.light') },
+        { value: 'dark' as ThemePreference, label: t('settings.themeOptions.dark') },
     ], [t]);
 
     return (
@@ -32,30 +45,35 @@ export const ThemeSection = memo(function ThemeSection({ theme, onChange }: Them
                 <span>{t('settings.sections.appearance')}</span>
             </label>
             <div className="flex items-center space-x-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-1">
-                {themeOptions.map(({ value, label, icon, animation }) => (
-                    <label
-                        key={value}
-                        className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                            theme === value
-                                ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30'
-                                : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
-                        }`}
-                    >
-                        <input
-                            type="radio"
-                            name="theme"
-                            value={value}
-                            checked={theme === value}
-                            onChange={handleChange}
-                            className="sr-only"
-                            aria-label={t('settings.accessibility.themeOption', { label })}
-                        />
-                        <AnimatedIcon isActive={theme === value} animation={animation}>
-                            {icon}
-                        </AnimatedIcon>
-                        <span>{label}</span>
-                    </label>
-                ))}
+                {themeOptions.map(({ value, label }) => {
+                    const IconComponent = THEME_ICON_MAP[value];
+                    const animation = THEME_ANIMATION_MAP[value];
+
+                    return (
+                        <label
+                            key={value}
+                            className={`flex flex-1 cursor-pointer items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                theme === value
+                                    ? 'bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30'
+                                    : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
+                            }`}
+                        >
+                            <input
+                                type="radio"
+                                name="theme"
+                                value={value}
+                                checked={theme === value}
+                                onChange={handleChange}
+                                className="sr-only"
+                                aria-label={t('settings.accessibility.themeOption', { label })}
+                            />
+                            <AnimatedIcon isActive={theme === value} animation={animation}>
+                                <IconComponent />
+                            </AnimatedIcon>
+                            <span>{label}</span>
+                        </label>
+                    );
+                })}
             </div>
         </div>
     );
