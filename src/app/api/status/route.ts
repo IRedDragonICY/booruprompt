@@ -55,16 +55,13 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
     const startTime = Date.now();
 
     try {
-        const baseUrl = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'http://localhost:3000';
-
-        const response = await fetch(`${baseUrl}/api/fetch-booru`, {
-            method: 'POST',
+        // Direct check to booru site (not through /api/fetch-booru)
+        const response = await fetch(testUrl, {
+            method: 'HEAD', // Use HEAD for faster response
             headers: {
-                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             },
-            body: JSON.stringify({ targetUrl: testUrl }),
+            signal: AbortSignal.timeout(10000), // 10 second timeout
         });
 
         const responseTime = Date.now() - startTime;
@@ -72,31 +69,39 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
         let errorMsg: string | undefined;
 
         if (response.ok) {
-            const data = await response.json();
+            // 2xx status codes
+            status = 'operational';
+        } else if (response.status === 403 || response.status === 401) {
+            // Some sites block HEAD requests or require auth
+            // Try GET request instead
+            try {
+                const getResponse = await fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    },
+                    signal: AbortSignal.timeout(10000),
+                });
 
-            if (data.error) {
-                if (data.error.includes('No tags') || data.error.includes('Warning')) {
+                if (getResponse.ok) {
                     status = 'operational';
-                } else if (data.error.includes('Rate limit') || data.error.includes('timeout')) {
-                    status = 'degraded';
-                    errorMsg = data.error;
-                } else if (data.error.includes('login') || data.error.includes('Access denied')) {
-                    status = 'partial_outage';
-                    errorMsg = data.error;
                 } else {
-                    status = 'major_outage';
-                    errorMsg = data.error;
+                    status = 'degraded';
+                    errorMsg = `HTTP ${getResponse.status}`;
                 }
-            } else {
-                status = 'operational';
+            } catch {
+                status = 'degraded';
+                errorMsg = `HTTP ${response.status}`;
             }
-        } else if (response.status === 502 || response.status === 504) {
+        } else if (response.status === 429) {
+            status = 'degraded';
+            errorMsg = 'Rate limited';
+        } else if (response.status === 502 || response.status === 503 || response.status === 504) {
             status = 'major_outage';
-            errorMsg = `Gateway error: ${response.status}`;
-        } else if (response.status === 422) {
+            errorMsg = `Server error: ${response.status}`;
+        } else if (response.status === 404) {
             status = 'partial_outage';
-            const data = await response.json().catch(() => ({}));
-            errorMsg = data.error || 'Extraction failed';
+            errorMsg = 'Page not found';
         } else {
             status = 'degraded';
             errorMsg = `HTTP ${response.status}`;
@@ -111,11 +116,26 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
         };
     } catch (err: unknown) {
         const responseTime = Date.now() - startTime;
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+        let errorMsg: string;
+        let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage' = 'major_outage';
+
+        if (err instanceof Error) {
+            if (err.name === 'TimeoutError' || err.message.includes('timeout')) {
+                status = 'degraded';
+                errorMsg = 'Request timeout';
+            } else if (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND')) {
+                status = 'major_outage';
+                errorMsg = 'Site unreachable';
+            } else {
+                errorMsg = err.message;
+            }
+        } else {
+            errorMsg = 'Unknown error';
+        }
 
         return {
             name: siteName,
-            status: 'major_outage',
+            status,
             responseTime,
             lastChecked: new Date().toISOString(),
             error: errorMsg
