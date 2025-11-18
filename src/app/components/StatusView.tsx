@@ -142,6 +142,8 @@ export default function StatusView() {
     const [statusData, setStatusData] = useState<StatusResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | SiteStatus['status']>('all');
 
     useEffect(() => {
         const fetchStatus = async () => {
@@ -246,15 +248,79 @@ export default function StatusView() {
                     </div>
                 )}
 
+                {/* Search and Filter */}
+                {statusData && (
+                    <div className="mb-6 flex flex-col md:flex-row gap-4">
+                        {/* Search input */}
+                        <div className="flex-1">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search services..."
+                                className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                            />
+                        </div>
+
+                        {/* Status filter */}
+                        <div>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                                className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                            >
+                                <option value="all">All Statuses</option>
+                                <option value="operational">Operational</option>
+                                <option value="degraded">Degraded</option>
+                                <option value="partial_outage">Partial Outage</option>
+                                <option value="major_outage">Major Outage</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
                 {/* Services Status */}
                 <div className="space-y-4">
-                    <div className="mb-4">
-                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                            Uptime over the past <span className="font-semibold">90</span> days.
-                        </p>
-                    </div>
+                    {(() => {
+                        const filteredSites = statusData?.sites.filter((site) => {
+                            // Filter by search query
+                            const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-                    {statusData?.sites.map((site) => {
+                            // Filter by status
+                            const matchesStatus = statusFilter === 'all' || site.status === statusFilter;
+
+                            return matchesSearch && matchesStatus;
+                        }) || [];
+
+                        return (
+                            <>
+                                {/* Results count */}
+                                <div className="mb-4 flex items-center justify-between">
+                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                        Showing <span className="font-semibold">{filteredSites.length}</span> of <span className="font-semibold">{statusData?.sites.length || 0}</span> services
+                                    </p>
+                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                        Uptime over the past <span className="font-semibold">90</span> days.
+                                    </p>
+                                </div>
+
+                                {filteredSites.length === 0 ? (
+                                    <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
+                                        <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
+                                            No services found matching your criteria
+                                        </p>
+                                        <button
+                                            onClick={() => {
+                                                setSearchQuery('');
+                                                setStatusFilter('all');
+                                            }}
+                                            className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    </div>
+                                ) : (
+                                    filteredSites.map((site) => {
                         const uptimeData = generateUptimeData(site.status);
 
                         return (
@@ -322,7 +388,11 @@ export default function StatusView() {
                                 </div>
                             </motion.div>
                         );
-                    })}
+                    })
+                                )}
+                            </>
+                        );
+                    })()}
                 </div>
 
                 {/* Legend */}
