@@ -1,13 +1,21 @@
 {
   "name": "Booru Tag Extractor",
   "short_name": "BooruPrompt",
+  "description": "Extract, filter, and manage tags from booru image boards instantly",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0f13",
   "theme_color": "#3B82F6",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "productivity"],
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
-  ]
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }
 
 
