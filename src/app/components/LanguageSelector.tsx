@@ -3,6 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/app/providers/LanguageProvider';
 import { GlobeAltIcon, ChevronDownIcon, MagnifyingGlassIcon } from './icons/icons';
 
+// English names for search functionality
+const LANGUAGE_ENGLISH_NAMES: Record<string, string> = {
+  'en': 'English',
+  'id': 'Indonesian',
+  'zh': 'Chinese Simplified',
+  'zh-TW': 'Chinese Traditional',
+  'ja': 'Japanese',
+  'ar': 'Arabic',
+  'ru': 'Russian'
+};
+
 export const LanguageSelector: React.FC = () => {
   const { t } = useTranslation();
   const { language, changeLanguage, languages } = useLanguage();
@@ -35,7 +46,11 @@ export const LanguageSelector: React.FC = () => {
   );
 
   const localizedLanguages = useMemo(
-    () => languages.map(({ code }) => ({ code, label: resolveLabel(code) })),
+    () => languages.map(({ code }) => ({
+      code,
+      label: resolveLabel(code),
+      englishName: LANGUAGE_ENGLISH_NAMES[code] || code
+    })),
     [languages, resolveLabel]
   );
 
@@ -44,8 +59,8 @@ export const LanguageSelector: React.FC = () => {
     if (!query) {
       return localizedLanguages;
     }
-    return localizedLanguages.filter(({ label, code }) =>
-      `${label} ${code}`.toLowerCase().includes(query)
+    return localizedLanguages.filter(({ label, code, englishName }) =>
+      `${label} ${code} ${englishName}`.toLowerCase().includes(query)
     );
   }, [localizedLanguages, searchTerm]);
 
