@@ -125,15 +125,14 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
 }
 
 export async function GET(req: NextRequest) {
-    // Verify the request is from Vercel Cron
+    // Verify the request is from Vercel Cron by checking user agent
     const userAgent = req.headers.get('user-agent');
-    const authHeader = req.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
 
-    // Security: Only allow Vercel Cron or authorized requests
-    if (userAgent !== VERCEL_CRON_USER_AGENT && authHeader !== `Bearer ${cronSecret}`) {
+    // Security: Only allow Vercel Cron requests
+    // Vercel automatically sends this user agent for cron jobs
+    if (userAgent !== VERCEL_CRON_USER_AGENT) {
         return NextResponse.json(
-            { error: 'Unauthorized' },
+            { error: 'Unauthorized - This endpoint is only accessible via Vercel Cron Jobs' },
             { status: 401 }
         );
     }
