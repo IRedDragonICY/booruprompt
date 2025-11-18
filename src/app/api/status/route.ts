@@ -57,9 +57,8 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
     try {
         // Get the base URL - use public URL for external calls
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-            || process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'http://localhost:3000';
+            || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+            || 'http://localhost:3000';
 
         console.log(`[Status API] Checking API endpoint at: ${baseUrl}/api/fetch-booru`);
 
@@ -68,6 +67,8 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'User-Agent': 'BooruPrompt-StatusMonitor/1.0',
+                'Accept': 'application/json',
             },
             body: JSON.stringify({ targetUrl: 'https://danbooru.donmai.us/posts/1' }),
             signal: AbortSignal.timeout(15000), // 15 second timeout for API
@@ -77,7 +78,7 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
         let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
         let errorMsg: string | undefined;
 
-        console.log(`[Status API] API endpoint response status: ${response.status}`);
+        console.log(`[Status API] API endpoint response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
 
         if (response.ok) {
             const data = await response.json();
@@ -303,10 +304,10 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(statusData, {
             headers: {
                 ...CORS_HEADERS,
-                // Cache for 1 hour - first user triggers check, others get cached result
-                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=300',
-                'CDN-Cache-Control': 'public, s-maxage=3600',
-                'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
+                // Cache for 1 minute for faster updates during debugging
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+                'CDN-Cache-Control': 'public, s-maxage=60',
+                'Vercel-CDN-Cache-Control': 'public, s-maxage=60'
             }
         });
 
