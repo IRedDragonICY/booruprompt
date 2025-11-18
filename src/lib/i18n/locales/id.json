@@ -146,7 +146,8 @@
         "tooltip": "Blokir tag yang tidak diinginkan dengan memfilter kata kunci tertentu",
         "placeholder": "Masukkan kata kunci untuk diblokir…",
         "ariaLabel": "Kata kunci daftar hitam",
-        "reset": "Atur ke Default"
+        "reset": "Atur ke Default",
+        "defaultKeywords": "teks inggris, teks jepang, teks mandarin, teks korea, hak cipta, nama hak cipta, nama karakter, tanda tangan, tanda air, logo, subtitle, subtitel, keterangan, gelembung ucapan, kata-kata, huruf, teks"
       }
     },
     "historySize": {

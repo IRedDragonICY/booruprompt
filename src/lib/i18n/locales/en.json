@@ -146,7 +146,8 @@
         "tooltip": "Block unwanted tags by filtering out specific keywords",
         "placeholder": "Enter keywords to block…",
         "ariaLabel": "Blacklist Keywords",
-        "reset": "Reset to Default"
+        "reset": "Reset to Default",
+        "defaultKeywords": "english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters, text"
       }
     },
     "historySize": {

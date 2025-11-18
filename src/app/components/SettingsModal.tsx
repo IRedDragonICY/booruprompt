@@ -4,6 +4,7 @@ import { SunIcon, MoonIcon, ComputerDesktopIcon, XMarkIcon, BugAntIcon, ServerIc
 import { TooltipWrapper } from './TooltipWrapper';
 import { AnimatedIcon } from './AnimatedIcon';
 import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 type ThemePreference = 'system' | 'light' | 'dark';
 type ColorTheme = 'blue' | 'orange' | 'teal' | 'rose' | 'purple' | 'green' | 'custom';
@@ -33,7 +34,6 @@ interface ClientProxyOption {
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 const DEFAULT_MAX_HISTORY_SIZE = 30;
- const DEFAULT_BLACKLIST_KEYWORDS = 'english text, japanese text, chinese text, korean text, copyright, copyright name, character name, signature, watermark, logo, subtitle, subtitles, caption, captions, speech bubble, words, letters, text';
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
@@ -61,8 +61,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 interface SettingsModalProps { isOpen: boolean; onClose: () => void; settings: Settings; onSettingsChange: (newSettings: Partial<Settings>) => void; }
 export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
+    const { t } = useTranslation();
+    const defaultBlacklistKeywords = useMemo(() => t('settings.toggles.blacklist.defaultKeywords'), [t]);
     const [currentCustomHex, setCurrentCustomHex] = useState(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
-     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || DEFAULT_BLACKLIST_KEYWORDS);
+     const [localBlacklist, setLocalBlacklist] = useState<string>(settings.blacklistKeywords || defaultBlacklistKeywords);
 
     useEffect(() => {
         setCurrentCustomHex(settings.customColorHex || DEFAULT_CUSTOM_COLOR_HEX);
@@ -131,7 +133,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
     const handleUnsupportedSitesChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableUnsupportedSites: event.target.checked }), [onSettingsChange]);
      const handleBlacklistToggle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => onSettingsChange({ enableBlacklist: event.target.checked }), [onSettingsChange]);
      const handleBlacklistChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => { setLocalBlacklist(event.target.value); onSettingsChange({ blacklistKeywords: event.target.value }); }, [onSettingsChange]);
-     const handleBlacklistReset = useCallback(() => { setLocalBlacklist(DEFAULT_BLACKLIST_KEYWORDS); onSettingsChange({ blacklistKeywords: DEFAULT_BLACKLIST_KEYWORDS }); }, [onSettingsChange]);
+     const handleBlacklistReset = useCallback(() => { setLocalBlacklist(defaultBlacklistKeywords); onSettingsChange({ blacklistKeywords: defaultBlacklistKeywords }); }, [onSettingsChange, defaultBlacklistKeywords]);
     const handleMaxHistoryChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(event.target.value, 10);
         onSettingsChange({ maxHistorySize: isNaN(value) ? DEFAULT_MAX_HISTORY_SIZE : value });
@@ -442,11 +444,11 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                          onChange={handleBlacklistChange}
                                          rows={3}
                                           className="w-full appearance-none rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                         placeholder={DEFAULT_BLACKLIST_KEYWORDS}
-                                         aria-label="Blacklist Keywords"
+                                         placeholder={t('settings.toggles.blacklist.placeholder')}
+                                         aria-label={t('settings.toggles.blacklist.ariaLabel')}
                                      />
                                      <div className="text-right">
-                                         <button type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500 active:scale-95">Reset to Default</button>
+                                         <button type="button" onClick={handleBlacklistReset} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-3 py-1.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] transition hover:bg-gray-300 dark:hover:bg-gray-500 active:scale-95">{t('settings.toggles.blacklist.reset')}</button>
                                      </div>
                                  </motion.div>
                              </div>
