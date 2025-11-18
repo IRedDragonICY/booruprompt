@@ -206,10 +206,22 @@
       "heroTitle": "Extractor de Etiquetas Booru",
       "heroSubtitle": "Extrae, filtra y copia etiquetas de sitios booru al instante",
       "features": {
-        "smart": { "title": "Inteligente", "subtitle": "Autoextracción" },
-        "fast": { "title": "Rápido", "subtitle": "Resultados instantáneos" },
-        "private": { "title": "Privado", "subtitle": "Del lado del cliente" },
-        "copy": { "title": "Copiar", "subtitle": "Un clic" }
+        "smart": {
+          "title": "Inteligente",
+          "subtitle": "Autoextracción"
+        },
+        "fast": {
+          "title": "Rápido",
+          "subtitle": "Resultados instantáneos"
+        },
+        "private": {
+          "title": "Privado",
+          "subtitle": "Del lado del cliente"
+        },
+        "copy": {
+          "title": "Copiar",
+          "subtitle": "Un clic"
+        }
       },
       "cta": {
         "paste": "Pegar",

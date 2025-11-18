@@ -206,10 +206,22 @@
       "heroTitle": "Extracteur de Balises Booru",
       "heroSubtitle": "Extrayez, filtrez et copiez instantanément les balises des sites booru",
       "features": {
-        "smart": { "title": "Intelligent", "subtitle": "Auto-extraction" },
-        "fast": { "title": "Rapide", "subtitle": "Résultats instantanés" },
-        "private": { "title": "Privé", "subtitle": "Côté client" },
-        "copy": { "title": "Copier", "subtitle": "Un clic" }
+        "smart": {
+          "title": "Intelligent",
+          "subtitle": "Auto-extraction"
+        },
+        "fast": {
+          "title": "Rapide",
+          "subtitle": "Résultats instantanés"
+        },
+        "private": {
+          "title": "Privé",
+          "subtitle": "Côté client"
+        },
+        "copy": {
+          "title": "Copier",
+          "subtitle": "Un clic"
+        }
       },
       "cta": {
         "paste": "Coller",
