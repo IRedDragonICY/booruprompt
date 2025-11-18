@@ -78,7 +78,20 @@
       "historyDisabled": "История отключена.",
       "historyUnlimited": "Неограниченно",
       "historyEntries": "{{count}} записей"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "Настройки",
@@ -193,10 +206,22 @@
       "heroTitle": "Инструмент извлечения тегов Booru",
       "heroSubtitle": "Мгновенно извлекайте, фильтруйте и копируйте теги с сайтов Booru",
       "features": {
-        "smart": { "title": "Умный", "subtitle": "Авто-извлечение" },
-        "fast": { "title": "Быстрый", "subtitle": "Мгновенные результаты" },
-        "private": { "title": "Приватный", "subtitle": "На стороне клиента" },
-        "copy": { "title": "Копирование", "subtitle": "Одним кликом" }
+        "smart": {
+          "title": "Умный",
+          "subtitle": "Авто-извлечение"
+        },
+        "fast": {
+          "title": "Быстрый",
+          "subtitle": "Мгновенные результаты"
+        },
+        "private": {
+          "title": "Приватный",
+          "subtitle": "На стороне клиента"
+        },
+        "copy": {
+          "title": "Копирование",
+          "subtitle": "Одним кликом"
+        }
       },
       "cta": {
         "paste": "Вставить",

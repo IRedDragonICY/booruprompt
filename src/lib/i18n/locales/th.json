@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Booru Tag Extractor",
-    "language": "Language",
+    "appName": "เครื่องมือแยกแท็ก Booru",
+    "language": "ไทย",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -10,7 +10,7 @@
     "arabic": "العربية",
     "russian": "Русский",
     "author": "IRedDragonICY",
-    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "defaultDescription": "แยก กรอง และคัดลอกแท็กจากโพสต์ booru ได้ทันที",
     "unknown": "Unknown",
     "languageSwitcher": {
       "title": "Interface language",
@@ -20,10 +20,10 @@
       "noResults": "No languages found"
     },
     "nav": {
-      "extractor": "Tags",
-      "image": "Image",
+      "extractor": "แท็ก",
+      "image": "รูปภาพ",
       "booruList": "Boorus",
-      "settings": "Settings"
+      "settings": "การตั้งค่า"
     },
     "navTooltip": {
       "extractor": "Tag Extractor",
@@ -64,8 +64,9 @@
       "nextShort": "Next"
     },
     "status": {
-      "loading": "Loading...",
-      "processing": "Processing..."
+      "loading": "กำลังโหลด...",
+      "processing": "Processing...",
+      "copied": "คัดลอกแล้ว!"
     },
     "footer": {
       "madeWith": "Made with",
@@ -94,7 +95,7 @@
     "ukrainian": "Українська"
   },
   "settings": {
-    "title": "Settings",
+    "title": "การตั้งค่า",
     "sections": {
       "appearance": "Appearance",
       "colorTheme": "Color Theme",
@@ -373,8 +374,8 @@
     "owner": "Owner",
     "hosted": "Hosted by booru.org",
     "protocol": "Protocol",
-    "yes": "Yes",
-    "no": "No",
+    "yes": "ใช่",
+    "no": "ไม่",
     "visit": "Visit {{name}}",
     "loading": "Loading..."
   }

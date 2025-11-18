@@ -78,7 +78,20 @@
       "historyDisabled": "السجل معطّل.",
       "historyUnlimited": "غير محدود",
       "historyEntries": "{{count}} إدخالات"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "الإعدادات",
@@ -193,10 +206,22 @@
       "heroTitle": "أداة استخراج وسوم Booru",
       "heroSubtitle": "استخراج وتصفية ونسخ الوسوم من مواقع Booru على الفور",
       "features": {
-        "smart": { "title": "ذكي", "subtitle": "استخراج تلقائي" },
-        "fast": { "title": "سريع", "subtitle": "نتائج فورية" },
-        "private": { "title": "خاص", "subtitle": "جانب العميل" },
-        "copy": { "title": "نسخ", "subtitle": "نقرة واحدة" }
+        "smart": {
+          "title": "ذكي",
+          "subtitle": "استخراج تلقائي"
+        },
+        "fast": {
+          "title": "سريع",
+          "subtitle": "نتائج فورية"
+        },
+        "private": {
+          "title": "خاص",
+          "subtitle": "جانب العميل"
+        },
+        "copy": {
+          "title": "نسخ",
+          "subtitle": "نقرة واحدة"
+        }
       },
       "cta": {
         "paste": "لصق",

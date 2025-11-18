@@ -8,7 +8,20 @@ const dictionaries = {
   'zh-TW': () => import('./locales/zh-TW.json').then((module) => module.default as TranslationSchema),
   ja: () => import('./locales/ja.json').then((module) => module.default as TranslationSchema),
   ar: () => import('./locales/ar.json').then((module) => module.default as TranslationSchema),
-  ru: () => import('./locales/ru.json').then((module) => module.default as TranslationSchema)
+  ru: () => import('./locales/ru.json').then((module) => module.default as TranslationSchema),
+  es: () => import('./locales/es.json').then((module) => module.default as TranslationSchema),
+  fr: () => import('./locales/fr.json').then((module) => module.default as TranslationSchema),
+  de: () => import('./locales/de.json').then((module) => module.default as TranslationSchema),
+  pt: () => import('./locales/pt.json').then((module) => module.default as TranslationSchema),
+  ko: () => import('./locales/ko.json').then((module) => module.default as TranslationSchema),
+  it: () => import('./locales/it.json').then((module) => module.default as TranslationSchema),
+  nl: () => import('./locales/nl.json').then((module) => module.default as TranslationSchema),
+  tr: () => import('./locales/tr.json').then((module) => module.default as TranslationSchema),
+  pl: () => import('./locales/pl.json').then((module) => module.default as TranslationSchema),
+  vi: () => import('./locales/vi.json').then((module) => module.default as TranslationSchema),
+  th: () => import('./locales/th.json').then((module) => module.default as TranslationSchema),
+  hi: () => import('./locales/hi.json').then((module) => module.default as TranslationSchema),
+  uk: () => import('./locales/uk.json').then((module) => module.default as TranslationSchema)
 } as const;
 
 // Cache for loaded dictionaries

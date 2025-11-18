@@ -2,13 +2,13 @@
   "common": {
     "appName": "Booru Tag Extractor",
     "language": "Bahasa",
-    "english": "Inggris",
-    "indonesian": "Indonesia",
-    "chinese": "Tionghoa",
-    "chineseTraditional": "Tionghoa Tradisional",
-    "japanese": "Jepang",
-    "arabic": "Arab",
-    "russian": "Rusia",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
+    "chinese": "中文",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
     "author": "IRedDragonICY",
     "defaultDescription": "Ekstrak, saring, dan salin tag dari postingan booru secara instan.",
     "unknown": "Tidak diketahui",
@@ -78,7 +78,20 @@
       "historyDisabled": "Riwayat nonaktif.",
       "historyUnlimited": "Tak terbatas",
       "historyEntries": "{{count}} Entri"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "Pengaturan",
@@ -193,10 +206,22 @@
       "heroTitle": "Booru Tag Extractor",
       "heroSubtitle": "Ekstrak, saring, dan salin tag dari situs booru secara instan",
       "features": {
-        "smart": { "title": "Cerdas", "subtitle": "Ekstrak otomatis" },
-        "fast": { "title": "Cepat", "subtitle": "Hasil instan" },
-        "private": { "title": "Privat", "subtitle": "Di sisi klien" },
-        "copy": { "title": "Salin", "subtitle": "Sekali klik" }
+        "smart": {
+          "title": "Cerdas",
+          "subtitle": "Ekstrak otomatis"
+        },
+        "fast": {
+          "title": "Cepat",
+          "subtitle": "Hasil instan"
+        },
+        "private": {
+          "title": "Privat",
+          "subtitle": "Di sisi klien"
+        },
+        "copy": {
+          "title": "Salin",
+          "subtitle": "Sekali klik"
+        }
       },
       "cta": {
         "paste": "Tempel",

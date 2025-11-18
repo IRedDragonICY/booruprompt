@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Booru Tag Extractor",
-    "language": "Language",
+    "appName": "Extrator de Tags Booru",
+    "language": "Português",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -10,7 +10,7 @@
     "arabic": "العربية",
     "russian": "Русский",
     "author": "IRedDragonICY",
-    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "defaultDescription": "Extraia, filtre e copie tags de postagens booru instantaneamente.",
     "unknown": "Unknown",
     "languageSwitcher": {
       "title": "Interface language",
@@ -21,9 +21,9 @@
     },
     "nav": {
       "extractor": "Tags",
-      "image": "Image",
+      "image": "Imagem",
       "booruList": "Boorus",
-      "settings": "Settings"
+      "settings": "Configurações"
     },
     "navTooltip": {
       "extractor": "Tag Extractor",
@@ -64,8 +64,9 @@
       "nextShort": "Next"
     },
     "status": {
-      "loading": "Loading...",
-      "processing": "Processing..."
+      "loading": "Carregando...",
+      "processing": "Processing...",
+      "copied": "Copiado!"
     },
     "footer": {
       "madeWith": "Made with",
@@ -94,7 +95,7 @@
     "ukrainian": "Українська"
   },
   "settings": {
-    "title": "Settings",
+    "title": "Configurações",
     "sections": {
       "appearance": "Appearance",
       "colorTheme": "Color Theme",
@@ -373,8 +374,8 @@
     "owner": "Owner",
     "hosted": "Hosted by booru.org",
     "protocol": "Protocol",
-    "yes": "Yes",
-    "no": "No",
+    "yes": "Sim",
+    "no": "Não",
     "visit": "Visit {{name}}",
     "loading": "Loading..."
   }

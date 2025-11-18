@@ -78,7 +78,20 @@
       "historyDisabled": "已停用歷史記錄。",
       "historyUnlimited": "無限制",
       "historyEntries": "{{count}} 個項目"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "設定",
@@ -193,10 +206,22 @@
       "heroTitle": "Booru 標籤提取器",
       "heroSubtitle": "即時從 Booru 網站提取、過濾和複製標籤",
       "features": {
-        "smart": { "title": "智慧", "subtitle": "自動提取" },
-        "fast": { "title": "快速", "subtitle": "即時結果" },
-        "private": { "title": "隱私", "subtitle": "客戶端" },
-        "copy": { "title": "複製", "subtitle": "一鍵完成" }
+        "smart": {
+          "title": "智慧",
+          "subtitle": "自動提取"
+        },
+        "fast": {
+          "title": "快速",
+          "subtitle": "即時結果"
+        },
+        "private": {
+          "title": "隱私",
+          "subtitle": "客戶端"
+        },
+        "copy": {
+          "title": "複製",
+          "subtitle": "一鍵完成"
+        }
       },
       "cta": {
         "paste": "貼上",

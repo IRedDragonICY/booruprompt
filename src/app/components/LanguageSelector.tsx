@@ -11,7 +11,20 @@ const LANGUAGE_ENGLISH_NAMES: Record<string, string> = {
   'zh-TW': 'Chinese Traditional',
   'ja': 'Japanese',
   'ar': 'Arabic',
-  'ru': 'Russian'
+  'ru': 'Russian',
+  'es': 'Spanish',
+  'fr': 'French',
+  'de': 'German',
+  'pt': 'Portuguese',
+  'ko': 'Korean',
+  'it': 'Italian',
+  'nl': 'Dutch',
+  'tr': 'Turkish',
+  'pl': 'Polish',
+  'vi': 'Vietnamese',
+  'th': 'Thai',
+  'hi': 'Hindi',
+  'uk': 'Ukrainian'
 };
 
 export const LanguageSelector: React.FC = () => {
@@ -37,6 +50,32 @@ export const LanguageSelector: React.FC = () => {
           return t('common.arabic');
         case 'ru':
           return t('common.russian');
+        case 'es':
+          return t('common.spanish');
+        case 'fr':
+          return t('common.french');
+        case 'de':
+          return t('common.german');
+        case 'pt':
+          return t('common.portuguese');
+        case 'ko':
+          return t('common.korean');
+        case 'it':
+          return t('common.italian');
+        case 'nl':
+          return t('common.dutch');
+        case 'tr':
+          return t('common.turkish');
+        case 'pl':
+          return t('common.polish');
+        case 'vi':
+          return t('common.vietnamese');
+        case 'th':
+          return t('common.thai');
+        case 'hi':
+          return t('common.hindi');
+        case 'uk':
+          return t('common.ukrainian');
         case 'en':
         default:
           return t('common.english');

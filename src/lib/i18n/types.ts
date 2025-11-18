@@ -7,7 +7,7 @@ type DeepStringRecord<T> = {
 
 export type TranslationSchema = DeepStringRecord<typeof enTranslation>;
 
-export type Locale = 'en' | 'id' | 'zh' | 'zh-TW' | 'ja' | 'ar' | 'ru';
+export type Locale = 'en' | 'id' | 'zh' | 'zh-TW' | 'ja' | 'ar' | 'ru' | 'es' | 'fr' | 'de' | 'pt' | 'ko' | 'it' | 'nl' | 'tr' | 'pl' | 'vi' | 'th' | 'hi' | 'uk';
 
 export interface LanguageOption {
   code: Locale;

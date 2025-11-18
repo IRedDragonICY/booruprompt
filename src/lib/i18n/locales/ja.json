@@ -78,7 +78,20 @@
       "historyDisabled": "履歴が無効。",
       "historyUnlimited": "無制限",
       "historyEntries": "{{count}} 件"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "設定",
@@ -193,10 +206,22 @@
       "heroTitle": "Booru タグ抽出ツール",
       "heroSubtitle": "Booru サイトからタグを即座に抽出、フィルタリング、コピー",
       "features": {
-        "smart": { "title": "スマート", "subtitle": "自動抽出" },
-        "fast": { "title": "高速", "subtitle": "即座に結果" },
-        "private": { "title": "プライベート", "subtitle": "クライアント側" },
-        "copy": { "title": "コピー", "subtitle": "ワンクリック" }
+        "smart": {
+          "title": "スマート",
+          "subtitle": "自動抽出"
+        },
+        "fast": {
+          "title": "高速",
+          "subtitle": "即座に結果"
+        },
+        "private": {
+          "title": "プライベート",
+          "subtitle": "クライアント側"
+        },
+        "copy": {
+          "title": "コピー",
+          "subtitle": "ワンクリック"
+        }
       },
       "cta": {
         "paste": "貼り付け",

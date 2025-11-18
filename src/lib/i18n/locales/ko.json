@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "Booru Tag Extractor",
-    "language": "Language",
+    "appName": "Booru 태그 추출기",
+    "language": "한국어",
     "english": "English",
     "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
@@ -10,7 +10,7 @@
     "arabic": "العربية",
     "russian": "Русский",
     "author": "IRedDragonICY",
-    "defaultDescription": "Extract, filter, and copy tags from booru posts instantly.",
+    "defaultDescription": "Booru 게시물에서 태그를 즉시 추출, 필터링 및 복사합니다.",
     "unknown": "Unknown",
     "languageSwitcher": {
       "title": "Interface language",
@@ -20,10 +20,10 @@
       "noResults": "No languages found"
     },
     "nav": {
-      "extractor": "Tags",
-      "image": "Image",
+      "extractor": "태그",
+      "image": "이미지",
       "booruList": "Boorus",
-      "settings": "Settings"
+      "settings": "설정"
     },
     "navTooltip": {
       "extractor": "Tag Extractor",
@@ -64,8 +64,9 @@
       "nextShort": "Next"
     },
     "status": {
-      "loading": "Loading...",
-      "processing": "Processing..."
+      "loading": "로딩 중...",
+      "processing": "Processing...",
+      "copied": "복사됨!"
     },
     "footer": {
       "madeWith": "Made with",
@@ -94,7 +95,7 @@
     "ukrainian": "Українська"
   },
   "settings": {
-    "title": "Settings",
+    "title": "설정",
     "sections": {
       "appearance": "Appearance",
       "colorTheme": "Color Theme",
@@ -373,8 +374,8 @@
     "owner": "Owner",
     "hosted": "Hosted by booru.org",
     "protocol": "Protocol",
-    "yes": "Yes",
-    "no": "No",
+    "yes": "예",
+    "no": "아니요",
     "visit": "Visit {{name}}",
     "loading": "Loading..."
   }

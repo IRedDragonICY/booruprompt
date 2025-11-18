@@ -13,19 +13,45 @@ export const availableLanguages: readonly LanguageOption[] = [
   { code: 'zh-TW', label: '繁體中文' },
   { code: 'ja', label: '日本語' },
   { code: 'ar', label: 'العربية' },
-  { code: 'ru', label: 'Русский' }
+  { code: 'ru', label: 'Русский' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'pt', label: 'Português' },
+  { code: 'ko', label: '한국어' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'tr', label: 'Türkçe' },
+  { code: 'pl', label: 'Polski' },
+  { code: 'vi', label: 'Tiếng Việt' },
+  { code: 'th', label: 'ไทย' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'uk', label: 'Українська' }
 ] as const;
 
 // Lazy load resources for better performance
 const loadResources = async () => {
-  const [en, id, zh, zhTW, ja, ar, ru] = await Promise.all([
+  const [en, id, zh, zhTW, ja, ar, ru, es, fr, de, pt, ko, it, nl, tr, pl, vi, th, hi, uk] = await Promise.all([
     getDictionary('en'),
     getDictionary('id'),
     getDictionary('zh'),
     getDictionary('zh-TW'),
     getDictionary('ja'),
     getDictionary('ar'),
-    getDictionary('ru')
+    getDictionary('ru'),
+    getDictionary('es'),
+    getDictionary('fr'),
+    getDictionary('de'),
+    getDictionary('pt'),
+    getDictionary('ko'),
+    getDictionary('it'),
+    getDictionary('nl'),
+    getDictionary('tr'),
+    getDictionary('pl'),
+    getDictionary('vi'),
+    getDictionary('th'),
+    getDictionary('hi'),
+    getDictionary('uk')
   ]);
 
   return {
@@ -35,7 +61,20 @@ const loadResources = async () => {
     'zh-TW': { translation: zhTW },
     ja: { translation: ja },
     ar: { translation: ar },
-    ru: { translation: ru }
+    ru: { translation: ru },
+    es: { translation: es },
+    fr: { translation: fr },
+    de: { translation: de },
+    pt: { translation: pt },
+    ko: { translation: ko },
+    it: { translation: it },
+    nl: { translation: nl },
+    tr: { translation: tr },
+    pl: { translation: pl },
+    vi: { translation: vi },
+    th: { translation: th },
+    hi: { translation: hi },
+    uk: { translation: uk }
   };
 };
 

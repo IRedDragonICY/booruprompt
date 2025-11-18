@@ -2,13 +2,13 @@
   "common": {
     "appName": "Booru 标签提取器",
     "language": "语言",
-    "english": "英语",
-    "indonesian": "印尼语",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia",
     "chinese": "中文",
-    "chineseTraditional": "繁体中文",
-    "japanese": "日语",
-    "arabic": "阿拉伯语",
-    "russian": "俄语",
+    "chineseTraditional": "繁體中文",
+    "japanese": "日本語",
+    "arabic": "العربية",
+    "russian": "Русский",
     "author": "IRedDragonICY",
     "defaultDescription": "即时提取、筛选并复制 booru 帖子的标签。",
     "unknown": "未知",
@@ -78,7 +78,20 @@
       "historyDisabled": "历史记录已禁用。",
       "historyUnlimited": "无限制",
       "historyEntries": "{{count}} 条记录"
-    }
+    },
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "portuguese": "Português",
+    "korean": "한국어",
+    "italian": "Italiano",
+    "dutch": "Nederlands",
+    "turkish": "Türkçe",
+    "polish": "Polski",
+    "vietnamese": "Tiếng Việt",
+    "thai": "ไทย",
+    "hindi": "हिन्दी",
+    "ukrainian": "Українська"
   },
   "settings": {
     "title": "设置",
@@ -193,10 +206,22 @@
       "heroTitle": "Booru 标签提取器",
       "heroSubtitle": "即时提取、筛选并复制 booru 标签",
       "features": {
-        "smart": { "title": "智能", "subtitle": "自动提取" },
-        "fast": { "title": "快速", "subtitle": "即时结果" },
-        "private": { "title": "私密", "subtitle": "在客户端运行" },
-        "copy": { "title": "复制", "subtitle": "一键复制" }
+        "smart": {
+          "title": "智能",
+          "subtitle": "自动提取"
+        },
+        "fast": {
+          "title": "快速",
+          "subtitle": "即时结果"
+        },
+        "private": {
+          "title": "私密",
+          "subtitle": "在客户端运行"
+        },
+        "copy": {
+          "title": "复制",
+          "subtitle": "一键复制"
+        }
       },
       "cta": {
         "paste": "粘贴",
