@@ -7,14 +7,25 @@ import { ClipboardIcon, CheckCircleIcon, ChevronDownIcon } from './icons/icons';
 const API_ENDPOINT = '/api/fetch-booru';
 const EXAMPLE_URL = 'https://safebooru.org/index.php?page=post&s=view&id=5592299';
 
-type Language = 'curl' | 'javascript' | 'python' | 'nodejs' | 'php';
+type Language = 'curl' | 'javascript' | 'typescript' | 'python' | 'nodejs' | 'php' | 'react' | 'nextjs' | 'vue' | 'go' | 'ruby' | 'java' | 'csharp' | 'rust' | 'swift' | 'kotlin';
 
 const LANGUAGES: { id: Language; label: string }[] = [
     { id: 'curl', label: 'cURL' },
-    { id: 'javascript', label: 'JavaScript' },
-    { id: 'python', label: 'Python' },
-    { id: 'nodejs', label: 'Node.js' },
+    { id: 'javascript', label: 'JavaScript (Fetch)' },
+    { id: 'typescript', label: 'TypeScript' },
+    { id: 'nodejs', label: 'Node.js (Axios)' },
+    { id: 'react', label: 'React' },
+    { id: 'nextjs', label: 'Next.js' },
+    { id: 'vue', label: 'Vue.js' },
+    { id: 'python', label: 'Python (Requests)' },
     { id: 'php', label: 'PHP' },
+    { id: 'go', label: 'Go' },
+    { id: 'ruby', label: 'Ruby' },
+    { id: 'java', label: 'Java' },
+    { id: 'csharp', label: 'C# (.NET)' },
+    { id: 'rust', label: 'Rust' },
+    { id: 'swift', label: 'Swift' },
+    { id: 'kotlin', label: 'Kotlin' },
 ];
 
 export default function ApiTestView() {
@@ -89,6 +100,40 @@ fetch('${baseUrl}${API_ENDPOINT}', {
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));`,
+            typescript: `// TypeScript with async/await
+interface BooruResponse {
+  siteName: string;
+  tags: {
+    general?: string[];
+    character?: string[];
+    copyright?: string[];
+    artist?: string[];
+    meta?: string[];
+  };
+  imageUrl?: string;
+  title?: string;
+}
+
+async function fetchBooruTags(url: string): Promise<BooruResponse> {
+  const response = await fetch('${baseUrl}${API_ENDPOINT}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ targetUrl: url })
+  });
+
+  if (!response.ok) {
+    throw new Error(\`HTTP error! status: \${response.status}\`);
+  }
+
+  return await response.json();
+}
+
+// Usage
+fetchBooruTags('${EXAMPLE_URL}')
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));`,
             python: `import requests
 import json
 
@@ -118,6 +163,354 @@ axios.post(url, data)
   .catch(error => {
     console.error('Error:', error.response?.data || error.message);
   });`,
+            react: `// React component with hooks
+import { useState } from 'react';
+
+function BooruTagFetcher() {
+  const [tags, setTags] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchTags = async (url) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('${baseUrl}${API_ENDPOINT}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ targetUrl: url })
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch');
+
+      const data = await response.json();
+      setTags(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={() => fetchTags('${EXAMPLE_URL}')}>
+        Fetch Tags
+      </button>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+      {tags && <pre>{JSON.stringify(tags, null, 2)}</pre>}
+    </div>
+  );
+}`,
+            nextjs: `// Next.js API Route (app/api/booru/route.ts)
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const { targetUrl } = await request.json();
+
+  const response = await fetch('${baseUrl}${API_ENDPOINT}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ targetUrl })
+  });
+
+  const data = await response.json();
+  return NextResponse.json(data);
+}
+
+// Server Component
+async function BooruPage() {
+  const response = await fetch('${baseUrl}${API_ENDPOINT}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ targetUrl: '${EXAMPLE_URL}' }),
+    cache: 'no-store' // Disable caching
+  });
+
+  const data = await response.json();
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}`,
+            vue: `<!-- Vue 3 Composition API -->
+<script setup>
+import { ref } from 'vue';
+
+const tags = ref(null);
+const loading = ref(false);
+const error = ref(null);
+
+const fetchTags = async (url) => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await fetch('${baseUrl}${API_ENDPOINT}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ targetUrl: url })
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch');
+
+    tags.value = await response.json();
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
+
+<template>
+  <div>
+    <button @click="fetchTags('${EXAMPLE_URL}')">
+      Fetch Tags
+    </button>
+    <p v-if="loading">Loading...</p>
+    <p v-if="error">Error: {{ error }}</p>
+    <pre v-if="tags">{{ JSON.stringify(tags, null, 2) }}</pre>
+  </div>
+</template>`,
+            go: `package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+)
+
+type RequestBody struct {
+    TargetURL string \`json:"targetUrl"\`
+}
+
+type BooruResponse struct {
+    SiteName string                 \`json:"siteName"\`
+    Tags     map[string][]string    \`json:"tags"\`
+    ImageURL string                 \`json:"imageUrl"\`
+    Title    string                 \`json:"title"\`
+}
+
+func main() {
+    url := "${baseUrl}${API_ENDPOINT}"
+
+    requestBody := RequestBody{
+        TargetURL: "${EXAMPLE_URL}",
+    }
+
+    jsonData, err := json.Marshal(requestBody)
+    if err != nil {
+        panic(err)
+    }
+
+    resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+
+    var result BooruResponse
+    json.Unmarshal(body, &result)
+
+    fmt.Printf("%+v\\n", result)
+}`,
+            ruby: `require 'net/http'
+require 'json'
+require 'uri'
+
+uri = URI('${baseUrl}${API_ENDPOINT}')
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true if uri.scheme == 'https'
+
+request = Net::HTTP::Post.new(uri.path)
+request['Content-Type'] = 'application/json'
+request.body = {
+  targetUrl: '${EXAMPLE_URL}'
+}.to_json
+
+response = http.request(request)
+data = JSON.parse(response.body)
+
+puts JSON.pretty_generate(data)`,
+            java: `import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import org.json.JSONObject;
+
+public class BooruClient {
+    public static void main(String[] args) throws Exception {
+        String url = "${baseUrl}${API_ENDPOINT}";
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("targetUrl", "${EXAMPLE_URL}");
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
+            .build();
+
+        HttpResponse<String> response = client.send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
+        );
+
+        System.out.println(response.body());
+    }
+}`,
+            csharp: `using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        using var client = new HttpClient();
+
+        var requestBody = new
+        {
+            targetUrl = "${EXAMPLE_URL}"
+        };
+
+        var json = JsonSerializer.Serialize(requestBody);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync(
+            "${baseUrl}${API_ENDPOINT}",
+            content
+        );
+
+        var responseData = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(responseData);
+    }
+}`,
+            rust: `use reqwest;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Serialize)]
+struct RequestBody {
+    #[serde(rename = "targetUrl")]
+    target_url: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct BooruResponse {
+    #[serde(rename = "siteName")]
+    site_name: String,
+    tags: HashMap<String, Vec<String>>,
+    #[serde(rename = "imageUrl")]
+    image_url: Option<String>,
+    title: Option<String>,
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = reqwest::Client::new();
+
+    let request_body = RequestBody {
+        target_url: "${EXAMPLE_URL}".to_string(),
+    };
+
+    let response = client
+        .post("${baseUrl}${API_ENDPOINT}")
+        .json(&request_body)
+        .send()
+        .await?
+        .json::<BooruResponse>()
+        .await?;
+
+    println!("{:#?}", response);
+
+    Ok(())
+}`,
+            swift: `import Foundation
+
+struct RequestBody: Codable {
+    let targetUrl: String
+}
+
+struct BooruResponse: Codable {
+    let siteName: String
+    let tags: [String: [String]]
+    let imageUrl: String?
+    let title: String?
+}
+
+func fetchBooruTags() async throws {
+    let url = URL(string: "${baseUrl}${API_ENDPOINT}")!
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let requestBody = RequestBody(targetUrl: "${EXAMPLE_URL}")
+    request.httpBody = try JSONEncoder().encode(requestBody)
+
+    let (data, _) = try await URLSession.shared.data(for: request)
+    let response = try JSONDecoder().decode(BooruResponse.self, from: data)
+
+    print(response)
+}
+
+Task {
+    try await fetchBooruTags()
+}`,
+            kotlin: `import kotlinx.coroutines.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+
+suspend fun fetchBooruTags() {
+    val client = OkHttpClient()
+    val mediaType = "application/json".toMediaType()
+
+    val json = JSONObject()
+    json.put("targetUrl", "${EXAMPLE_URL}")
+
+    val body = json.toString().toRequestBody(mediaType)
+
+    val request = Request.Builder()
+        .url("${baseUrl}${API_ENDPOINT}")
+        .post(body)
+        .build()
+
+    withContext(Dispatchers.IO) {
+        client.newCall(request).execute().use { response ->
+            if (response.isSuccessful) {
+                println(response.body?.string())
+            } else {
+                throw Exception("Request failed: \${response.code}")
+            }
+        }
+    }
+}
+
+fun main() = runBlocking {
+    fetchBooruTags()
+}`,
             php: `<?php
 $url = "${baseUrl}${API_ENDPOINT}";
 $data = array(
