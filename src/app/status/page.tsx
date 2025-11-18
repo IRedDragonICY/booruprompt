@@ -139,14 +139,130 @@ export default function StatusPage() {
         const fetchStatus = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/status');
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+                // Import BOORU_SITES dynamically
+                const { BOORU_SITES } = await import('@/app/utils/extractionUtils');
 
-                const data: StatusResponse = await response.json();
-                setStatusData(data);
+                // Test URLs for each site
+                const testUrls: Record<string, string> = {
+                    'Danbooru': 'https://danbooru.donmai.us/posts/1',
+                    'Safebooru (Donmai)': 'https://safebooru.donmai.us/posts/1',
+                    'Hijiribe': 'https://hijiribe.donmai.us/posts/1',
+                    'Safebooru (Org)': 'https://safebooru.org/index.php?page=post&s=view&id=1',
+                    'Gelbooru': 'https://gelbooru.com/index.php?page=post&s=view&id=1',
+                    'Rule34': 'https://rule34.xxx/index.php?page=post&s=view&id=1',
+                    'TBIB': 'https://tbib.org/index.php?page=post&s=view&id=1',
+                    'Scatbooru': 'https://scatbooru.co.uk/?page=post&s=view&id=1',
+                    'Garycbooru': 'https://garycbooru.booru.org/index.php?page=post&s=view&id=1',
+                    'e621': 'https://e621.net/posts/1',
+                    'AIBooru': 'https://aibooru.online/posts/1',
+                    'Yande.re': 'https://yande.re/post/show/1',
+                    'Konachan': 'https://konachan.com/post/show/1',
+                    'Anime-Pictures': 'https://anime-pictures.net/posts/1',
+                    'Zerochan': 'https://zerochan.net/1',
+                    'E-Shuushuu': 'https://e-shuushuu.net/image/1',
+                    'Pixiv': 'https://pixiv.net/en/artworks/44298467',
+                    'Fur Affinity': 'https://furaffinity.net/view/1'
+                };
+
+                // Check each site
+                const statusPromises = BOORU_SITES.map(async (site) => {
+                    const testUrl = testUrls[site.name];
+                    if (!testUrl) {
+                        return {
+                            name: site.name,
+                            status: 'major_outage' as const,
+                            responseTime: 0,
+                            lastChecked: new Date().toISOString(),
+                            error: 'No test URL configured'
+                        };
+                    }
+
+                    const startTime = Date.now();
+
+                    try {
+                        const response = await fetch('/api/fetch-booru', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ targetUrl: testUrl }),
+                        });
+
+                        const responseTime = Date.now() - startTime;
+                        let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
+                        let errorMsg: string | undefined;
+
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            if (data.error) {
+                                if (data.error.includes('No tags') || data.error.includes('Warning')) {
+                                    status = 'operational';
+                                } else if (data.error.includes('Rate limit') || data.error.includes('timeout')) {
+                                    status = 'degraded';
+                                    errorMsg = data.error;
+                                } else if (data.error.includes('login') || data.error.includes('Access denied')) {
+                                    status = 'partial_outage';
+                                    errorMsg = data.error;
+                                } else {
+                                    status = 'major_outage';
+                                    errorMsg = data.error;
+                                }
+                            } else {
+                                status = 'operational';
+                            }
+                        } else if (response.status === 502 || response.status === 504) {
+                            status = 'major_outage';
+                            errorMsg = `Gateway error: ${response.status}`;
+                        } else if (response.status === 422) {
+                            status = 'partial_outage';
+                            const data = await response.json().catch(() => ({}));
+                            errorMsg = data.error || 'Extraction failed';
+                        } else {
+                            status = 'degraded';
+                            errorMsg = `HTTP ${response.status}`;
+                        }
+
+                        return {
+                            name: site.name,
+                            status,
+                            responseTime,
+                            lastChecked: new Date().toISOString(),
+                            error: errorMsg
+                        };
+                    } catch (err: unknown) {
+                        const responseTime = Date.now() - startTime;
+                        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+
+                        return {
+                            name: site.name,
+                            status: 'major_outage' as const,
+                            responseTime,
+                            lastChecked: new Date().toISOString(),
+                            error: errorMsg
+                        };
+                    }
+                });
+
+                const sites = await Promise.all(statusPromises);
+
+                // Calculate overall status
+                const operationalCount = sites.filter(s => s.status === 'operational').length;
+                const totalCount = sites.length;
+                const uptimePercentage = ((operationalCount / totalCount) * 100).toFixed(2);
+
+                setStatusData({
+                    overall: {
+                        uptimePercentage,
+                        operationalCount,
+                        totalCount,
+                        status: operationalCount === totalCount ? 'operational' :
+                               operationalCount > totalCount * 0.5 ? 'degraded' : 'major_outage'
+                    },
+                    sites,
+                    lastUpdated: new Date().toISOString()
+                });
                 setError(null);
             } catch (err) {
                 console.error('Failed to fetch status:', err);
