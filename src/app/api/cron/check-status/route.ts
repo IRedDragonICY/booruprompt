@@ -190,10 +190,10 @@ export async function GET(req: NextRequest) {
             message: 'Status check completed successfully'
         }, {
             headers: {
-                // Cache for 5 minutes
-                'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
-                'CDN-Cache-Control': 'public, s-maxage=300',
-                'Vercel-CDN-Cache-Control': 'public, s-maxage=300'
+                // Cache for 1 hour (matches cron schedule)
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=300',
+                'CDN-Cache-Control': 'public, s-maxage=3600',
+                'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
             }
         });
 

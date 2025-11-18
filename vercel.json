@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/check-status",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         // Fetch from cron endpoint which has cached data
         const response = await fetch(`${baseUrl}/api/cron/check-status`, {
             headers: {
-                'Authorization': `Bearer ${process.env.CRON_SECRET || 'dev-secret'}`,
+                'User-Agent': 'vercel-cron/1.0',
             },
         });
 
@@ -40,10 +40,10 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(result.data, {
             headers: {
                 ...CORS_HEADERS,
-                // Cache for 5 minutes with stale-while-revalidate
-                'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
-                'CDN-Cache-Control': 'public, s-maxage=300',
-                'Vercel-CDN-Cache-Control': 'public, s-maxage=300'
+                // Cache for 1 hour (matches cron schedule)
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=300',
+                'CDN-Cache-Control': 'public, s-maxage=3600',
+                'Vercel-CDN-Cache-Control': 'public, s-maxage=3600'
             }
         });
 

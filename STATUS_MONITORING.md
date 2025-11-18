@@ -4,14 +4,14 @@ This document explains how the status monitoring system works and how to set it 
 
 ## Overview
 
-The status monitoring system uses **Vercel Cron Jobs** to automatically check all booru sites every 10 minutes. The results are cached and served instantly to users, providing a fast and efficient status page.
+The status monitoring system uses **Vercel Cron Jobs** to automatically check all booru sites. On **Pro/Enterprise plans**, checks run **every hour**. On **Hobby plan**, checks run **once per day**. The results are cached and served instantly to users, providing a fast and efficient status page.
 
 ## Architecture
 
 ```
 ┌─────────────┐         ┌──────────────────┐         ┌─────────────┐
-│   Vercel    │ Every   │  /api/cron/      │ Stores  │   Cache     │
-│  Cron Job   │─10 min─▶│  check-status    │────────▶│ (5 minutes) │
+│   Vercel    │ Hourly* │  /api/cron/      │ Stores  │   Cache     │
+│  Cron Job   │────────▶│  check-status    │────────▶│  (1 hour)   │
 └─────────────┘         └──────────────────┘         └─────────────┘
                                 │                            │
                                 │ Checks all sites           │
@@ -32,30 +32,33 @@ The status monitoring system uses **Vercel Cron Jobs** to automatically check al
                         └───────────────┘
 ```
 
+**\*** _Hourly on Pro/Enterprise plans, once daily on Hobby plan_
+
 ## How It Works
 
 ### 1. Cron Job (`/api/cron/check-status`)
-- Runs **every 10 minutes** via Vercel Cron Jobs
+- Runs **every hour** on Pro/Enterprise plans via Vercel Cron Jobs
+- On **Hobby plan**, runs **once per day** (Vercel limitation)
 - Checks all 18 booru sites in parallel
 - Determines status for each site:
   - ✅ **Operational**: Site responds normally
   - ⚠️ **Degraded**: Slow response or rate limited
   - 🟠 **Partial Outage**: Login required or partial failure
   - 🔴 **Major Outage**: Site down or unreachable
-- Caches results in-memory and CDN (5-minute TTL)
+- Caches results in-memory and CDN (1-hour TTL)
 
 ### 2. Status API (`/api/status`)
 - Public endpoint that serves cached data
 - Returns instantly from CDN cache
 - No need to check sites again
 - Cache headers:
-  - `s-maxage=300` (5 minutes)
-  - `stale-while-revalidate=60` (serve stale while updating)
+  - `s-maxage=3600` (1 hour)
+  - `stale-while-revalidate=300` (serve stale while updating)
 
 ### 3. Status Page (`/status`)
 - Fetches from `/api/status` endpoint
 - Loads instantly (<1 second)
-- Auto-refreshes every 5 minutes
+- Auto-refreshes every hour
 - Shows:
   - Overall uptime percentage
   - Individual service status
@@ -64,22 +67,9 @@ The status monitoring system uses **Vercel Cron Jobs** to automatically check al
 
 ## Setup Instructions
 
-### 1. Environment Variables
+### 1. No Environment Variables Required
 
-Set the `CRON_SECRET` environment variable in your Vercel project:
-
-```bash
-# Generate a secure random secret
-openssl rand -base64 32
-
-# Add to Vercel environment variables
-vercel env add CRON_SECRET
-```
-
-Or via Vercel Dashboard:
-1. Go to your project settings
-2. Navigate to Environment Variables
-3. Add `CRON_SECRET` with a random value
+The status monitoring system works out of the box without any environment variables. The cron endpoint is secured using Vercel's built-in user agent verification (`vercel-cron/1.0`).
 
 ### 2. Deploy to Vercel
 
@@ -90,11 +80,15 @@ The cron job is configured in `vercel.json`:
   "crons": [
     {
       "path": "/api/cron/check-status",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
 ```
+
+**Schedule Explanation:**
+- `0 * * * *` = Every hour at minute 0 (Pro/Enterprise)
+- On Hobby plan: Runs once per day (Vercel limitation)
 
 This will automatically be picked up by Vercel on deployment.
 
@@ -106,44 +100,48 @@ After deployment:
 2. You should see the cron job listed
 3. Check the logs to verify it's running
 
-### 4. Manual Trigger (Development)
+### 3. Manual Trigger (Development)
 
 To manually trigger the cron job during development:
 
 ```bash
 curl -X GET "http://localhost:3000/api/cron/check-status" \
-  -H "Authorization: Bearer your-cron-secret"
+  -H "User-Agent: vercel-cron/1.0"
 ```
 
 ## Cron Schedule
 
-The cron job runs **every 10 minutes**:
+The cron job runs **every hour** (or once daily on Hobby plan):
 
 ```
-*/10 * * * *
-│    │  │  │  │
-│    │  │  │  └─ Day of week (0-6, Sun-Sat)
-│    │  │  └──── Month (1-12)
-│    │  └─────── Day of month (1-31)
-│    └────────── Hour (0-23)
-└─────────────── Minute (0-59)
+0 * * * *
+│ │ │ │ │
+│ │ │ │ └─ Day of week (0-6, Sun-Sat)
+│ │ │ └──── Month (1-12)
+│ │ └─────── Day of month (1-31)
+│ └────────── Hour (0-23)
+└──────────── Minute (0-59)
 ```
 
-You can adjust this in `vercel.json` if needed:
-- `*/5 * * * *` - Every 5 minutes (more frequent, higher costs)
-- `*/15 * * * *` - Every 15 minutes (less frequent, lower costs)
-- `0 * * * *` - Every hour
+**Plan-Specific Behavior:**
+- **Pro/Enterprise**: Runs every hour at minute 0 (00:00, 01:00, 02:00, etc.)
+- **Hobby**: Runs once per day at any time within the configured hour
+
+You can adjust this in `vercel.json` if needed (Pro/Enterprise only):
+- `0 */2 * * *` - Every 2 hours
+- `0 */6 * * *` - Every 6 hours
+- `0 0 * * *` - Once per day at midnight
 
 ## Cache Strategy
 
 ### CDN Cache (Vercel Edge)
-- **TTL**: 5 minutes (`s-maxage=300`)
-- **Stale-while-revalidate**: 60 seconds
+- **TTL**: 1 hour (`s-maxage=3600`)
+- **Stale-while-revalidate**: 5 minutes
 - Users get instant response from edge
 
 ### In-Memory Cache
 - Stored in serverless function memory
-- Valid for 10 minutes
+- Valid for 1 hour
 - Falls back to fresh check if expired
 
 ## Performance Benefits
@@ -152,8 +150,9 @@ You can adjust this in `vercel.json` if needed:
 |--------|---------------------|---------------------|
 | Initial Load | ~30 seconds | <1 second |
 | User Wait Time | 30s per visit | Instant |
-| API Calls/Hour | ~180 (3/min × 60) | 6 (cron only) |
-| Booru Load | High (every user) | Low (10min interval) |
+| API Calls/Hour (Pro) | ~180 (3/min × 60) | 1 (cron only) |
+| API Calls/Day (Hobby) | ~4,320 | 1 (cron only) |
+| Booru Load | High (every user) | Low (hourly/daily) |
 
 ## Monitoring
 
@@ -179,19 +178,23 @@ console.log('Cache status:', cacheStatus);
 ### Cron Job Not Running
 1. Check Vercel Dashboard → Cron Jobs
 2. Verify `vercel.json` is committed
-3. Ensure `CRON_SECRET` is set in environment variables
-4. Check deployment logs for errors
+3. Check deployment logs for errors
+4. **Hobby Plan**: Remember cron runs only once per day
 
 ### Status Always Shows "No Data"
-1. Manually trigger cron job once to populate cache
-2. Wait 10 minutes for first automatic run
-3. Check `/api/cron/check-status` logs
+1. Manually trigger cron job once to populate cache:
+   ```bash
+   curl -H "User-Agent: vercel-cron/1.0" https://your-domain.vercel.app/api/cron/check-status
+   ```
+2. **Hobby Plan**: Wait up to 24 hours for first automatic run
+3. **Pro/Enterprise**: Wait up to 1 hour for first automatic run
+4. Check `/api/cron/check-status` logs in Vercel Dashboard
 
 ### "Unauthorized" Error
-- Ensure `CRON_SECRET` environment variable is set
-- For manual testing, include Authorization header:
+- Ensure you're using the correct User-Agent header
+- For manual testing:
   ```bash
-  Authorization: Bearer your-cron-secret
+  curl -H "User-Agent: vercel-cron/1.0" http://localhost:3000/api/cron/check-status
   ```
 
 ## Cost Considerations
@@ -199,7 +202,16 @@ console.log('Cache status:', cacheStatus);
 ### Vercel Cron Jobs
 - Available on all plans (including Hobby)
 - Counts as function invocations
-- Running every 10 minutes = ~4,320 invocations/month
+- **Hobby Plan**: 1 invocation/day = ~30 invocations/month
+- **Pro Plan**: 24 invocations/day = ~720 invocations/month
+- **Enterprise**: Same as Pro (24/day)
+
+### Plan Limits
+| Plan | Cron Jobs | Schedule |
+|------|-----------|----------|
+| Hobby | 2 max | Once per day |
+| Pro | 40 max | Unlimited invocations |
+| Enterprise | 100 max | Unlimited invocations |
 
 ### Function Duration
 - Each cron run checks 18 sites in parallel
@@ -215,13 +227,15 @@ console.log('Cache status:', cacheStatus);
 
 ### Endpoint Protection
 The cron endpoint is protected by:
-1. **User Agent Check**: Vercel sends `vercel-cron/1.0`
-2. **Authorization Header**: Requires `CRON_SECRET`
+1. **User Agent Check**: Only accepts `vercel-cron/1.0`
+2. **No Environment Variables Required**: Works out of the box
 
 ### Rate Limiting
 - Cron runs at fixed intervals (not user-triggered)
 - Prevents abuse and DDoS on booru sites
 - Respects target site resources
+- Hobby plan: Maximum 1 check per day
+- Pro/Enterprise: Maximum 24 checks per day
 
 ## Future Enhancements
 

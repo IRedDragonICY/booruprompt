@@ -168,8 +168,8 @@ export default function StatusView() {
 
         fetchStatus();
 
-        // Refresh every 5 minutes (data is updated every 10 minutes by cron)
-        const interval = setInterval(fetchStatus, 5 * 60 * 1000);
+        // Refresh every hour (data is updated hourly by cron, or daily on Hobby plan)
+        const interval = setInterval(fetchStatus, 60 * 60 * 1000);
 
         return () => clearInterval(interval);
     }, []);
