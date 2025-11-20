@@ -10,6 +10,8 @@ interface SiteStatus {
     responseTime: number;
     lastChecked: string;
     error?: string;
+    url?: string;
+    rank?: number;
 }
 
 interface OverallStatus {
@@ -90,51 +92,59 @@ const getStatusText = (status: SiteStatus['status'], t: any) => {
     }
 };
 
-// Uptime data (90 days) - shows gray for untracked days and current status for today
-const generateUptimeData = (status: SiteStatus['status']): { fill: string; title: string }[] => {
-    const days = 90;
+interface StatusHistoryEntry {
+    timestamp: number;
+    status: SiteStatus['status'];
+}
+
+// Uptime data (60 minutes) - shows real history from local storage
+const generateUptimeData = (siteName: string, currentStatus: SiteStatus['status'], history: Record<string, StatusHistoryEntry[]>): { fill: string; title: string }[] => {
+    const maxPoints = 60;
+    const siteHistory = history[siteName] || [];
     const data: { fill: string; title: string }[] = [];
 
-    for (let i = 0; i < days; i++) {
-        const daysAgo = days - i - 1;
-        const date = new Date();
-        date.setDate(date.getDate() - daysAgo);
+    // Pad with "no data" at the beginning if history is short
+    const paddingCount = Math.max(0, maxPoints - siteHistory.length);
+    
+    for (let i = 0; i < paddingCount; i++) {
+        data.push({
+            fill: '#d1d5db', // gray - no data
+            title: 'No data'
+        });
+    }
 
+    // Add history points
+    siteHistory.forEach(entry => {
         let fill: string;
         let statusText: string;
 
-        // Only show real status for today (last day), rest is no data
-        if (i === days - 1) {
-            // Today - show actual status
-            switch (status) {
-                case 'operational':
-                    fill = '#76ad2a'; // green
-                    statusText = 'Operational';
-                    break;
-                case 'degraded':
-                    fill = '#d1a92a'; // yellow
-                    statusText = 'Degraded Performance';
-                    break;
-                case 'partial_outage':
-                    fill = '#e7a82a'; // orange
-                    statusText = 'Partial Outage';
-                    break;
-                case 'major_outage':
-                    fill = '#e04343'; // red
-                    statusText = 'Major Outage';
-                    break;
-            }
-        } else {
-            // Previous days - no data yet
-            fill = '#d1d5db'; // gray - no data
-            statusText = 'No data';
+        switch (entry.status) {
+            case 'operational':
+                fill = '#76ad2a'; // green
+                statusText = 'Operational';
+                break;
+            case 'degraded':
+                fill = '#d1a92a'; // yellow
+                statusText = 'Degraded Performance';
+                break;
+            case 'partial_outage':
+                fill = '#e7a82a'; // orange
+                statusText = 'Partial Outage';
+                break;
+            case 'major_outage':
+                fill = '#e04343'; // red
+                statusText = 'Major Outage';
+                break;
+            default:
+                fill = '#d1d5db';
+                statusText = 'Unknown';
         }
 
         data.push({
             fill,
-            title: `${date.toLocaleDateString()}: ${statusText}`
+            title: `${new Date(entry.timestamp).toLocaleTimeString()}: ${statusText}`
         });
-    }
+    });
 
     return data;
 };
@@ -142,17 +152,29 @@ const generateUptimeData = (status: SiteStatus['status']): { fill: string; title
 export default function StatusView() {
     const { t } = useTranslation();
     const [statusData, setStatusData] = useState<StatusResponse | null>(null);
+    const [history, setHistory] = useState<Record<string, StatusHistoryEntry[]>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | SiteStatus['status']>('all');
 
     useEffect(() => {
+        const CACHE_KEY = 'booru_status_cache';
+        const HISTORY_KEY = 'booru_status_history_v1';
+        const CACHE_DURATION = 60 * 1000; // 1 minute
+
+        // Load history from local storage
+        try {
+            const savedHistory = localStorage.getItem(HISTORY_KEY);
+            if (savedHistory) {
+                setHistory(JSON.parse(savedHistory));
+            }
+        } catch (e) {
+            console.error('Failed to load history:', e);
+        }
+
         const fetchStatus = async () => {
             try {
-                setLoading(true);
-
-                // Fetch from cached API endpoint
                 const response = await fetch('/api/status');
 
                 if (!response.ok) {
@@ -162,32 +184,107 @@ export default function StatusView() {
                 const data: StatusResponse = await response.json();
                 setStatusData(data);
                 setError(null);
+                
+                // Update history
+                setHistory(prevHistory => {
+                    const newHistory = { ...prevHistory };
+                    const now = Date.now();
+                    
+                    data.sites.forEach(site => {
+                        if (!newHistory[site.name]) {
+                            newHistory[site.name] = [];
+                        }
+                        
+                        // Add new entry if it's newer than the last one (by at least 50 seconds)
+                        const lastEntry = newHistory[site.name][newHistory[site.name].length - 1];
+                        if (!lastEntry || (now - lastEntry.timestamp > 50 * 1000)) {
+                            newHistory[site.name].push({
+                                timestamp: now,
+                                status: site.status
+                            });
+                            
+                            // Keep last 60 entries
+                            if (newHistory[site.name].length > 60) {
+                                newHistory[site.name] = newHistory[site.name].slice(-60);
+                            }
+                        }
+                    });
+                    
+                    // Save to local storage
+                    localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+                    
+                    return newHistory;
+                });
+                
+                // Cache the successful response
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    data,
+                    timestamp: Date.now()
+                }));
             } catch (err) {
                 console.error('Failed to fetch status:', err);
-                setError(err instanceof Error ? err.message : 'Failed to fetch status');
+                // Only set error state if we don't have any cached data to show
+                if (!localStorage.getItem(CACHE_KEY)) {
+                    setError(err instanceof Error ? err.message : 'Failed to fetch status');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStatus();
+        // 1. Try to load from cache immediately
+        const cached = localStorage.getItem(CACHE_KEY);
+        let shouldFetchImmediately = true;
 
-        // Refresh every hour (data is updated hourly by cron, or daily on Hobby plan)
-        const interval = setInterval(fetchStatus, 60 * 60 * 1000);
+        if (cached) {
+            try {
+                const { data, timestamp } = JSON.parse(cached);
+                if (data) {
+                    setStatusData(data);
+                    setLoading(false); // Show cached data immediately
+                    
+                    // Check if cache is fresh
+                    if (Date.now() - timestamp < CACHE_DURATION) {
+                        shouldFetchImmediately = false;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse cached status:', e);
+            }
+        }
+
+        // 2. Fetch fresh data if cache is missing or stale
+        if (shouldFetchImmediately) {
+            fetchStatus();
+        }
+
+        // 3. Set up polling interval (every minute)
+        const interval = setInterval(fetchStatus, CACHE_DURATION);
 
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--color-primary-rgb))]"></div>
-                    <p className="mt-4 text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.loading')}</p>
+    // Skeleton loader component
+    const StatusSkeleton = () => (
+        <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))] animate-pulse">
+                    <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                            <div className="h-6 bg-[rgb(var(--color-surface-border-rgb))] rounded w-1/3 mb-2"></div>
+                            <div className="h-4 bg-[rgb(var(--color-surface-border-rgb))] rounded w-1/2"></div>
+                        </div>
+                        <div className="h-8 w-24 bg-[rgb(var(--color-surface-border-rgb))] rounded-full"></div>
+                    </div>
+                    <div className="h-8 bg-[rgb(var(--color-surface-border-rgb))] rounded w-full mt-4"></div>
+                    <div className="flex justify-between mt-2">
+                        <div className="h-3 bg-[rgb(var(--color-surface-border-rgb))] rounded w-16"></div>
+                        <div className="h-3 bg-[rgb(var(--color-surface-border-rgb))] rounded w-16"></div>
+                    </div>
                 </div>
-            </div>
-        );
-    }
+            ))}
+        </div>
+    );
 
     if (error) {
         return (
@@ -214,7 +311,7 @@ export default function StatusView() {
                         {t('apiStatus.title')}
                     </h1>
 
-                    {statusData && (
+                    {statusData ? (
                         <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -241,6 +338,13 @@ export default function StatusView() {
                                 })}
                             </div>
                         </div>
+                    ) : (
+                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))] animate-pulse">
+                            <div className="flex justify-between">
+                                <div className="h-16 w-1/3 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
+                                <div className="h-16 w-1/4 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -254,159 +358,171 @@ export default function StatusView() {
                 )}
 
                 {/* Search and Filter */}
-                {statusData && (
-                    <div className="mb-6 flex flex-col md:flex-row gap-4">
-                        {/* Search input */}
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t('apiStatus.searchPlaceholder')}
-                                className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                            />
-                        </div>
-
-                        {/* Status filter */}
-                        <div>
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-                                className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                            >
-                                <option value="all">{t('apiStatus.filterAll')}</option>
-                                <option value="operational">{t('apiStatus.filterOperational')}</option>
-                                <option value="degraded">{t('apiStatus.filterDegraded')}</option>
-                                <option value="partial_outage">{t('apiStatus.filterPartialOutage')}</option>
-                                <option value="major_outage">{t('apiStatus.filterMajorOutage')}</option>
-                            </select>
-                        </div>
+                <div className="mb-6 flex flex-col md:flex-row gap-4">
+                    {/* Search input */}
+                    <div className="flex-1">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t('apiStatus.searchPlaceholder')}
+                            className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                        />
                     </div>
-                )}
+
+                    {/* Status filter */}
+                    <div>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                            className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                        >
+                            <option value="all">{t('apiStatus.filterAll')}</option>
+                            <option value="operational">{t('apiStatus.filterOperational')}</option>
+                            <option value="degraded">{t('apiStatus.filterDegraded')}</option>
+                            <option value="partial_outage">{t('apiStatus.filterPartialOutage')}</option>
+                            <option value="major_outage">{t('apiStatus.filterMajorOutage')}</option>
+                        </select>
+                    </div>
+                </div>
 
                 {/* Services Status */}
                 <div className="space-y-4">
-                    {(() => {
-                        const filteredSites = statusData?.sites.filter((site) => {
-                            // Filter by search query
-                            const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
+                    {loading && !statusData ? (
+                        <StatusSkeleton />
+                    ) : (
+                        (() => {
+                            const filteredSites = statusData?.sites.filter((site) => {
+                                // Filter by search query
+                                const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-                            // Filter by status
-                            const matchesStatus = statusFilter === 'all' || site.status === statusFilter;
+                                // Filter by status
+                                const matchesStatus = statusFilter === 'all' || site.status === statusFilter;
 
-                            return matchesSearch && matchesStatus;
-                        }) || [];
+                                return matchesSearch && matchesStatus;
+                            }) || [];
 
-                        return (
-                            <>
-                                {/* Results count */}
-                                <div className="mb-4 flex items-center justify-between">
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                            return (
+                                <>
+                                    {/* Results count */}
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                            dangerouslySetInnerHTML={{
+                                                __html: t('apiStatus.showingResults', {
+                                                    count: filteredSites.length,
+                                                    total: statusData?.sites.length || 0
+                                                })
+                                            }}
+                                        />
+                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                            dangerouslySetInnerHTML={{ __html: t('apiStatus.uptimePeriod') }}
+                                        />
+                                    </div>
+
+                                    {filteredSites.length === 0 ? (
+                                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
+                                            <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
+                                                {t('apiStatus.noResults')}
+                                            </p>
+                                            <button
+                                                onClick={() => {
+                                                    setSearchQuery('');
+                                                    setStatusFilter('all');
+                                                }}
+                                                className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                            >
+                                                {t('apiStatus.clearFilters')}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        filteredSites.map((site) => {
+                            const uptimeData = generateUptimeData(site.name, site.status, history);
+
+                            return (
+                                <motion.div
+                                    key={site.name}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1">
+                                                {site.name}
+                                            </h3>
+                                            {site.url && (
+                                                <a 
+                                                    href={site.url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    className="text-xs text-[rgb(var(--color-primary-rgb))] hover:underline block mb-1 truncate max-w-md"
+                                                >
+                                                    {site.url}
+                                                </a>
+                                            )}
+                                            {site.error && (
+                                                <p className="text-sm text-red-600 mt-1">
+                                                    {site.error}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getStatusBgColor(site.status)}`}>
+                                            <StatusIcon status={site.status} />
+                                            <span className={`text-sm font-medium ${getStatusColor(site.status)}`}>
+                                                {getStatusText(site.status, t)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Uptime visualization */}
+                                    <div className="mt-4">
+                                        <svg
+                                            className="w-full"
+                                            height="34"
+                                            viewBox="0 0 448 34"
+                                            preserveAspectRatio="none"
+                                        >
+                                            {uptimeData.map((day, index) => (
+                                                <rect
+                                                    key={index}
+                                                    height="34"
+                                                    width="3"
+                                                    x={index * 5}
+                                                    y="0"
+                                                    fill={day.fill}
+                                                    className="hover:opacity-80 cursor-pointer"
+                                                >
+                                                    <title>{day.title}</title>
+                                                </rect>
+                                            ))}
+                                        </svg>
+
+                                        <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                            <span>{t('apiStatus.daysAgo')}</span>
+                                            <span className="font-semibold">
+                                                {t('apiStatus.uptimeToday', {
+                                                    percent: site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'
+                                                })}
+                                            </span>
+                                            <span>{t('apiStatus.today')}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Response time */}
+                                    <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
                                         dangerouslySetInnerHTML={{
-                                            __html: t('apiStatus.showingResults', {
-                                                count: filteredSites.length,
-                                                total: statusData?.sites.length || 0
-                                            })
+                                            __html: t('apiStatus.responseTime', { time: site.responseTime })
                                         }}
                                     />
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
-                                        dangerouslySetInnerHTML={{ __html: t('apiStatus.uptimePeriod') }}
-                                    />
-                                </div>
-
-                                {filteredSites.length === 0 ? (
-                                    <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
-                                        <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
-                                            {t('apiStatus.noResults')}
-                                        </p>
-                                        <button
-                                            onClick={() => {
-                                                setSearchQuery('');
-                                                setStatusFilter('all');
-                                            }}
-                                            className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
-                                        >
-                                            {t('apiStatus.clearFilters')}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    filteredSites.map((site) => {
-                        const uptimeData = generateUptimeData(site.status);
-
-                        return (
-                            <motion.div
-                                key={site.name}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]"
-                            >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1">
-                                            {site.name}
-                                        </h3>
-                                        {site.error && (
-                                            <p className="text-sm text-red-600 mt-1">
-                                                {site.error}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getStatusBgColor(site.status)}`}>
-                                        <StatusIcon status={site.status} />
-                                        <span className={`text-sm font-medium ${getStatusColor(site.status)}`}>
-                                            {getStatusText(site.status, t)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Uptime visualization */}
-                                <div className="mt-4">
-                                    <svg
-                                        className="w-full"
-                                        height="34"
-                                        viewBox="0 0 448 34"
-                                        preserveAspectRatio="none"
-                                    >
-                                        {uptimeData.map((day, index) => (
-                                            <rect
-                                                key={index}
-                                                height="34"
-                                                width="3"
-                                                x={index * 5}
-                                                y="0"
-                                                fill={day.fill}
-                                                className="hover:opacity-80 cursor-pointer"
-                                            >
-                                                <title>{day.title}</title>
-                                            </rect>
-                                        ))}
-                                    </svg>
-
-                                    <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                        <span>{t('apiStatus.daysAgo')}</span>
-                                        <span className="font-semibold">
-                                            {t('apiStatus.uptimeToday', {
-                                                percent: site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'
-                                            })}
-                                        </span>
-                                        <span>{t('apiStatus.today')}</span>
-                                    </div>
-                                </div>
-
-                                {/* Response time */}
-                                <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
-                                    dangerouslySetInnerHTML={{
-                                        __html: t('apiStatus.responseTime', { time: site.responseTime })
-                                    }}
-                                />
-                            </motion.div>
-                        );
-                    })
-                                )}
-                            </>
-                        );
-                    })()}
+                                </motion.div>
+                            );
+                        })
+                                    )}
+                                </>
+                            );
+                        })()
+                    )}
                 </div>
 
                 {/* Legend */}

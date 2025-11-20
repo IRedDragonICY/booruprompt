@@ -8,7 +8,8 @@ import { BOORU_SITES, type ExtractionResult, type TagCategory } from '@/app/util
 
 const FETCH_TIMEOUT = 25000;
 // Use a mainstream browser UA to avoid simple blocks
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const BOT_USER_AGENT = 'BooruPrompt/1.0';
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -44,18 +45,55 @@ export async function POST(req: NextRequest) {
         let html: string;
 
         try {
-            const response = await fetch(targetUrl, {
-                headers: {
-                    'User-Agent': USER_AGENT,
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                    'Referer': new URL(targetUrl).origin + '/',
-                },
-                cache: 'no-store',
-                signal: controller.signal
-            });
+            const fetchWithUA = async (ua: string, url: string = targetUrl) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+                try {
+                    const res = await fetch(url, {
+                        headers: {
+                            'User-Agent': ua,
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                            'Accept-Language': 'en-US,en;q=0.5',
+                            'Referer': new URL(url).origin + '/',
+                        },
+                        cache: 'no-store',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    return res;
+                } catch (e) {
+                    clearTimeout(timeoutId);
+                    throw e;
+                }
+            };
 
-            clearTimeout(timeoutId);
+            let response = await fetchWithUA(BROWSER_USER_AGENT).catch(() => null);
+
+            // Retry with Bot UA if 403 or 503 (Cloudflare/Protection)
+            if (!response || response.status === 403 || response.status === 503) {
+                console.log(`[Fetch API] Retrying ${targetUrl} with Bot UA due to ${response ? response.status : 'error'}`);
+                const retryResponse = await fetchWithUA(BOT_USER_AGENT).catch(() => null);
+                if (retryResponse && (retryResponse.ok || retryResponse.status !== 403)) {
+                    response = retryResponse;
+                } else if (retryResponse) {
+                    // If retry also failed, keep the original response if it existed, or use retry response
+                    if (!response) response = retryResponse;
+                }
+            }
+
+            // Special handling for Konachan.com -> Konachan.net fallback
+            if ((!response || !response.ok) && targetUrl.includes('konachan.com')) {
+                const fallbackUrl = targetUrl.replace('konachan.com', 'konachan.net');
+                console.log(`[Fetch API] Retrying Konachan.com as Konachan.net: ${fallbackUrl}`);
+                const fallbackResponse = await fetchWithUA(BROWSER_USER_AGENT, fallbackUrl).catch(() => null);
+                if (fallbackResponse && fallbackResponse.ok) {
+                    response = fallbackResponse;
+                }
+            }
+
+            if (!response) {
+                 throw new Error('Failed to fetch page (network error)');
+            }
 
             if (!response.ok) {
                 let errorText = `Failed to fetch page from target site. Status: ${response.status}`;
@@ -146,7 +184,7 @@ export async function POST(req: NextRequest) {
                         const timeoutJson = setTimeout(() => controllerJson.abort(), 10000);
                         const jsonResp = await fetch(`https://www.pixiv.net/ajax/illust/${illustId}?lang=en`, {
                             headers: {
-                                'User-Agent': USER_AGENT,
+                                'User-Agent': BROWSER_USER_AGENT,
                                 'Accept': 'application/json,text/plain,*/*',
                                 'Referer': 'https://www.pixiv.net/',
                             },
@@ -217,21 +255,43 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+        const fetchWithUA = async (ua: string) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+            try {
+                const res = await fetch(imageUrl, {
+                    headers: {
+                        'User-Agent': ua,
+                        'Accept': 'image/*,video/*',
+                        // Pixiv images (i.pximg.net) require a pixiv.net referer
+                        'Referer': (() => { try { const u = new URL(imageUrl); return /(^|\.)i\.pximg\.net$/i.test(u.hostname) ? 'https://www.pixiv.net/' : (u.origin + '/'); } catch { return 'https://www.pixiv.net/'; } })(),
+                    },
+                    cache: 'force-cache',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return res;
+            } catch (e) {
+                clearTimeout(timeoutId);
+                throw e;
+            }
+        };
 
-        const response = await fetch(imageUrl, {
-            headers: {
-                'User-Agent': USER_AGENT,
-                'Accept': 'image/*,video/*',
-                // Pixiv images (i.pximg.net) require a pixiv.net referer
-                'Referer': (() => { try { const u = new URL(imageUrl); return /(^|\.)i\.pximg\.net$/i.test(u.hostname) ? 'https://www.pixiv.net/' : (u.origin + '/'); } catch { return 'https://www.pixiv.net/'; } })(),
-            },
-            cache: 'force-cache',
-            signal: controller.signal
-        });
+        let response = await fetchWithUA(BROWSER_USER_AGENT).catch(() => null);
 
-        clearTimeout(timeoutId);
+        // Retry with Bot UA if 403 or 503 (Cloudflare/Protection)
+        if (!response || response.status === 403 || response.status === 503) {
+            const retryResponse = await fetchWithUA(BOT_USER_AGENT).catch(() => null);
+            if (retryResponse && (retryResponse.ok || retryResponse.status !== 403)) {
+                response = retryResponse;
+            } else if (retryResponse) {
+                if (!response) response = retryResponse;
+            }
+        }
+
+        if (!response) {
+             throw new Error('Failed to fetch image (network error)');
+        }
 
         if (!response.ok) {
             return new NextResponse(`Failed to fetch image from upstream. Status: ${response.status}`, { status: response.status, headers: CORS_HEADERS as unknown as HeadersInit });

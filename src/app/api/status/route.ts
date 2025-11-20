@@ -3,6 +3,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 import { type NextRequest, NextResponse } from 'next/server';
+import booruTopList from '@/../public/booru_top.json';
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,8 @@ interface SiteStatus {
     responseTime: number;
     lastChecked: string;
     error?: string;
+    url?: string;
+    rank?: number;
 }
 
 interface StatusData {
@@ -39,17 +42,20 @@ const TEST_URLS: Record<string, string> = {
     'Rule34': 'https://rule34.xxx/index.php?page=post&s=view&id=1',
     'TBIB': 'https://tbib.org/index.php?page=post&s=view&id=1',
     'Scatbooru': 'https://scatbooru.co.uk/?page=post&s=view&id=1',
-    'Garycbooru': 'https://garycbooru.booru.org/index.php?page=post&s=view&id=1',
-    'e621': 'https://e621.net/posts/1',
+    'Garycbooru': 'https://garycbooru.booru.org/index.php?page=post&s=view&id=160249',
+    'e621': 'https://e621.net/posts/5982892',
     'AIBooru': 'https://aibooru.online/posts/1',
-    'Yande.re': 'https://yande.re/post/show/1',
+    'Yande.re': 'https://yande.re/post/show/1248231',
     'Konachan': 'https://konachan.com/post/show/1',
     'Anime-Pictures': 'https://anime-pictures.net/posts/1',
-    'Zerochan': 'https://zerochan.net/1',
+    'Zerochan': 'https://zerochan.net/2',
     'E-Shuushuu': 'https://e-shuushuu.net/image/1',
     'Pixiv': 'https://pixiv.net/en/artworks/44298467',
     'Fur Affinity': 'https://furaffinity.net/view/1'
 };
+
+const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const BOT_USER_AGENT = 'BooruPrompt/1.0';
 
 async function checkApiEndpoint(): Promise<SiteStatus> {
     const startTime = Date.now();
@@ -155,60 +161,106 @@ async function checkApiEndpoint(): Promise<SiteStatus> {
     }
 }
 
-async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteStatus> {
+async function checkSiteStatus(siteName: string, testUrl: string, rank?: number): Promise<SiteStatus> {
     const startTime = Date.now();
 
-    try {
+    const performCheck = async (ua: string) => {
         // Direct check to booru site (not through /api/fetch-booru)
         const response = await fetch(testUrl, {
             method: 'HEAD', // Use HEAD for faster response
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'User-Agent': ua,
             },
-            signal: AbortSignal.timeout(10000), // 10 second timeout
+            signal: AbortSignal.timeout(5000), // 5 second timeout for faster bulk checks
         });
 
-        const responseTime = Date.now() - startTime;
+        if (response.ok) return { status: 'operational' as const, response };
+        
+        if (response.status === 403 || response.status === 401 || response.status === 405) {
+            // Some sites block HEAD requests or require auth
+            // Try GET request instead
+            const getResponse = await fetch(testUrl, {
+                method: 'GET',
+                headers: {
+                    'User-Agent': ua,
+                },
+                signal: AbortSignal.timeout(5000),
+            });
+
+            if (getResponse.ok) return { status: 'operational' as const, response: getResponse };
+            return { status: 'error' as const, code: getResponse.status, response: getResponse };
+        }
+
+        return { status: 'error' as const, code: response.status, response };
+    };
+
+    try {
+        let result = await performCheck(BROWSER_USER_AGENT);
         let status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
         let errorMsg: string | undefined;
 
-        if (response.ok) {
-            // 2xx status codes
-            status = 'operational';
-        } else if (response.status === 403 || response.status === 401) {
-            // Some sites block HEAD requests or require auth
-            // Try GET request instead
-            try {
-                const getResponse = await fetch(testUrl, {
-                    method: 'GET',
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    },
-                    signal: AbortSignal.timeout(10000),
-                });
-
-                if (getResponse.ok) {
-                    status = 'operational';
-                } else {
-                    status = 'degraded';
-                    errorMsg = `HTTP ${getResponse.status}`;
+        // Retry with Bot UA if 403 or 503 (Cloudflare/Protection)
+        if (result.status === 'error' && (result.code === 403 || result.code === 503)) {
+            // Special handling for Konachan .com -> .net fallback
+            if (testUrl.includes('konachan.com')) {
+                const netUrl = testUrl.replace('konachan.com', 'konachan.net');
+                const netResult = await performCheck(BROWSER_USER_AGENT.replace('konachan.com', 'konachan.net')); // Use helper with new URL? No, performCheck uses testUrl from closure.
+                
+                // We need to manually fetch for the fallback URL since performCheck is bound to the original URL
+                try {
+                    const fallbackResponse = await fetch(netUrl, {
+                        method: 'HEAD',
+                        headers: { 'User-Agent': BROWSER_USER_AGENT },
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    
+                    if (fallbackResponse.ok) {
+                        result = { status: 'operational', response: fallbackResponse };
+                    } else {
+                        // Try GET if HEAD fails
+                        const fallbackGetResponse = await fetch(netUrl, {
+                            method: 'GET',
+                            headers: { 'User-Agent': BROWSER_USER_AGENT },
+                            signal: AbortSignal.timeout(5000)
+                        });
+                        
+                        if (fallbackGetResponse.ok) {
+                            result = { status: 'operational', response: fallbackGetResponse };
+                        }
+                    }
+                } catch (e) {
+                    // Fallback failed, continue to standard retry
                 }
-            } catch {
-                status = 'degraded';
-                errorMsg = `HTTP ${response.status}`;
             }
-        } else if (response.status === 429) {
-            status = 'degraded';
-            errorMsg = 'Rate limited';
-        } else if (response.status === 502 || response.status === 503 || response.status === 504) {
-            status = 'major_outage';
-            errorMsg = `Server error: ${response.status}`;
-        } else if (response.status === 404) {
-            status = 'partial_outage';
-            errorMsg = 'Page not found';
+
+            // If still not operational, try with Bot UA
+            if (result.status !== 'operational') {
+                const retryResult = await performCheck(BOT_USER_AGENT);
+                if (retryResult.status === 'operational' || (retryResult.code !== 403 && retryResult.code !== 503)) {
+                    result = retryResult;
+                }
+            }
+        }
+
+        const responseTime = Date.now() - startTime;
+
+        if (result.status === 'operational') {
+            status = 'operational';
         } else {
-            status = 'degraded';
-            errorMsg = `HTTP ${response.status}`;
+            const code = result.code;
+            if (code === 429) {
+                status = 'degraded';
+                errorMsg = 'Rate limited';
+            } else if (code === 502 || code === 503 || code === 504) {
+                status = 'major_outage';
+                errorMsg = `Server error: ${code}`;
+            } else if (code === 404) {
+                status = 'partial_outage';
+                errorMsg = 'Page not found';
+            } else {
+                status = 'degraded';
+                errorMsg = `HTTP ${code}`;
+            }
         }
 
         return {
@@ -216,7 +268,9 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
             status,
             responseTime,
             lastChecked: new Date().toISOString(),
-            error: errorMsg
+            error: errorMsg,
+            url: testUrl,
+            rank
         };
     } catch (err: unknown) {
         const responseTime = Date.now() - startTime;
@@ -242,7 +296,9 @@ async function checkSiteStatus(siteName: string, testUrl: string): Promise<SiteS
             status,
             responseTime,
             lastChecked: new Date().toISOString(),
-            error: errorMsg
+            error: errorMsg,
+            url: testUrl,
+            rank
         };
     }
 }
@@ -258,26 +314,64 @@ export async function GET(req: NextRequest) {
         // Import BOORU_SITES
         const { BOORU_SITES } = await import('@/app/utils/extractionUtils');
 
-        // Check API endpoint and all sites in parallel
-        const apiCheckPromise = checkApiEndpoint();
+        // Prepare list of sites to check
+        const sitesToCheck: { name: string; url: string; rank?: number }[] = [];
+        const processedDomains = new Set<string>();
 
-        const siteCheckPromises = BOORU_SITES.map(async (site) => {
+        // 1. Add Major Sites (from BOORU_SITES / TEST_URLS)
+        BOORU_SITES.forEach(site => {
             const testUrl = TEST_URLS[site.name];
-            if (!testUrl) {
-                return {
-                    name: site.name,
-                    status: 'major_outage' as const,
-                    responseTime: 0,
-                    lastChecked: new Date().toISOString(),
-                    error: 'No test URL configured'
-                };
+            if (testUrl) {
+                sitesToCheck.push({ name: site.name, url: testUrl, rank: 0 }); // Rank 0 for major sites
+                try {
+                    const domain = new URL(testUrl).hostname.replace('www.', '');
+                    processedDomains.add(domain);
+                } catch (e) {}
             }
-
-            return checkSiteStatus(site.name, testUrl);
         });
 
-        // Wait for all checks to complete
-        const [apiStatus, ...siteStatuses] = await Promise.all([apiCheckPromise, ...siteCheckPromises]);
+        // 2. Add sites from booru_top.json
+        // We limit to top 200 to avoid timeout, as checking 600 sites might take too long
+        // Users can still see the full list in the Booru List page
+        const MAX_ADDITIONAL_SITES = 200;
+        let addedCount = 0;
+
+        booruTopList.forEach((site: any) => {
+            if (addedCount >= MAX_ADDITIONAL_SITES) return;
+
+            try {
+                const domain = new URL(site.booru_url).hostname.replace('www.', '');
+                // Check if we already have this domain (approximate check)
+                if (!processedDomains.has(domain)) {
+                    sitesToCheck.push({ 
+                        name: site.booru_title || site.domain, 
+                        url: site.booru_url,
+                        rank: site.rank 
+                    });
+                    processedDomains.add(domain);
+                    addedCount++;
+                }
+            } catch (e) {}
+        });
+
+        // Check API endpoint
+        const apiCheckPromise = checkApiEndpoint();
+
+        // Batch processing for sites
+        const BATCH_SIZE = 20;
+        const siteStatuses: SiteStatus[] = [];
+        
+        // Process in batches
+        for (let i = 0; i < sitesToCheck.length; i += BATCH_SIZE) {
+            const batch = sitesToCheck.slice(i, i + BATCH_SIZE);
+            const batchPromises = batch.map(site => checkSiteStatus(site.name, site.url, site.rank));
+            
+            const results = await Promise.all(batchPromises);
+            siteStatuses.push(...results);
+        }
+
+        // Wait for API check
+        const apiStatus = await apiCheckPromise;
 
         // Combine API status at the beginning of the list
         const sites = [apiStatus, ...siteStatuses];
