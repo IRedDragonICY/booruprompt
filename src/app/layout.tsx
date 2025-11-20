@@ -54,6 +54,11 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
         <head>
+            <script
+                dangerouslySetInnerHTML={{
+                    __html: `(function(){try{var t=localStorage.getItem('booruExtractorThemePref'),c=localStorage.getItem('booruExtractorColorThemePref');try{t=JSON.parse(t)}catch(e){}try{c=JSON.parse(c)}catch(e){}var r=document.documentElement,d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)r.classList.add('dark');else r.classList.remove('dark');if(c)r.dataset.colorTheme=c}catch(e){}})()`
+                }}
+            />
             <StructuredData locale="en" type="webApplication" />
         </head>
         <body

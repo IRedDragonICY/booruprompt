@@ -16,53 +16,104 @@ interface DesktopSideNavProps {
     onOpenSettings: () => void;
 }
 
-const navButtonClass = (isActive: boolean) => `group relative overflow-hidden rounded-xl h-10 w-10 flex items-center justify-center transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${isActive ? 'text-[rgb(var(--color-primary-rgb))] bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40 shadow-sm' : 'text-[rgb(var(--color-on-surface-muted-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'}`;
+interface NavItemProps {
+    active: boolean;
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+    highlight?: boolean;
+}
+
+const NavItem = ({ active, onClick, icon, label, highlight }: NavItemProps) => {
+    return (
+        <TooltipWrapper tipContent={label} side="right" sideOffset={16}>
+            <button
+                onClick={onClick}
+                className={`group relative flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary-rgb))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--color-surface-alt-rgb))] ${
+                    active || highlight
+                        ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] shadow-sm'
+                        : 'text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-[rgb(var(--color-surface-alt-2-rgb))] hover:text-[rgb(var(--color-on-surface-rgb))]'
+                }`}
+                aria-label={label}
+                aria-current={active ? 'page' : undefined}
+            >
+                {/* Active Indicator (Left Border / Glow) */}
+                {(active || highlight) && (
+                    <motion.div
+                        layoutId="active-nav-indicator"
+                        className="absolute left-0 h-8 w-1 rounded-r-full bg-[rgb(var(--color-primary-rgb))]"
+                        initial={{ opacity: 0, scaleY: 0.5 }}
+                        animate={{ opacity: 1, scaleY: 1 }}
+                        transition={{ duration: 0.2 }}
+                    />
+                )}
+                
+                {/* Icon with slight scale on hover */}
+                <div className="relative z-10 transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+                    {icon}
+                </div>
+            </button>
+        </TooltipWrapper>
+    );
+};
 
 export function DesktopSideNav({ active, highlightSettings = false, onSelectExtractor, onSelectImage, onSelectBooruList, onSelectStatus, onSelectApiTest, onOpenSettings }: DesktopSideNavProps) {
     const { t } = useTranslation();
 
     return (
-        <div className="hidden md:block flex-shrink-0 h-full bg-[rgb(var(--color-surface-alt-rgb))] border-r border-[rgb(var(--color-surface-border-rgb))]">
-            <div className="flex flex-col h-full justify-center space-y-2 p-3">
-                <TooltipWrapper tipContent={t('common.navTooltip.extractor')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectExtractor} className={navButtonClass(active === 'extractor')} aria-label={t('common.navTooltip.extractor')} aria-current={active === 'extractor' ? 'page' : undefined}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <TagIcon />
-                    </motion.button>
-                </TooltipWrapper>
-                <TooltipWrapper tipContent={t('common.navTooltip.image')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectImage} className={navButtonClass(active === 'image')} aria-label={t('common.navTooltip.image')} aria-current={active === 'image' ? 'page' : undefined}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <PhotoIcon className="h-6 w-6" />
-                    </motion.button>
-                </TooltipWrapper>
-                <TooltipWrapper tipContent={t('common.navTooltip.booruList')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectBooruList} className={navButtonClass(active === 'booru-list')} aria-label={t('common.navTooltip.booruList')} aria-current={active === 'booru-list' ? 'page' : undefined}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <TrophyIcon />
-                    </motion.button>
-                </TooltipWrapper>
-                <TooltipWrapper tipContent={t('common.navTooltip.status')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectStatus} className={navButtonClass(active === 'status')} aria-label={t('common.navTooltip.status')} aria-current={active === 'status' ? 'page' : undefined}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <SignalIcon />
-                    </motion.button>
-                </TooltipWrapper>
-                <TooltipWrapper tipContent={t('common.navTooltip.apiTest')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onSelectApiTest} className={navButtonClass(active === 'api-test')} aria-label={t('common.navTooltip.apiTest')} aria-current={active === 'api-test' ? 'page' : undefined}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <CodeBracketIcon />
-                    </motion.button>
-                </TooltipWrapper>
-                <div className="my-1 h-[1px] bg-[rgb(var(--color-surface-border-rgb))]" />
-                <TooltipWrapper tipContent={t('common.navTooltip.settings')}>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={onOpenSettings} className={navButtonClass(!!highlightSettings)} aria-label={t('common.navTooltip.settings')}>
-                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-current opacity-0 group-active:opacity-10 transition-opacity duration-200" />
-                        <CogIcon />
-                    </motion.button>
-                </TooltipWrapper>
+        <nav className="hidden md:flex flex-col flex-shrink-0 h-full w-[88px] bg-[rgb(var(--color-surface-alt-rgb))] border-r border-[rgb(var(--color-surface-border-rgb))] items-center py-6 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+            {/* Main Navigation */}
+            <div className="flex flex-col gap-3 w-full items-center">
+                <NavItem 
+                    active={active === 'extractor'} 
+                    onClick={onSelectExtractor} 
+                    icon={<TagIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.extractor')} 
+                />
+                <NavItem 
+                    active={active === 'image'} 
+                    onClick={onSelectImage} 
+                    icon={<PhotoIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.image')} 
+                />
+                <NavItem 
+                    active={active === 'booru-list'} 
+                    onClick={onSelectBooruList} 
+                    icon={<TrophyIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.booruList')} 
+                />
             </div>
-        </div>
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Secondary / System Navigation */}
+            <div className="flex flex-col gap-3 w-full items-center mb-2">
+                <NavItem 
+                    active={active === 'status'} 
+                    onClick={onSelectStatus} 
+                    icon={<SignalIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.status')} 
+                />
+                <NavItem 
+                    active={active === 'api-test'} 
+                    onClick={onSelectApiTest} 
+                    icon={<CodeBracketIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.apiTest')} 
+                />
+                
+                {/* Divider */}
+                <div className="my-2 h-[1px] w-10 bg-[rgb(var(--color-surface-border-rgb))]" />
+                
+                <NavItem 
+                    active={false}
+                    highlight={highlightSettings}
+                    onClick={onOpenSettings} 
+                    icon={<CogIcon className="h-6 w-6" />} 
+                    label={t('common.navTooltip.settings')} 
+                />
+            </div>
+        </nav>
     );
 }
 

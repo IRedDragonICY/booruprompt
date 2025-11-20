@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { ClipboardIcon, CheckCircleIcon, ChevronDownIcon } from './icons/icons';
+import { ClipboardIcon, CheckCircleIcon, ChevronDownIcon, CodeBracketIcon, ServerIcon, BoltIcon, GlobeAltIcon, ShieldCheckIcon, PlayIcon } from './icons/icons';
 
 const API_ENDPOINT = '/api/fetch-booru';
 const EXAMPLE_URL = 'https://safebooru.org/index.php?page=post&s=view&id=5592299';
@@ -556,9 +556,9 @@ print_r($response);
         const lines = code.split('\n');
 
         return (
-            <div className="relative">
+            <div className="relative group rounded-[28px] overflow-hidden bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] transition-all">
                 {/* Header with language selector and copy button */}
-                <div className="flex items-center justify-between border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-4 py-2">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[rgb(var(--color-surface-border-rgb))]">
                     {/* Language selector */}
                     <div className="relative">
                         <button
@@ -566,88 +566,103 @@ print_r($response);
                                 setShowLanguageDropdown(!showLanguageDropdown);
                                 setSearchQuery(''); // Reset search when opening dropdown
                             }}
-                            className="flex items-center gap-2 text-sm text-[rgb(var(--color-on-surface-rgb))] hover:text-[rgb(var(--color-primary-rgb))] transition-colors"
+                            className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]/50 transition-colors px-4 py-2 rounded-full"
                         >
-                            <span className="font-medium">{LANGUAGES.find(l => l.id === selectedLanguage)?.label}</span>
-                            <ChevronDownIcon className="h-4 w-4" />
+                            <CodeBracketIcon className="h-4 w-4 text-[rgb(var(--color-primary-rgb))]" />
+                            <span>{LANGUAGES.find(l => l.id === selectedLanguage)?.label}</span>
+                            <ChevronDownIcon className={`h-3 w-3 transition-transform duration-200 ${showLanguageDropdown ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Dropdown */}
-                        {showLanguageDropdown && (
-                            <>
-                                <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={() => {
-                                        setShowLanguageDropdown(false);
-                                        setSearchQuery(''); // Reset search when closing
-                                    }}
-                                />
-                                <div className="absolute top-full left-0 mt-1 z-20 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg shadow-lg overflow-hidden min-w-[220px]">
-                                    {/* Search input */}
-                                    <div className="p-2 border-b border-[rgb(var(--color-surface-border-rgb))]">
-                                        <input
-                                            ref={searchInputRef}
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder={t('apiTest.searchLanguages')}
-                                            className="w-full px-3 py-1.5 text-sm bg-[rgb(var(--color-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                            onClick={(e) => e.stopPropagation()} // Prevent closing dropdown when clicking input
-                                        />
-                                    </div>
+                        <AnimatePresence>
+                            {showLanguageDropdown && (
+                                <>
+                                    <div
+                                        className="fixed inset-0 z-10"
+                                        onClick={() => {
+                                            setShowLanguageDropdown(false);
+                                            setSearchQuery(''); // Reset search when closing
+                                        }}
+                                    />
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        className="absolute top-full left-0 mt-2 z-20 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-[20px] shadow-lg overflow-hidden min-w-[280px] origin-top-left"
+                                    >
+                                        {/* Search input */}
+                                        <div className="p-3 border-b border-[rgb(var(--color-surface-border-rgb))]">
+                                            <input
+                                                ref={searchInputRef}
+                                                type="text"
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                placeholder={t('apiTest.searchLanguages')}
+                                                className="w-full px-4 py-2.5 text-sm bg-[rgb(var(--color-surface-alt-2-rgb))] border-none rounded-full text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]/50 transition-all"
+                                                onClick={(e) => e.stopPropagation()} // Prevent closing dropdown when clicking input
+                                            />
+                                        </div>
 
-                                    {/* Language list */}
-                                    <div className="max-h-64 overflow-y-auto py-1">
-                                        {filteredLanguages.length > 0 ? (
-                                            filteredLanguages.map((lang) => (
-                                                <button
-                                                    key={lang.id}
-                                                    onClick={() => {
-                                                        setSelectedLanguage(lang.id);
-                                                        setShowLanguageDropdown(false);
-                                                        setSearchQuery('');
-                                                    }}
-                                                    className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                                                        selectedLanguage === lang.id
-                                                            ? 'bg-[rgb(var(--color-primary-rgb))] text-white'
-                                                            : 'text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'
-                                                    }`}
-                                                >
-                                                    {lang.label}
-                                                </button>
-                                            ))
-                                        ) : (
-                                            <div className="px-4 py-3 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] text-center">
-                                                {t('apiTest.noLanguagesFound')}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                                        {/* Language list */}
+                                        <div className="max-h-64 overflow-y-auto py-2 scrollbar-thin">
+                                            {filteredLanguages.length > 0 ? (
+                                                filteredLanguages.map((lang) => (
+                                                    <button
+                                                        key={lang.id}
+                                                        onClick={() => {
+                                                            setSelectedLanguage(lang.id);
+                                                            setShowLanguageDropdown(false);
+                                                            setSearchQuery('');
+                                                        }}
+                                                        className={`w-full px-6 py-3 text-left text-sm transition-colors flex items-center justify-between ${
+                                                            selectedLanguage === lang.id
+                                                                ? 'bg-[rgb(var(--color-primary-rgb))]/10 text-[rgb(var(--color-primary-rgb))] font-medium'
+                                                                : 'text-[rgb(var(--color-on-surface-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]/50'
+                                                        }`}
+                                                    >
+                                                        {lang.label}
+                                                        {selectedLanguage === lang.id && <CheckCircleIcon className="h-4 w-4" />}
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                <div className="px-6 py-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] text-center">
+                                                    {t('apiTest.noLanguagesFound')}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Copy button */}
                     <button
                         onClick={() => copyToClipboard(code, 'code-example')}
-                        className="p-2 rounded hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:text-[rgb(var(--color-primary-rgb))] hover:bg-[rgb(var(--color-primary-rgb))]/10 transition-all"
                         title={t('apiTest.copyCode')}
                     >
                         {copiedSection === 'code-example' ? (
-                            <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                            <>
+                                <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                                <span className="text-green-500">Copied</span>
+                            </>
                         ) : (
-                            <ClipboardIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-rgb))]" />
+                            <>
+                                <ClipboardIcon className="h-4 w-4" />
+                                <span>Copy</span>
+                            </>
                         )}
                     </button>
                 </div>
 
                 {/* Code content with line numbers */}
-                <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] rounded-b-lg overflow-x-auto">
-                    <pre className="p-4">
-                        <code className="text-sm text-[rgb(var(--color-on-surface-rgb))] font-mono">
+                <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] overflow-x-auto">
+                    <pre className="p-6 font-mono text-sm leading-relaxed">
+                        <code className="text-[rgb(var(--color-on-surface-rgb))]">
                             {lines.map((line, index) => (
-                                <div key={index} className="table-row">
-                                    <span className="table-cell pr-4 text-right select-none text-[rgb(var(--color-on-surface-muted-rgb))] w-8">
+                                <div key={index} className="table-row hover:bg-[rgb(var(--color-surface-border-rgb))]/30 transition-colors">
+                                    <span className="table-cell pr-6 text-right select-none text-[rgb(var(--color-on-surface-faint-rgb))] w-8 text-xs pt-0.5">
                                         {index + 1}
                                     </span>
                                     <span className="table-cell">{line || ' '}</span>
@@ -661,194 +676,266 @@ print_r($response);
     };
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-[rgb(var(--color-surface-rgb))] p-4 md:p-6">
+        <div className="h-full w-full overflow-y-auto bg-[rgb(var(--color-surface-rgb))] p-4 md:p-8">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-5xl mx-auto space-y-6"
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="max-w-6xl mx-auto space-y-6 pb-12"
             >
-                {/* Header */}
-                <div>
-                    <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-2">
-                        {t('apiTest.title')}
-                    </h1>
-                    <p className="text-[rgb(var(--color-on-surface-muted-rgb))]">
-                        {t('apiTest.subtitle')}
-                    </p>
+                {/* Header Section - Flat Material You Style */}
+                <div className="relative overflow-hidden rounded-[32px] bg-[rgb(var(--color-primary-rgb))]/10 p-8 md:p-12">
+                    <div className="relative z-10 max-w-3xl">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-primary-rgb))] text-xs font-bold mb-6 shadow-sm">
+                            <BoltIcon className="h-3.5 w-3.5" />
+                            <span>Developer Tools</span>
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-4 tracking-tight">
+                            {t('apiTest.title')}
+                        </h1>
+                        <p className="text-lg text-[rgb(var(--color-on-surface-muted-rgb))] leading-relaxed max-w-2xl">
+                            {t('apiTest.subtitle')}
+                        </p>
+                    </div>
                 </div>
 
-                {/* Interactive Tester */}
-                <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        {t('apiTest.testerTitle')}
-                    </h2>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] mb-2">
-                                {t('apiTest.urlLabel')}
-                            </label>
-                            <input
-                                type="text"
-                                value={testUrl}
-                                onChange={(e) => setTestUrl(e.target.value)}
-                                placeholder={t('apiTest.urlPlaceholder')}
-                                className="w-full px-4 py-2 bg-[rgb(var(--color-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                            />
-                        </div>
-
-                        <button
-                            onClick={handleTest}
-                            disabled={loading}
-                            className="px-6 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-                        >
-                            {loading ? t('apiTest.testing') : t('apiTest.testButton')}
-                        </button>
-
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                                <p className="text-red-500 font-medium">{t('apiTest.error')}</p>
-                                <p className="text-red-400 text-sm mt-1">{error}</p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column: Interactive Tester */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Interactive Tester Card */}
+                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-[28px] p-6 md:p-8 border border-[rgb(var(--color-surface-border-rgb))]">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="h-12 w-12 rounded-full bg-[rgb(var(--color-primary-rgb))]/10 flex items-center justify-center text-[rgb(var(--color-primary-rgb))]">
+                                    <PlayIcon className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-[rgb(var(--color-on-surface-rgb))]">
+                                        {t('apiTest.testerTitle')}
+                                    </h2>
+                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">Send a live request to the API</p>
+                                </div>
                             </div>
-                        )}
 
-                        {response && (
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))]">
-                                        {t('apiTest.responseTitle')}
-                                    </h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] mb-3 ml-1">
+                                        {t('apiTest.urlLabel')}
+                                    </label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                            <GlobeAltIcon className="h-5 w-5 text-[rgb(var(--color-on-surface-muted-rgb))] group-focus-within:text-[rgb(var(--color-primary-rgb))] transition-colors" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={testUrl}
+                                            onChange={(e) => setTestUrl(e.target.value)}
+                                            placeholder={t('apiTest.urlPlaceholder')}
+                                            className="w-full pl-12 pr-6 py-4 bg-[rgb(var(--color-surface-alt-2-rgb))] border-none rounded-[20px] text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))] transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end">
                                     <button
-                                        onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
-                                        className="p-2 rounded hover:bg-[rgb(var(--color-surface-border-rgb))] transition-colors"
-                                        title={t('apiTest.copyResponse')}
+                                        onClick={handleTest}
+                                        disabled={loading}
+                                        className="relative overflow-hidden px-8 py-4 bg-[rgb(var(--color-primary-rgb))] text-[rgb(var(--color-primary-content-rgb))] rounded-full font-semibold hover:opacity-90 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200 group shadow-sm"
                                     >
-                                        {copiedSection === 'response' ? (
-                                            <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                                        ) : (
-                                            <ClipboardIcon className="h-4 w-4 text-[rgb(var(--color-on-surface-rgb))]" />
-                                        )}
+                                        <span className="relative z-10 flex items-center gap-2">
+                                            {loading ? (
+                                                <>
+                                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    {t('apiTest.testing')}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {t('apiTest.testButton')}
+                                                    <BoltIcon className="h-5 w-5" />
+                                                </>
+                                            )}
+                                        </span>
                                     </button>
                                 </div>
-                                <pre className="bg-[rgb(var(--color-surface-rgb))] rounded-lg p-4 overflow-x-auto text-sm max-h-96 border border-[rgb(var(--color-surface-border-rgb))]">
-                                    <code className="text-[rgb(var(--color-on-surface-rgb))]">
-                                        {JSON.stringify(response, null, 2)}
-                                    </code>
-                                </pre>
+
+                                <AnimatePresence mode="wait">
+                                    {error && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="bg-red-500/10 rounded-[20px] p-5 flex items-start gap-4"
+                                        >
+                                            <div className="p-2 bg-red-500/10 rounded-full text-red-500 shrink-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="text-red-500 font-bold text-sm mb-1">{t('apiTest.error')}</p>
+                                                <p className="text-red-500/80 text-sm">{error}</p>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {response && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="space-y-4 pt-6 border-t border-[rgb(var(--color-surface-border-rgb))]"
+                                        >
+                                            <div className="flex items-center justify-between px-1">
+                                                <h3 className="text-sm font-bold text-[rgb(var(--color-on-surface-rgb))] uppercase tracking-wider flex items-center gap-2">
+                                                    <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                                                    {t('apiTest.responseTitle')}
+                                                </h3>
+                                                <button
+                                                    onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
+                                                    className="text-xs font-bold text-[rgb(var(--color-primary-rgb))] hover:bg-[rgb(var(--color-primary-rgb))]/10 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+                                                >
+                                                    {copiedSection === 'response' ? (
+                                                        <>
+                                                            <CheckCircleIcon className="h-4 w-4" />
+                                                            Copied
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ClipboardIcon className="h-4 w-4" />
+                                                            Copy JSON
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                            <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] rounded-[24px] overflow-hidden">
+                                                <pre className="p-6 overflow-x-auto text-sm max-h-[500px] scrollbar-thin">
+                                                    <code className="text-[rgb(var(--color-on-surface-rgb))] font-mono">
+                                                        {JSON.stringify(response, null, 2)}
+                                                    </code>
+                                                </pre>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                        )}
+                        </div>
+
+                        {/* Code Examples */}
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold text-[rgb(var(--color-on-surface-rgb))] flex items-center gap-3 px-2">
+                                <div className="p-2 rounded-full bg-[rgb(var(--color-secondary-rgb))]/10 text-[rgb(var(--color-secondary-rgb))]">
+                                    <CodeBracketIcon className="h-5 w-5" />
+                                </div>
+                                {t('apiTest.codeExamples')}
+                            </h2>
+                            <CodeBlock />
+                        </div>
                     </div>
-                </div>
 
-                {/* API Documentation */}
-                <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        {t('apiTest.endpointTitle')}
-                    </h2>
+                    {/* Right Column: Documentation & Info */}
+                    <div className="space-y-6">
+                        {/* Endpoint Info */}
+                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-[28px] p-6 border border-[rgb(var(--color-surface-border-rgb))]">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="h-10 w-10 rounded-full bg-[rgb(var(--color-accent-rgb))]/10 flex items-center justify-center text-[rgb(var(--color-accent-rgb))]">
+                                    <ServerIcon className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-bold text-[rgb(var(--color-on-surface-rgb))]">
+                                    {t('apiTest.endpointTitle')}
+                                </h2>
+                            </div>
 
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.endpointUrl')}</p>
-                            <code className="block bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-2 rounded text-[rgb(var(--color-on-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))]">
-                                POST {baseUrl}{API_ENDPOINT}
-                            </code>
-                        </div>
+                            <div className="space-y-6">
+                                <div>
+                                    <p className="text-xs font-bold text-[rgb(var(--color-on-surface-muted-rgb))] uppercase tracking-wider mb-3 ml-1">{t('apiTest.endpointUrl')}</p>
+                                    <div className="flex items-center gap-3 bg-[rgb(var(--color-surface-alt-2-rgb))] p-3 rounded-[16px]">
+                                        <span className="px-2.5 py-1 rounded-md bg-[rgb(var(--color-primary-rgb))] text-[rgb(var(--color-primary-content-rgb))] text-xs font-bold">POST</span>
+                                        <code className="text-sm text-[rgb(var(--color-on-surface-rgb))] font-mono truncate flex-1">
+                                            {API_ENDPOINT}
+                                        </code>
+                                    </div>
+                                </div>
 
-                        <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.requestBody')}</p>
-                            <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
-                                <code className="text-[rgb(var(--color-on-surface-rgb))]">
+                                <div>
+                                    <p className="text-xs font-bold text-[rgb(var(--color-on-surface-muted-rgb))] uppercase tracking-wider mb-3 ml-1">{t('apiTest.requestBody')}</p>
+                                    <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] p-4 rounded-[20px]">
+                                        <pre className="text-xs text-[rgb(var(--color-on-surface-rgb))] font-mono overflow-x-auto">
 {`{
-  "targetUrl": "https://example.com/post/123"
+  "targetUrl": "string"
 }`}
-                                </code>
-                            </pre>
-                        </div>
+                                        </pre>
+                                    </div>
+                                </div>
 
-                        <div>
-                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-2">{t('apiTest.responseFormat')}</p>
-                            <pre className="bg-[rgb(var(--color-surface-alt-2-rgb))] px-4 py-3 rounded text-sm overflow-x-auto border border-[rgb(var(--color-surface-border-rgb))]">
-                                <code className="text-[rgb(var(--color-on-surface-rgb))]">
+                                <div>
+                                    <p className="text-xs font-bold text-[rgb(var(--color-on-surface-muted-rgb))] uppercase tracking-wider mb-3 ml-1">{t('apiTest.responseFormat')}</p>
+                                    <div className="bg-[rgb(var(--color-surface-alt-2-rgb))] p-4 rounded-[20px]">
+                                        <pre className="text-xs text-[rgb(var(--color-on-surface-rgb))] font-mono overflow-x-auto">
 {`{
-  "siteName": "Safebooru",
+  "siteName": "string",
   "tags": {
-    "general": ["tag1", "tag2"],
-    "character": ["character1"],
-    "copyright": ["series1"],
-    "artist": ["artist1"],
-    "meta": ["meta1"]
+    "general": ["string"],
+    "character": ["string"],
+    ...
   },
-  "imageUrl": "https://...",
-  "title": "Post #123"
+  "imageUrl": "string",
+  "title": "string"
 }`}
-                                </code>
-                            </pre>
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Code Examples */}
-                <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        {t('apiTest.codeExamples')}
-                    </h2>
-                    <CodeBlock />
-                </div>
-
-                {/* Supported Sites */}
-                <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        {t('apiTest.supportedSites')}
-                    </h2>
-                    <p className="text-[rgb(var(--color-on-surface-muted-rgb))] mb-4">
-                        {t('apiTest.supportedDescription')}
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-[rgb(var(--color-on-surface-rgb))]">
-                        <div>• Danbooru</div>
-                        <div>• Safebooru</div>
-                        <div>• Gelbooru</div>
-                        <div>• Rule34</div>
-                        <div>• e621</div>
-                        <div>• Yande.re</div>
-                        <div>• Konachan</div>
-                        <div>• AIBooru</div>
-                        <div>• Pixiv</div>
-                        <div>• {t('apiTest.andMore')}</div>
-                    </div>
-                    <p className="text-[rgb(var(--color-on-surface-muted-rgb))] mt-4 text-sm">
-                        {t('apiTest.checkList').split('<link>')[0]}
-                        <a href="/booru-list" className="text-[rgb(var(--color-primary-rgb))] hover:underline">
-                            {t('apiTest.checkList').split('<link>')[1].split('</link>')[0]}
-                        </a>
-                        {t('apiTest.checkList').split('</link>')[1]}
-                    </p>
-                </div>
-
-                {/* Rate Limiting & Notes */}
-                <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h2 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-4">
-                        {t('apiTest.rateLimiting')}
-                    </h2>
-                    <div className="space-y-3 text-[rgb(var(--color-on-surface-muted-rgb))]">
-                        <p>
-                            • {t('apiTest.note1')}
-                        </p>
-                        <p>
-                            • {t('apiTest.note2')}
-                        </p>
-                        <p>
-                            • {t('apiTest.note3')}
-                        </p>
-                        <p>
-                            • {t('apiTest.note4').split('<link>')[0]}
-                            <a href="/status" className="text-[rgb(var(--color-primary-rgb))] hover:underline">
-                                {t('apiTest.note4').split('<link>')[1].split('</link>')[0]}
+                        {/* Supported Sites */}
+                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-[28px] p-6 border border-[rgb(var(--color-surface-border-rgb))]">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
+                                    <ShieldCheckIcon className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-bold text-[rgb(var(--color-on-surface-rgb))]">
+                                    {t('apiTest.supportedSites')}
+                                </h2>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {['Danbooru', 'Safebooru', 'Gelbooru', 'Rule34', 'e621', 'Yande.re', 'Konachan', 'Pixiv'].map((site) => (
+                                    <span key={site} className="px-3 py-1.5 rounded-full bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                                        {site}
+                                    </span>
+                                ))}
+                                <span className="px-3 py-1.5 rounded-full bg-[rgb(var(--color-surface-alt-2-rgb))] text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                    + more
+                                </span>
+                            </div>
+                            
+                            <a href="/booru-list" className="text-sm font-bold text-[rgb(var(--color-primary-rgb))] hover:underline flex items-center gap-1 ml-1">
+                                View full list
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                    <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                                </svg>
                             </a>
-                            {t('apiTest.note4').split('</link>')[1]}
-                        </p>
-                        <p>
-                            • {t('apiTest.note5')}
-                        </p>
+                        </div>
+
+                        {/* Rate Limiting */}
+                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-[28px] p-6 border border-[rgb(var(--color-surface-border-rgb))]">
+                            <h2 className="text-lg font-bold text-[rgb(var(--color-on-surface-rgb))] mb-4 px-1">
+                                {t('apiTest.rateLimiting')}
+                            </h2>
+                            <ul className="space-y-4">
+                                {[
+                                    t('apiTest.note1'),
+                                    t('apiTest.note2'),
+                                    t('apiTest.note3')
+                                ].map((note, i) => (
+                                    <li key={i} className="flex gap-3 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-[rgb(var(--color-on-surface-border-rgb))] mt-2 flex-shrink-0" />
+                                        <span className="leading-relaxed">{note}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </motion.div>
