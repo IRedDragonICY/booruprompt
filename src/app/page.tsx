@@ -190,7 +190,7 @@ const BooruTagExtractor = () => {
                             historyFilterPredicate={extractionFilterPredicate}
                             onClearHistory={handleClearHistory}
                         />
-                    <div ref={cardBodyRef} className={`flex-grow flex flex-col p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] ${isMobile ? 'space-y-6 overflow-y-auto pb-40' : 'overflow-hidden gap-6'}`}>
+                    <div ref={cardBodyRef} className={`flex-grow flex flex-col scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))] ${isMobile ? (hasResults || loading ? 'space-y-4 overflow-hidden pb-56 p-4' : 'overflow-hidden p-4 pb-52') : 'overflow-hidden gap-6 p-6'}`}>
                         <AnimatePresence mode='wait'>
                             {error && showFullErrorPage && (
                                 <ErrorPage
@@ -224,40 +224,7 @@ const BooruTagExtractor = () => {
 
                         {isMobile && hasResults && !loading && (
                             <div className="flex flex-col gap-4">
-                                {/* Filter Categories */}
-                                <div className="rounded-lg border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))] p-3">
-                                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                        <h3 className="text-sm font-semibold">{t('extractor.categories.title')}</h3>
-                                        <div className="flex shrink-0 space-x-2">
-                                            <button onClick={() => toggleAllCategories(false)} className="rounded-md bg-[rgb(var(--color-surface-border-rgb))] px-2 py-0.5 text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))] hover:bg-gray-300 dark:hover:bg-gray-500">{t('extractor.categories.disableAll')}</button>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-5 gap-2">
-                                        {DEFAULT_TAG_CATEGORIES.map(catDef => {
-                                            const catOpt = tagCategories.find(c => c.id === catDef.id) ?? catDef;
-                                            const count = tagCounts[catOpt.id] || 0;
-                                            const active = catOpt.enabled;
-                                            const label = translateCategoryLabel(catOpt.id, catOpt.label);
-                                            return (
-                                                <button key={catOpt.id} onClick={() => toggleTagCategory(catOpt.id)} className={`group relative flex flex-col items-center justify-center rounded-lg px-2 py-1.5 transition ${active ? 'bg-[rgba(var(--color-primary-rgb),0.15)] ring-1 ring-[rgb(var(--color-primary-rgb))]/40' : 'bg-[rgb(var(--color-surface-alt-rgb))] hover:bg-[rgb(var(--color-surface-border-rgb))]'}`} aria-pressed={active} title={`${label} • ${count}`}>
-                                                    <span className="mb-1 grid h-6 w-6 place-items-center rounded-md" style={{ backgroundColor: active ? `rgba(var(--color-primary-rgb),0.2)` : 'transparent' }}>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`h-4 w-4 ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
-                                                            {catOpt.id === 'copyright' && <g><rect x="4" y="9" width="10" height="8" rx="2"/><rect x="10" y="5" width="10" height="8" rx="2" opacity="0.65"/></g>}
-                                                            {catOpt.id === 'character' && <path d="M12 2.25c-2.9 0-5.25 2.35-5.25 5.25S9.1 12.75 12 12.75 17.25 10.4 17.25 7.5 14.9 2.25 12 2.25zm0 12c-3.45 0-6.75 1.77-6.75 4.5V21h13.5v-2.25c0-2.73-3.3-4.5-6.75-4.5z"/>}
-                                                            {catOpt.id === 'general' && <path d="M4.5 5.25h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5zm0 6h15a.75.75 0 010 1.5h-15a.75.75 0 010-1.5z"/>}
-                                                            {catOpt.id === 'meta' && <path d="M4.5 6.75A2.25 2.25 0 016.75 4.5h10.5A2.25 2.25 0 0119.5 6.75v10.5A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V6.75zm3 1.5a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zM7.5 12a.75.75 0 000 1.5h8.25a.75.75 0 000-1.5H7.5zm0 3.75a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z"/>}
-                                                            {catOpt.id === 'other' && <g><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></g>}
-                                                        </svg>
-                                                    </span>
-                                                    <span className={`text-xs font-medium ${active ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                                    <span className={`text-[10px] ${active ? 'text-[rgb(var(--color-primary-rgb))]/70' : 'text-[rgb(var(--color-on-surface-faint-rgb))]'}`}>{count}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Filtered Tags Panel */}
+                                {/* Filtered Tags Panel - Categories sudah ada di MobileExtractorControls */}
                                 <FilteredTagsPanel displayedTags={displayedTags} onCopy={handleCopy} copySuccess={copySuccess} />
                             </div>
                         )}
@@ -368,9 +335,7 @@ const BooruTagExtractor = () => {
                 />
             ) : activeView === 'booru-list' ? (
                 <motion.div key="booru-list-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>
-                    <div className="flex-grow overflow-y-auto p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-                        <BooruListPanel />
-                    </div>
+                    <BooruListPanel />
                 </motion.div>
             ) : activeView === 'status' ? (
                 <motion.div key="status-view" className="flex flex-col h-full overflow-hidden" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3, ease: "easeOut" }}>

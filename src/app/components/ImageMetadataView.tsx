@@ -19,6 +19,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { StatusMessage } from './StatusMessage';
 import { HistoryPanelBase } from './HistoryPanel';
 import { ParameterItem } from './ParameterItem';
+import { PageHeader } from './PageHeader';
 import type { ImageMetadata } from '../utils/imageMetadata';
 import type { CopyStatus } from '../types/common';
 import type { ImageHistoryEntry } from '../types/history';
@@ -145,6 +146,12 @@ export const ImageMetadataView: React.FC<ImageMetadataViewProps> = ({
             exit={{ opacity: 0 }} 
             transition={{ duration: 0.2, ease: "easeOut" }}
         >
+            {/* Shared Header */}
+            <PageHeader
+                icon={<PhotoIcon className="h-6 w-6 md:h-7 md:w-7 text-[rgb(var(--color-primary-rgb))]" />}
+                title={t('imageTool.title')}
+                subtitle={t('imageTool.subtitle')}
+            />
             <div className={`flex-grow flex flex-col ${hasImage ? 'p-4 md:p-8 overflow-y-auto' : 'p-4'} scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]`}>
                 <div className={`mx-auto w-full flex flex-col ${hasImage ? 'max-w-7xl gap-8' : 'h-full'}`}>
                     
@@ -188,16 +195,45 @@ export const ImageMetadataView: React.FC<ImageMetadataViewProps> = ({
                                         priority
                                     />
                                 </div>
-                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <button
-                                        onClick={handleClearImage}
-                                        className="rounded-full bg-black/60 p-2 text-white hover:bg-red-500/90 transition-colors shadow-lg"
-                                        title="Clear Image"
-                                    >
-                                        <XMarkIcon className="h-5 w-5" />
-                                    </button>
-                                </div>
-                                <div className="absolute bottom-4 left-4 right-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                {/* Mobile: Always visible buttons */}
+                                {isMobile && (
+                                    <div className="absolute top-3 right-3 flex gap-2">
+                                        <button
+                                            onClick={triggerFileInput}
+                                            className="rounded-full bg-[rgb(var(--color-primary-rgb))] p-2.5 text-white shadow-lg active:scale-95 transition-transform"
+                                            title="Upload New Image"
+                                        >
+                                            <ArrowUpOnSquareIcon className="h-5 w-5" />
+                                        </button>
+                                        <button
+                                            onClick={handleClearImage}
+                                            className="rounded-full bg-black/60 p-2.5 text-white shadow-lg active:scale-95 transition-transform"
+                                            title="Clear Image"
+                                        >
+                                            <XMarkIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                )}
+                                {/* Desktop: Show on hover */}
+                                {!isMobile && (
+                                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <button
+                                            onClick={triggerFileInput}
+                                            className="rounded-full bg-[rgb(var(--color-primary-rgb))] p-2 text-white hover:bg-[rgb(var(--color-primary-focus-rgb))] transition-colors shadow-lg"
+                                            title="Upload New Image"
+                                        >
+                                            <ArrowUpOnSquareIcon className="h-5 w-5" />
+                                        </button>
+                                        <button
+                                            onClick={handleClearImage}
+                                            className="rounded-full bg-black/60 p-2 text-white hover:bg-red-500/90 transition-colors shadow-lg"
+                                            title="Clear Image"
+                                        >
+                                            <XMarkIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                )}
+                                <div className="absolute bottom-4 left-4 right-4 flex justify-center opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-200 pointer-events-none">
                                     <div className="bg-black/60 rounded-full px-4 py-2 text-xs text-white font-mono shadow-lg">
                                         {imageFile?.name} ({imageFile ? formatFileSize(imageFile.size) : ''})
                                     </div>

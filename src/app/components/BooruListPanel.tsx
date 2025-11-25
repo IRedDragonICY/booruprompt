@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation, PanInfo } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
   GlobeAltIcon,
@@ -13,6 +13,7 @@ import {
   ArrowUpRightIcon
 } from './icons/icons';
 import { Trans, useTranslation } from 'react-i18next';
+import { PageHeader } from './PageHeader';
 
 interface BooruData {
   rank: number;
@@ -64,6 +65,23 @@ export const BooruListPanel: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [isMinimized, setIsMinimized] = useState(false);
+  const controls = useAnimation();
+
+  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    if (info.offset.y > 80) {
+      setIsMinimized(true);
+      controls.start({ y: 'calc(100% - 24px)' });
+    } else {
+      setIsMinimized(false);
+      controls.start({ y: 0 });
+    }
+  }, [controls]);
+
+  const handleExpand = useCallback(() => {
+    setIsMinimized(false);
+    controls.start({ y: 0 });
+  }, [controls]);
 
   const locale = useMemo(() => (i18n.language?.startsWith('id') ? 'id-ID' : 'en-US'), [i18n.language]);
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
@@ -618,40 +636,28 @@ export const BooruListPanel: React.FC = () => {
   return (
     <>
       <div className="h-full flex flex-col">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="rounded-lg md:rounded-xl bg-gradient-to-br from-[rgb(var(--color-surface-alt-rgb))] via-[rgb(var(--color-surface-alt-rgb))] to-[rgb(var(--color-surface-alt-2-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-4 md:p-6 shadow-sm mb-4 md:mb-6"
-        >
-          <div className="flex items-start gap-3 md:gap-4">
-            <div className="rounded-md md:rounded-lg bg-[rgb(var(--color-primary-rgb))]/10 p-2 md:p-3">
-              <TrophyIcon className="h-5 w-5 md:h-6 md:w-6 text-[rgb(var(--color-primary-rgb))]" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-base md:text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1 md:mb-2">
-                {t('booruList.pageTitle')}
-              </h2>
-              <p className="text-sm md:text-base text-[rgb(var(--color-on-surface-muted-rgb))] leading-snug md:leading-relaxed">
-                <span className="md:hidden">{t('booruList.pageDescriptionShort')}</span>
-                <span className="hidden md:block">{t('booruList.pageDescriptionLong')}</span>
-              </p>
-            </div>
-          </div>
-        </motion.div>
+        {/* Shared Header - Fixed at top */}
+        <div className="shrink-0">
+          <PageHeader
+            icon={<TrophyIcon className="h-6 w-6 md:h-7 md:w-7 text-[rgb(var(--color-primary-rgb))]" />}
+            title={t('booruList.pageTitle')}
+            subtitle={isMobile ? t('booruList.pageDescriptionShort') : t('booruList.pageDescriptionLong')}
+          />
+        </div>
 
-        {/* Search and Filter Controls - Desktop Only */}
-        {!isMobile && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-3 md:p-4 shadow-sm mb-4 md:mb-6"
-          >
-            {renderSearchControls()}
-          </motion.div>
-        )}
+        {/* Content - Scrollable */}
+        <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6 md:pt-2">
+          {/* Search and Filter Controls - Desktop Only */}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="rounded-lg bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] p-3 md:p-4 shadow-sm mb-4 md:mb-6"
+            >
+              {renderSearchControls()}
+            </motion.div>
+          )}
 
         {/* Booru Grid */}
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -781,19 +787,30 @@ export const BooruListPanel: React.FC = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
       </div>
 
       {/* Mobile Fixed Search Bar at Bottom */}
       {isMobile && (
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="fixed left-0 right-0 z-40 md:hidden"
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.2}
+          onDragEnd={handleDragEnd}
+          animate={controls}
+          initial={{ y: 0 }}
+          className="fixed left-0 right-0 z-40 md:hidden rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
           style={{ bottom: 'var(--mobile-nav-height, 56px)' }}
         >
-          <div className="mx-auto max-w-xl rounded-t-2xl border border-b-0 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] p-3 shadow-md">
+          <div className="mx-auto max-w-xl p-3">
+            {/* Drag Handle */}
+            <div 
+              className="flex justify-center mb-3 cursor-grab active:cursor-grabbing"
+              onClick={isMinimized ? handleExpand : undefined}
+            >
+              <div className="w-12 h-1.5 rounded-full bg-[rgb(var(--color-on-surface-faint-rgb))]" />
+            </div>
             {renderSearchControls()}
           </div>
         </motion.div>

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaletteIcon, BugAntIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon } from './icons/icons';
+import { PaletteIcon, BugAntIcon, AutomaticIcon, PreviewIcon, HistorySaveIcon, UnsupportedSitesIcon, SettingsIcon } from './icons/icons';
 import type { Settings, ThemePreference, ColorTheme, FetchMode } from '../types/settings';
 import { LanguageSelector } from './LanguageSelector';
 import { ThemeSection } from './settings/ThemeSection';
@@ -9,6 +9,7 @@ import { FetchModeSection } from './settings/FetchModeSection';
 import { ToggleSetting } from './settings/ToggleSetting';
 import { HistorySizeSection } from './settings/HistorySizeSection';
 import { BlacklistSection } from './settings/BlacklistSection';
+import { PageHeader } from './PageHeader';
 
 const REPORT_ISSUE_URL = 'https://github.com/IRedDragonICY/booruprompt/issues';
 const DEFAULT_CUSTOM_COLOR_HEX = '#3B82F6';
@@ -73,10 +74,11 @@ export const SettingsPanel = memo(function SettingsPanel({ settings, onSettingsC
 
     return (
         <div className="flex flex-col flex-1 overflow-hidden bg-[rgb(var(--color-surface-rgb))]">
-            <div className="sticky top-0 z-10 shrink-0 border-b border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-rgb))] px-6 py-5">
-                <h1 className="text-xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">{t('settings.title')}</h1>
-            </div>
-            <div className="flex-grow overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+            <PageHeader
+                icon={<SettingsIcon className="h-6 w-6 md:h-7 md:w-7 text-[rgb(var(--color-primary-rgb))]" />}
+                title={t('settings.title')}
+            />
+            <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
                 <LanguageSelector />
 
                 {/* Appearance Section */}

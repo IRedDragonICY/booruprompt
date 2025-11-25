@@ -289,6 +289,7 @@
   },
   "imageTool": {
     "title": "Image Metadata",
+    "subtitle": "Extract AI generation parameters from PNG images",
     "dropCtaTitle": "Drag & Drop PNG Here",
     "dropCtaSubtitle": "or click to upload",
     "selectButton": "Select PNG",
