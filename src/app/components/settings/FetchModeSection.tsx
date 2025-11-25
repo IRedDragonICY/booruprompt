@@ -13,7 +13,6 @@ interface ClientProxyOption {
 
 const CLIENT_PROXY_OPTIONS: ClientProxyOption[] = [
     { id: 'allorigins', label: 'AllOrigins', value: 'https://api.allorigins.win/get?url=' },
-    { id: 'thingproxy', label: 'ThingProxy', value: 'https://thingproxy.freeboard.io/fetch/' },
     { id: 'codetabs', label: 'CodeTabs', value: 'https://api.codetabs.com/v1/proxy?quest=' },
 ];
 
@@ -24,7 +23,6 @@ interface FetchModeSectionProps {
     onProxyUrlChange: (url: string) => void;
 }
 
-// Icon map to avoid recreating JSX elements
 const FETCH_MODE_ICON_MAP = {
     server: ServerIcon,
     clientProxy: CloudArrowDownIcon,
@@ -52,61 +50,65 @@ export const FetchModeSection = memo(function FetchModeSection({
     ], [t]);
 
     return (
-        <div>
-            <label className="mb-2 flex items-center text-sm font-medium text-[rgb(var(--color-on-surface-rgb))]">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 mr-2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-                </svg>
+        <div className="rounded-2xl bg-[rgb(var(--color-surface-alt-rgb))] p-4">
+            <label className="mb-3 flex items-center text-base font-medium text-[rgb(var(--color-on-surface-rgb))]">
+                <span className="mr-3 text-[rgb(var(--color-primary-rgb))]"><CloudArrowDownIcon /></span>
                 <span>{t('settings.sections.dataFetch')}</span>
             </label>
-            <div className="space-y-2 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] p-2">
+            <div className="space-y-2">
                 {fetchOptions.map(({ value, label, description }) => {
                     const IconComponent = FETCH_MODE_ICON_MAP[value];
+                    const isSelected = fetchMode === value;
 
                     return (
-                        <div key={value}>
-                            <label className={`flex cursor-pointer items-start rounded-lg p-3 transition-all ${fetchMode === value ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/50' : 'hover:bg-[rgb(var(--color-surface-border-rgb))]'}`}>
-                                <input type="radio" name="fetchMode" value={value} checked={fetchMode === value} onChange={handleModeChange} className="peer sr-only" aria-label={label} />
-                                <div className={`mr-3 mt-0.5 h-5 w-5 shrink-0 ${fetchMode === value ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
+                        <div key={value} className={`overflow-hidden rounded-xl transition-all ${isSelected ? 'bg-[rgb(var(--color-surface-rgb))] shadow-sm ring-1 ring-[rgb(var(--color-primary-rgb))]/30' : 'hover:bg-[rgb(var(--color-surface-alt-2-rgb))]'}`}>
+                            <label className="flex cursor-pointer items-start p-4">
+                                <input type="radio" name="fetchMode" value={value} checked={isSelected} onChange={handleModeChange} className="peer sr-only" aria-label={label} />
+                                <div className={`mr-4 mt-0.5 h-6 w-6 shrink-0 ${isSelected ? 'text-[rgb(var(--color-primary-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>
                                     <IconComponent />
                                 </div>
                                 <div className="flex-1">
-                                    <span className={`block text-sm font-medium ${fetchMode === value ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
-                                    <span className="mt-0.5 block text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{description}</span>
+                                    <span className={`block text-base font-medium ${isSelected ? 'text-[rgb(var(--color-on-surface-rgb))]' : 'text-[rgb(var(--color-on-surface-muted-rgb))]'}`}>{label}</span>
+                                    <span className="mt-1 block text-sm text-[rgb(var(--color-on-surface-muted-rgb))] leading-relaxed">{description}</span>
                                 </div>
-                                <div className="ml-3 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
+                                <div className="ml-4 mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[rgb(var(--color-surface-border-rgb))] bg-transparent transition-colors peer-checked:border-[rgb(var(--color-primary-rgb))] peer-checked:bg-[rgb(var(--color-primary-rgb))]">
                                     <AnimatePresence>
-                                        {fetchMode === value && (
-                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="h-2 w-2 rounded-full bg-[rgb(var(--color-primary-content-rgb))]" />
+                                        {isSelected && (
+                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="h-2 w-2 rounded-full bg-white" />
                                         )}
                                     </AnimatePresence>
                                 </div>
                             </label>
-                        {value === 'clientProxy' && fetchMode === 'clientProxy' && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                animate={{ opacity: 1, height: 'auto', marginTop: '0.5rem' }}
-                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="pl-12 pr-3"
-                            >
-                                <label htmlFor="clientProxySelect" className="mb-1 block text-xs font-medium text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.clientProxy.selectLabel')}</label>
-                                <select
-                                    id="clientProxySelect"
-                                    value={clientProxyUrl}
-                                    onChange={handleProxyChange}
-                                    className="w-full appearance-none rounded-md border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] px-3 py-1.5 text-sm text-[rgb(var(--color-on-surface-rgb))] transition duration-200 focus:border-[rgb(var(--color-primary-rgb))] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--color-primary-rgb))]"
-                                    aria-label={t('settings.clientProxy.ariaLabel')}
+                            {value === 'clientProxy' && isSelected && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="border-t border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-alt-2-rgb))]/50 px-4 py-3"
                                 >
-                                    {CLIENT_PROXY_OPTIONS.map(option => (
-                                        <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="mt-1 text-[10px] text-[rgb(var(--color-on-surface-faint-rgb))]">{t('settings.clientProxy.helper')}</p>
-                            </motion.div>
-                        )}
+                                    <label htmlFor="clientProxySelect" className="mb-2 block text-xs font-medium uppercase tracking-wider text-[rgb(var(--color-on-surface-muted-rgb))]">{t('settings.clientProxy.selectLabel')}</label>
+                                    <div className="relative">
+                                        <select
+                                            id="clientProxySelect"
+                                            value={clientProxyUrl}
+                                            onChange={handleProxyChange}
+                                            className="w-full appearance-none rounded-lg border-0 bg-[rgb(var(--color-surface-rgb))] px-4 py-2.5 text-sm text-[rgb(var(--color-on-surface-rgb))] shadow-sm ring-1 ring-inset ring-[rgb(var(--color-surface-border-rgb))] transition focus:ring-2 focus:ring-inset focus:ring-[rgb(var(--color-primary-rgb))]"
+                                            aria-label={t('settings.clientProxy.ariaLabel')}
+                                        >
+                                            {CLIENT_PROXY_OPTIONS.map(option => (
+                                                <option key={option.id} value={option.value} className="bg-[rgb(var(--color-surface-rgb))] text-[rgb(var(--color-on-surface-rgb))]">
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                            <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                                        </div>
+                                    </div>
+                                    <p className="mt-2 text-xs text-[rgb(var(--color-on-surface-faint-rgb))]">{t('settings.clientProxy.helper')}</p>
+                                </motion.div>
+                            )}
                         </div>
                     );
                 })}

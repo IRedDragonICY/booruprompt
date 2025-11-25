@@ -131,3 +131,8 @@ export const DEFAULT_TAG_CATEGORIES: TagCategoryOption[] = [
     { id: 'meta', label: 'Meta', enabled: true, variable: '--cat-color-meta-rgb' },
     { id: 'other', label: 'Other', enabled: true, variable: '--cat-color-other-rgb' }
 ];
+
+export const calculateTotalTags = (tags: Partial<Record<TagCategory, string[]>> | undefined): number => {
+    if (!tags) return 0;
+    return Object.values(tags).reduce((acc, curr) => acc + (curr?.length || 0), 0);
+};

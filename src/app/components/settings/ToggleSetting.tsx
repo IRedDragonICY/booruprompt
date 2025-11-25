@@ -1,19 +1,19 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
 import { TooltipWrapper } from '../TooltipWrapper';
 
 interface ToggleSettingProps {
-    id: string;
+    id?: string;
     label: string;
-    description: string;
-    tooltip: string;
+    description: React.ReactNode;
+    tooltip?: string;
     checked: boolean;
     onChange: (checked: boolean) => void;
     icon?: React.ReactNode;
     note?: string;
 }
 
-const TOGGLE_TRANSITION = { type: "spring", stiffness: 700, damping: 30 };
+const TOGGLE_TRANSITION = { type: "spring", stiffness: 500, damping: 30 };
 
 export const ToggleSetting = memo(function ToggleSetting({
     id,
@@ -25,41 +25,56 @@ export const ToggleSetting = memo(function ToggleSetting({
     icon,
     note
 }: ToggleSettingProps) {
+    const generatedId = useId();
+    const inputId = id || generatedId;
+
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     }, [onChange]);
 
+    const content = (
+        <div className="flex items-center text-base font-medium text-[rgb(var(--color-on-surface-rgb))]">
+            {icon && <span className="mr-3 text-[rgb(var(--color-primary-rgb))]">{icon}</span>}
+            <span>{label}</span>
+        </div>
+    );
+
     return (
-        <div className="rounded-xl border border-[rgb(var(--color-surface-border-rgb))] bg-[rgb(var(--color-surface-rgb))] p-3">
-            <label className="flex cursor-pointer select-none items-center justify-between">
-                <TooltipWrapper tipContent={tooltip}>
-                    <span className="mr-3 text-sm font-medium text-[rgb(var(--color-on-surface-rgb))] flex items-center">
-                        {icon}
-                        <span className={icon ? "ml-2" : ""}>{label}</span>
-                    </span>
-                </TooltipWrapper>
-                <div className="relative">
+        <div className="group relative overflow-hidden rounded-2xl bg-[rgb(var(--color-surface-alt-rgb))] p-4 transition-colors hover:bg-[rgb(var(--color-surface-alt-2-rgb))]">
+            <label className="flex cursor-pointer select-none items-start justify-between">
+                <div className="flex-1 pr-4">
+                    {tooltip ? (
+                        <TooltipWrapper tipContent={tooltip}>
+                            {content}
+                        </TooltipWrapper>
+                    ) : content}
+                    <div className="mt-1 text-sm text-[rgb(var(--color-on-surface-muted-rgb))] leading-relaxed">
+                        {description}
+                        {note && <span className="mt-1 block font-medium text-[rgb(var(--color-primary-rgb))]">{note}</span>}
+                    </div>
+                </div>
+                
+                <div className="relative shrink-0 mt-1">
                     <input
                         type="checkbox"
-                        id={id}
+                        id={inputId}
                         className="peer sr-only"
                         checked={checked}
                         onChange={handleChange}
                     />
-                    <div className="block h-6 w-11 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-200 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus:ring-2 peer-focus:ring-[rgb(var(--color-primary-rgb))] peer-focus:ring-offset-2 peer-focus:ring-offset-[rgb(var(--color-surface-alt-rgb))]" />
+                    <div className="h-8 w-14 rounded-full bg-[rgb(var(--color-surface-border-rgb))] transition-colors duration-300 peer-checked:bg-[rgb(var(--color-primary-rgb))] peer-focus-visible:ring-2 peer-focus-visible:ring-[rgb(var(--color-primary-rgb))] peer-focus-visible:ring-offset-2" />
                     <motion.div
-                        className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-xs"
+                        className="absolute left-1 top-1 h-6 w-6 rounded-full bg-white shadow-sm"
                         layout
                         transition={TOGGLE_TRANSITION}
                         initial={false}
-                        animate={{ x: checked ? 20 : 0 }}
+                        animate={{ 
+                            x: checked ? 24 : 0,
+                            scale: checked ? 1.1 : 1
+                        }}
                     />
                 </div>
             </label>
-            <p className="mt-1.5 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                {description}
-                {note && <span className="block">{note}</span>}
-            </p>
         </div>
     );
 });

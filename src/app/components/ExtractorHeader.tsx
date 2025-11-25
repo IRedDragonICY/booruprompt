@@ -2,6 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { BOORU_SITES } from '../utils/extractionUtils';
 import { LoadingSpinner } from './LoadingSpinner';
+import { HistoryPopover } from './HistoryPopover';
+import type { HistoryEntry } from '../types/history';
 
 interface ExtractorHeaderProps {
   activeSite: string | null;
@@ -10,9 +12,24 @@ interface ExtractorHeaderProps {
   onExtract: () => void;
   onReset: () => void;
   loading: boolean;
+  history?: HistoryEntry[];
+  renderHistoryItem?: (entry: HistoryEntry) => React.ReactNode;
+  historyFilterPredicate?: (entry: HistoryEntry, query: string) => boolean;
+  onClearHistory?: () => void;
 }
 
-export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, url, onUrlChange, onExtract, onReset, loading }) => {
+export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ 
+  activeSite, 
+  url, 
+  onUrlChange, 
+  onExtract, 
+  onReset, 
+  loading,
+  history,
+  renderHistoryItem,
+  historyFilterPredicate,
+  onClearHistory
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -20,11 +37,7 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
       {/* Header with Title */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[rgb(var(--color-primary-rgb))] to-[rgb(var(--color-primary-focus-rgb))] p-2 shadow-sm">
-            <svg className="h-full w-full text-[rgb(var(--color-primary-content-rgb))]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 7v10c0 5.55 3.84 9.739 9 11 5.16-1.261 9-5.45 9-11V7l-10-5z"/>
-            </svg>
-          </div>
+          <img src="/icon.svg" alt="Booru Tag Extractor" className="h-10 w-10 rounded-lg shadow-sm" />
           <div>
             <h1 className="text-2xl font-bold text-[rgb(var(--color-on-surface-rgb))]">{t('extractor.header.title')}</h1>
             <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('extractor.header.subtitle')}</p>
@@ -96,6 +109,18 @@ export const ExtractorHeader: React.FC<ExtractorHeaderProps> = ({ activeSite, ur
               </>
             )}
           </button>
+
+          {history && renderHistoryItem && historyFilterPredicate && onClearHistory && (
+            <HistoryPopover
+              title={t('extractor.history.extractionTitle')}
+              history={history}
+              renderItem={renderHistoryItem}
+              filterPredicate={historyFilterPredicate}
+              searchPlaceholder={t('extractor.history.searchExtraction')}
+              onClearHistory={onClearHistory}
+            />
+          )}
+
           <button 
             onClick={onReset} 
             className="h-12 inline-flex items-center justify-center gap-2 px-6 rounded-xl bg-[rgb(var(--color-surface-alt-2-rgb))] text-base font-medium text-[rgb(var(--color-on-surface-rgb))] border border-[rgb(var(--color-surface-border-rgb))] transition-all duration-200 hover:bg-[rgb(var(--color-surface-border-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-on-surface-muted-rgb))]/20"

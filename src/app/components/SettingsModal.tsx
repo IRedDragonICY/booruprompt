@@ -215,6 +215,12 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                     icon={<HistorySaveIcon />}
                                 />
 
+                                <HistorySizeSection
+                                    saveHistory={settings.saveHistory}
+                                    maxHistorySize={settings.maxHistorySize}
+                                    onChange={handleHistorySizeChange}
+                                />
+
                                 <ToggleSetting
                                     id="unsupportedSitesToggle"
                                     label={t('settings.toggles.unsupportedSites.label')}
@@ -233,11 +239,7 @@ export const SettingsModal = memo(function SettingsModal({ isOpen, onClose, sett
                                     onKeywordsChange={handleBlacklistKeywordsChange}
                                 />
 
-                                <HistorySizeSection
-                                    saveHistory={settings.saveHistory}
-                                    maxHistorySize={settings.maxHistorySize}
-                                    onChange={handleHistorySizeChange}
-                                />
+
                             </div>
 
                             {/* Support Section */}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { MobileStatusControls } from './MobileStatusControls';
 
 interface SiteStatus {
     name: string;
@@ -25,6 +26,10 @@ interface StatusResponse {
     overall: OverallStatus;
     sites: SiteStatus[];
     lastUpdated: string;
+}
+
+interface StatusViewProps {
+    isMobile?: boolean;
 }
 
 const StatusIcon: React.FC<{ status: SiteStatus['status'] }> = ({ status }) => {
@@ -149,7 +154,7 @@ const generateUptimeData = (siteName: string, currentStatus: SiteStatus['status'
     return data;
 };
 
-export default function StatusView() {
+export default function StatusView({ isMobile = false }: StatusViewProps) {
     const { t } = useTranslation();
     const [statusData, setStatusData] = useState<StatusResponse | null>(null);
     const [history, setHistory] = useState<Record<string, StatusHistoryEntry[]>>({});
@@ -303,257 +308,271 @@ export default function StatusView() {
     }
 
     return (
-        <div className="h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
-            <div className="max-w-6xl mx-auto px-6 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-6">
-                        {t('apiStatus.title')}
-                    </h1>
+        <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgb(var(--color-surface-border-rgb))]">
+                <div className="max-w-6xl mx-auto px-6 py-8">
+                    {/* Header */}
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-[rgb(var(--color-on-surface-rgb))] mb-6">
+                            {t('apiStatus.title')}
+                        </h1>
 
-                    {statusData ? (
-                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
-                                        {t('apiStatus.overallStatus')}
-                                    </p>
-                                    <p className={`text-2xl font-semibold ${getStatusColor(statusData.overall.status)}`}>
-                                        {getStatusText(statusData.overall.status, t)}
-                                    </p>
+                        {statusData ? (
+                            <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
+                                            {t('apiStatus.overallStatus')}
+                                        </p>
+                                        <p className={`text-2xl font-semibold ${getStatusColor(statusData.overall.status)}`}>
+                                            {getStatusText(statusData.overall.status, t)}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
+                                            {t('apiStatus.uptime')}
+                                        </p>
+                                        <p className="text-2xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">
+                                            {statusData.overall.uptimePercentage}%
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))] mb-1">
-                                        {t('apiStatus.uptime')}
-                                    </p>
-                                    <p className="text-2xl font-semibold text-[rgb(var(--color-on-surface-rgb))]">
-                                        {statusData.overall.uptimePercentage}%
-                                    </p>
+                                <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                    {t('apiStatus.servicesOperational', {
+                                        count: statusData.overall.operationalCount,
+                                        total: statusData.overall.totalCount
+                                    })}
                                 </div>
                             </div>
-                            <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                {t('apiStatus.servicesOperational', {
-                                    count: statusData.overall.operationalCount,
-                                    total: statusData.overall.totalCount
-                                })}
+                        ) : (
+                            <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))] animate-pulse">
+                                <div className="flex justify-between">
+                                    <div className="h-16 w-1/3 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
+                                    <div className="h-16 w-1/4 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
+                                </div>
                             </div>
+                        )}
+                    </div>
+
+                    {/* Last updated */}
+                    {statusData && (
+                        <div className="mb-6 text-center">
+                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                {t('apiStatus.lastUpdated', { time: new Date(statusData.lastUpdated).toLocaleString() })}
+                            </p>
                         </div>
-                    ) : (
-                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))] animate-pulse">
-                            <div className="flex justify-between">
-                                <div className="h-16 w-1/3 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
-                                <div className="h-16 w-1/4 bg-[rgb(var(--color-surface-border-rgb))] rounded"></div>
+                    )}
+
+                    {/* Search and Filter - Desktop Only */}
+                    {!isMobile && (
+                        <div className="mb-6 flex flex-col md:flex-row gap-4">
+                            {/* Search input */}
+                            <div className="flex-1">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder={t('apiStatus.searchPlaceholder')}
+                                    className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                />
+                            </div>
+
+                            {/* Status filter */}
+                            <div>
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                                    className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
+                                >
+                                    <option value="all">{t('apiStatus.filterAll')}</option>
+                                    <option value="operational">{t('apiStatus.filterOperational')}</option>
+                                    <option value="degraded">{t('apiStatus.filterDegraded')}</option>
+                                    <option value="partial_outage">{t('apiStatus.filterPartialOutage')}</option>
+                                    <option value="major_outage">{t('apiStatus.filterMajorOutage')}</option>
+                                </select>
                             </div>
                         </div>
                     )}
-                </div>
 
-                {/* Last updated */}
-                {statusData && (
-                    <div className="mb-6 text-center">
-                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">
-                            {t('apiStatus.lastUpdated', { time: new Date(statusData.lastUpdated).toLocaleString() })}
-                        </p>
-                    </div>
-                )}
+                    {/* Services Status */}
+                    <div className="space-y-4">
+                        {loading && !statusData ? (
+                            <StatusSkeleton />
+                        ) : (
+                            (() => {
+                                const filteredSites = statusData?.sites.filter((site) => {
+                                    // Filter by search query
+                                    const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-                {/* Search and Filter */}
-                <div className="mb-6 flex flex-col md:flex-row gap-4">
-                    {/* Search input */}
-                    <div className="flex-1">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={t('apiStatus.searchPlaceholder')}
-                            className="w-full px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] placeholder-[rgb(var(--color-on-surface-muted-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                        />
-                    </div>
+                                    // Filter by status
+                                    const matchesStatus = statusFilter === 'all' || site.status === statusFilter;
 
-                    {/* Status filter */}
-                    <div>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-                            className="w-full md:w-auto px-4 py-2 bg-[rgb(var(--color-surface-alt-rgb))] border border-[rgb(var(--color-surface-border-rgb))] rounded-lg text-[rgb(var(--color-on-surface-rgb))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary-rgb))]"
-                        >
-                            <option value="all">{t('apiStatus.filterAll')}</option>
-                            <option value="operational">{t('apiStatus.filterOperational')}</option>
-                            <option value="degraded">{t('apiStatus.filterDegraded')}</option>
-                            <option value="partial_outage">{t('apiStatus.filterPartialOutage')}</option>
-                            <option value="major_outage">{t('apiStatus.filterMajorOutage')}</option>
-                        </select>
-                    </div>
-                </div>
+                                    return matchesSearch && matchesStatus;
+                                }) || [];
 
-                {/* Services Status */}
-                <div className="space-y-4">
-                    {loading && !statusData ? (
-                        <StatusSkeleton />
-                    ) : (
-                        (() => {
-                            const filteredSites = statusData?.sites.filter((site) => {
-                                // Filter by search query
-                                const matchesSearch = site.name.toLowerCase().includes(searchQuery.toLowerCase());
+                                return (
+                                    <>
+                                        {/* Results count */}
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: t('apiStatus.showingResults', {
+                                                        count: filteredSites.length,
+                                                        total: statusData?.sites.length || 0
+                                                    })
+                                                }}
+                                            />
+                                            <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                                dangerouslySetInnerHTML={{ __html: t('apiStatus.uptimePeriod') }}
+                                            />
+                                        </div>
 
-                                // Filter by status
-                                const matchesStatus = statusFilter === 'all' || site.status === statusFilter;
+                                        {filteredSites.length === 0 ? (
+                                            <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
+                                                <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
+                                                    {t('apiStatus.noResults')}
+                                                </p>
+                                                <button
+                                                    onClick={() => {
+                                                        setSearchQuery('');
+                                                        setStatusFilter('all');
+                                                    }}
+                                                    className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                                >
+                                                    {t('apiStatus.clearFilters')}
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            filteredSites.map((site) => {
+                                const uptimeData = generateUptimeData(site.name, site.status, history);
 
-                                return matchesSearch && matchesStatus;
-                            }) || [];
+                                return (
+                                    <motion.div
+                                        key={site.name}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]"
+                                    >
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1">
+                                                    {site.name}
+                                                </h3>
+                                                {site.url && (
+                                                    <a 
+                                                        href={site.url} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer" 
+                                                        className="text-xs text-[rgb(var(--color-primary-rgb))] hover:underline block mb-1 truncate max-w-md"
+                                                    >
+                                                        {site.url}
+                                                    </a>
+                                                )}
+                                                {site.error && (
+                                                    <p className="text-sm text-red-600 mt-1">
+                                                        {site.error}
+                                                    </p>
+                                                )}
+                                            </div>
 
-                            return (
-                                <>
-                                    {/* Results count */}
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
+                                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getStatusBgColor(site.status)}`}>
+                                                <StatusIcon status={site.status} />
+                                                <span className={`text-sm font-medium ${getStatusColor(site.status)}`}>
+                                                    {getStatusText(site.status, t)}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Uptime visualization */}
+                                        <div className="mt-4">
+                                            <svg
+                                                className="w-full"
+                                                height="34"
+                                                viewBox="0 0 448 34"
+                                                preserveAspectRatio="none"
+                                            >
+                                                {uptimeData.map((day, index) => (
+                                                    <rect
+                                                        key={index}
+                                                        height="34"
+                                                        width="3"
+                                                        x={index * 5}
+                                                        y="0"
+                                                        fill={day.fill}
+                                                        className="hover:opacity-80 cursor-pointer"
+                                                    >
+                                                        <title>{day.title}</title>
+                                                    </rect>
+                                                ))}
+                                            </svg>
+
+                                            <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
+                                                <span>{t('apiStatus.daysAgo')}</span>
+                                                <span className="font-semibold">
+                                                    {t('apiStatus.uptimeToday', {
+                                                        percent: site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'
+                                                    })}
+                                                </span>
+                                                <span>{t('apiStatus.today')}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Response time */}
+                                        <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
                                             dangerouslySetInnerHTML={{
-                                                __html: t('apiStatus.showingResults', {
-                                                    count: filteredSites.length,
-                                                    total: statusData?.sites.length || 0
-                                                })
+                                                __html: t('apiStatus.responseTime', { time: site.responseTime })
                                             }}
                                         />
-                                        <p className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
-                                            dangerouslySetInnerHTML={{ __html: t('apiStatus.uptimePeriod') }}
-                                        />
-                                    </div>
+                                    </motion.div>
+                                );
+                            })
+                                        )}
+                                    </>
+                                );
+                            })()
+                        )}
+                    </div>
 
-                                    {filteredSites.length === 0 ? (
-                                        <div className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-12 border border-[rgb(var(--color-surface-border-rgb))] text-center">
-                                            <p className="text-[rgb(var(--color-on-surface-muted-rgb))] text-lg">
-                                                {t('apiStatus.noResults')}
-                                            </p>
-                                            <button
-                                                onClick={() => {
-                                                    setSearchQuery('');
-                                                    setStatusFilter('all');
-                                                }}
-                                                className="mt-4 px-4 py-2 bg-[rgb(var(--color-primary-rgb))] text-white rounded-lg hover:opacity-90 transition-opacity"
-                                            >
-                                                {t('apiStatus.clearFilters')}
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        filteredSites.map((site) => {
-                            const uptimeData = generateUptimeData(site.name, site.status, history);
-
-                            return (
-                                <motion.div
-                                    key={site.name}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl p-6 border border-[rgb(var(--color-surface-border-rgb))]"
-                                >
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-1">
-                                                {site.name}
-                                            </h3>
-                                            {site.url && (
-                                                <a 
-                                                    href={site.url} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
-                                                    className="text-xs text-[rgb(var(--color-primary-rgb))] hover:underline block mb-1 truncate max-w-md"
-                                                >
-                                                    {site.url}
-                                                </a>
-                                            )}
-                                            {site.error && (
-                                                <p className="text-sm text-red-600 mt-1">
-                                                    {site.error}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getStatusBgColor(site.status)}`}>
-                                            <StatusIcon status={site.status} />
-                                            <span className={`text-sm font-medium ${getStatusColor(site.status)}`}>
-                                                {getStatusText(site.status, t)}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Uptime visualization */}
-                                    <div className="mt-4">
-                                        <svg
-                                            className="w-full"
-                                            height="34"
-                                            viewBox="0 0 448 34"
-                                            preserveAspectRatio="none"
-                                        >
-                                            {uptimeData.map((day, index) => (
-                                                <rect
-                                                    key={index}
-                                                    height="34"
-                                                    width="3"
-                                                    x={index * 5}
-                                                    y="0"
-                                                    fill={day.fill}
-                                                    className="hover:opacity-80 cursor-pointer"
-                                                >
-                                                    <title>{day.title}</title>
-                                                </rect>
-                                            ))}
-                                        </svg>
-
-                                        <div className="flex items-center justify-between mt-2 text-xs text-[rgb(var(--color-on-surface-muted-rgb))]">
-                                            <span>{t('apiStatus.daysAgo')}</span>
-                                            <span className="font-semibold">
-                                                {t('apiStatus.uptimeToday', {
-                                                    percent: site.status === 'operational' ? '100.00' : site.status === 'degraded' ? '99.00' : site.status === 'partial_outage' ? '95.00' : '0.00'
-                                                })}
-                                            </span>
-                                            <span>{t('apiStatus.today')}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Response time */}
-                                    <div className="mt-4 text-sm text-[rgb(var(--color-on-surface-muted-rgb))]"
-                                        dangerouslySetInnerHTML={{
-                                            __html: t('apiStatus.responseTime', { time: site.responseTime })
-                                        }}
-                                    />
-                                </motion.div>
-                            );
-                        })
-                                    )}
-                                </>
-                            );
-                        })()
-                    )}
-                </div>
-
-                {/* Legend */}
-                <div className="mt-8 p-6 bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl border border-[rgb(var(--color-surface-border-rgb))]">
-                    <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-3">
-                        {t('apiStatus.legendTitle')}
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-green-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusOperational')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-yellow-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusDegraded')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-orange-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusPartialOutage')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-red-600"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusMajorOutage')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-gray-300"></div>
-                            <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.legendNoData')}</span>
+                    {/* Legend */}
+                    <div className="mt-8 p-6 bg-[rgb(var(--color-surface-alt-rgb))] rounded-xl border border-[rgb(var(--color-surface-border-rgb))]">
+                        <h3 className="text-sm font-semibold text-[rgb(var(--color-on-surface-rgb))] mb-3">
+                            {t('apiStatus.legendTitle')}
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-green-600"></div>
+                                <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusOperational')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-yellow-600"></div>
+                                <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusDegraded')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-orange-600"></div>
+                                <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusPartialOutage')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-red-600"></div>
+                                <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.statusMajorOutage')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-gray-300"></div>
+                                <span className="text-sm text-[rgb(var(--color-on-surface-muted-rgb))]">{t('apiStatus.legendNoData')}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Controls */}
+            {isMobile && (
+                <MobileStatusControls
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                />
+            )}
         </div>
     );
 }
