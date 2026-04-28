@@ -22,7 +22,7 @@
     "@vercel/analytics": "^1.5.0",
     "framer-motion": "^12.10.0",
     "i18next": "^25.6.2",
-    "jsdom": "^26.1.0",
+    "jsdom": "^29.1.0",
     "next": "^15.3.6",
     "react": "^19.0.0",
     "react-dom": "^19.2.1",
