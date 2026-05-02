@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Create/Update Pre-Release (no web zip)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: Pre-Release ${{ github.run_number }} (${{ github.sha }})
@@ -174,7 +174,7 @@ jobs:
           if ($msi) { Copy-Item $msi.FullName "booruprompt-$ver-win-$arch.msi" }
 
       - name: Upload Windows artifacts (exe/msi)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
@@ -241,7 +241,7 @@ jobs:
           for f in src-tauri/target/release/bundle/deb/*.deb; do cp "$f" booruprompt-$VER-linux-amd64.deb; done
 
       - name: Upload Linux artifacts (bin/AppImage/deb)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
@@ -401,7 +401,7 @@ jobs:
       
 
       - name: Upload Android artifacts (APK/AAB)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           files: |
